@@ -7,10 +7,10 @@
 [P02 Auth and Leaderboard](./phases/2026-09-21-void-surfer/P02-auth-leaderboard/phase.md)
 
 ## Active Task
-[T05 Supabase Schema](./phases/2026-09-21-void-surfer/P02-auth-leaderboard/T05-supabase-schema.md)
+[T06 Microsoft Auth Service](./phases/2026-09-21-void-surfer/P02-auth-leaderboard/T06-auth-service.md)
 
 ## Status
-- T04 구현·검증 완료; P01 완료
+- T05 schema·client config 구현 및 앱 검증 완료; Docker DB 테스트는 사용자 승인으로 생략, 원격 적용 검증 필요
 
 ## Next Step (IMPORTANT)
-T05 청사진을 읽고 `supabase/migrations/202609210001_void_surfer_leaderboard.sql`, `supabase/seed.sql`, `supabase/tests/leaderboard.sql`, `docs/supabase-schema.md` 구현 시작
+T06 청사진을 읽고 Supabase OAuth popup, session subscription, profile name sync와 인증 오류 처리를 구현 시작; `src/lib/supabase-client.js` 및 `.env.example`은 재사용

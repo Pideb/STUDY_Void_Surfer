@@ -1,0 +1,4 @@
+-- VOID SURFER does not seed auth.users or leaderboard rows.
+-- Supabase Auth creates profiles through sync_profile() after Microsoft login.
+-- Use supabase/tests/leaderboard.sql for schema-level checks and authenticated
+-- integration checks in a local Supabase database.

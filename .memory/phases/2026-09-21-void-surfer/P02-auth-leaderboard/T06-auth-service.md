@@ -16,7 +16,7 @@ Supabase Auth의 Microsoft OAuth를 팝업으로 열고 세션을 감지·복원
 ### I01. Supabase client와 OAuth popup
 
 - Related Files:
-  - `src/lib/supabase-client.js` :: browser Supabase client singleton; new
+  - `src/lib/supabase-client.js` :: T05에서 만든 browser client factory 사용; read-only
   - `src/services/auth-service.js` :: login/session/logout contract; new
   - `src/services/profile-service.js` :: profile sync; new
   - `src/auth/oauth-popup.js` :: popup lifecycle and timeout; new

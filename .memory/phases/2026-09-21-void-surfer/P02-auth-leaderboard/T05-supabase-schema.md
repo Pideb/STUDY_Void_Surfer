@@ -1,6 +1,6 @@
 # Task: T05 Supabase Schema
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -18,6 +18,9 @@ Supabase PostgreSQL에 인증 사용자 프로필과 사용자별 최고 점수�
 - Related Files:
   - `supabase/migrations/202609210001_void_surfer_leaderboard.sql` :: profiles, player_scores, indexes, RLS, RPC; new
   - `supabase/seed.sql` :: 로컬 개발용 선택적 seed 안내; new
+  - `.env.example` :: 브라우저에서 사용할 공개 Supabase 환경 변수 이름; new
+  - `src/lib/supabase-client.js` :: 공개 설정 검증과 브라우저 client factory; new
+  - `tests/lib/supabase-client.test.js` :: client factory 설정 검증; new
 
 #### Details
 - **Data & Schema Fields**:
@@ -52,17 +55,33 @@ Supabase PostgreSQL에 인증 사용자 프로필과 사용자별 최고 점수�
 - 로컬 Supabase CLI가 있으면 두 테스트 사용자로 이름 동기화, 높은 점수 갱신, 낮은 점수 무시, 동점 선착순, anonymous 거부를 검증한다.
 - migration은 반복 적용 시 실패하지 않도록 하나의 명확한 초기 migration으로 제공하되, 운영 DB에서 `drop`을 사용하지 않는다.
 
+### I03. 클라이언트 연결 설정
+
+- Related Files:
+  - `.env.example` :: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` 템플릿; new
+  - `src/lib/supabase-client.js` :: `createSupabaseClient`, `createSupabaseClientFromEnv`; new
+  - `tests/lib/supabase-client.test.js` :: 값 누락·잘못된 URL·auth 옵션 테스트; new
+  - `docs/supabase-schema.md` :: `.env` 복사와 Docker 없는 원격 migration 안내; modify
+- **Details**:
+  - `.env.example`에는 실제 비밀값을 넣지 않는다. 사용자가 Supabase 프로젝트를 생성한 후 복사하여 `.env`를 직접 채운다.
+  - 클라이언트에는 anon/public key만 허용하며 auth는 `persistSession`, `autoRefreshToken`, `detectSessionInUrl`를 켠다.
+  - 로컬 DB 검증은 사용자 환경 제약으로 생략하고, 이후 원격 프로젝트에 연결되면 `npx supabase db push` 및 Dashboard 확인을 수행한다.
+
 ## Acceptance Criteria
 
-- [ ] schema migration으로 두 테이블·index·RLS·RPC가 생성된다.
-- [ ] 낮은 점수 재제출이 best_score와 achieved_at을 덮어쓰지 않는다.
-- [ ] 같은 점수라도 먼저 달성한 사용자가 높은 순위가 된다.
-- [ ] anonymous 또는 다른 사용자의 직접 테이블 mutation이 거부된다.
+- [x] schema migration으로 두 테이블·index·RLS·RPC 정의를 제공한다.
+- [x] RPC 정의에서 낮은 점수는 best_score와 achieved_at을 덮어쓰지 않도록 제한한다.
+- [x] 순위 함수 정의에서 같은 점수는 먼저 달성한 사용자가 우선하도록 정렬한다.
+- [x] RLS와 권한 정의로 anonymous 접근과 직접 테이블 mutation을 차단한다.
+- [ ] 실제 PostgreSQL migration/RLS/RPC 실행 검증 — Docker 사용 불가로 사용자가 생략 승인; 원격 Supabase 연결 후 적용 검증 필요
 
 ## Validation
 
-- `npx supabase db reset` — migration과 SQL 테스트 환경 적용 성공
-- `npx supabase test db` — leaderboard SQL 검증 통과
+- `npm run test -- --run tests/lib/supabase-client.test.js` — client 설정 검증 통과
+- `npm run test -- --run tests/lib/supabase-client.test.js` — 통과
+- `npm run test -- --run` — 통과
+- `npm run build` — 통과
+- `npx supabase db reset` / `npx supabase test db` — 사용자 승인으로 생략 (Docker/Podman 불가)
 
 ## Commit Message
 
@@ -79,6 +98,8 @@ Task: T05-supabase-schema
 
 ## Progress
 
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] migration·RLS·RPC·문서 구현
+- [x] Supabase client 및 `.env.example` 설정
+- [x] Docker 기반 로컬 DB 검증은 사용자 요청에 따라 생략
+- [x] Supabase remote URL/key가 아직 없어 실제 `.env`는 미생성; `.env.example` 제공
+- commit: 018cba6
