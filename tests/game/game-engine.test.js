@@ -17,6 +17,16 @@ describe('game engine', () => {
     });
   });
 
+  it('lifts the player only during active play', () => {
+    const engine = createGameEngine({ now: () => 1000 });
+    engine.lift();
+    expect(engine.getSnapshot().player.velocityY).toBe(0);
+
+    engine.start();
+    engine.lift();
+    expect(engine.getSnapshot().player.velocityY).toBeLessThan(0);
+  });
+
   it('clamps a large frame delta to the maximum step', () => {
     let currentTime = 1000;
     const engine = createGameEngine({ now: () => currentTime });

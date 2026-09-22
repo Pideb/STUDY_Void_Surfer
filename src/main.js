@@ -2,6 +2,12 @@ import './styles.css';
 import { createApp } from './app/create-app.js';
 import { createSupabaseClientFromEnv } from './lib/supabase-client.js';
 import { completeOAuthPopup } from './auth/oauth-popup.js';
+import { createAudioManager } from './audio/audio-manager.js';
+import { createGameEngine } from './game/game-engine.js';
+import { createRenderer } from './game/renderer.js';
+import { getSessionUser, signInWithMicrosoft, signOut, subscribeToAuth } from './services/auth-service.js';
+import { fetchPlayerNeighborhood, fetchTopScores, submitBestScore } from './services/leaderboard-service.js';
+import { createAppController } from './ui/app-controller.js';
 
 if (window.location.pathname === '/auth/callback') {
   const status = document.querySelector('#auth-callback-status');
@@ -21,5 +27,46 @@ if (window.location.pathname === '/auth/callback') {
     throw new Error('VOID SURFER 앱 마운트 지점을 찾을 수 없습니다.');
   }
 
-  createApp(root);
+  const { canvas, uiRoot } = createApp(root);
+  canvas.tabIndex = 0;
+  let client = null;
+  let configError = null;
+  try {
+    client = createSupabaseClientFromEnv();
+  } catch (error) {
+    configError = error;
+  }
+
+  const authService = client ? {
+    getSessionUser: () => getSessionUser(client),
+    subscribeToAuth: (callback) => subscribeToAuth(client, callback),
+    signInWithMicrosoft: () => signInWithMicrosoft(client),
+    signOut: () => signOut(client),
+  } : {
+    async getSessionUser() { throw configError; },
+    subscribeToAuth() { return () => {}; },
+    async signInWithMicrosoft() { return { user: null, error: configError }; },
+    async signOut() { throw configError; },
+  };
+
+  const leaderboardService = client ? {
+    submitBestScore: (_user, payload) => submitBestScore(client, payload),
+    fetchTopScores: () => fetchTopScores(client),
+    fetchPlayerNeighborhood: () => fetchPlayerNeighborhood(client),
+  } : {
+    async submitBestScore() { return { updated: false, record: null, error: configError }; },
+    async fetchTopScores() { return { rows: [], error: configError }; },
+    async fetchPlayerNeighborhood() { return { rows: [], error: configError }; },
+  };
+
+  const controller = createAppController({
+    authService,
+    leaderboardService,
+    gameEngine: createGameEngine(),
+    renderer: createRenderer(canvas),
+    audioManager: createAudioManager(),
+    root: uiRoot,
+    canvas,
+  });
+  controller.mount();
 }

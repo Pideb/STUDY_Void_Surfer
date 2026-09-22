@@ -1,6 +1,6 @@
 # Task: T08 Product Flow
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -58,11 +58,11 @@
 
 ## Acceptance Criteria
 
-- [ ] 로그인하지 않은 사용자는 게임을 시작할 수 없고 오류 상태를 볼 수 있다.
-- [ ] tutorial → playing, game-over immediate restart, game-over → menu → tutorial 흐름이 테스트된다.
-- [ ] 게임 오버에서 score와 두 액션 버튼이 리더보드 네트워크 응답보다 먼저 보인다.
-- [ ] top 10, 주변 순위, current row, retry error 상태가 한국어로 표시된다.
-- [ ] 모바일 SPACE와 mute/logout/pause 버튼이 존재하고 keyboard focus로 접근 가능하다.
+- [x] 로그인하지 않은 사용자는 게임을 시작할 수 없고 오류 상태를 볼 수 있다.
+- [x] tutorial → playing, game-over immediate restart, game-over → menu → tutorial 흐름이 테스트된다.
+- [x] 게임 오버에서 score와 두 액션 버튼이 리더보드 네트워크 응답보다 먼저 보인다.
+- [x] top 10, 주변 순위, current row, retry error 상태가 한국어로 표시된다.
+- [x] 모바일 SPACE와 mute/logout/pause 버튼이 존재하고 keyboard focus로 접근 가능하다.
 
 ## Validation
 
@@ -84,6 +84,6 @@ Task: T08-product-flow
 
 ## Progress
 
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: recorded in git history

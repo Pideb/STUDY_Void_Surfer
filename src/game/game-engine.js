@@ -4,7 +4,7 @@ import {
   PAUSE_SCORE_PENALTY,
   WORLD_HEIGHT,
 } from './constants.js';
-import { createPlayer, isOutOfBounds, updatePlayer } from './player.js';
+import { applyLift, createPlayer, isOutOfBounds, updatePlayer } from './player.js';
 import { GAME_STATES } from './game-state.js';
 
 export function createGameEngine(deps = {}) {
@@ -60,6 +60,11 @@ export function createGameEngine(deps = {}) {
     return { score };
   }
 
+  function lift() {
+    if (state !== GAME_STATES.PLAYING) return;
+    applyLift(player);
+  }
+
   function resume() {
     if (state !== GAME_STATES.PAUSED) {
       return;
@@ -88,5 +93,5 @@ export function createGameEngine(deps = {}) {
     };
   }
 
-  return { start, update, pause, resume, stop, getSnapshot };
+  return { start, update, lift, pause, resume, stop, getSnapshot };
 }

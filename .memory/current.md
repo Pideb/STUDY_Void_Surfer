@@ -7,10 +7,11 @@
 [P03 Product Flow and Deployment](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/phase.md)
 
 ## Active Task
-[T08 Product Flow](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/T08-product-flow.md)
+[T09 Integration QA](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/T09-integration-qa.md)
 
 ## Status
-- T07 리더보드 서비스 구현·검증 완료; 실계정 연동 검증은 외부 Supabase 설정 대기
+- T08 로그인·튜토리얼·게임 오버 UI 흐름 구현 완료; 실 Supabase 연동은 외부 설정 대기
+- 확인된 인접 공백: 게임 엔진에는 현재 장애물/점수/WARNING/BOSS/대시 판정 루프가 없어 UI에 전달되는 이벤트가 없음
 
 ## Next Step (IMPORTANT)
-T08 청사진을 읽고 로그인 게이트, 튜토리얼·게임 플레이·게임 오버 흐름을 auth/leaderboard 서비스와 연결
+T09 청사진을 읽고 로그인부터 게임 오버까지 통합 시나리오·모바일 입력·접근성·오류 재시도를 검증; 게임 엔진의 미구현 장애물/점수/WARNING/BOSS/대시 연결 공백도 영향 범위를 확인
