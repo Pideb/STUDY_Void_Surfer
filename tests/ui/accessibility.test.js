@@ -58,6 +58,7 @@ describe('accessibility and responsive UI contract', () => {
   });
 
   it('preserves narrow viewport, virtual SPACE, safe-area, and reduced-motion rules', () => {
+    expect(styles).toMatch(/\.ui-root\s*\{[^}]*display:\s*grid;[^}]*place-items:\s*center;/s);
     expect(styles).toContain('@media (max-width: 700px)');
     expect(styles).toContain('.mobile-space-button');
     expect(styles).toContain('.game-hud button');
