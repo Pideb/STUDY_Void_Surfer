@@ -39,7 +39,7 @@
 Supabase가 OAuth 서버 역할을 하므로, Microsoft Entra에는 앱의 `/auth/callback`이 아니라 **Supabase callback URL**을 등록합니다.
 
 1. [Microsoft Entra admin center](https://entra.microsoft.com/)에서 **App registrations → New registration**을 엽니다.
-2. 이름을 정하고, 지원 계정 유형을 선택합니다. 개인 Microsoft 계정까지 받으려면 개인 계정을 포함하는 옵션을 선택합니다.
+2. 이름을 정하고, 지원 계정 유형으로 **이 조직 디렉터리의 계정만(단일 테넌트)**을 선택합니다.
 3. **Web** 플랫폼의 Redirect URI에 아래 URL을 정확히 등록합니다.
 
    ```text
@@ -55,11 +55,11 @@ Redirect URI는 Entra에 등록된 값과 정확히 일치해야 합니다. 등�
 
 1. Supabase Dashboard에서 **Authentication → Providers → Azure**를 엽니다.
 2. Provider를 활성화하고 Entra의 Client ID와 Client Secret Value를 입력합니다.
-3. 계정 유형에 맞춰 Azure Tenant URL을 설정합니다.
+3. Azure Tenant URL에 조직 테넌트만 허용하도록 아래 값을 설정합니다.
 
-   - 여러 Microsoft 계정: `https://login.microsoftonline.com/common`
-   - 개인 계정 전용: `https://login.microsoftonline.com/consumers`
-   - 조직 전용: `https://login.microsoftonline.com/<tenant-id>`
+   ```text
+   https://login.microsoftonline.com/<tenant-id>
+   ```
 
 4. **Authentication → URL Configuration**에서 Site URL과 Redirect URLs를 설정합니다. 이 값들은 코드의 `redirectTo`인 `/auth/callback`과 일치해야 합니다.
 
