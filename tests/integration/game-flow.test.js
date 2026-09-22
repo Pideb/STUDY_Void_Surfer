@@ -86,7 +86,7 @@ describe('authenticated game flow', () => {
     harness.snapshot.state = 'game-over';
     harness.frames.shift()(32);
     expect(harness.root.textContent).toContain('최종 점수 20');
-    expect(harness.root.textContent).toContain('바로 재시작');
+    expect(harness.root.textContent).toContain('재시작');
     expect(harness.root.textContent).toContain('메인 메뉴');
     await flush();
     expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledWith(pilot, { score: 20, displayName: 'Pilot' });

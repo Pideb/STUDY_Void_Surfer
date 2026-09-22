@@ -54,7 +54,7 @@ describe('leaderboard failure state', () => {
 
     expect(harness.root.textContent).toContain('최종 점수 12');
     expect(harness.root.textContent).toContain('불러오지 못했습니다.');
-    expect(harness.root.textContent).toContain('바로 재시작');
+    expect(harness.root.textContent).toContain('재시작');
     expect(harness.root.textContent).toContain('내 주변 순위');
     expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledTimes(1);
 

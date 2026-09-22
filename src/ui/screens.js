@@ -57,7 +57,7 @@ export function renderTutorialScreen(_model, handlers) {
   list.className = 'tutorial-list';
   for (const instruction of [
     '클릭/터치: 위로 상승',
-    'SPACE: 특수 벽 앞 정확한 타이밍에 대시',
+    'SPACE: 특수 벽 앞 정확한 타이밍에 대시(회피)',
     '일반 벽에서는 SPACE가 작동하지 않습니다',
     'P/Esc 또는 일시정지 버튼: 일시정지 (-10점)',
   ]) {
@@ -89,7 +89,7 @@ export function renderGameOverScreen(model, handlers) {
   const actions = document.createElement('div');
   actions.className = 'screen-actions';
   actions.append(
-    createButton('바로 재시작', handlers.restart, { className: 'primary-button' }),
+    createButton('재시작', handlers.restart, { className: 'primary-button' }),
     createButton('메인 메뉴', handlers.menu, { className: 'secondary-button' }),
   );
   panel.append(actions);

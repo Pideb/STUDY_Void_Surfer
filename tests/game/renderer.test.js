@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import { createRenderer, drawObstacle, drawShip } from '../../src/game/renderer.js';
+import { VISUAL_THEME } from '../../src/game/visual-theme.js';
 
 function createContext() {
   const gradient = { addColorStop: vi.fn() };
@@ -71,6 +72,7 @@ describe('renderer', () => {
 
     expect(context.fill).toHaveBeenCalled();
     expect(context.stroke).toHaveBeenCalled();
+    expect(VISUAL_THEME.ship).not.toBe(VISUAL_THEME.obstacle);
   });
 
   it('renders special walls as a full-height dash-only barrier', () => {
@@ -78,5 +80,67 @@ describe('renderer', () => {
     drawObstacle(context, { x: 520, width: 72, gapCenter: 270, gapHeight: 180, kind: 'special' });
 
     expect(context.fillRect).toHaveBeenCalledWith(520, 0, 72, WORLD_HEIGHT);
+  });
+
+  it('draws a timing guide only for enabled special walls', () => {
+    const context = createContext();
+    const specialWall = {
+      x: 520, width: 24, gapCenter: 270, gapHeight: 180, kind: 'special', showTimingGuide: true,
+    };
+
+    drawObstacle(context, specialWall, VISUAL_THEME, { scrollSpeed: 240, timingWindowSeconds: 0.5 });
+
+    expect(context.fillRect).toHaveBeenCalledWith(400, 0, 120, WORLD_HEIGHT);
+    const noGuideContext = createContext();
+    drawObstacle(noGuideContext, { ...specialWall, showTimingGuide: false }, VISUAL_THEME, {
+      scrollSpeed: 240,
+      timingWindowSeconds: 0.5,
+    });
+    expect(noGuideContext.fillRect).not.toHaveBeenCalledWith(400, 0, 120, WORLD_HEIGHT);
+  });
+
+  it('draws a trail for any dash and a ring only for successful special dashes', () => {
+    const canvas = document.createElement('canvas');
+    const normalContext = createContext();
+    canvas.getContext = vi.fn(() => normalContext);
+    const normalRenderer = createRenderer(canvas);
+    normalRenderer.render({
+      player: {
+        x: 240, y: 270, velocityY: 0, width: 36, height: 24,
+        isDashing: true, dashKind: 'normal', dashRemainingSeconds: 0.6,
+      },
+      obstacles: [], difficulty: {},
+    });
+
+    const specialContext = createContext();
+    canvas.getContext = vi.fn(() => specialContext);
+    const specialRenderer = createRenderer(canvas);
+    specialRenderer.render({
+      player: {
+        x: 240, y: 270, velocityY: 0, width: 36, height: 24,
+        isDashing: true, dashKind: 'special', dashRemainingSeconds: 0.6,
+      },
+      obstacles: [], difficulty: {},
+    });
+
+    expect(normalContext.fillRect).toHaveBeenCalled();
+    expect(specialContext.arc.mock.calls.length).toBeGreaterThan(normalContext.arc.mock.calls.length);
+    normalRenderer.destroy();
+    specialRenderer.destroy();
+  });
+
+  it('renders a deterministic static menu scene', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const renderer = createRenderer(canvas);
+
+    renderer.renderMenuBackground();
+
+    expect(context.clearRect).toHaveBeenCalledWith(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    expect(context.createRadialGradient).toHaveBeenCalled();
+    expect(context.moveTo).toHaveBeenCalled();
+    expect(context.translate).toHaveBeenCalledWith(300, WORLD_HEIGHT / 2);
+    renderer.destroy();
   });
 });

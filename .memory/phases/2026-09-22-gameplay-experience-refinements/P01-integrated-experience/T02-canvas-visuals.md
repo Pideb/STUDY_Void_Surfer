@@ -1,6 +1,6 @@
 # Task: T02 Canvas Visuals
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -80,6 +80,6 @@ Task: T02-canvas-visuals
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

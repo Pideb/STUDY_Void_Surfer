@@ -32,7 +32,7 @@ describe('product flow screens', () => {
     }, { restart: vi.fn(), menu: vi.fn(), retryLeaderboard: vi.fn() });
 
     expect(screen.textContent).toContain('최종 점수 17');
-    expect(screen.textContent).toContain('바로 재시작');
+    expect(screen.textContent).toContain('재시작');
     expect(screen.textContent).toContain('메인 메뉴');
     expect(screen.querySelector('script')).toBeNull();
     expect(screen.querySelector('[aria-current="true"]')).not.toBeNull();

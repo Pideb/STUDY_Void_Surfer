@@ -10,12 +10,12 @@
 
 ## Active Task
 
-[T02 Canvas Visuals](./phases/2026-09-22-gameplay-experience-refinements/P01-integrated-experience/T02-canvas-visuals.md)
+[T03 Menu and Controls](./phases/2026-09-22-gameplay-experience-refinements/P01-integrated-experience/T03-menu-and-controls.md)
 
 ## Status
 
-- T01 gameplay runtime is complete and T02 is ready to begin.
+- T02 canvas visuals are complete and T03 is ready to begin.
 
 ## Next Step (IMPORTANT)
 
-Read the T02 blueprint and render ship/wall contrast, moving gaps, dash feedback, timing zones, and the static menu scene.
+Read the T03 blueprint and integrate the menu scene, tutorial exit, responsive HUD, accessible sound icons, and separated account actions.
