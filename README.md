@@ -1,3 +1,21 @@
+# VOID SURFER
+
+네온 우주를 배경으로 하는 브라우저 아케이드 게임입니다. Microsoft 로그인과 Supabase 리더보드를 사용합니다.
+
+## 로컬 실행 및 검증
+
+```bash
+npm install
+npm run dev
+npm run test -- --run
+npm run test -- --coverage
+npm run build
+```
+
+로컬 로그인과 리더보드에는 `.env.example`을 복사해 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`를 설정해야 합니다. 실제 Supabase와 Microsoft OAuth 구성 절차는 배포 문서 Task에서 완성합니다.
+
+---
+
 # 🚀 Project Memory Starter Kit
 
 > **"AI에게 대화창으로 매번 길게 설명하지 마세요. 파일 기반 메모리로 세션을 영구 유지하세요."**

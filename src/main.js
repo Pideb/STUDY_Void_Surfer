@@ -27,7 +27,7 @@ if (window.location.pathname === '/auth/callback') {
     throw new Error('VOID SURFER 앱 마운트 지점을 찾을 수 없습니다.');
   }
 
-  const { canvas, uiRoot } = createApp(root);
+  const { canvas, uiRoot, liveRegion } = createApp(root);
   canvas.tabIndex = 0;
   let client = null;
   let configError = null;
@@ -66,6 +66,7 @@ if (window.location.pathname === '/auth/callback') {
     renderer: createRenderer(canvas),
     audioManager: createAudioManager(),
     root: uiRoot,
+    liveRegion,
     canvas,
   });
   controller.mount();

@@ -19,6 +19,14 @@ function getDisplayName(user) {
 export function createAppController(deps) {
   const { authService, leaderboardService, gameEngine, renderer, audioManager, root } = deps;
   if (!(root instanceof HTMLElement)) throw new TypeError('앱 UI 루트는 HTMLElement여야 합니다.');
+  const suppliedLiveRegion = deps.liveRegion ?? root.parentElement?.querySelector('#live-region');
+  const liveRegion = suppliedLiveRegion ?? document.createElement('div');
+  const ownsLiveRegion = !suppliedLiveRegion;
+  if (ownsLiveRegion) {
+    liveRegion.id = 'live-region';
+    liveRegion.className = 'sr-only';
+    root.insertAdjacentElement('afterend', liveRegion);
+  }
 
   const state = {
     screen: 'loading', user: null, error: null, connectionError: false, busy: false,
@@ -86,7 +94,7 @@ export function createAppController(deps) {
       }, {
         restart: () => dispatch({ type: 'RESTART_IMMEDIATE' }),
         menu: () => dispatch({ type: 'RETURN_TO_MENU' }),
-        retryLeaderboard: loadGameOverData,
+        retryLeaderboard: () => loadGameOverData({ submitScore: false }),
       }));
       return;
     }
@@ -106,7 +114,7 @@ export function createAppController(deps) {
   function setScreen(screen, message = '') {
     state.screen = screen;
     paint();
-    if (message) announce(root, message);
+    if (message) announce(liveRegion, message);
   }
 
   async function refreshSession() {
@@ -225,7 +233,7 @@ export function createAppController(deps) {
     animationFrame = globalThis.requestAnimationFrame(renderFrame);
   }
 
-  function loadGameOverData() {
+  function loadGameOverData({ submitScore = true } = {}) {
     const requestId = ++state.gameOverRequest;
     const score = state.snapshot?.score ?? 0;
     const displayName = getDisplayName(state.user);
@@ -235,7 +243,9 @@ export function createAppController(deps) {
     state.submitError = false;
     paint();
 
-    const submit = leaderboardService.submitBestScore(state.user, { score, displayName });
+    const submit = submitScore
+      ? leaderboardService.submitBestScore(state.user, { score, displayName })
+      : Promise.resolve({ error: null });
     const top = leaderboardService.fetchTopScores();
     const neighborhood = leaderboardService.fetchPlayerNeighborhood();
     Promise.all([submit, top, neighborhood]).then(([submitResult, topResult, neighborhoodResult]) => {
@@ -353,6 +363,7 @@ export function createAppController(deps) {
     unsubscribeAuth?.();
     renderer.destroy?.();
     audioManager.destroy?.();
+    if (ownsLiveRegion) liveRegion.remove();
   }
 
   return { mount, destroy, dispatch };

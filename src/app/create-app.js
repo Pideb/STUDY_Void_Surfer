@@ -25,7 +25,7 @@ export function createApp(root) {
 
   root.replaceChildren(canvas, uiRoot, liveRegion);
 
-  return { canvas, uiRoot };
+  return { canvas, uiRoot, liveRegion };
 }
 
 export { LOGICAL_HEIGHT, LOGICAL_WIDTH };

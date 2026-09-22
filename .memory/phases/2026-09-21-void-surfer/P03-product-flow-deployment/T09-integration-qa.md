@@ -1,6 +1,6 @@
 # Task: T09 Integration QA
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -41,11 +41,11 @@
 
 ## Acceptance Criteria
 
-- [ ] 전체 단위·통합 테스트가 통과한다.
-- [ ] 로그인 성공/실패, tutorial, play, pause penalty, warning/boss, game-over, retry 시나리오가 테스트된다.
-- [ ] 모바일 viewport에서 Canvas와 SPACE 버튼이 표시되고 터치 이벤트가 중복 처리되지 않는다.
-- [ ] 키보드 focus와 live region이 존재하며 사용자 표시 이름이 HTML로 해석되지 않는다.
-- [ ] `npm run build`가 최종 산출물을 생성한다.
+- [x] 전체 단위·통합 테스트가 통과한다.
+- [x] 로그인 성공/실패, tutorial, play, pause penalty, warning/boss, game-over, retry 시나리오가 테스트된다.
+- [x] 모바일 viewport에서 Canvas와 SPACE 버튼이 표시되고 터치 이벤트가 중복 처리되지 않는다.
+- [x] 키보드 focus와 live region이 존재하며 사용자 표시 이름이 HTML로 해석되지 않는다.
+- [x] `npm run build`가 최종 산출물을 생성한다.
 
 ## Validation
 
@@ -68,6 +68,6 @@ Task: T09-integration-qa
 
 ## Progress
 
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: recorded in git history
