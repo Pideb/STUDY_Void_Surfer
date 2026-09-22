@@ -1,6 +1,6 @@
 # Task: T07 Leaderboard Service
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -47,10 +47,10 @@
 
 ## Acceptance Criteria
 
-- [ ] 개인 최고 점수 제출은 `submit_score` RPC만 호출한다.
-- [ ] 낮은 점수 제출 후 `updated=false`와 기존 record를 처리한다.
-- [ ] top 10과 current user 주변 순위를 각각 조회할 수 있다.
-- [ ] RPC/network/auth 오류가 UI가 구분할 수 있는 서비스 오류로 변환된다.
+- [x] 개인 최고 점수 제출은 `submit_score` RPC만 호출한다.
+- [x] 낮은 점수 제출 후 `updated=false`와 기존 record를 처리한다.
+- [x] top 10과 current user 주변 순위를 각각 조회할 수 있다.
+- [x] RPC/network/auth 오류가 UI가 구분할 수 있는 서비스 오류로 변환된다.
 
 ## Validation
 
@@ -71,6 +71,6 @@ Task: T07-leaderboard-service
 
 ## Progress
 
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: recorded in git history
