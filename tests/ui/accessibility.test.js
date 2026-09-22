@@ -51,6 +51,7 @@ describe('accessibility and responsive UI contract', () => {
   it('preserves narrow viewport, virtual SPACE, safe-area, and reduced-motion rules', () => {
     expect(styles).toContain('@media (max-width: 700px)');
     expect(styles).toContain('.mobile-space-button');
+    expect(styles).toContain('.game-hud button');
     expect(styles).toContain('safe-area-inset-left');
     expect(styles).toContain('prefers-reduced-motion: reduce');
   });

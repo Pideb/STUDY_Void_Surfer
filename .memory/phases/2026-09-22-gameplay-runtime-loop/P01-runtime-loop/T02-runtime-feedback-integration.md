@@ -1,6 +1,6 @@
 # Task: T02 Runtime Feedback Integration
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -41,9 +41,9 @@ UI 입력과 오디오가 실제 게임 엔진 결과만 반영하게 하여, �
 
 ## Acceptance Criteria
 
-- [ ] normal-wall/failed SPACE has no dash sound, successful special-wall SPACE has exactly one.
-- [ ] WARNING and BOSS transition feedback fires once per entry and HUD banner follows engine snapshot.
-- [ ] current keyboard/mobile input and game-over flow tests continue to pass.
+- [x] normal-wall/failed SPACE has no dash sound, successful special-wall SPACE has exactly one.
+- [x] WARNING and BOSS transition feedback fires once per entry and HUD banner follows engine snapshot.
+- [x] current keyboard/mobile input and game-over flow tests continue to pass.
 
 ## Validation
 
@@ -66,6 +66,6 @@ Task: T02-runtime-feedback-integration
 
 ## Progress
 
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: recorded in git history

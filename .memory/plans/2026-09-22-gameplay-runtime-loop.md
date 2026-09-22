@@ -8,7 +8,7 @@
 
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | 런타임 게임 시뮬레이션과 입력·피드백 연결 | [P01](../phases/2026-09-22-gameplay-runtime-loop/P01-runtime-loop/phase.md) |
+| P01 | `done` | 런타임 게임 시뮬레이션과 입력·피드백 연결 | [P01](../phases/2026-09-22-gameplay-runtime-loop/P01-runtime-loop/phase.md) |
 
 ## Implementation Order
 

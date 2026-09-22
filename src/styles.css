@@ -228,6 +228,11 @@ button:focus-visible {
   flex-direction: column;
   justify-content: space-between;
   padding: clamp(0.5rem, 2vw, 1rem);
+  pointer-events: none;
+}
+
+.game-hud button {
+  pointer-events: auto;
 }
 
 .game-hud-bar {

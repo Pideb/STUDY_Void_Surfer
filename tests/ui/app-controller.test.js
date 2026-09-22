@@ -36,13 +36,20 @@ function makeHarness({ user = pilot, leaderboard = {} } = {}) {
   };
   const renderer = { render: vi.fn(), destroy: vi.fn() };
   const audioManager = { isMuted: () => false, setMuted: vi.fn(), play: vi.fn(), destroy: vi.fn() };
-  const raf = vi.spyOn(globalThis, 'requestAnimationFrame').mockReturnValue(1);
+  const frames = [];
+  const raf = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
+    frames.push(callback);
+    return frames.length;
+  });
   const cancel = vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
   const controller = createAppController({
     authService, leaderboardService, gameEngine, renderer, audioManager, root,
     canvas: document.createElement('canvas'),
   });
-  return { root, controller, authService, leaderboardService, gameEngine, renderer, raf, cancel };
+  return {
+    root, controller, authService, leaderboardService, gameEngine, renderer, audioManager,
+    snapshot, frames, raf, cancel,
+  };
 }
 
 async function settle() {
@@ -132,5 +139,32 @@ describe('app controller product flow', () => {
     expect(harness.root.querySelector('[aria-current="true"]')).not.toBeNull();
     expect(harness.root.textContent).toContain('TOP 10');
     expect(harness.root.textContent).toContain('내 주변 순위');
+  });
+
+  it('plays dash feedback only for successful special-wall dashes and announces mode changes once', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+
+    const space = harness.root.querySelector('.mobile-space-button');
+    space.click();
+    expect(harness.audioManager.play).not.toHaveBeenCalledWith('dash');
+    harness.gameEngine.dash.mockReturnValue(true);
+    space.click();
+    expect(harness.audioManager.play).toHaveBeenCalledOnce();
+    expect(harness.audioManager.play).toHaveBeenCalledWith('dash');
+
+    harness.snapshot.difficulty = { isWarning: true, isBoss: false };
+    harness.frames.shift()(16);
+    expect(harness.audioManager.play).toHaveBeenCalledWith('warning');
+    harness.frames.shift()(32);
+    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'warning')).toHaveLength(1);
+
+    harness.snapshot.difficulty = { isWarning: true, isBoss: true };
+    harness.frames.shift()(48);
+    expect(harness.audioManager.play).toHaveBeenCalledWith('boss');
+    expect(document.querySelector('#live-region').textContent).toContain('BOSS WARNING');
   });
 });

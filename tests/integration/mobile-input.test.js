@@ -10,6 +10,7 @@ describe('mobile and keyboard controls', () => {
   let root;
   let canvas;
   let engine;
+  let audioManager;
 
   afterEach(() => {
     controller?.destroy();
@@ -29,11 +30,12 @@ describe('mobile and keyboard controls', () => {
       pause: vi.fn(() => { snapshot.state = 'paused'; snapshot.score = 5; return { score: 5 }; }),
       resume: vi.fn(() => { snapshot.state = 'playing'; }), stop: vi.fn(), getSnapshot: vi.fn(() => ({ ...snapshot })),
     };
+    audioManager = { isMuted: () => false, unlock() {}, setMuted() {}, play: vi.fn(), destroy() {} };
     controller = createAppController({
       root, canvas, gameEngine: engine,
       authService: { getSessionUser: async () => ({ id: 'pilot', email: 'pilot@example.com' }), subscribeToAuth: () => vi.fn(), signInWithMicrosoft: vi.fn(), signOut: vi.fn() },
       leaderboardService: { submitBestScore: async () => ({ error: null }), fetchTopScores: async () => ({ rows: [] }), fetchPlayerNeighborhood: async () => ({ rows: [] }) },
-      renderer: { render() {}, destroy() {} }, audioManager: { isMuted: () => false, unlock() {}, setMuted() {}, play() {}, destroy() {} },
+      renderer: { render() {}, destroy() {} }, audioManager,
     });
     vi.spyOn(globalThis, 'requestAnimationFrame').mockReturnValue(1);
     vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
@@ -51,6 +53,11 @@ describe('mobile and keyboard controls', () => {
     space.click();
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true, cancelable: true }));
     expect(engine.dash).toHaveBeenCalledTimes(2);
+    expect(audioManager.play).not.toHaveBeenCalledWith('dash');
+
+    engine.dash.mockReturnValue(true);
+    space.click();
+    expect(audioManager.play).toHaveBeenCalledWith('dash');
 
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyP', bubbles: true, cancelable: true }));
     expect(engine.pause).toHaveBeenCalledTimes(1);

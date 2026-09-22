@@ -39,6 +39,7 @@ export function createAppController(deps) {
   let animationFrame = null;
   let mounted = false;
   let gameHud = null;
+  let lastDifficultyMode = 'normal';
 
   function paint() {
     gameHud = null;
@@ -181,8 +182,28 @@ export function createAppController(deps) {
 
   function triggerDash() {
     if (state.screen !== 'playing') return;
-    gameEngine.dash?.();
-    audioManager.play('dash');
+    if (gameEngine.dash?.()) {
+      audioManager.play('dash');
+    }
+  }
+
+  function getDifficultyMode(snapshot) {
+    if (snapshot?.difficulty?.isBoss) return 'boss';
+    if (snapshot?.difficulty?.isWarning) return 'warning';
+    return 'normal';
+  }
+
+  function syncDifficultyFeedback(snapshot) {
+    const nextMode = getDifficultyMode(snapshot);
+    if (nextMode === lastDifficultyMode) return;
+    lastDifficultyMode = nextMode;
+    if (nextMode === 'warning') {
+      audioManager.play('warning');
+      announce(liveRegion, 'WARNING 구간이 시작되었습니다. 특수 벽 대시 타이밍에 주의하세요.');
+    } else if (nextMode === 'boss') {
+      audioManager.play('boss');
+      announce(liveRegion, 'BOSS WARNING. 속도 변화와 특수 벽에 주의하세요.');
+    }
   }
 
   function stopLoop() {
@@ -199,8 +220,9 @@ export function createAppController(deps) {
     state.leaderboard = null;
     state.submitError = false;
     state.screen = 'game-over';
+    lastDifficultyMode = 'normal';
     paint();
-    announce(root, `게임 종료. 최종 점수 ${state.snapshot?.score ?? 0}.`);
+    announce(liveRegion, `게임 종료. 최종 점수 ${state.snapshot?.score ?? 0}.`);
     void loadGameOverData();
   }
 
@@ -211,6 +233,7 @@ export function createAppController(deps) {
     state.snapshot = gameEngine.getSnapshot();
     renderer.render(state.snapshot);
     gameHud?.update(state.snapshot);
+    syncDifficultyFeedback(state.snapshot);
     if (state.snapshot.state === 'game-over') {
       finishGame();
       return;
@@ -225,6 +248,7 @@ export function createAppController(deps) {
       return;
     }
     state.snapshot = null;
+    lastDifficultyMode = 'normal';
     gameEngine.start();
     Promise.resolve(audioManager.unlock?.()).catch(() => {});
     state.snapshot = gameEngine.getSnapshot();
@@ -284,6 +308,7 @@ export function createAppController(deps) {
         if (!state.user) setScreen('login');
         else {
           stopLoop();
+          lastDifficultyMode = 'normal';
           setScreen('menu');
         }
         break;

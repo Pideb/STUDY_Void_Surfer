@@ -1,17 +1,17 @@
 # Current Context
 
 ## Active Plan
-[Gameplay Runtime Loop](./plans/2026-09-22-gameplay-runtime-loop.md)
+[VOID SURFER](./plans/2026-09-21-void-surfer.md)
 
 ## Active Phase
-[P01 Runtime Loop](./phases/2026-09-22-gameplay-runtime-loop/P01-runtime-loop/phase.md)
+[P03 Product Flow and Deployment](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/phase.md)
 
 ## Active Task
-[T02 Runtime Feedback Integration](./phases/2026-09-22-gameplay-runtime-loop/P01-runtime-loop/T02-runtime-feedback-integration.md)
+[T10 Deployment Documentation](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/T10-deployment-docs.md)
 
 ## Status
-- T01 실제 장애물·충돌·점수·WARNING/BOSS·대시 게임 루프 구현 및 검증 완료
-- 기존 P03 T10 배포 문서 Task는 보존되며, 런타임 보완 후 재개한다.
+- 게임 런타임 루프(T01/T02) 구현·검증 완료; 장애물·경고·대시 및 UI 피드백이 실제 엔진 상태에 연결됨
+- P03 T10 배포 문서 작업을 재개한다.
 
 ## Next Step (IMPORTANT)
-T02 청사진을 읽고 성공한 대시와 WARNING/BOSS 전환만 UI 오디오·라이브 안내로 연결
+T10 청사진을 읽고 Supabase·Microsoft OAuth·Vercel 설정 문서와 안전한 production config 검증 스크립트를 작성
