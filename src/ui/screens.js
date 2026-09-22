@@ -1,4 +1,4 @@
-import { createButton, createPanel } from './components.js';
+import { createButton, createIconButton, createPanel } from './components.js';
 import { renderLeaderboardPanel } from './leaderboard-view.js';
 
 function createMessage(text, className = 'screen-message') {
@@ -10,7 +10,7 @@ function createMessage(text, className = 'screen-message') {
 
 export function renderLoginScreen(model, handlers) {
   const panel = createPanel('VOID SURFER', 'login-screen');
-  panel.append(createMessage('Microsoft 계정으로 로그인하고 최고 기록에 도전하세요.'));
+  panel.append(createMessage('Microsoft 계정으로 로그인하고 최고 기록을 안전하게 보존하세요.'));
 
   if (model.error) {
     const error = createMessage(model.error, 'screen-message error-message');
@@ -37,17 +37,25 @@ export function renderLoginScreen(model, handlers) {
 
 export function renderMenuScreen(model, handlers) {
   const panel = createPanel('VOID SURFER', 'menu-screen');
-  panel.append(createMessage(`${model.displayName} 파일럿, 다시 오신 것을 환영합니다.`));
+  panel.append(createMessage(`${model.displayName} 파일럿, 다시 도전할 것을 환영합니다.`));
 
   const actions = document.createElement('div');
   actions.className = 'screen-actions';
   actions.append(
     createButton('게임 시작', handlers.start, { className: 'primary-button' }),
     createButton('조작법', handlers.controls, { className: 'secondary-button' }),
-    createButton(model.muted ? '소리 켜기' : '음소거', handlers.toggleMute, { className: 'secondary-button' }),
-    createButton('로그아웃', handlers.signOut, { className: 'text-button' }),
+    createIconButton({
+      label: model.muted ? '소리 켜기' : '음소거',
+      icon: model.muted ? 'volume-off' : 'volume-on',
+      onClick: handlers.toggleMute,
+      className: 'secondary-button',
+    }),
   );
-  panel.append(actions);
+
+  const accountActions = document.createElement('div');
+  accountActions.className = 'account-actions';
+  accountActions.append(createButton('로그아웃', handlers.signOut, { className: 'text-button' }));
+  panel.append(actions, accountActions);
   return panel;
 }
 
@@ -57,15 +65,21 @@ export function renderTutorialScreen(_model, handlers) {
   list.className = 'tutorial-list';
   for (const instruction of [
     '클릭/터치: 위로 상승',
-    'SPACE: 특수 벽 앞 정확한 타이밍에 대시(회피)',
-    '일반 벽에서는 SPACE가 작동하지 않습니다',
+    'SPACE: 언제든 대시 잔상이 남습니다',
+    '특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다',
     'P/Esc 또는 일시정지 버튼: 일시정지 (-10점)',
   ]) {
     const item = document.createElement('li');
     item.textContent = instruction;
     list.append(item);
   }
-  panel.append(list, createButton('출격하기', handlers.start, { className: 'primary-button' }));
+  const actions = document.createElement('div');
+  actions.className = 'screen-actions';
+  actions.append(
+    createButton('출격하기', handlers.start, { className: 'primary-button' }),
+    createButton('메인 메뉴', handlers.menu, { className: 'secondary-button' }),
+  );
+  panel.append(list, actions);
   return panel;
 }
 

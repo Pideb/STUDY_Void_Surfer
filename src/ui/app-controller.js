@@ -62,6 +62,7 @@ export function createAppController(deps) {
       return;
     }
     if (state.screen === 'menu') {
+      renderer.renderMenuBackground?.();
       root.replaceChildren(renderMenuScreen({
         displayName: getDisplayName(state.user), muted: state.muted,
       }, {
@@ -75,6 +76,7 @@ export function createAppController(deps) {
     if (state.screen === 'tutorial') {
       root.replaceChildren(renderTutorialScreen({}, {
         start: () => dispatch({ type: 'START_PLAYING' }),
+        menu: () => dispatch({ type: 'RETURN_TO_MENU' }),
       }));
       return;
     }

@@ -1,4 +1,12 @@
-import { createButton } from './components.js';
+import { createButton, createIconButton } from './components.js';
+
+function createMuteButton(muted, onClick) {
+  return createIconButton({
+    label: muted ? '소리 켜기' : '음소거',
+    icon: muted ? 'volume-off' : 'volume-on',
+    onClick,
+  });
+}
 
 export function createGameHud(model, handlers) {
   const hud = document.createElement('div');
@@ -11,7 +19,8 @@ export function createGameHud(model, handlers) {
   score.setAttribute('aria-live', 'polite');
   const actions = document.createElement('div');
   actions.className = 'hud-actions';
-  const muteButton = createButton(model.muted ? '소리 켜기' : '음소거', handlers.toggleMute);
+  let muted = Boolean(model.muted);
+  let muteButton = createMuteButton(muted, handlers.toggleMute);
   const pauseButton = createButton('일시정지', handlers.pause);
   actions.append(muteButton, pauseButton);
   topBar.append(score, actions);
@@ -34,7 +43,14 @@ export function createGameHud(model, handlers) {
       ? 'BOSS WARNING'
       : difficulty.isWarning ? 'WARNING' : '';
     banner.hidden = !banner.textContent;
-    muteButton.textContent = model.getMuted() ? '소리 켜기' : '음소거';
+
+    const nextMuted = Boolean(model.getMuted());
+    if (nextMuted !== muted) {
+      muted = nextMuted;
+      const nextMuteButton = createMuteButton(muted, handlers.toggleMute);
+      muteButton.replaceWith(nextMuteButton);
+      muteButton = nextMuteButton;
+    }
   }
 
   return { element: hud, update };

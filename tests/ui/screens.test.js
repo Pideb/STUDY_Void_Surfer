@@ -14,12 +14,15 @@ describe('product flow screens', () => {
     expect(screen.querySelector('[role="alert"]')).not.toBeNull();
   });
 
-  it('documents click, special-wall space, normal-wall, and pause controls', () => {
-    const tutorial = renderTutorialScreen({}, { start: vi.fn() });
+  it('documents always-available dash, special timing, pause, and tutorial exit controls', () => {
+    const menu = vi.fn();
+    const tutorial = renderTutorialScreen({}, { start: vi.fn(), menu });
     expect(tutorial.textContent).toContain('클릭/터치: 위로 상승');
-    expect(tutorial.textContent).toContain('SPACE: 특수 벽 앞 정확한 타이밍에 대시');
-    expect(tutorial.textContent).toContain('일반 벽에서는 SPACE가 작동하지 않습니다');
+    expect(tutorial.textContent).toContain('SPACE: 언제든 대시 잔상이 남습니다');
+    expect(tutorial.textContent).toContain('특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다');
     expect(tutorial.textContent).toContain('일시정지 (-10점)');
+    [...tutorial.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
+    expect(menu).toHaveBeenCalledOnce();
   });
 
   it('shows actions immediately and keeps user-provided names as text', () => {

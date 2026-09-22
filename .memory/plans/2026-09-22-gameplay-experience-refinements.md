@@ -13,4 +13,4 @@ Deliver the complete approved VOID SURFER refinement set in one execution order:
 
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | Integrate runtime obstacle/dash rules, canvas visuals, and menu/HUD controls. | [P01](../phases/2026-09-22-gameplay-experience-refinements/P01-integrated-experience/phase.md) |
+| P01 | `done` | Integrate runtime obstacle/dash rules, canvas visuals, and menu/HUD controls. | [P01](../phases/2026-09-22-gameplay-experience-refinements/P01-integrated-experience/phase.md) |

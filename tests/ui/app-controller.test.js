@@ -34,7 +34,7 @@ function makeHarness({ user = pilot, leaderboard = {} } = {}) {
     fetchTopScores: vi.fn(leaderboard.fetchTopScores ?? (async () => ({ rows: [], error: null }))),
     fetchPlayerNeighborhood: vi.fn(leaderboard.fetchPlayerNeighborhood ?? (async () => ({ rows: [], error: null }))),
   };
-  const renderer = { render: vi.fn(), destroy: vi.fn() };
+  const renderer = { render: vi.fn(), renderMenuBackground: vi.fn(), destroy: vi.fn() };
   const audioManager = { isMuted: () => false, setMuted: vi.fn(), play: vi.fn(), destroy: vi.fn() };
   const frames = [];
   const raf = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
@@ -97,6 +97,20 @@ describe('app controller product flow', () => {
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '게임 시작').click();
     expect(harness.root.textContent).toContain('출격 전 조작 안내');
+  });
+
+  it('renders the menu scene and returns from tutorial without starting a run', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+
+    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(1);
+    harness.controller.dispatch('SHOW_TUTORIAL');
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
+
+    expect(harness.gameEngine.start).not.toHaveBeenCalled();
+    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(2);
+    expect(harness.root.textContent).toContain('게임 시작');
   });
 
   it('paints game-over score and actions before leaderboard promises settle', async () => {

@@ -1,6 +1,6 @@
 # Task: T03 Menu and Controls
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -84,6 +84,6 @@ Task: T03-menu-and-controls
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

@@ -14,8 +14,8 @@
 
 ## Status
 
-- T02 canvas visuals are complete and T03 is ready to begin.
+- All tasks in Gameplay Experience Refinements are complete.
 
 ## Next Step (IMPORTANT)
 
-Read the T03 blueprint and integrate the menu scene, tutorial exit, responsive HUD, accessible sound icons, and separated account actions.
+Run `npm run dev` for a manual play-through, including desktop HUD absence, mobile touch controls, special-wall timing guides, moving gaps, and menu navigation.

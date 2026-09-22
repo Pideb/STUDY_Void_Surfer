@@ -153,6 +153,28 @@ button:focus-visible {
   color: var(--color-muted);
 }
 
+.icon-button {
+  display: inline-grid;
+  place-items: center;
+  padding: 0.6rem;
+}
+
+.icon-button svg {
+  width: 1.3rem;
+  height: 1.3rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.account-actions {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(139, 166, 191, 0.25);
+}
+
 .tutorial-list {
   display: grid;
   gap: 0.6rem;
@@ -232,7 +254,7 @@ button:focus-visible {
 }
 
 .game-hud button {
-  pointer-events: auto;
+  display: none;
 }
 
 .game-hud-bar {
@@ -302,6 +324,15 @@ button:focus-visible {
   }
 
   .mobile-space-button {
+    display: block;
+  }
+
+  .game-hud button {
+    display: inline-flex;
+    pointer-events: auto;
+  }
+
+  .game-hud .mobile-space-button {
     display: block;
   }
 
