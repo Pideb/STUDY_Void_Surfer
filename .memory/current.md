@@ -2,20 +2,20 @@
 
 ## Active Plan
 
-[Warning Difficulty and Feedback](./plans/2026-09-22-warning-difficulty-feedback.md)
+[Entra Vercel Authentication](./plans/2026-09-22-entra-vercel-auth.md)
 
 ## Active Phase
 
-[P01 Warning Difficulty and Feedback](./phases/2026-09-22-warning-difficulty-feedback/P01-warning-difficulty-feedback/phase.md)
+[P01 Entra Vercel Authentication](./phases/2026-09-22-entra-vercel-auth/P01-entra-vercel-auth/phase.md)
 
 ## Active Task
 
-None - all tasks in the active plan are complete.
+None — all tasks in P01 are complete.
 
 ## Status
 
-- P01 completed: 3/3 tasks done
+- Plan complete
 
 ## Next Step (IMPORTANT)
 
-No remaining task. Start a new interview and plan for further changes.
+Configure Entra, Supabase, and Vercel with the operator guide, then share the production URL with players.
