@@ -1,6 +1,6 @@
 # Task: T06 Microsoft Auth Service
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -49,15 +49,18 @@ Supabase Auth의 Microsoft OAuth를 팝업으로 열고 세션을 감지·복원
 
 ## Acceptance Criteria
 
-- [ ] Microsoft OAuth가 popup으로 열리고 성공 시 세션이 앱에 복원된다.
-- [ ] popup 차단·취소·provider 오류·환경 변수 누락이 구분된 결과로 반환된다.
-- [ ] 로그인할 때마다 최신 표시 이름이 `sync_profile` RPC로 갱신된다.
-- [ ] 로그아웃 후 세션이 제거되고 auth subscription이 null 사용자 상태를 전달한다.
+- [x] Microsoft OAuth가 popup으로 열리고 성공 시 세션이 앱에 복원된다.
+- [x] popup 차단·취소·provider 오류·환경 변수 누락이 구분된 결과로 반환된다.
+- [x] 로그인할 때마다 최신 표시 이름이 `sync_profile` RPC로 갱신된다.
+- [x] 로그아웃 후 세션이 제거되고 auth subscription이 null 사용자 상태를 전달한다.
+- [ ] 실제 Microsoft/Supabase provider 로그인 smoke test — Supabase 프로젝트와 OAuth 비밀값 미설정으로 보류
 
 ## Validation
 
 - `npm run test -- --run tests/services/auth-service.test.js tests/auth/oauth-popup.test.js` — mocked auth flow 통과
-- 수동 검증: Supabase/Microsoft 설정 후 `npm run dev`에서 로그인·취소·로그아웃 확인
+- `npm run test -- --run` — 54 tests 통과
+- `npm run build` — production build 성공
+- 수동 Supabase/Microsoft smoke test — 프로젝트·OAuth 설정이 준비된 후 진행
 
 ## Commit Message
 
@@ -74,6 +77,6 @@ Task: T06-auth-service
 
 ## Progress
 
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] mocked OAuth, profile sync, session, logout 구현 및 검증
+- [ ] 실제 provider 연동 smoke test (외부 설정 필요)
+- commit: 14fd7ec

@@ -7,10 +7,10 @@
 [P02 Auth and Leaderboard](./phases/2026-09-21-void-surfer/P02-auth-leaderboard/phase.md)
 
 ## Active Task
-[T06 Microsoft Auth Service](./phases/2026-09-21-void-surfer/P02-auth-leaderboard/T06-auth-service.md)
+[T07 Leaderboard Service](./phases/2026-09-21-void-surfer/P02-auth-leaderboard/T07-leaderboard-service.md)
 
 ## Status
-- T05 schema·client config 구현 및 앱 검증 완료; Docker DB 테스트는 사용자 승인으로 생략, 원격 적용 검증 필요
+- T06 mocked Microsoft OAuth·세션·프로필 동기화 구현 완료; 실계정 smoke test는 외부 Supabase 설정 대기
 
 ## Next Step (IMPORTANT)
-T06 청사진을 읽고 Supabase OAuth popup, session subscription, profile name sync와 인증 오류 처리를 구현 시작; `src/lib/supabase-client.js` 및 `.env.example`은 재사용
+T07 청사진을 읽고 `submitBestScore`, 상위 10명·주변 순위 조회 서비스 및 오류 변환 구현 시작
