@@ -89,7 +89,7 @@ function drawSpecialDashBurst(ctx, player, theme) {
   if (!player?.isDashing || player.dashKind !== 'special') return;
 
   const progress = 1 - getDashIntensity(player);
-  const radius = player.width * (1 + progress * 2);
+  const radius = player.width * (1 + progress * 2.4);
   ctx.save();
   ctx.globalAlpha = Math.max(0, 0.8 - progress * 0.7);
   setGlow(ctx, theme.dashBurst, 20);
@@ -98,6 +98,18 @@ function drawSpecialDashBurst(ctx, player, theme) {
   ctx.beginPath();
   ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
   ctx.stroke();
+  ctx.globalAlpha *= 0.55;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(player.x, player.y, radius * 1.45, 0, Math.PI * 2);
+  ctx.stroke();
+  for (let index = 0; index < 6; index += 1) {
+    const angle = index * Math.PI / 3 + progress;
+    ctx.beginPath();
+    ctx.moveTo(player.x + Math.cos(angle) * radius, player.y + Math.sin(angle) * radius);
+    ctx.lineTo(player.x + Math.cos(angle) * (radius + 16), player.y + Math.sin(angle) * (radius + 16));
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
@@ -127,7 +139,21 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   setGlow(ctx, primary, theme.obstacleGlow);
   ctx.fillStyle = primary;
   if (isSpecial) {
-    ctx.fillRect(obstacle.x, 0, obstacle.width, WORLD_HEIGHT);
+    const effect = obstacle.breakEffect;
+    const opening = effect ? Math.max(0, Math.min(WORLD_HEIGHT, effect.centerY ?? 0)) : null;
+    if (opening === null) ctx.fillRect(obstacle.x, 0, obstacle.width, WORLD_HEIGHT);
+    else {
+      const top = Math.max(0, opening - theme.breakOpeningHalfHeight);
+      const bottom = Math.min(WORLD_HEIGHT, opening + theme.breakOpeningHalfHeight);
+      ctx.fillRect(obstacle.x, 0, obstacle.width, top);
+      ctx.fillRect(obstacle.x, bottom, obstacle.width, WORLD_HEIGHT - bottom);
+      ctx.strokeStyle = theme.breakFragment;
+      ctx.lineWidth = 2;
+      for (let index = 0; index < 4; index += 1) {
+        const y = opening + (index - 1.5) * 12;
+        ctx.beginPath(); ctx.moveTo(obstacle.x + obstacle.width / 2, y); ctx.lineTo(obstacle.x + (index % 2 ? -10 : obstacle.width + 10), y + (index - 1.5) * 8); ctx.stroke();
+      }
+    }
   } else {
     ctx.fillRect(obstacle.x, 0, obstacle.width, gapTop);
     ctx.fillRect(obstacle.x, bottomTop, obstacle.width, WORLD_HEIGHT - bottomTop);
@@ -252,14 +278,8 @@ function drawWarningOverlay(ctx, difficulty, theme) {
   }
 
   ctx.save();
-  ctx.fillStyle = `${theme.warning}18`;
+  ctx.fillStyle = difficulty.isBoss ? `${theme.bossOverlay}66` : `${theme.warning}18`;
   ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-  ctx.fillStyle = theme.warning;
-  ctx.font = '800 34px system-ui, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.shadowColor = theme.warning;
-  ctx.shadowBlur = 18;
-  ctx.fillText(difficulty.isBoss ? 'BOSS WARNING' : 'WARNING', WORLD_WIDTH / 2, 64);
   ctx.restore();
 }
 

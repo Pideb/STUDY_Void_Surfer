@@ -81,7 +81,7 @@ describe('authenticated game flow', () => {
     harness.snapshot.score = 20;
     harness.snapshot.difficulty = { isWarning: true, isBoss: true, bossPattern: 'fast' };
     harness.frames.shift()(16);
-    expect(harness.root.textContent).toContain('BOSS WARNING');
+    expect(harness.root.textContent).toContain('BOSS');
 
     harness.snapshot.state = 'game-over';
     harness.frames.shift()(32);

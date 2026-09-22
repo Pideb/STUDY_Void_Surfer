@@ -20,6 +20,8 @@ export function createGameHud(model, handlers) {
   const actions = document.createElement('div');
   actions.className = 'hud-actions';
   let muted = Boolean(model.muted);
+  let previousMode = 'normal';
+  let bannerUntilSeconds = 0;
   let muteButton = createMuteButton(muted, handlers.toggleMute);
   const pauseButton = createButton('일시정지', handlers.pause);
   actions.append(muteButton, pauseButton);
@@ -39,9 +41,12 @@ export function createGameHud(model, handlers) {
   function update(snapshot) {
     score.textContent = `점수 ${snapshot.score ?? 0}`;
     const difficulty = snapshot.difficulty ?? {};
-    banner.textContent = difficulty.isBoss
-      ? 'BOSS WARNING'
-      : difficulty.isWarning ? 'WARNING' : '';
+    const mode = difficulty.isBoss ? 'boss' : difficulty.isWarning ? 'warning' : 'normal';
+    const elapsedSeconds = Number.isFinite(snapshot.elapsedSeconds) ? snapshot.elapsedSeconds : 0;
+    if (mode !== previousMode && mode !== 'normal') bannerUntilSeconds = elapsedSeconds + 1;
+    if (mode === 'normal') bannerUntilSeconds = 0;
+    previousMode = mode;
+    banner.textContent = elapsedSeconds < bannerUntilSeconds ? (mode === 'boss' ? 'BOSS' : 'WARNING') : '';
     banner.hidden = !banner.textContent;
 
     const nextMuted = Boolean(model.getMuted());
