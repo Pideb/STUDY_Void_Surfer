@@ -1,5 +1,16 @@
 # VOID SURFER
 
+## 다른 사람에게 공유하기
+
+배포된 Vercel 링크를 전달하면 됩니다. 플레이어는 저장소를 clone하거나
+`.env`·Supabase 계정을 준비할 필요 없이, 링크를 열고 조직의 Microsoft Entra
+계정으로 로그인해 플레이할 수 있습니다. 점수와 리더보드는 Supabase에 공유됩니다.
+
+배포 담당자는 [Entra · Supabase · Vercel 운영 가이드](./docs/entra-vercel-deploy.md)를
+한 번만 완료하세요. 이 가이드는 Entra 단일 테넌트 설정, Supabase OAuth 설정,
+Vercel 환경 변수, 배포 후 점검까지 포함합니다. Microsoft Graph나 프로필 사진
+권한은 이 게임에서 사용하지 않습니다.
+
 네온 우주를 배경으로 하는 브라우저 아케이드 게임입니다. Microsoft 로그인과 Supabase 리더보드를 사용합니다.
 
 ## 로컬 실행 및 검증

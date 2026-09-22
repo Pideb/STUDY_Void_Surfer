@@ -1,5 +1,12 @@
 # Supabase와 Microsoft 로그인 설정
 
+> 현재 배포 정책: VOID SURFER는 조직 전용 Microsoft Entra 로그인을 사용합니다.
+> Entra 앱은 **단일 테넌트 Web 등록**으로 만들고, 테넌트 제한은 브라우저 환경
+> 변수가 아니라 Supabase Azure Provider의 `Azure Tenant URL`에 설정합니다. 새
+> 배포는 [Entra · Supabase · Vercel 운영 가이드](./entra-vercel-deploy.md)를 기준으로
+> 진행하세요. Entra client secret은 Supabase에만 보관하며 저장소나 Vercel에 넣지
+> 않습니다.
+
 이 문서는 `VOID SURFER`의 리더보드와 Microsoft 로그인용 Supabase 프로젝트를 처음부터 설정하는 절차입니다. 브라우저에는 **Project URL과 anon key만** 전달합니다. Supabase service role key와 Microsoft client secret은 브라우저·`VITE_*` 변수·Git에 절대 넣지 않습니다.
 
 ## 1. Supabase 프로젝트와 데이터베이스

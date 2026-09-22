@@ -1,5 +1,10 @@
 # Vercel 배포 절차
 
+> 현재 배포 정책의 기준 문서는 [Entra · Supabase · Vercel 운영 가이드](./entra-vercel-deploy.md)입니다.
+> 브라우저 빌드 변수는 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` 두 개뿐입니다.
+> Entra tenant URL, Entra client secret, Supabase service-role key는 Vercel 또는
+> `.env`의 `VITE_*` 변수로 설정하지 않습니다.
+
 ## 1. 프로젝트 연결과 환경 변수
 
 1. [Vercel](https://vercel.com/new)에서 Git 저장소를 Import합니다. Framework Preset은 Vite를 선택하거나 자동 감지를 사용합니다.
