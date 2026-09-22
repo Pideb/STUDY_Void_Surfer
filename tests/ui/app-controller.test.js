@@ -35,7 +35,16 @@ function makeHarness({ user = pilot, leaderboard = {} } = {}) {
     fetchPlayerNeighborhood: vi.fn(leaderboard.fetchPlayerNeighborhood ?? (async () => ({ rows: [], error: null }))),
   };
   const renderer = { render: vi.fn(), renderMenuBackground: vi.fn(), destroy: vi.fn() };
-  const audioManager = { isMuted: () => false, setMuted: vi.fn(), play: vi.fn(), destroy: vi.fn() };
+  const audioManager = {
+    isMuted: () => false,
+    unlock: vi.fn(async () => {}),
+    setMuted: vi.fn(),
+    setMusicMode: vi.fn(),
+    pauseMusic: vi.fn(),
+    resumeMusic: vi.fn(),
+    play: vi.fn(),
+    destroy: vi.fn(),
+  };
   const frames = [];
   const raf = vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
     frames.push(callback);
@@ -191,5 +200,40 @@ describe('app controller product flow', () => {
     harness.frames.shift()(48);
     expect(harness.audioManager.play).toHaveBeenCalledWith('boss');
     expect(document.querySelector('#live-region').textContent).toContain('BOSS WARNING');
+  });
+
+  it('synchronizes menu, gameplay, warning, boss, pause, and game-over music transitions', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+
+    expect(harness.audioManager.setMusicMode).toHaveBeenCalledWith('menu');
+    harness.audioManager.setMusicMode.mockClear();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    expect(harness.audioManager.unlock).toHaveBeenCalledOnce();
+    expect(harness.audioManager.setMusicMode).toHaveBeenCalledWith('gameplay');
+
+    harness.snapshot.difficulty = { isWarning: true, isBoss: false };
+    harness.frames.shift()(16);
+    expect(harness.audioManager.play).toHaveBeenCalledWith('warning');
+    expect(harness.audioManager.setMusicMode).not.toHaveBeenCalledWith('boss');
+
+    harness.snapshot.difficulty = { isWarning: true, isBoss: true };
+    harness.frames.shift()(32);
+    expect(harness.audioManager.setMusicMode).toHaveBeenCalledWith('boss');
+
+    harness.snapshot.difficulty = { isWarning: false, isBoss: false };
+    harness.frames.shift()(48);
+    expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('gameplay');
+
+    harness.controller.dispatch('PAUSE');
+    expect(harness.audioManager.pauseMusic).toHaveBeenCalledOnce();
+    harness.controller.dispatch('RESUME');
+    expect(harness.audioManager.resumeMusic).toHaveBeenCalledOnce();
+    harness.controller.dispatch('GAME_OVER');
+    expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('none');
+    harness.controller.dispatch('RETURN_TO_MENU');
+    expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('menu');
   });
 });

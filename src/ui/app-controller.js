@@ -63,6 +63,7 @@ export function createAppController(deps) {
     }
     if (state.screen === 'menu') {
       renderer.renderMenuBackground?.();
+      audioManager.setMusicMode?.('menu');
       root.replaceChildren(renderMenuScreen({
         displayName: getDisplayName(state.user), muted: state.muted,
       }, {
@@ -161,6 +162,7 @@ export function createAppController(deps) {
       await authService.signOut();
       state.user = null;
       state.error = null;
+      audioManager.setMusicMode?.('none');
       setScreen('login', '로그아웃했습니다.');
     } catch (error) {
       state.error = getAuthErrorMessage(error);
@@ -197,13 +199,18 @@ export function createAppController(deps) {
   function syncDifficultyFeedback(snapshot) {
     const nextMode = getDifficultyMode(snapshot);
     if (nextMode === lastDifficultyMode) return;
+    const previousMode = lastDifficultyMode;
     lastDifficultyMode = nextMode;
     if (nextMode === 'warning') {
+      if (previousMode === 'boss') audioManager.setMusicMode?.('gameplay');
       audioManager.play('warning');
       announce(liveRegion, 'WARNING 구간이 시작되었습니다. 특수 벽 대시 타이밍에 주의하세요.');
     } else if (nextMode === 'boss') {
       audioManager.play('boss');
+      audioManager.setMusicMode?.('boss');
       announce(liveRegion, 'BOSS WARNING. 속도 변화와 특수 벽에 주의하세요.');
+    } else if (previousMode === 'boss') {
+      audioManager.setMusicMode?.('gameplay');
     }
   }
 
@@ -217,6 +224,7 @@ export function createAppController(deps) {
   function finishGame() {
     if (state.screen === 'game-over') return;
     stopLoop();
+    audioManager.setMusicMode?.('none');
     state.snapshot = gameEngine.getSnapshot();
     state.leaderboard = null;
     state.submitError = false;
@@ -251,6 +259,7 @@ export function createAppController(deps) {
     state.snapshot = null;
     lastDifficultyMode = 'normal';
     gameEngine.start();
+    audioManager.setMusicMode?.('gameplay');
     Promise.resolve(audioManager.unlock?.()).catch(() => {});
     state.snapshot = gameEngine.getSnapshot();
     setScreen('playing', '게임 시작. 클릭 또는 터치로 상승하세요.');
@@ -316,6 +325,7 @@ export function createAppController(deps) {
       case 'PAUSE':
         if (state.screen === 'playing') {
           state.snapshot = gameEngine.pause();
+          audioManager.pauseMusic?.();
           audioManager.play('pause');
           setScreen('paused', '게임을 일시정지했습니다. 10점이 차감되었습니다.');
         }
@@ -323,6 +333,7 @@ export function createAppController(deps) {
       case 'RESUME':
         if (state.screen === 'paused') {
           gameEngine.resume();
+          audioManager.resumeMusic?.();
           state.snapshot = gameEngine.getSnapshot();
           setScreen('playing', '게임을 다시 시작합니다.');
           animationFrame = globalThis.requestAnimationFrame(renderFrame);
@@ -366,6 +377,7 @@ export function createAppController(deps) {
         if (!user) {
           state.user = null;
           stopLoop();
+          audioManager.setMusicMode?.('none');
           setScreen('login');
         } else {
           state.user = user;
