@@ -2,20 +2,20 @@
 
 ## Active Plan
 
-[Gameplay Experience Refinements](./plans/2026-09-22-gameplay-experience-refinements.md)
+[Warning Difficulty and Feedback](./plans/2026-09-22-warning-difficulty-feedback.md)
 
 ## Active Phase
 
-[P01 Integrated Experience](./phases/2026-09-22-gameplay-experience-refinements/P01-integrated-experience/phase.md)
+[P01 Warning Difficulty and Feedback](./phases/2026-09-22-warning-difficulty-feedback/P01-warning-difficulty-feedback/phase.md)
 
 ## Active Task
 
-[T03 Menu and Controls](./phases/2026-09-22-gameplay-experience-refinements/P01-integrated-experience/T03-menu-and-controls.md)
+None - all tasks in the active plan are complete.
 
 ## Status
 
-- All tasks in Gameplay Experience Refinements are complete.
+- P01 completed: 3/3 tasks done
 
 ## Next Step (IMPORTANT)
 
-Run `npm run dev` for a manual play-through, including desktop HUD absence, mobile touch controls, special-wall timing guides, moving gaps, and menu navigation.
+No remaining task. Start a new interview and plan for further changes.
