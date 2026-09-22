@@ -4,10 +4,13 @@ import {
   DASH_DURATION_SECONDS,
   GRAVITY,
   MAX_FRAME_DELTA_SECONDS,
+  NORMAL_MOVING_GAP_CYCLE_SECONDS,
   NORMAL_SPAWN_INTERVAL_SECONDS,
   OBSTACLE_SPAWN_X,
   PAUSE_SCORE_PENALTY,
+  SPECIAL_TIMING_GUIDE_COUNT,
   WARNING_MIN_SPECIALS,
+  WARNING_MOVING_GAP_CYCLE_SECONDS,
   WARNING_OBSTACLE_COUNT,
   WARNING_SPAWN_INTERVAL_SECONDS,
   WORLD_HEIGHT,
@@ -15,7 +18,13 @@ import {
 import { applyLift, createPlayer, isOutOfBounds, updatePlayer } from './player.js';
 import { GAME_STATES } from './game-state.js';
 import { advanceDash, intersectsPlayerObstacle, isSpecialTimingSuccess, startDash } from './collision.js';
-import { chooseBossPattern, getBossSpeedMultiplier, getDifficulty, shouldSpawnSpecial } from './difficulty.js';
+import {
+  chooseBossPattern,
+  getBossSpeedMultiplier,
+  getDifficulty,
+  shouldSpawnMovingGap,
+  shouldSpawnSpecial,
+} from './difficulty.js';
 import { createObstacle, updateObstacle } from './obstacles.js';
 import { advanceScore } from './score.js';
 
@@ -46,6 +55,7 @@ export function createGameEngine(deps = {}) {
   let spawnAccumulatorSeconds = 0;
   let completedWarningCount = 0;
   let warningSession = null;
+  let specialsSpawnedThisRun = 0;
 
   function getScore() {
     return scoreSession.score;
@@ -77,6 +87,7 @@ export function createGameEngine(deps = {}) {
       scrollSpeed: base.baseSpeed * speedMultiplier,
       gapHeight: base.gapHeight,
       specialChance: base.specialChance,
+      movingGapChance: base.movingGapChance,
       timingWindowSeconds: base.timingWindowSeconds,
     };
   }
@@ -106,6 +117,13 @@ export function createGameEngine(deps = {}) {
     const remainingSpecials = session ? session.requiredSpecials - session.specialObstacleIds.size : 0;
     const forceSpecial = Boolean(session && remainingSlots <= remainingSpecials);
     const kind = forceSpecial || shouldSpawnSpecial(rng, difficulty) ? 'special' : 'normal';
+    const movingGap = kind === 'normal' && shouldSpawnMovingGap(rng, difficulty);
+    const gapMotionCycleSeconds = movingGap
+      ? (difficulty.isWarning || difficulty.isBoss
+        ? WARNING_MOVING_GAP_CYCLE_SECONDS
+        : NORMAL_MOVING_GAP_CYCLE_SECONDS)
+      : null;
+    const showTimingGuide = kind === 'special' && ++specialsSpawnedThisRun <= SPECIAL_TIMING_GUIDE_COUNT;
     const obstacle = createObstacle({
       id: `wall-${nextObstacleId++}`,
       x: OBSTACLE_SPAWN_X,
@@ -113,6 +131,10 @@ export function createGameEngine(deps = {}) {
       gapHeight: difficulty.gapHeight,
       kind,
       warningIndex: session?.index ?? 0,
+      movingGap,
+      gapMotionPhase: movingGap ? safeRandom(rng) * Math.PI * 2 : null,
+      gapMotionCycleSeconds,
+      showTimingGuide,
       rng,
     });
 
@@ -172,6 +194,7 @@ export function createGameEngine(deps = {}) {
     spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS;
     completedWarningCount = initialCompletedWarningCount;
     warningSession = null;
+    specialsSpawnedThisRun = 0;
     lastUpdateMs = now();
     state = GAME_STATES.PLAYING;
     startWarningIfNeeded();
@@ -199,7 +222,7 @@ export function createGameEngine(deps = {}) {
     difficulty = getCurrentDifficulty();
 
     for (const obstacle of obstacles) {
-      updateObstacle(obstacle, deltaSeconds, difficulty.scrollSpeed);
+      updateObstacle(obstacle, deltaSeconds, difficulty.scrollSpeed, elapsedSeconds);
     }
     advanceDash(player, deltaSeconds);
 
@@ -238,16 +261,13 @@ export function createGameEngine(deps = {}) {
     const target = obstacles
       .filter((obstacle) => obstacle.kind === 'special' && !obstacle.passed && obstacle.x >= player.x)
       .sort((left, right) => left.x - right.x)[0];
-    if (!target || !isSpecialTimingSuccess({
+    const isSpecialDash = target && isSpecialTimingSuccess({
       playerX: player.x,
       wallX: target.x,
       speed: difficulty.scrollSpeed,
       windowSeconds: difficulty.timingWindowSeconds,
-    })) {
-      return false;
-    }
-
-    startDash(player, DASH_DURATION_SECONDS, target.id);
+    });
+    startDash(player, DASH_DURATION_SECONDS, isSpecialDash ? target.id : null, isSpecialDash ? 'special' : 'normal');
     return true;
   }
 

@@ -1,17 +1,21 @@
 # Current Context
 
 ## Active Plan
-[VOID SURFER](./plans/2026-09-21-void-surfer.md)
+
+[Gameplay Experience Refinements](./plans/2026-09-22-gameplay-experience-refinements.md)
 
 ## Active Phase
-[P03 Product Flow and Deployment](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/phase.md)
+
+[P01 Integrated Experience](./phases/2026-09-22-gameplay-experience-refinements/P01-integrated-experience/phase.md)
 
 ## Active Task
-[T10 Deployment Documentation](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/T10-deployment-docs.md)
+
+[T02 Canvas Visuals](./phases/2026-09-22-gameplay-experience-refinements/P01-integrated-experience/T02-canvas-visuals.md)
 
 ## Status
-- VOID SURFER의 모든 계획 Task 완료: 게임 런타임, 인증·리더보드 UI, 배포 문서·설정 검증 완료
-- 실제 Supabase·Microsoft Entra·Vercel 계정 설정과 수동 smoke test만 남음
+
+- T01 gameplay runtime is complete and T02 is ready to begin.
 
 ## Next Step (IMPORTANT)
-`.env`에 공개 Supabase URL/anon key를 입력한 뒤 docs/supabase-setup.md와 docs/vercel-deploy.md 순서로 외부 서비스를 설정하고 수동 smoke test 실행
+
+Read the T02 blueprint and render ship/wall contrast, moving gaps, dash feedback, timing zones, and the static menu scene.

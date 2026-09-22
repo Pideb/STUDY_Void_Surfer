@@ -18,8 +18,9 @@ export function intersectsPlayerObstacle(player, obstacle) {
     return false;
   }
 
-  if (player.isDashing && obstacle.kind === 'special'
-    && (!player.dashTargetId || player.dashTargetId === obstacle.id)) {
+  if (player.isDashing && player.dashKind === 'special'
+    && player.dashTargetId && obstacle.kind === 'special'
+    && player.dashTargetId === obstacle.id) {
     return false;
   }
 
@@ -45,11 +46,13 @@ export function isSpecialTimingSuccess({ playerX, wallX, speed, windowSeconds })
   return timeUntilWall >= 0 && timeUntilWall <= windowSeconds;
 }
 
-export function startDash(player, durationSeconds = DASH_DURATION_SECONDS, obstacleId = null) {
+export function startDash(player, durationSeconds = DASH_DURATION_SECONDS, obstacleId = null, dashKind = 'normal') {
   const safeDuration = Number.isFinite(durationSeconds) ? Math.max(0, durationSeconds) : 0;
+  const isSpecialDash = dashKind === 'special' && typeof obstacleId === 'string' && obstacleId.length > 0;
   player.isDashing = safeDuration > 0;
   player.dashRemainingSeconds = safeDuration;
-  player.dashTargetId = obstacleId;
+  player.dashTargetId = player.isDashing && isSpecialDash ? obstacleId : null;
+  player.dashKind = player.isDashing ? (isSpecialDash ? 'special' : 'normal') : 'none';
   return player;
 }
 
@@ -62,6 +65,7 @@ export function advanceDash(player, deltaSeconds) {
   if (player.dashRemainingSeconds === 0) {
     player.isDashing = false;
     player.dashTargetId = null;
+    player.dashKind = 'none';
   }
 
   return player;

@@ -15,6 +15,9 @@ export function createPlayer() {
     width: PLAYER_WIDTH,
     height: PLAYER_HEIGHT,
     isDashing: false,
+    dashRemainingSeconds: 0,
+    dashTargetId: null,
+    dashKind: 'none',
   };
 }
 

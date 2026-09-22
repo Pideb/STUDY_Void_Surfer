@@ -116,21 +116,79 @@ describe('game engine', () => {
     expect(completedSegmentSnapshot.difficulty.speedMultiplier).toBe(1.8);
   });
 
-  it('rejects normal/early dashes and grants targeted dash immunity near a special wall', () => {
+  it('starts normal dashes early and grants targeted immunity only near a special wall', () => {
     const { engine, step } = createRuntimeEngine();
     engine.start();
-    expect(engine.dash()).toBe(false);
+    expect(engine.dash()).toBe(true);
+    expect(engine.getSnapshot().player).toMatchObject({ dashKind: 'normal', dashTargetId: null });
 
     let snapshot;
     for (let frame = 0; frame < 460; frame += 1) snapshot = step();
     for (let frame = 0; frame < 70 && snapshot.warning?.spawnedCount < 4; frame += 1) snapshot = step();
     const target = snapshot.obstacles.find((obstacle) => obstacle.warningIndex === 1 && obstacle.kind === 'special');
     expect(target).toBeDefined();
-    expect(engine.dash()).toBe(false);
+    expect(engine.dash()).toBe(true);
+    expect(engine.getSnapshot().player).toMatchObject({ dashKind: 'normal', dashTargetId: null });
 
     while (engine.getSnapshot().obstacles.find((obstacle) => obstacle.id === target.id)?.x > 290) step();
     expect(engine.dash()).toBe(true);
-    expect(engine.getSnapshot().player).toMatchObject({ isDashing: true, dashTargetId: target.id });
+    expect(engine.getSnapshot().player).toMatchObject({
+      isDashing: true,
+      dashKind: 'special',
+      dashTargetId: target.id,
+    });
+  });
+
+  it('marks the first spawned special wall after score fifteen for timing guidance', () => {
+    const { engine, step } = createRuntimeEngine({ initialScore: 15, rng: () => 0 });
+    engine.start();
+
+    const snapshot = step();
+    const firstSpecial = snapshot.obstacles[0];
+
+    expect(firstSpecial).toMatchObject({
+      kind: 'special',
+      width: 24,
+      showTimingGuide: true,
+      movingGap: false,
+    });
+  });
+
+  it('spawns a moving normal wall at score fifty and uses the regular cycle', () => {
+    const values = [0.9, 0, 0.5, 0.25, 0.5];
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 50,
+      initialCompletedWarningCount: 4,
+      rng: () => values.shift() ?? 0.5,
+    });
+    engine.start();
+
+    const snapshot = step();
+
+    expect(snapshot.obstacles[0]).toMatchObject({
+      kind: 'normal',
+      movingGap: true,
+      gapMotionCycleSeconds: 2.4,
+    });
+  });
+
+  it('uses the faster moving-gap cycle for warning and boss spawns', () => {
+    const values = [0.9, 0.5, 0.9, 0, 0.5, 0.25, 0.5];
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 60,
+      initialCompletedWarningCount: 4,
+      rng: () => values.shift() ?? 0.5,
+    });
+    engine.start();
+
+    const snapshot = step();
+
+    expect(snapshot.difficulty).toMatchObject({ isWarning: true, isBoss: true });
+    expect(snapshot.obstacles[0]).toMatchObject({
+      kind: 'normal',
+      movingGap: true,
+      gapMotionCycleSeconds: 1.6,
+    });
   });
 
   it('ends on a normal obstacle collision and returns detached snapshot data', () => {

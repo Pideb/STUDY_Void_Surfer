@@ -34,7 +34,7 @@ describe('collision', () => {
     const normalWall = makeObstacle({ id: 'wall-2' });
 
     expect(intersectsPlayerObstacle(player, specialWall)).toBe(true);
-    startDash(player, 0.6, 'wall-1');
+    startDash(player, 0.6, 'wall-1', 'special');
     expect(intersectsPlayerObstacle(player, specialWall)).toBe(false);
     player.y = 80;
     expect(intersectsPlayerObstacle(player, normalWall)).toBe(true);
@@ -42,6 +42,19 @@ describe('collision', () => {
     advanceDash(player, 0.6);
     expect(player.isDashing).toBe(false);
     expect(intersectsPlayerObstacle(player, specialWall)).toBe(true);
+  });
+
+  it('keeps normal dashes collidable with every wall', () => {
+    const player = createPlayer();
+    const specialWall = makeObstacle({ kind: 'special' });
+    const normalWall = makeObstacle({ id: 'wall-2' });
+
+    startDash(player, 0.6);
+
+    expect(player).toMatchObject({ isDashing: true, dashKind: 'normal', dashTargetId: null });
+    expect(intersectsPlayerObstacle(player, specialWall)).toBe(true);
+    player.y = 80;
+    expect(intersectsPlayerObstacle(player, normalWall)).toBe(true);
   });
 
   it('accepts the pre-arrival timing boundary and rejects early or passed walls', () => {

@@ -6,6 +6,8 @@ import {
   BOSS_SLOW_MULTIPLIER,
   NORMAL_SPECIAL_CHANCE,
   NORMAL_TIMING_WINDOW_SECONDS,
+  MOVING_GAP_CHANCE,
+  MOVING_GAP_UNLOCK_SCORE,
   SPECIAL_UNLOCK_SCORE,
   SPEED_STEP_MULTIPLIER,
   SPEED_STEP_SECONDS,
@@ -78,6 +80,7 @@ export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.ra
     specialChance: safeScore >= SPECIAL_UNLOCK_SCORE
       ? (warningMode ? WARNING_SPECIAL_CHANCE : NORMAL_SPECIAL_CHANCE)
       : 0,
+    movingGapChance: safeScore >= MOVING_GAP_UNLOCK_SCORE ? MOVING_GAP_CHANCE : 0,
     timingWindowSeconds: warningMode
       ? WARNING_TIMING_WINDOW_SECONDS
       : NORMAL_TIMING_WINDOW_SECONDS,
@@ -88,4 +91,9 @@ export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.ra
 export function shouldSpawnSpecial(rng, difficulty) {
   const roll = Math.min(0.999999, Math.max(0, Number(rng()) || 0));
   return roll < (difficulty?.specialChance ?? 0);
+}
+
+export function shouldSpawnMovingGap(rng, difficulty) {
+  const roll = Math.min(0.999999, Math.max(0, Number(rng()) || 0));
+  return roll < (difficulty?.movingGapChance ?? 0);
 }

@@ -5,6 +5,7 @@ import {
   getDifficulty,
   getBossSpeedMultiplier,
   shouldSpawnSpecial,
+  shouldSpawnMovingGap,
 } from '../../src/game/difficulty.js';
 
 describe('difficulty', () => {
@@ -14,15 +15,15 @@ describe('difficulty', () => {
     expect(getBaseSpeed(40)).toBeCloseTo(290.4);
   });
 
-  it('keeps special walls locked before score ten', () => {
-    const difficulty = getDifficulty(9, 0, 0);
+  it('keeps special walls locked before score fifteen', () => {
+    const difficulty = getDifficulty(14, 0, 0);
 
     expect(difficulty.specialChance).toBe(0);
     expect(shouldSpawnSpecial(() => 0, difficulty)).toBe(false);
   });
 
   it('uses normal special probability after unlock', () => {
-    const difficulty = getDifficulty(10, 0, 0);
+    const difficulty = getDifficulty(15, 0, 0);
 
     expect(difficulty.specialChance).toBe(0.2);
     expect(shouldSpawnSpecial(() => 0.19, difficulty)).toBe(true);
@@ -50,6 +51,15 @@ describe('difficulty', () => {
     expect(Object.values(BOSS_PATTERNS)).toContain(difficulty.bossPattern);
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.SLOW)).toBe(0.5);
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.FAST)).toBe(1.8);
+  });
+
+  it('unlocks moving normal-wall gaps at score fifty', () => {
+    expect(getDifficulty(49, 0, 4).movingGapChance).toBe(0);
+    const difficulty = getDifficulty(50, 0, 4);
+
+    expect(difficulty.movingGapChance).toBe(0.5);
+    expect(shouldSpawnMovingGap(() => 0.49, difficulty)).toBe(true);
+    expect(shouldSpawnMovingGap(() => 0.5, difficulty)).toBe(false);
   });
 
   it('keeps an explicitly selected boss pattern instead of rolling again', () => {

@@ -18,6 +18,7 @@ describe('obstacles', () => {
       gapCenter: 90,
       gapHeight: 180,
       kind: 'normal',
+      movingGap: false,
       visualSeed: 0.25,
       passed: false,
     });
@@ -34,6 +35,8 @@ describe('obstacles', () => {
     });
 
     expect(obstacle.kind).toBe('special');
+    expect(obstacle.width).toBe(24);
+    expect(obstacle.movingGap).toBe(false);
     expect(obstacle.warningIndex).toBe(5);
   });
 
@@ -43,5 +46,30 @@ describe('obstacles', () => {
     updateObstacle(obstacle, 0.5, 240);
 
     expect(obstacle.x).toBe(880);
+  });
+
+  it('moves a normal gap sinusoidally without leaving its valid bounds', () => {
+    const obstacle = createObstacle({
+      id: 'moving-1',
+      x: 1000,
+      gapCenter: 270,
+      gapHeight: 180,
+      movingGap: true,
+      gapMotionPhase: 0,
+      gapMotionCycleSeconds: 2.4,
+    });
+
+    updateObstacle(obstacle, 0.1, 240, 0.6);
+
+    expect(obstacle).toMatchObject({
+      width: 72,
+      movingGap: true,
+      baseGapCenter: 270,
+      gapMotionAmplitude: 90,
+      gapMotionCycleSeconds: 2.4,
+    });
+    expect(obstacle.gapCenter).toBeCloseTo(360);
+    expect(obstacle.gapCenter).toBeGreaterThanOrEqual(90);
+    expect(obstacle.gapCenter).toBeLessThanOrEqual(450);
   });
 });
