@@ -17,6 +17,7 @@ function resetGlow(ctx) {
 
 export function drawShip(ctx, player, theme = VISUAL_THEME) {
   const tilt = Math.max(-0.35, Math.min(0.35, player.velocityY / 1000));
+  const dashIntensity = getDashIntensity(player);
 
   ctx.save();
   ctx.translate(player.x, player.y);
@@ -31,11 +32,28 @@ export function drawShip(ctx, player, theme = VISUAL_THEME) {
   ctx.closePath();
   ctx.fill();
 
+  if (dashIntensity > 0) {
+    const pulse = 0.55 + Math.sin((1 - dashIntensity) * Math.PI * 3) * 0.15;
+    ctx.globalAlpha = pulse;
+    setGlow(ctx, theme.dash.outline, 12 + dashIntensity * 8);
+    ctx.strokeStyle = theme.dash.outline;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    resetGlow(ctx);
+    ctx.globalAlpha = 0.72 + dashIntensity * 0.22;
+    ctx.fillStyle = theme.dash.core;
+    ctx.beginPath();
+    ctx.arc(-player.width / 5, 0, 3 + dashIntensity * 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  } else {
+    resetGlow(ctx);
+    ctx.fillStyle = theme.shipAccent;
+    ctx.beginPath();
+    ctx.arc(-player.width / 5, 0, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   resetGlow(ctx);
-  ctx.fillStyle = theme.shipAccent;
-  ctx.beginPath();
-  ctx.arc(-player.width / 5, 0, 3, 0, Math.PI * 2);
-  ctx.fill();
   ctx.restore();
 }
 
@@ -46,21 +64,24 @@ function getDashIntensity(player) {
   return Math.max(0, Math.min(1, remaining / DASH_DURATION_SECONDS));
 }
 
-function drawDashTrail(ctx, player, theme) {
+export function drawDashTrail(ctx, player, theme = VISUAL_THEME) {
   const intensity = getDashIntensity(player);
   if (intensity <= 0) return;
 
   ctx.save();
-  ctx.globalAlpha = 0.18 + intensity * 0.45;
-  setGlow(ctx, theme.dashTrail, 14);
-  ctx.fillStyle = theme.dashTrail;
-  const trailLength = player.width * (1.4 + intensity * 2.2);
-  ctx.fillRect(
-    player.x - player.width / 2 - trailLength,
-    player.y - player.height / 4,
-    trailLength,
-    player.height / 2,
-  );
+  const rearX = player.x - player.width / 2;
+  const maxLength = player.width * theme.dash.maxTrailLengthMultiplier;
+  setGlow(ctx, theme.dash.trail, 10 + intensity * 6);
+  ctx.strokeStyle = theme.dash.trail;
+  ctx.lineWidth = theme.dash.lineWidth;
+  for (const line of theme.dash.lines) {
+    const length = maxLength * line.lengthMultiplier * (0.72 + intensity * 0.28);
+    ctx.globalAlpha = line.alpha * (0.55 + intensity * 0.45);
+    ctx.beginPath();
+    ctx.moveTo(rearX, player.y + player.height * line.verticalOffset);
+    ctx.lineTo(rearX - length, player.y + player.height * line.verticalOffset);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 

@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
-import { createRenderer, drawObstacle, drawShip } from '../../src/game/renderer.js';
+import {
+  createRenderer, drawDashTrail, drawObstacle, drawShip,
+} from '../../src/game/renderer.js';
 import { VISUAL_THEME } from '../../src/game/visual-theme.js';
 
 function createContext() {
@@ -123,10 +125,41 @@ describe('renderer', () => {
       obstacles: [], difficulty: {},
     });
 
-    expect(normalContext.fillRect).toHaveBeenCalled();
+    expect(normalContext.stroke).toHaveBeenCalledTimes(5);
+    expect(specialContext.stroke).toHaveBeenCalledTimes(6);
     expect(specialContext.arc.mock.calls.length).toBeGreaterThan(normalContext.arc.mock.calls.length);
     normalRenderer.destroy();
     specialRenderer.destroy();
+  });
+
+  it('renders exactly four thin acceleration lines for a dash without a filled trail', () => {
+    const context = createContext();
+    drawDashTrail(context, {
+      x: 240, y: 270, velocityY: 0, width: 36, height: 24,
+      isDashing: true, dashRemainingSeconds: 0.6,
+    });
+
+    expect(context.beginPath).toHaveBeenCalledTimes(4);
+    expect(context.moveTo).toHaveBeenCalledTimes(4);
+    expect(context.lineTo).toHaveBeenCalledTimes(4);
+    expect(context.stroke).toHaveBeenCalledTimes(4);
+    expect(context.fillRect).not.toHaveBeenCalled();
+  });
+
+  it('omits acceleration lines outside a dash and adds a ship-local dash outline during one', () => {
+    const idleTrailContext = createContext();
+    drawDashTrail(idleTrailContext, {
+      x: 240, y: 270, velocityY: 0, width: 36, height: 24, isDashing: false,
+    });
+    expect(idleTrailContext.stroke).not.toHaveBeenCalled();
+
+    const dashShipContext = createContext();
+    drawShip(dashShipContext, {
+      x: 240, y: 270, velocityY: 0, width: 36, height: 24,
+      isDashing: true, dashRemainingSeconds: 0.6,
+    });
+    expect(dashShipContext.stroke).toHaveBeenCalledTimes(1);
+    expect(dashShipContext.arc).toHaveBeenCalledTimes(1);
   });
 
   it('renders a deterministic static menu scene', () => {
