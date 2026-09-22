@@ -1,6 +1,6 @@
 # Task: T10 Deployment Documentation
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -46,11 +46,11 @@ Supabase 프로젝트·Microsoft Entra OAuth·Vercel 배포를 처음부터 재�
 
 ## Acceptance Criteria
 
-- [ ] 새 개발자가 문서만 읽고 Supabase·Microsoft OAuth·Vercel 설정을 완료할 수 있다.
-- [ ] `.env.example`에 비밀 값이 없고 service role key 사용 예가 없다.
-- [ ] local/preview/production callback URL이 문서에 구분되어 있다.
-- [ ] config verification과 production build가 통과한다.
-- [ ] `README.md`가 실행·테스트·배포 문서로 연결된다.
+- [x] 새 개발자가 문서만 읽고 Supabase·Microsoft OAuth·Vercel 설정을 완료할 수 있다.
+- [x] `.env.example`에 비밀 값이 없고 service role key 사용 예가 없다.
+- [x] local/preview/production callback URL이 문서에 구분되어 있다.
+- [x] config verification과 production build가 통과한다.
+- [x] `README.md`가 실행·테스트·배포 문서로 연결된다.
 
 ## Validation
 
@@ -73,6 +73,6 @@ Task: T10-deployment-docs
 
 ## Progress
 
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: recorded in git history

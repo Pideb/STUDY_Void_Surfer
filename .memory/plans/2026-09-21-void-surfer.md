@@ -10,7 +10,7 @@
 | :--- | :--- | :--- | :--- |
 | P01 | `done` | Vite 앱 셸과 Canvas 게임 코어, 장애물 난이도, 오디오·일시정지 기반 구현 | [P01](../phases/2026-09-21-void-surfer/P01-game-core/phase.md) |
 | P02 | `done` | Supabase 스키마·RLS/RPC, Microsoft OAuth 팝업, 점수·순위 서비스 구현 | [P02](../phases/2026-09-21-void-surfer/P02-auth-leaderboard/phase.md) |
-| P03 | `in_progress` | 로그인부터 튜토리얼·게임 오버·리더보드까지 화면 흐름 통합 및 배포 문서 작성 | [P03](../phases/2026-09-21-void-surfer/P03-product-flow-deployment/phase.md) |
+| P03 | `done` | 로그인부터 튜토리얼·게임 오버·리더보드까지 화면 흐름 통합 및 배포 문서 작성 | [P03](../phases/2026-09-21-void-surfer/P03-product-flow-deployment/phase.md) |
 
 ## Implementation Order
 

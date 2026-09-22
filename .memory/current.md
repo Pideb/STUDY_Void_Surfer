@@ -10,8 +10,8 @@
 [T10 Deployment Documentation](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/T10-deployment-docs.md)
 
 ## Status
-- 게임 런타임 루프(T01/T02) 구현·검증 완료; 장애물·경고·대시 및 UI 피드백이 실제 엔진 상태에 연결됨
-- P03 T10 배포 문서 작업을 재개한다.
+- VOID SURFER의 모든 계획 Task 완료: 게임 런타임, 인증·리더보드 UI, 배포 문서·설정 검증 완료
+- 실제 Supabase·Microsoft Entra·Vercel 계정 설정과 수동 smoke test만 남음
 
 ## Next Step (IMPORTANT)
-T10 청사진을 읽고 Supabase·Microsoft OAuth·Vercel 설정 문서와 안전한 production config 검증 스크립트를 작성
+`.env`에 공개 Supabase URL/anon key를 입력한 뒤 docs/supabase-setup.md와 docs/vercel-deploy.md 순서로 외부 서비스를 설정하고 수동 smoke test 실행

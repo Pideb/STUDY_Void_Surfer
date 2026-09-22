@@ -10,9 +10,14 @@ npm run dev
 npm run test -- --run
 npm run test -- --coverage
 npm run build
+npm run verify:config
 ```
 
-로컬 로그인과 리더보드에는 `.env.example`을 복사해 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`를 설정해야 합니다. 실제 Supabase와 Microsoft OAuth 구성 절차는 배포 문서 Task에서 완성합니다.
+로컬 로그인과 리더보드에는 `.env.example`을 `.env`로 복사해 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`를 설정해야 합니다. 실제 설정과 배포는 아래 문서를 순서대로 따르세요.
+
+- [Supabase·Microsoft Entra OAuth 설정](./docs/supabase-setup.md)
+- [Vercel 배포와 callback 검증](./docs/vercel-deploy.md)
+- [Supabase 스키마/RLS/RPC 계약](./docs/supabase-schema.md)
 
 ---
 
