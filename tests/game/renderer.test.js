@@ -72,4 +72,11 @@ describe('renderer', () => {
     expect(context.fill).toHaveBeenCalled();
     expect(context.stroke).toHaveBeenCalled();
   });
+
+  it('renders special walls as a full-height dash-only barrier', () => {
+    const context = createContext();
+    drawObstacle(context, { x: 520, width: 72, gapCenter: 270, gapHeight: 180, kind: 'special' });
+
+    expect(context.fillRect).toHaveBeenCalledWith(520, 0, 72, WORLD_HEIGHT);
+  });
 });

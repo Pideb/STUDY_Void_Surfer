@@ -1,18 +1,17 @@
 # Current Context
 
 ## Active Plan
-[VOID SURFER](./plans/2026-09-21-void-surfer.md)
+[Gameplay Runtime Loop](./plans/2026-09-22-gameplay-runtime-loop.md)
 
 ## Active Phase
-[P03 Product Flow and Deployment](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/phase.md)
+[P01 Runtime Loop](./phases/2026-09-22-gameplay-runtime-loop/P01-runtime-loop/phase.md)
 
 ## Active Task
-[T10 Deployment Documentation](./phases/2026-09-21-void-surfer/P03-product-flow-deployment/T10-deployment-docs.md)
+[T02 Runtime Feedback Integration](./phases/2026-09-22-gameplay-runtime-loop/P01-runtime-loop/T02-runtime-feedback-integration.md)
 
 ## Status
-- T09 통합·모바일·접근성 QA 완료; 82개 테스트 및 coverage 검증 통과
-- T08 로그인·튜토리얼·게임 오버 UI 흐름 구현 완료; 실 Supabase 연동은 외부 설정 대기
-- 확인된 인접 공백: 게임 엔진에는 현재 장애물/점수/WARNING/BOSS/대시 판정 루프가 없어 UI에 전달되는 이벤트가 없음
+- T01 실제 장애물·충돌·점수·WARNING/BOSS·대시 게임 루프 구현 및 검증 완료
+- 기존 P03 T10 배포 문서 Task는 보존되며, 런타임 보완 후 재개한다.
 
 ## Next Step (IMPORTANT)
-T10 청사진을 읽고 Supabase·Microsoft OAuth·Vercel 설정 문서과 안전한 production config 검증 스크립트를 작성
+T02 청사진을 읽고 성공한 대시와 WARNING/BOSS 전환만 UI 오디오·라이브 안내로 연결

@@ -23,6 +23,10 @@ export function intersectsPlayerObstacle(player, obstacle) {
     return false;
   }
 
+  if (obstacle.kind === 'special') {
+    return true;
+  }
+
   const bounds = getPlayerBounds(player);
   const gapTop = obstacle.gapCenter - obstacle.gapHeight / 2;
   const gapBottom = obstacle.gapCenter + obstacle.gapHeight / 2;
@@ -32,13 +36,13 @@ export function intersectsPlayerObstacle(player, obstacle) {
   return overlapsTopSolid || overlapsBottomSolid;
 }
 
-export function isSpecialTimingSuccess({ playerX, wallX, speed, inputTime, windowSeconds }) {
-  if (![playerX, wallX, speed, inputTime, windowSeconds].every(Number.isFinite) || speed <= 0) {
+export function isSpecialTimingSuccess({ playerX, wallX, speed, windowSeconds }) {
+  if (![playerX, wallX, speed, windowSeconds].every(Number.isFinite) || speed <= 0 || windowSeconds < 0) {
     return false;
   }
 
-  const timeUntilWall = Math.max(0, (wallX - playerX) / speed);
-  return Math.abs(timeUntilWall - inputTime) <= windowSeconds;
+  const timeUntilWall = (wallX - playerX) / speed;
+  return timeUntilWall >= 0 && timeUntilWall <= windowSeconds;
 }
 
 export function startDash(player, durationSeconds = DASH_DURATION_SECONDS, obstacleId = null) {

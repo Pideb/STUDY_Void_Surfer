@@ -49,29 +49,34 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME) {
   ctx.save();
   setGlow(ctx, primary, theme.obstacleGlow);
   ctx.fillStyle = primary;
-  ctx.fillRect(obstacle.x, 0, obstacle.width, gapTop);
-  ctx.fillRect(obstacle.x, bottomTop, obstacle.width, WORLD_HEIGHT - bottomTop);
+  if (isSpecial) {
+    ctx.fillRect(obstacle.x, 0, obstacle.width, WORLD_HEIGHT);
+  } else {
+    ctx.fillRect(obstacle.x, 0, obstacle.width, gapTop);
+    ctx.fillRect(obstacle.x, bottomTop, obstacle.width, WORLD_HEIGHT - bottomTop);
+  }
   resetGlow(ctx);
 
   ctx.strokeStyle = accent;
   ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(obstacle.x, gapTop);
-  ctx.lineTo(obstacle.x + obstacle.width, gapTop);
-  ctx.moveTo(obstacle.x, bottomTop);
-  ctx.lineTo(obstacle.x + obstacle.width, bottomTop);
+  if (isSpecial) {
+    ctx.moveTo(obstacle.x, 0);
+    ctx.lineTo(obstacle.x, WORLD_HEIGHT);
+    ctx.moveTo(obstacle.x + obstacle.width, 0);
+    ctx.lineTo(obstacle.x + obstacle.width, WORLD_HEIGHT);
+  } else {
+    ctx.moveTo(obstacle.x, gapTop);
+    ctx.lineTo(obstacle.x + obstacle.width, gapTop);
+    ctx.moveTo(obstacle.x, bottomTop);
+    ctx.lineTo(obstacle.x + obstacle.width, bottomTop);
+  }
   ctx.stroke();
 
   if (isSpecial) {
     ctx.strokeStyle = accent;
     ctx.lineWidth = 2;
-    for (let y = 14; y < gapTop; y += 24) {
-      ctx.beginPath();
-      ctx.moveTo(obstacle.x + 8, y);
-      ctx.lineTo(obstacle.x + obstacle.width - 8, y + 10);
-      ctx.stroke();
-    }
-    for (let y = bottomTop + 14; y < WORLD_HEIGHT; y += 24) {
+    for (let y = 14; y < WORLD_HEIGHT; y += 24) {
       ctx.beginPath();
       ctx.moveTo(obstacle.x + 8, y);
       ctx.lineTo(obstacle.x + obstacle.width - 8, y + 10);

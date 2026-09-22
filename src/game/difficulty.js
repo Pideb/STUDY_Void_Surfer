@@ -53,14 +53,14 @@ export function getBossSpeedMultiplier(pattern, elapsedSeconds = 0) {
   return shiftCycle === 0 ? BOSS_SLOW_MULTIPLIER : BOSS_FAST_MULTIPLIER;
 }
 
-export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.random) {
+export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.random, bossPatternOverride = null) {
   const safeScore = normalizeScore(score);
   const completedWarnings = normalizeWarningCount(warningCount);
   const activeWarningIndex = completedWarnings + 1;
   const warningThreshold = WARNING_START_SCORE + completedWarnings * WARNING_SCORE_STEP;
   const isWarning = safeScore >= warningThreshold;
   const isBoss = isWarning && activeWarningIndex % 5 === 0;
-  const bossPattern = isBoss ? chooseBossPattern(rng) : null;
+  const bossPattern = isBoss ? (bossPatternOverride ?? chooseBossPattern(rng)) : null;
   const speedMultiplier = isBoss ? getBossSpeedMultiplier(bossPattern, elapsedSeconds) : 1;
   const warningMode = isWarning || isBoss;
 

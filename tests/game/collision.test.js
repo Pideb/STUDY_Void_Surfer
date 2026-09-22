@@ -28,14 +28,15 @@ describe('collision', () => {
     expect(intersectsPlayerObstacle(player, obstacle)).toBe(true);
   });
 
-  it('ignores the targeted special wall during a dash but not a normal wall', () => {
+  it('requires a dash for a special wall and ignores only the targeted wall', () => {
     const player = createPlayer();
-    player.y = 80;
     const specialWall = makeObstacle({ kind: 'special' });
     const normalWall = makeObstacle({ id: 'wall-2' });
 
+    expect(intersectsPlayerObstacle(player, specialWall)).toBe(true);
     startDash(player, 0.6, 'wall-1');
     expect(intersectsPlayerObstacle(player, specialWall)).toBe(false);
+    player.y = 80;
     expect(intersectsPlayerObstacle(player, normalWall)).toBe(true);
 
     advanceDash(player, 0.6);
@@ -43,19 +44,23 @@ describe('collision', () => {
     expect(intersectsPlayerObstacle(player, specialWall)).toBe(true);
   });
 
-  it('accepts the timing boundary and rejects an input outside the window', () => {
+  it('accepts the pre-arrival timing boundary and rejects early or passed walls', () => {
     expect(isSpecialTimingSuccess({
       playerX: 240,
-      wallX: 360,
+      wallX: 300,
       speed: 240,
-      inputTime: 0.75,
       windowSeconds: 0.25,
     })).toBe(true);
     expect(isSpecialTimingSuccess({
       playerX: 240,
-      wallX: 360,
+      wallX: 361,
       speed: 240,
-      inputTime: 1.01,
+      windowSeconds: 0.25,
+    })).toBe(false);
+    expect(isSpecialTimingSuccess({
+      playerX: 240,
+      wallX: 239,
+      speed: 240,
       windowSeconds: 0.25,
     })).toBe(false);
   });

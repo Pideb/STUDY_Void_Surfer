@@ -51,4 +51,11 @@ describe('difficulty', () => {
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.SLOW)).toBe(0.5);
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.FAST)).toBe(1.8);
   });
+
+  it('keeps an explicitly selected boss pattern instead of rolling again', () => {
+    const difficulty = getDifficulty(60, 10, 4, () => 0, BOSS_PATTERNS.FAST);
+
+    expect(difficulty.bossPattern).toBe(BOSS_PATTERNS.FAST);
+    expect(difficulty.speedMultiplier).toBe(1.8);
+  });
 });
