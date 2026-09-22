@@ -36,14 +36,25 @@ export function renderLoginScreen(model, handlers) {
 }
 
 export function renderMenuScreen(model, handlers) {
-  const panel = createPanel('VOID SURFER', 'menu-screen');
-  panel.append(createMessage(`${model.displayName} 파일럿, 다시 도전할 것을 환영합니다.`));
+  const menu = document.createElement('section');
+  menu.className = 'menu-overlay menu-screen';
+  menu.setAttribute('aria-label', 'VOID SURFER 메뉴');
+
+  const brand = document.createElement('div');
+  brand.className = 'menu-brand';
+  const title = document.createElement('h1');
+  title.textContent = 'VOID SURFER';
+  const greeting = document.createElement('p');
+  greeting.className = 'menu-greeting';
+  const pilotName = document.createElement('strong');
+  pilotName.textContent = model.displayName;
+  greeting.append(pilotName, document.createTextNode('파일럿, 다시 도전하는 것을 환영합니다.'));
+  brand.append(title, greeting);
 
   const actions = document.createElement('div');
-  actions.className = 'screen-actions';
+  actions.className = 'menu-actions';
   actions.append(
     createButton('게임 시작', handlers.start, { className: 'primary-button' }),
-    createButton('조작법', handlers.controls, { className: 'secondary-button' }),
     createIconButton({
       label: model.muted ? '소리 켜기' : '음소거',
       icon: model.muted ? 'volume-off' : 'volume-on',
@@ -55,8 +66,8 @@ export function renderMenuScreen(model, handlers) {
   const accountActions = document.createElement('div');
   accountActions.className = 'account-actions';
   accountActions.append(createButton('로그아웃', handlers.signOut, { className: 'text-button' }));
-  panel.append(actions, accountActions);
-  return panel;
+  menu.append(brand, actions, accountActions);
+  return menu;
 }
 
 export function renderTutorialScreen(_model, handlers) {

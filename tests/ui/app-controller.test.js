@@ -113,6 +113,17 @@ describe('app controller product flow', () => {
     expect(harness.root.textContent).toContain('게임 시작');
   });
 
+  it('renders no controls action on the menu while retaining the tutorial route', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+
+    expect([...harness.root.querySelectorAll('button')].map((button) => button.textContent.trim()))
+      .not.toContain('조작법');
+    harness.controller.dispatch('SHOW_TUTORIAL');
+    expect(harness.root.textContent).toContain('출격 전 조작 안내');
+  });
+
   it('paints game-over score and actions before leaderboard promises settle', async () => {
     const submit = deferred();
     const top = deferred();

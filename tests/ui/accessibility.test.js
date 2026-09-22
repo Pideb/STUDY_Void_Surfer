@@ -23,7 +23,7 @@ describe('accessibility and responsive UI contract', () => {
 
   it('gives every interactive action a visible name or aria-label', () => {
     const menu = renderMenuScreen({ displayName: 'Pilot', muted: false }, {
-      start: vi.fn(), controls: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
+      start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
     });
     const hud = createGameHud({ muted: false, getMuted: () => false }, {
       pause: vi.fn(), toggleMute: vi.fn(), space: vi.fn(),
@@ -37,7 +37,9 @@ describe('accessibility and responsive UI contract', () => {
       expect(button.getAttribute('aria-label')).toBeTruthy();
     }
     expect(menu.querySelector('.account-actions')).not.toBeNull();
-    expect(menu.querySelector('.screen-actions .text-button')).toBeNull();
+    expect(menu.querySelector('.menu-actions .text-button')).toBeNull();
+    expect([...menu.querySelectorAll('button')].map((button) => button.textContent.trim()))
+      .not.toContain('조작법');
     expect(hud.element.querySelector('[aria-live="assertive"]')).not.toBeNull();
   });
 

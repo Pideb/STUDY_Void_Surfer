@@ -67,7 +67,6 @@ export function createAppController(deps) {
         displayName: getDisplayName(state.user), muted: state.muted,
       }, {
         start: () => dispatch({ type: 'START_GAME_FROM_MENU' }),
-        controls: () => dispatch({ type: 'SHOW_TUTORIAL' }),
         toggleMute: toggleMute,
         signOut: handleSignOut,
       }));

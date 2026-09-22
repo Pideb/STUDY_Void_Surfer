@@ -1,8 +1,26 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderGameOverScreen, renderLoginScreen, renderTutorialScreen } from '../../src/ui/screens.js';
+import {
+  renderGameOverScreen, renderLoginScreen, renderMenuScreen, renderTutorialScreen,
+} from '../../src/ui/screens.js';
 import { createGameHud } from '../../src/ui/game-hud.js';
 
 describe('product flow screens', () => {
+  it('uses a transparent menu overlay with a bold pilot greeting and separated logout', () => {
+    const screen = renderMenuScreen({ displayName: 'Pilot', muted: false }, {
+      start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
+    });
+
+    expect(screen.classList.contains('screen-panel')).toBe(false);
+    expect(screen.classList.contains('menu-overlay')).toBe(true);
+    expect(screen.querySelector('.menu-brand strong')?.textContent).toBe('Pilot');
+    expect(screen.querySelector('.menu-greeting')?.textContent)
+      .toBe('Pilot파일럿, 다시 도전하는 것을 환영합니다.');
+    const labels = [...screen.querySelectorAll('button')].map((button) => button.textContent.trim());
+    expect(labels).not.toContain('조작법');
+    expect(labels).toContain('게임 시작');
+    expect(labels).toContain('로그아웃');
+  });
+
   it('shows login configuration and connection errors with retry', () => {
     const screen = renderLoginScreen({
       error: 'Supabase 설정이 없습니다.', connectionError: true, busy: false,
