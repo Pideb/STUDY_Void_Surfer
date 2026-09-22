@@ -9,6 +9,8 @@ import {
   OBSTACLE_SPAWN_X,
   PAUSE_SCORE_PENALTY,
   SPECIAL_TIMING_GUIDE_COUNT,
+  SPECIAL_BREAK_DURATION_SECONDS,
+  WARNING_START_SCORE,
   WARNING_MIN_SPECIALS,
   WARNING_MOVING_GAP_CYCLE_SECONDS,
   WARNING_OBSTACLE_COUNT,
@@ -20,6 +22,7 @@ import { GAME_STATES } from './game-state.js';
 import { advanceDash, intersectsPlayerObstacle, isSpecialTimingSuccess, startDash } from './collision.js';
 import {
   chooseBossPattern,
+  chooseWarningScoreStep,
   getBossSpeedMultiplier,
   getDifficulty,
   shouldSpawnMovingGap,
@@ -55,6 +58,7 @@ export function createGameEngine(deps = {}) {
   let spawnAccumulatorSeconds = 0;
   let completedWarningCount = 0;
   let warningSession = null;
+  let nextWarningScore = WARNING_START_SCORE;
   let specialsSpawnedThisRun = 0;
 
   function getScore() {
@@ -63,7 +67,7 @@ export function createGameEngine(deps = {}) {
 
   function getCurrentDifficulty() {
     if (!warningSession) {
-      return getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng);
+      return getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore);
     }
 
     const base = getDifficulty(
@@ -71,7 +75,7 @@ export function createGameEngine(deps = {}) {
       elapsedSeconds,
       completedWarningCount,
       rng,
-      warningSession.bossPattern,
+      warningSession.bossPattern, nextWarningScore,
     );
     const speedMultiplier = warningSession.isBoss
       ? getBossSpeedMultiplier(warningSession.bossPattern, elapsedSeconds)
@@ -95,7 +99,7 @@ export function createGameEngine(deps = {}) {
   function startWarningIfNeeded() {
     if (warningSession) return;
 
-    const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng);
+    const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore);
     if (!candidate.isWarning) return;
 
     const isBoss = candidate.warningIndex % 5 === 0;
@@ -177,11 +181,12 @@ export function createGameEngine(deps = {}) {
       && warningSession.spawnedCount === warningSession.targetCount
       && warningSession.specialObstacleIds.size === 0) {
       completedWarningCount += 1;
+      nextWarningScore = getScore() + chooseWarningScoreStep(rng);
       warningSession = null;
       spawnAccumulatorSeconds = 0;
     }
 
-    obstacles = obstacles.filter((obstacle) => !obstacle.passed && obstacle.x + obstacle.width >= 0);
+    obstacles = obstacles.filter((obstacle) => obstacle.x + obstacle.width >= 0);
   }
 
   function start() {
@@ -194,6 +199,7 @@ export function createGameEngine(deps = {}) {
     spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS;
     completedWarningCount = initialCompletedWarningCount;
     warningSession = null;
+    nextWarningScore = WARNING_START_SCORE + initialCompletedWarningCount * 10;
     specialsSpawnedThisRun = 0;
     lastUpdateMs = now();
     state = GAME_STATES.PLAYING;
@@ -223,6 +229,10 @@ export function createGameEngine(deps = {}) {
 
     for (const obstacle of obstacles) {
       updateObstacle(obstacle, deltaSeconds, difficulty.scrollSpeed, elapsedSeconds);
+      if (obstacle.breakEffect) {
+        obstacle.breakEffect.remainingSeconds -= deltaSeconds;
+        if (obstacle.breakEffect.remainingSeconds <= 0) delete obstacle.breakEffect;
+      }
     }
     advanceDash(player, deltaSeconds);
 
@@ -268,6 +278,7 @@ export function createGameEngine(deps = {}) {
       windowSeconds: difficulty.timingWindowSeconds,
     });
     startDash(player, DASH_DURATION_SECONDS, isSpecialDash ? target.id : null, isSpecialDash ? 'special' : 'normal');
+    if (isSpecialDash) target.breakEffect = { centerY: player.y, remainingSeconds: SPECIAL_BREAK_DURATION_SECONDS, durationSeconds: SPECIAL_BREAK_DURATION_SECONDS };
     return true;
   }
 
@@ -296,7 +307,7 @@ export function createGameEngine(deps = {}) {
       elapsedSeconds,
       gameOverReason,
       player: { ...player },
-      obstacles: obstacles.map((obstacle) => ({ ...obstacle })),
+      obstacles: obstacles.map((obstacle) => ({ ...obstacle, breakEffect: obstacle.breakEffect ? { ...obstacle.breakEffect } : null })),
       difficulty: { ...getCurrentDifficulty() },
       warning: warningSession ? {
         index: warningSession.index,

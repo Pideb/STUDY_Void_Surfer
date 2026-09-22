@@ -37,9 +37,9 @@ describe('difficulty', () => {
       warningIndex: 1,
       specialChance: 0.5,
       gapHeight: 135,
-      timingWindowSeconds: 0.25,
+      timingWindowSeconds: 0.125,
     });
-    expect(getDifficulty(20, 0, 1).isWarning).toBe(false);
+    expect(getDifficulty(20, 0, 1, Math.random, null, 30).isWarning).toBe(false);
     expect(getDifficulty(30, 0, 1).warningIndex).toBe(2);
   });
 
