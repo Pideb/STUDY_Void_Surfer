@@ -11,6 +11,8 @@ import {
   PAUSE_SCORE_PENALTY,
   SPECIAL_TIMING_GUIDE_COUNT,
   SPECIAL_BREAK_DURATION_SECONDS,
+  STAGE_ROTATION_SECONDS,
+  STAGE_TRANSITION_SECONDS,
   WARNING_START_SCORE,
   WARNING_MIN_SPECIALS,
   WARNING_MOVING_GAP_CYCLE_SECONDS,
@@ -32,6 +34,7 @@ import {
 import { createObstacle, updateObstacle } from './obstacles.js';
 import { advanceScore } from './score.js';
 import { getAircraftDefinition, isAircraftUnlocked } from './aircraft.js';
+import { createStageShuffleBag, getStageDefinition } from './stages.js';
 
 function safeRandom(rng) {
   return Math.min(0.999999, Math.max(0, Number(rng()) || 0));
@@ -48,6 +51,7 @@ export function createGameEngine(deps = {}) {
   const initialScore = Math.max(0, Math.trunc(deps.initialScore ?? 0));
   const initialCompletedWarningCount = Math.max(0, Math.trunc(deps.initialCompletedWarningCount ?? 0));
   const rng = deps.rng ?? Math.random;
+  const stageRng = deps.stageRng ?? Math.random;
   let accountBestScore = Math.max(0, Number(deps.accountBestScore) || 0);
   let aircraft = getAircraftDefinition(deps.aircraftId);
 
@@ -64,6 +68,10 @@ export function createGameEngine(deps = {}) {
   let warningSession = null;
   let nextWarningScore = WARNING_START_SCORE;
   let specialsSpawnedThisRun = 0;
+  let stageOrder = [];
+  let stageIndex = 0;
+  let stageElapsedSeconds = 0;
+  let stageTransition = null;
 
   function getScore() {
     return scoreSession.score;
@@ -218,9 +226,57 @@ export function createGameEngine(deps = {}) {
     warningSession = null;
     nextWarningScore = WARNING_START_SCORE + initialCompletedWarningCount * 10;
     specialsSpawnedThisRun = 0;
+    stageOrder = createStageShuffleBag(stageRng);
+    stageIndex = 0;
+    stageElapsedSeconds = 0;
+    stageTransition = null;
     lastUpdateMs = now();
     state = GAME_STATES.PLAYING;
     startWarningIfNeeded();
+  }
+
+  function getStageState() {
+    const stageId = stageOrder[stageIndex] ?? getStageDefinition().id;
+    const definition = getStageDefinition(stageId);
+    const mode = warningSession?.isBoss ? 'boss' : warningSession ? 'warning' : 'normal';
+    return { definition, mode };
+  }
+
+  function getActiveBackgroundKey(definition, mode) {
+    return mode === 'boss' ? definition.bossBackgroundKey : definition.backgroundKey;
+  }
+
+  function advanceStage() {
+    const previous = getStageState();
+    const nextIndex = stageIndex + 1;
+    if (nextIndex < stageOrder.length) {
+      stageIndex = nextIndex;
+    } else {
+      stageOrder = createStageShuffleBag(stageRng, previous.definition.id);
+      stageIndex = 0;
+    }
+    const next = getStageState();
+    stageTransition = {
+      fromKey: getActiveBackgroundKey(previous.definition, previous.mode),
+      toKey: getActiveBackgroundKey(next.definition, next.mode),
+      progress: 0,
+      durationSeconds: STAGE_TRANSITION_SECONDS,
+    };
+    stageElapsedSeconds = 0;
+  }
+
+  function updateStage(deltaSeconds) {
+    stageElapsedSeconds += deltaSeconds;
+    if (stageTransition) {
+      stageTransition.progress = Math.min(
+        1,
+        stageTransition.progress + deltaSeconds / STAGE_TRANSITION_SECONDS,
+      );
+      if (stageTransition.progress >= 1) stageTransition = null;
+    }
+    if (stageElapsedSeconds >= STAGE_ROTATION_SECONDS) {
+      advanceStage();
+    }
   }
 
   function setAccountBestScore(bestScore) {
@@ -261,6 +317,7 @@ export function createGameEngine(deps = {}) {
 
     updatePlayer(player, deltaSeconds, gravity * aircraft.gravityMultiplier);
     elapsedSeconds += deltaSeconds;
+    updateStage(deltaSeconds);
     let difficulty = getCurrentDifficulty();
     updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
@@ -339,6 +396,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function getSnapshot() {
+    const stageState = getStageState();
     return {
       state,
       score: getScore(),
@@ -350,6 +408,17 @@ export function createGameEngine(deps = {}) {
         scoreMultiplier: aircraft.scoreMultiplier,
         gravityMultiplier: aircraft.gravityMultiplier,
         liftMultiplier: aircraft.liftMultiplier,
+      },
+      stage: {
+        id: stageState.definition.id,
+        name: stageState.definition.name,
+        index: stageIndex,
+        order: [...stageOrder],
+        elapsedSeconds: stageElapsedSeconds,
+        mode: stageState.mode,
+        backgroundKey: stageState.definition.backgroundKey,
+        bossBackgroundKey: stageState.definition.bossBackgroundKey,
+        transition: stageTransition ? { ...stageTransition } : null,
       },
       player: { ...player },
       obstacles: obstacles.map((obstacle) => ({ ...obstacle, breakEffect: obstacle.breakEffect ? { ...obstacle.breakEffect } : null })),

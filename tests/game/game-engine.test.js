@@ -33,6 +33,37 @@ describe('game engine', () => {
       elapsedSeconds: 0,
       player: { x: 240, y: 270 },
     });
+    expect(engine.getSnapshot().stage.order).toHaveLength(6);
+  });
+
+  it('rotates through the stage shuffle bag and exposes a smooth transition', () => {
+    const { engine, step } = createRuntimeEngine({ stageRng: () => 0.5 });
+    engine.start();
+    const initial = engine.getSnapshot();
+
+    for (let frame = 0; frame < 299; frame += 1) step();
+    expect(engine.getSnapshot().stage.id).toBe(initial.stage.id);
+
+    const rotated = step();
+    expect(rotated.stage.id).not.toBe(initial.stage.id);
+    expect(rotated.stage.transition).toMatchObject({ progress: 0, durationSeconds: 0.8 });
+
+    const transitioning = step();
+    expect(transitioning.stage.transition.progress).toBeGreaterThan(0);
+    expect(transitioning.stage.transition.progress).toBeLessThan(1);
+  });
+
+  it('uses the boss atmosphere variant while a boss warning is active', () => {
+    const { engine } = createRuntimeEngine({
+      initialScore: 60,
+      initialCompletedWarningCount: 4,
+      stageRng: () => 0,
+    });
+    engine.start();
+
+    const snapshot = engine.getSnapshot();
+    expect(snapshot.stage.mode).toBe('boss');
+    expect(snapshot.stage.bossBackgroundKey).toBe(`${snapshot.stage.id}-boss`);
   });
 
   it('lifts the player only during active play', () => {

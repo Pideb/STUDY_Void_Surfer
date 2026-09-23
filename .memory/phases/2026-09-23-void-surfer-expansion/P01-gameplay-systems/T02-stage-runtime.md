@@ -1,6 +1,6 @@
 # Task: T02 Stage Runtime
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -72,11 +72,13 @@
 
 ## Acceptance Criteria
 
-- [ ] Every run uses all six stage IDs exactly once before reshuffling.
-- [ ] Stage rotation is frozen by pause/challenge and resumes with remaining time.
-- [ ] BOSS always exposes the stage-specific boss background key.
-- [ ] Transition data reaches `getSnapshot()` and never causes a one-frame hard cut.
-- [ ] Existing WARNING score cadence and obstacle generation remain unchanged.
+- [x] Every run uses all six stage IDs exactly once before reshuffling.
+- [x] Stage rotation is frozen by pause/challenge and resumes with remaining time.
+- [x] BOSS always exposes the stage-specific boss background key.
+- [x] Transition data reaches `getSnapshot()` and never causes a one-frame hard cut.
+- [x] Existing WARNING score cadence and obstacle generation remain unchanged.
+- [x] Implementation complete
+- [x] Validation passed
 
 ## Validation
 

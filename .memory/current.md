@@ -10,12 +10,12 @@
 
 ## Active Task
 
-[T02 Stage Runtime](./phases/2026-09-23-void-surfer-expansion/P01-gameplay-systems/T02-stage-runtime.md)
+[T03 Boss Combat Runtime](./phases/2026-09-23-void-surfer-expansion/P01-gameplay-systems/T03-boss-combat-runtime.md)
 
 ## Status
 
-- T01 완료: 기체 카탈로그·해금·엔진 성능 보정 구현 및 검증 완료
+- T02 완료: 여섯 스테이지 셔플백·30초 순환·BOSS 배경 variant·부드러운 전환 구현 및 검증 완료
 
 ## Next Step (IMPORTANT)
 
-T02 청사진을 읽고 `src/game/stages.js`, `src/game/game-engine.js`, `src/game/constants.js`와 관련 테스트를 구현한다. 완료 후 지정 검증 커맨드를 실행하고 T03으로 포인터를 전진한다.
+T03 청사진을 읽고 `src/game/boss.js`, `src/game/boss-attacks.js`, `src/game/wasd-challenge.js`, `src/game/game-engine.js`, `src/game/collision.js`, `src/game/input.js`와 관련 테스트를 구현한다. 완료 후 지정 검증 커맨드를 실행하고 P02 T04로 포인터를 전진한다.
