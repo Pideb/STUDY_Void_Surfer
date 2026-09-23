@@ -1,8 +1,10 @@
 import { getAuthErrorMessage } from '../services/auth-errors.js';
+import { AIRCRAFT_CATALOG, getUnlockedAircraftIds } from '../game/aircraft.js';
 import { announce } from './components.js';
 import { createGameHud } from './game-hud.js';
 import {
   renderGameOverScreen,
+  renderHangarScreen,
   renderLoginScreen,
   renderMenuScreen,
   renderPausedScreen,
@@ -14,6 +16,20 @@ function getDisplayName(user) {
     ?? user?.user_metadata?.name
     ?? user?.email?.split('@')[0]
     ?? '파일럿';
+}
+
+function getHangarAircraft(bestScore) {
+  const unlocked = new Set(getUnlockedAircraftIds(bestScore));
+  return AIRCRAFT_CATALOG.map((craft) => ({
+    ...craft,
+    unlocked: unlocked.has(craft.id),
+    description: craft.id === 'velocity'
+      ? '최고 속도로 돌파하는 고속 기체'
+      : craft.id === 'aegis' ? '무겁지만 정밀한 조작이 가능한 기체' : '균형 잡힌 기본 기체',
+    stats: craft.id === 'velocity'
+      ? '이동 속도 ×2 · 벽 점수 ×2'
+      : craft.id === 'aegis' ? '중력 ×2 · 상승력 35%' : '속도 · 중력 · 상승력 표준',
+  }));
 }
 
 export function createAppController(deps) {
@@ -31,7 +47,8 @@ export function createAppController(deps) {
   const state = {
     screen: 'loading', user: null, error: null, connectionError: false, busy: false,
     muted: Boolean(audioManager.isMuted?.()), snapshot: null, leaderboard: null,
-    submitError: false, gameOverRequest: 0,
+    submitError: false, gameOverRequest: 0, selectedAircraftId: 'default',
+    accountBestScore: 0, accountBestScoreError: false,
   };
   let unsubscribeAuth = () => {};
   let pointerTarget = null;
@@ -40,6 +57,7 @@ export function createAppController(deps) {
   let mounted = false;
   let gameHud = null;
   let lastDifficultyMode = 'normal';
+  let accountRequestId = 0;
 
   function paint() {
     gameHud = null;
@@ -66,10 +84,24 @@ export function createAppController(deps) {
       audioManager.setMusicMode?.('menu');
       root.replaceChildren(renderMenuScreen({
         displayName: getDisplayName(state.user), muted: state.muted,
+        selectedAircraft: AIRCRAFT_CATALOG.find(({ id }) => id === state.selectedAircraftId)?.name ?? 'DEFAULT',
       }, {
         start: () => dispatch({ type: 'START_GAME_FROM_MENU' }),
+        hangar: () => dispatch({ type: 'OPEN_HANGAR' }),
         toggleMute: toggleMute,
         signOut: handleSignOut,
+      }));
+      return;
+    }
+    if (state.screen === 'hangar') {
+      root.replaceChildren(renderHangarScreen({
+        aircraft: getHangarAircraft(state.accountBestScore),
+        selectedAircraftId: state.selectedAircraftId,
+        bestScore: state.accountBestScore,
+        error: state.accountBestScoreError,
+      }, {
+        select: (aircraftId) => dispatch({ type: 'SELECT_AIRCRAFT', aircraftId }),
+        back: () => dispatch({ type: 'RETURN_TO_MENU' }),
       }));
       return;
     }
@@ -128,6 +160,12 @@ export function createAppController(deps) {
       state.user = user;
       state.error = null;
       state.connectionError = false;
+      if (user) void loadAccountBestScore(user);
+      else {
+        state.accountBestScore = 0;
+        state.accountBestScoreError = false;
+        state.selectedAircraftId = 'default';
+      }
       setScreen(user ? 'menu' : 'login');
     } catch (error) {
       state.user = null;
@@ -136,6 +174,34 @@ export function createAppController(deps) {
         || error?.code === 'CONFIG_INVALID'
         || error?.code === 'NETWORK_ERROR';
       setScreen('login');
+    }
+  }
+
+  async function loadAccountBestScore(user) {
+    const requestId = ++accountRequestId;
+    state.accountBestScore = 0;
+    state.accountBestScoreError = false;
+    if (typeof leaderboardService.fetchPlayerBestScore !== 'function') return;
+    try {
+      const result = await leaderboardService.fetchPlayerBestScore(user);
+      if (requestId !== accountRequestId || state.user?.id !== user?.id) return;
+      if (result?.error || !Number.isFinite(Number(result?.bestScore))) {
+        state.accountBestScore = 0;
+        state.accountBestScoreError = true;
+      } else {
+        state.accountBestScore = Math.max(0, Math.trunc(Number(result.bestScore)));
+        state.accountBestScoreError = false;
+      }
+      if (!getUnlockedAircraftIds(state.accountBestScore).includes(state.selectedAircraftId)) {
+        state.selectedAircraftId = 'default';
+      }
+      if (state.screen === 'hangar') paint();
+    } catch {
+      if (requestId !== accountRequestId) return;
+      state.accountBestScore = 0;
+      state.accountBestScoreError = true;
+      state.selectedAircraftId = 'default';
+      if (state.screen === 'hangar') paint();
     }
   }
 
@@ -154,6 +220,7 @@ export function createAppController(deps) {
       return;
     }
     state.user = result.user;
+    void loadAccountBestScore(result.user);
     setScreen('menu', 'Microsoft 계정에 로그인했습니다.');
   }
 
@@ -162,6 +229,10 @@ export function createAppController(deps) {
       await authService.signOut();
       state.user = null;
       state.error = null;
+      accountRequestId += 1;
+      state.accountBestScore = 0;
+      state.accountBestScoreError = false;
+      state.selectedAircraftId = 'default';
       audioManager.setMusicMode?.('none');
       setScreen('login', '로그아웃했습니다.');
     } catch (error) {
@@ -179,6 +250,7 @@ export function createAppController(deps) {
 
   function triggerLift() {
     if (state.screen !== 'playing') return;
+    if (state.snapshot?.challenge?.active) return;
     gameEngine.lift?.();
     audioManager.play('lift');
   }
@@ -258,6 +330,8 @@ export function createAppController(deps) {
     }
     state.snapshot = null;
     lastDifficultyMode = 'normal';
+    gameEngine.setAccountBestScore?.(state.accountBestScore);
+    gameEngine.setAircraft?.(state.selectedAircraftId);
     gameEngine.start();
     audioManager.setMusicMode?.('gameplay');
     Promise.resolve(audioManager.unlock?.()).catch(() => {});
@@ -308,6 +382,17 @@ export function createAppController(deps) {
       case 'SHOW_TUTORIAL':
         if (state.user && state.screen === 'menu') setScreen('tutorial');
         break;
+      case 'OPEN_HANGAR':
+        if (state.screen === 'menu' && state.user) setScreen('hangar');
+        break;
+      case 'SELECT_AIRCRAFT':
+        if (state.screen === 'hangar'
+          && getUnlockedAircraftIds(state.accountBestScore).includes(event.aircraftId)) {
+          state.selectedAircraftId = event.aircraftId;
+          paint();
+          announce(liveRegion, `${AIRCRAFT_CATALOG.find(({ id }) => id === event.aircraftId)?.name ?? '기체'} 선택됨.`);
+        }
+        break;
       case 'START_PLAYING':
         if (state.screen === 'tutorial') beginPlaying();
         break;
@@ -352,6 +437,15 @@ export function createAppController(deps) {
 
   function handleKeyDown(event) {
     if (event.target?.closest?.('button, input, select, textarea, a, [contenteditable="true"]')) return;
+    if (state.screen === 'playing' && state.snapshot?.challenge?.active) {
+      if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
+        event.preventDefault();
+        gameEngine.handleChallengeKey?.(event.code);
+      } else if (event.code === 'Space') {
+        event.preventDefault();
+      }
+      return;
+    }
     if (event.code === 'Space' && state.screen === 'playing') {
       event.preventDefault();
       triggerDash();
@@ -380,7 +474,12 @@ export function createAppController(deps) {
           audioManager.setMusicMode?.('none');
           setScreen('login');
         } else {
+          const changedUser = state.user?.id !== user.id;
           state.user = user;
+          if (changedUser) {
+            state.selectedAircraftId = 'default';
+            void loadAccountBestScore(user);
+          }
           if (state.screen === 'login' || state.screen === 'loading') setScreen('menu');
         }
       });

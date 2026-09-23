@@ -49,12 +49,16 @@ export function renderMenuScreen(model, handlers) {
   const pilotName = document.createElement('strong');
   pilotName.textContent = model.displayName;
   greeting.append(pilotName, document.createTextNode('파일럿, 다시 도전하는 것을 환영합니다.'));
-  brand.append(title, greeting);
+  const aircraft = document.createElement('p');
+  aircraft.className = 'menu-aircraft-status';
+  aircraft.textContent = `출격 기체 · ${model.selectedAircraft ?? 'DEFAULT'}`;
+  brand.append(title, greeting, aircraft);
 
   const actions = document.createElement('div');
   actions.className = 'menu-actions';
   actions.append(
     createButton('게임 시작', handlers.start, { className: 'primary-button' }),
+    createButton('기체 선택', handlers.hangar, { className: 'secondary-button' }),
     createIconButton({
       label: model.muted ? '소리 켜기' : '음소거',
       icon: model.muted ? 'volume-off' : 'volume-on',
@@ -68,6 +72,61 @@ export function renderMenuScreen(model, handlers) {
   accountActions.append(createButton('로그아웃', handlers.signOut, { className: 'text-button' }));
   menu.append(brand, actions, accountActions);
   return menu;
+}
+
+const AIRCRAFT_ICONS = Object.freeze({ default: '✦', velocity: '➤', aegis: '⬟' });
+
+export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'default', bestScore = 0, error = false } = {}, handlers = {}) {
+  const screen = document.createElement('section');
+  screen.className = 'hangar-screen';
+  screen.setAttribute('aria-labelledby', 'hangar-title');
+  const heading = document.createElement('h1');
+  heading.id = 'hangar-title';
+  heading.textContent = '기체 선택';
+  const score = document.createElement('p');
+  score.className = 'hangar-best-score';
+  score.textContent = `계정 최고 기록 ${bestScore}점`;
+  screen.append(heading, score);
+  if (error) {
+    const status = createMessage('최고 기록을 불러오지 못해 기본 기체만 사용할 수 있습니다.', 'screen-message');
+    status.setAttribute('role', 'status');
+    screen.append(status);
+  }
+
+  const list = document.createElement('div');
+  list.className = 'hangar-aircraft-list';
+  for (const craft of aircraft) {
+    const unlocked = Boolean(craft.unlocked);
+    const selected = craft.id === selectedAircraftId;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `aircraft-option${unlocked ? '' : ' is-locked'}${selected ? ' is-selected' : ''}`;
+    button.disabled = !unlocked;
+    button.setAttribute('aria-pressed', String(selected));
+    button.setAttribute('aria-label', `${craft.name}${selected ? ', 선택됨' : ''}${unlocked ? '' : `, 최고 점수 ${craft.unlockBestScore}점에서 해금`}`);
+    button.addEventListener('click', () => handlers.select?.(craft.id));
+
+    const icon = document.createElement('span');
+    icon.className = `aircraft-icon aircraft-icon-${craft.id}`;
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = AIRCRAFT_ICONS[craft.id] ?? '✦';
+    const title = document.createElement('strong');
+    title.textContent = craft.name;
+    const description = document.createElement('span');
+    description.className = 'aircraft-description';
+    description.textContent = craft.description;
+    const performance = document.createElement('span');
+    performance.className = 'aircraft-performance';
+    performance.textContent = craft.stats;
+    const lock = document.createElement('span');
+    lock.className = 'aircraft-lock-reason';
+    lock.textContent = unlocked ? (selected ? '현재 선택' : '선택 가능') : `최고 점수 ${craft.unlockBestScore}점에서 해금`;
+    button.append(icon, title, description, performance, lock);
+    list.append(button);
+  }
+  screen.append(list);
+  screen.append(createButton('뒤로가기', handlers.back, { className: 'secondary-button' }));
+  return screen;
 }
 
 export function renderTutorialScreen(_model, handlers) {

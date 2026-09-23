@@ -1,0 +1,56 @@
+import { describe, expect, it, vi } from 'vitest';
+import { createGameHud } from '../../src/ui/game-hud.js';
+
+function makeHud() {
+  return createGameHud({ muted: false, getMuted: () => false }, {
+    pause: vi.fn(), toggleMute: vi.fn(), space: vi.fn(),
+  });
+}
+
+describe('game HUD', () => {
+  it('shows stage and aircraft identity plus an accessible segmented boss gauge', () => {
+    const hud = makeHud();
+    hud.update({
+      score: 75,
+      stage: { name: 'SOLAR FORGE' },
+      aircraft: { name: 'VELOCITY' },
+      boss: { hp: 3, maxHp: 5 },
+    });
+    const gauge = hud.element.querySelector('[role="progressbar"][aria-label="보스 체력"]');
+    expect(hud.element.querySelector('.hud-stage').textContent).toBe('SOLAR FORGE');
+    expect(hud.element.querySelector('.hud-aircraft').textContent).toContain('VELOCITY');
+    expect(gauge.getAttribute('aria-valuenow')).toBe('3');
+    expect(gauge.getAttribute('aria-valuemax')).toBe('5');
+    expect(gauge.querySelectorAll('.boss-health-segment')).toHaveLength(5);
+    expect(gauge.querySelectorAll('.is-active')).toHaveLength(3);
+  });
+
+  it('shows attack cues and the WASD sequence without introducing gameplay controls', () => {
+    const hud = makeHud();
+    hud.update({
+      score: 42,
+      boss: { hp: 2, maxHp: 3, attack: { type: 'laser', kind: 'quarter', safeZone: 2 } },
+      challenge: {
+        active: true,
+        sequence: ['KeyW', 'KeyA', 'KeyD'],
+        cursor: 1,
+        remainingSeconds: 3.1,
+        timeLimitSeconds: 5,
+      },
+      feedbackEffect: { kind: 'glitch', remainingSeconds: 0.5, durationSeconds: 0.75 },
+    });
+    expect(hud.element.querySelector('.hud-combat-status').textContent).toContain('3번 구역');
+    expect(hud.element.querySelector('.wasd-challenge-overlay').hidden).toBe(false);
+    expect([...hud.element.querySelectorAll('.challenge-sequence li')].map((item) => item.textContent))
+      .toEqual(['W', 'A', 'D']);
+    expect(hud.element.querySelector('.challenge-sequence .is-complete')?.textContent).toBe('W');
+    expect(hud.element.querySelector('.challenge-timer').getAttribute('aria-valuetext')).toBe('3.1초 남음');
+    expect(hud.element.querySelector('.challenge-failure-effect').classList.contains('is-glitch')).toBe(true);
+    expect(hud.element.querySelector('.mobile-space-button')).not.toBeNull();
+
+    hud.update({ score: 42, boss: null, challenge: null, feedbackEffect: null });
+    expect(hud.element.querySelector('.boss-health').hidden).toBe(true);
+    expect(hud.element.querySelector('.wasd-challenge-overlay').hidden).toBe(true);
+    expect(hud.element.querySelector('.challenge-failure-effect').hidden).toBe(true);
+  });
+});

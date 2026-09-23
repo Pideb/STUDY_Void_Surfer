@@ -1,6 +1,6 @@
 # Task: T05 Aircraft and Boss UI
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -74,6 +74,6 @@ Task: T05-aircraft-and-boss-ui
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- commit: `ad906f7`

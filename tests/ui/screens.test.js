@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  renderGameOverScreen, renderLoginScreen, renderMenuScreen, renderTutorialScreen,
+  renderGameOverScreen, renderHangarScreen, renderLoginScreen, renderMenuScreen, renderTutorialScreen,
 } from '../../src/ui/screens.js';
 import { createGameHud } from '../../src/ui/game-hud.js';
 
@@ -18,7 +18,30 @@ describe('product flow screens', () => {
     const labels = [...screen.querySelectorAll('button')].map((button) => button.textContent.trim());
     expect(labels).not.toContain('조작법');
     expect(labels).toContain('게임 시작');
+    expect(labels).toContain('기체 선택');
     expect(labels).toContain('로그아웃');
+  });
+
+  it('shows hangar unlock states and only allows selecting unlocked aircraft', () => {
+    const select = vi.fn();
+    const screen = renderHangarScreen({
+      bestScore: 50,
+      selectedAircraftId: 'aegis',
+      aircraft: [
+        { id: 'default', name: 'DEFAULT', unlockBestScore: 0, unlocked: true, description: '균형', stats: '표준' },
+        { id: 'velocity', name: 'VELOCITY', unlockBestScore: 100, unlocked: false, description: '고속', stats: '속도 ×2' },
+        { id: 'aegis', name: 'AEGIS', unlockBestScore: 50, unlocked: true, description: '중량', stats: '중력 ×2' },
+      ],
+    }, { select, back: vi.fn() });
+    const [basic, velocity, aegis] = screen.querySelectorAll('.aircraft-option');
+    expect(basic.getAttribute('aria-pressed')).toBe('false');
+    expect(velocity.disabled).toBe(true);
+    expect(velocity.getAttribute('aria-label')).toContain('100점에서 해금');
+    expect(aegis.getAttribute('aria-pressed')).toBe('true');
+    velocity.click();
+    aegis.click();
+    expect(select).toHaveBeenCalledTimes(1);
+    expect(select).toHaveBeenCalledWith('aegis');
   });
 
   it('shows login configuration and connection errors with retry', () => {

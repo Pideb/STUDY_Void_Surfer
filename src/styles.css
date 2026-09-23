@@ -214,6 +214,14 @@ button:focus-visible {
   font-weight: 800;
 }
 
+.menu-aircraft-status {
+  margin: 1.2rem 0 0;
+  color: var(--color-neon-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
 .menu-actions {
   display: grid;
   justify-items: stretch;
@@ -349,6 +357,263 @@ button:focus-visible {
   display: none;
 }
 
+.hud-identity {
+  display: grid;
+  gap: 0.28rem;
+  justify-items: center;
+  min-width: 0;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(139, 166, 191, 0.2);
+  border-radius: 0.6rem;
+  background: rgba(5, 12, 33, 0.62);
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.hud-stage {
+  color: var(--color-neon-strong);
+  font-weight: 800;
+}
+
+.hud-aircraft {
+  color: var(--color-text);
+}
+
+.hud-combat-status {
+  align-self: flex-start;
+  max-width: 15rem;
+  margin: 0;
+  color: var(--color-warning);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-shadow: 0 0 12px rgba(255, 73, 111, 0.6);
+}
+
+.hud-combat-status[hidden] {
+  display: none;
+}
+
+.boss-health {
+  position: absolute;
+  top: clamp(4.5rem, 12vh, 6rem);
+  left: 50%;
+  display: grid;
+  grid-template-columns: auto minmax(8rem, min(30vw, 17rem)) auto;
+  align-items: center;
+  gap: 0.6rem;
+  transform: translateX(-50%);
+  color: var(--color-boss);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 12px rgba(255, 157, 92, 0.5);
+}
+
+.boss-health[hidden] {
+  display: none;
+}
+
+.boss-health-gauge {
+  display: flex;
+  gap: 0.22rem;
+  min-height: 0.7rem;
+}
+
+.boss-health-segment {
+  flex: 1;
+  border: 1px solid rgba(255, 157, 92, 0.78);
+  background: rgba(255, 157, 92, 0.12);
+}
+
+.boss-health-segment.is-active {
+  background: #ff9d5c;
+  box-shadow: 0 0 10px rgba(255, 157, 92, 0.8);
+}
+
+.wasd-challenge-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1.1rem;
+  padding: 1rem;
+  background: rgba(2, 4, 12, 0.72);
+  pointer-events: none;
+}
+
+.wasd-challenge-overlay[hidden] {
+  display: none;
+}
+
+.wasd-challenge-overlay h2 {
+  margin: 0;
+  color: var(--color-neon-strong);
+  font-size: clamp(1rem, 3vw, 1.5rem);
+  letter-spacing: 0.14em;
+}
+
+.challenge-sequence {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.3rem, 1.8vw, 1rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.challenge-sequence li {
+  display: grid;
+  place-items: center;
+  width: clamp(2.4rem, 8vw, 4rem);
+  aspect-ratio: 1;
+  border: 1px solid rgba(232, 251, 255, 0.4);
+  border-radius: 0.45rem;
+  background: rgba(8, 31, 62, 0.85);
+  color: var(--color-text);
+  font-size: clamp(1.2rem, 5vw, 2.2rem);
+  font-weight: 900;
+}
+
+.challenge-sequence li.is-current {
+  border-color: var(--color-neon-strong);
+  box-shadow: var(--focus-ring), 0 0 22px rgba(85, 246, 229, 0.45);
+}
+
+.challenge-sequence li.is-complete {
+  color: #08132d;
+  background: var(--color-neon-strong);
+}
+
+.challenge-timer {
+  width: min(26rem, 72vw);
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: 1rem;
+  background: linear-gradient(to right, var(--color-warning) var(--challenge-time-progress, 100%), rgba(255,255,255,0.18) 0);
+}
+
+.challenge-time-text {
+  color: var(--color-text);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.challenge-failure-effect {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.challenge-failure-effect[hidden] {
+  display: none;
+}
+
+.challenge-failure-effect.is-ink {
+  background:
+    radial-gradient(ellipse at 18% 32%, rgba(0,0,0,0.94) 0 5%, transparent 13%),
+    radial-gradient(ellipse at 75% 68%, rgba(0,0,0,0.88) 0 7%, transparent 18%),
+    radial-gradient(ellipse at 52% 18%, rgba(0,0,0,0.8) 0 4%, transparent 12%);
+}
+
+.challenge-failure-effect.is-glitch {
+  background: repeating-linear-gradient(178deg, transparent 0 2.6rem, rgba(186,252,255,0.28) 2.65rem 2.78rem, transparent 2.84rem 4rem);
+  animation: challenge-glitch 90ms steps(2, end) infinite;
+}
+
+@keyframes challenge-glitch {
+  0% { transform: translateX(-5px); }
+  100% { transform: translateX(5px); }
+}
+
+.hangar-screen {
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  width: min(94%, 780px);
+  max-height: 96%;
+  overflow: auto;
+  padding: clamp(1rem, 3vw, 2rem);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.hangar-screen h1 {
+  margin: 0;
+  color: var(--color-neon-strong);
+  letter-spacing: 0.12em;
+}
+
+.hangar-best-score {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.hangar-aircraft-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  width: 100%;
+  margin: 0.6rem 0;
+}
+
+.aircraft-option {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.55rem;
+  min-width: 0;
+  min-height: 15rem;
+  padding: 1rem 0.75rem;
+  border-color: rgba(85, 246, 229, 0.42);
+  background: rgba(5, 12, 33, 0.74);
+  text-align: center;
+}
+
+.aircraft-option.is-selected {
+  border-color: var(--color-neon-strong);
+  box-shadow: 0 0 22px rgba(85, 246, 229, 0.22);
+}
+
+.aircraft-option.is-locked {
+  border-color: rgba(139, 166, 191, 0.2);
+  background: rgba(5, 8, 22, 0.64);
+  color: #748193;
+  cursor: not-allowed;
+  filter: saturate(0.4);
+  opacity: 0.65;
+}
+
+.aircraft-option:disabled:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.aircraft-icon {
+  display: grid;
+  place-items: center;
+  width: 3.4rem;
+  aspect-ratio: 1;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  color: var(--color-neon-strong);
+  font-size: 2rem;
+  text-shadow: 0 0 16px currentColor;
+}
+
+.aircraft-icon-velocity { color: #ff55cf; }
+.aircraft-icon-aegis { color: #ffc45c; }
+.aircraft-description,
+.aircraft-performance,
+.aircraft-lock-reason { font-size: 0.82rem; line-height: 1.4; }
+.aircraft-description { color: var(--color-muted); }
+.aircraft-performance { color: var(--color-text); font-weight: 700; }
+.aircraft-lock-reason { color: var(--color-neon-strong); }
+.is-locked .aircraft-lock-reason { color: #a3adbb; }
+
 .mobile-space-button {
   display: none;
   align-self: flex-end;
@@ -411,6 +676,38 @@ button:focus-visible {
 
   .menu-actions {
     justify-items: center;
+  }
+
+  .hangar-aircraft-list {
+    grid-template-columns: 1fr;
+    max-width: 26rem;
+  }
+
+  .aircraft-option {
+    grid-template-columns: 3rem 1fr;
+    justify-items: start;
+    align-items: center;
+    min-height: 0;
+    text-align: left;
+  }
+
+  .aircraft-icon { grid-row: span 4; width: 2.7rem; font-size: 1.55rem; }
+
+  .hud-identity {
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.52rem;
+    letter-spacing: 0.02em;
+  }
+
+  .hud-combat-status { max-width: 8rem; font-size: 0.68rem; }
+
+  .boss-health {
+    top: 4.2rem;
+    grid-template-columns: auto minmax(5rem, 28vw) auto;
+    gap: 0.35rem;
+    font-size: 0.63rem;
   }
 
   .menu-overlay .account-actions {

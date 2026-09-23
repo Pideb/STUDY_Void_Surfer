@@ -6,7 +6,9 @@ import { createAudioManager } from './audio/audio-manager.js';
 import { createGameEngine } from './game/game-engine.js';
 import { createRenderer } from './game/renderer.js';
 import { getSessionUser, signInWithMicrosoft, signOut, subscribeToAuth } from './services/auth-service.js';
-import { fetchPlayerNeighborhood, fetchTopScores, submitBestScore } from './services/leaderboard-service.js';
+import {
+  fetchPlayerBestScore, fetchPlayerNeighborhood, fetchTopScores, submitBestScore,
+} from './services/leaderboard-service.js';
 import { createAppController } from './ui/app-controller.js';
 
 if (window.location.pathname === '/auth/callback') {
@@ -51,10 +53,12 @@ if (window.location.pathname === '/auth/callback') {
 
   const leaderboardService = client ? {
     submitBestScore: (_user, payload) => submitBestScore(client, payload),
+    fetchPlayerBestScore: () => fetchPlayerBestScore(client),
     fetchTopScores: () => fetchTopScores(client),
     fetchPlayerNeighborhood: () => fetchPlayerNeighborhood(client),
   } : {
     async submitBestScore() { return { updated: false, record: null, error: configError }; },
+    async fetchPlayerBestScore() { return { bestScore: 0, error: configError }; },
     async fetchTopScores() { return { rows: [], error: configError }; },
     async fetchPlayerNeighborhood() { return { rows: [], error: configError }; },
   };

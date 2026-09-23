@@ -9,7 +9,7 @@ function deferred() {
   return { promise, resolve };
 }
 
-function makeHarness({ user = pilot, leaderboard = {} } = {}) {
+function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
   const root = document.createElement('div');
   document.body.append(root);
   const snapshot = { state: 'menu', score: 0, player: { x: 200, y: 200, velocityY: 0 } };
@@ -22,6 +22,9 @@ function makeHarness({ user = pilot, leaderboard = {} } = {}) {
     resume: vi.fn(() => { snapshot.state = 'playing'; }),
     stop: vi.fn(() => { snapshot.state = 'game-over'; }),
     getSnapshot: vi.fn(() => ({ ...snapshot, player: { ...snapshot.player } })),
+    setAircraft: vi.fn((id) => id),
+    setAccountBestScore: vi.fn((score) => score),
+    handleChallengeKey: vi.fn(() => true),
   };
   const authService = {
     getSessionUser: vi.fn(async () => user),
@@ -33,6 +36,7 @@ function makeHarness({ user = pilot, leaderboard = {} } = {}) {
     submitBestScore: vi.fn(leaderboard.submitBestScore ?? (async () => ({ error: null }))),
     fetchTopScores: vi.fn(leaderboard.fetchTopScores ?? (async () => ({ rows: [], error: null }))),
     fetchPlayerNeighborhood: vi.fn(leaderboard.fetchPlayerNeighborhood ?? (async () => ({ rows: [], error: null }))),
+    fetchPlayerBestScore: vi.fn(leaderboard.fetchPlayerBestScore ?? (async () => ({ bestScore, error: null }))),
   };
   const renderer = { render: vi.fn(), renderMenuBackground: vi.fn(), destroy: vi.fn() };
   const audioManager = {
@@ -51,13 +55,14 @@ function makeHarness({ user = pilot, leaderboard = {} } = {}) {
     return frames.length;
   });
   const cancel = vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
+  const canvas = document.createElement('canvas');
   const controller = createAppController({
     authService, leaderboardService, gameEngine, renderer, audioManager, root,
-    canvas: document.createElement('canvas'),
+    canvas,
   });
   return {
     root, controller, authService, leaderboardService, gameEngine, renderer, audioManager,
-    snapshot, frames, raf, cancel,
+    snapshot, frames, raf, cancel, canvas,
   };
 }
 
@@ -131,6 +136,57 @@ describe('app controller product flow', () => {
       .not.toContain('조작법');
     harness.controller.dispatch('SHOW_TUTORIAL');
     expect(harness.root.textContent).toContain('출격 전 조작 안내');
+  });
+
+  it('loads account unlocks, preserves hangar choice on return, and starts with that aircraft', async () => {
+    harness = makeHarness({ bestScore: 100 });
+    harness.controller.mount();
+    await settle();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '기체 선택').click();
+    const velocity = [...harness.root.querySelectorAll('.aircraft-option')]
+      .find((button) => button.getAttribute('aria-label').startsWith('VELOCITY'));
+    expect(velocity.disabled).toBe(false);
+    velocity.click();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '뒤로가기').click();
+    expect(harness.root.querySelector('.menu-aircraft-status').textContent).toContain('VELOCITY');
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '게임 시작').click();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '출격하기').click();
+    expect(harness.gameEngine.setAccountBestScore).toHaveBeenCalledWith(100);
+    expect(harness.gameEngine.setAircraft).toHaveBeenCalledWith('velocity');
+  });
+
+  it('falls back to the default aircraft and explains a failed best-score lookup', async () => {
+    harness = makeHarness({ leaderboard: {
+      fetchPlayerBestScore: async () => ({ bestScore: 0, error: new Error('offline') }),
+    } });
+    harness.controller.mount();
+    await settle();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '기체 선택').click();
+    expect(harness.root.textContent).toContain('기본 기체만 사용할 수 있습니다');
+    expect([...harness.root.querySelectorAll('.aircraft-option')].filter((button) => !button.disabled))
+      .toHaveLength(1);
+  });
+
+  it('routes only WASD to an active challenge and suppresses flight/pause inputs', async () => {
+    harness = makeHarness();
+    harness.snapshot.challenge = { active: true, sequence: ['KeyW'], cursor: 0 };
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+
+    const space = new KeyboardEvent('keydown', { code: 'Space', bubbles: true, cancelable: true });
+    globalThis.window.dispatchEvent(space);
+    globalThis.window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape', bubbles: true }));
+    const wasd = new KeyboardEvent('keydown', { code: 'KeyW', bubbles: true, cancelable: true });
+    globalThis.window.dispatchEvent(wasd);
+
+    harness.canvas.dispatchEvent(new Event('pointerdown', { bubbles: true, cancelable: true }));
+    expect(harness.gameEngine.handleChallengeKey).toHaveBeenCalledOnce();
+    expect(harness.gameEngine.handleChallengeKey).toHaveBeenCalledWith('KeyW');
+    expect(harness.gameEngine.dash).not.toHaveBeenCalled();
+    expect(harness.gameEngine.lift).not.toHaveBeenCalled();
+    expect(harness.gameEngine.pause).not.toHaveBeenCalled();
   });
 
   it('paints game-over score and actions before leaderboard promises settle', async () => {

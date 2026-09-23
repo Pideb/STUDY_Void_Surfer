@@ -10,7 +10,7 @@
 
 ## Active Task
 
-[T05 Aircraft and Boss UI](./phases/2026-09-23-void-surfer-expansion/P02-visual-ui-audio/T05-aircraft-and-boss-ui.md)
+[T06 Audio Feedback](./phases/2026-09-23-void-surfer-expansion/P02-visual-ui-audio/T06-audio-feedback.md)
 
 ## Status
 
@@ -18,4 +18,4 @@
 
 ## Next Step (IMPORTANT)
 
-T05 청사진을 읽고 항공기 선택 화면, 메인 메뉴 HUD, 보스 체력과 WASD 챌린지 UI를 연결한다.
+T06 청사진을 읽고 상태별 절차적 음악과 보스·레이저·반사·챌린지 효과음을 구현한다.

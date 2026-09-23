@@ -433,7 +433,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function setAccountBestScore(bestScore) {
-    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED || state === GAME_STATES.GAME_OVER) {
+    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED) {
       return accountBestScore;
     }
     accountBestScore = Math.max(0, Number(bestScore) || 0);
@@ -444,7 +444,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function setAircraft(id) {
-    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED || state === GAME_STATES.GAME_OVER) {
+    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED) {
       return false;
     }
     const definition = getAircraftDefinition(id);
