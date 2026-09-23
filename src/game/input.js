@@ -1,4 +1,4 @@
-export function createInputController(target, onLift, onSpace, onPause = () => {}) {
+export function createInputController(target, onLift, onSpace, onPause = () => {}, onChallengeKey = () => {}) {
   if (!target || typeof target.addEventListener !== 'function') {
     throw new TypeError('입력 대상은 EventTarget이어야 합니다.');
   }
@@ -9,6 +9,12 @@ export function createInputController(target, onLift, onSpace, onPause = () => {
   };
 
   const handleKeyDown = (event) => {
+    if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
+      event.preventDefault?.();
+      onChallengeKey(event.code);
+      return;
+    }
+
     if (event.code === 'Space') {
       if (event.repeat) {
         return;

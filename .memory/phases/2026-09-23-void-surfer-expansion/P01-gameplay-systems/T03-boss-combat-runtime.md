@@ -1,6 +1,6 @@
 # Task: T03 Boss Combat Runtime
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -91,11 +91,11 @@
 
 ## Acceptance Criteria
 
-- [ ] Boss clear requires HP depletion by successful reflections and awards +10 once.
-- [ ] Projectile telegraph, direct/parabolic movement, random speed, 0.15-second reflection window, and visible return path are testable.
-- [ ] No special wall and projectile response window overlaps within one second; projectile cooldown requires two normal walls.
-- [ ] Laser generation never removes all safe movement paths and pauses wall spawning during quarter attacks.
-- [ ] WASD rules, scaling, repeat limit, failure effects, and simulation freeze are deterministic under injected RNG.
+- [x] Boss clear requires HP depletion by successful reflections and awards +10 once.
+- [x] Projectile telegraph, direct/parabolic movement, random speed, 0.15-second reflection window, and visible return path are testable.
+- [x] No special wall and projectile response window overlaps within one second; projectile cooldown requires two normal walls.
+- [x] Laser generation never removes all safe movement paths and pauses wall spawning during quarter attacks.
+- [x] WASD rules, scaling, repeat limit, failure effects, and simulation freeze are deterministic under injected RNG.
 
 ## Validation
 
@@ -117,6 +117,6 @@ Task: T03-boss-combat-runtime
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

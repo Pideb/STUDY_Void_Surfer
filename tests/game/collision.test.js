@@ -4,6 +4,8 @@ import { createObstacle } from '../../src/game/obstacles.js';
 import {
   advanceDash,
   intersectsPlayerObstacle,
+  intersectsPlayerLaser,
+  isProjectileReflectionSuccess,
   isSpecialTimingSuccess,
   startDash,
 } from '../../src/game/collision.js';
@@ -55,6 +57,16 @@ describe('collision', () => {
     expect(intersectsPlayerObstacle(player, specialWall)).toBe(true);
     player.y = 80;
     expect(intersectsPlayerObstacle(player, normalWall)).toBe(true);
+  });
+
+  it('recognizes a short projectile reflection window and safe laser zone', () => {
+    const player = { x: 240, y: 270, width: 36, height: 24 };
+    const projectile = { state: 'flying', x: 242, y: 270, speed: 240, reflectionWindowSeconds: 0.15 };
+    const laser = { kind: 'quarter', safeZone: 2, zoneHeight: 135, telegraphRemainingSeconds: 0, activeRemainingSeconds: 1 };
+
+    expect(isProjectileReflectionSuccess({ player, projectile })).toBe(true);
+    expect(intersectsPlayerLaser({ ...player, y: 70 }, laser)).toBe(true);
+    expect(intersectsPlayerLaser({ ...player, y: 340 }, laser)).toBe(false);
   });
 
   it('accepts the pre-arrival timing boundary and rejects early or passed walls', () => {

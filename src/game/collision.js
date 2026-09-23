@@ -1,4 +1,4 @@
-import { DASH_DURATION_SECONDS, WORLD_HEIGHT } from './constants.js';
+import { BOSS_LASER_THICKNESS, DASH_DURATION_SECONDS, WORLD_HEIGHT } from './constants.js';
 
 function getPlayerBounds(player) {
   return {
@@ -44,6 +44,29 @@ export function isSpecialTimingSuccess({ playerX, wallX, speed, windowSeconds })
 
   const timeUntilWall = (wallX - playerX) / speed;
   return timeUntilWall >= 0 && timeUntilWall <= windowSeconds;
+}
+
+export function isProjectileReflectionSuccess({ player, projectile }) {
+  if (!player || !projectile || projectile.state !== 'flying') return false;
+  const horizontalWindow = projectile.speed * projectile.reflectionWindowSeconds;
+  const verticalWindow = player.height / 2 + 30;
+  return Math.abs(projectile.x - player.x) <= horizontalWindow
+    && Math.abs(projectile.y - player.y) <= verticalWindow;
+}
+
+export function intersectsPlayerLaser(player, laser, worldHeight = WORLD_HEIGHT) {
+  if (!player || !laser || laser.telegraphRemainingSeconds > 0 || laser.activeRemainingSeconds <= 0) {
+    return false;
+  }
+
+  if (laser.kind === 'quarter') {
+    const zoneHeight = laser.zoneHeight || worldHeight / 4;
+    const playerZone = Math.min(3, Math.max(0, Math.floor(player.y / zoneHeight)));
+    return playerZone !== laser.safeZone;
+  }
+
+  const thickness = laser.thickness || BOSS_LASER_THICKNESS;
+  return Math.abs(player.y - laser.y) <= thickness / 2 + player.height / 2;
 }
 
 export function startDash(player, durationSeconds = DASH_DURATION_SECONDS, obstacleId = null, dashKind = 'normal') {

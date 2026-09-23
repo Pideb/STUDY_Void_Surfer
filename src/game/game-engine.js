@@ -1,6 +1,9 @@
 import {
   BOSS_MIN_SPECIALS,
   BOSS_OBSTACLE_COUNT,
+  BOSS_PROJECTILE_NORMAL_WALL_COOLDOWN,
+  BOSS_RESPONSE_COOLDOWN_SECONDS,
+  BOSS_LASER_FOLLOW_UP_SECONDS,
   DASH_DURATION_SECONDS,
   GRAVITY,
   LIFT_VELOCITY,
@@ -23,6 +26,7 @@ import {
 import { applyLift, createPlayer, isOutOfBounds, updatePlayer } from './player.js';
 import { GAME_STATES } from './game-state.js';
 import { advanceDash, intersectsPlayerObstacle, isSpecialTimingSuccess, startDash } from './collision.js';
+import { intersectsPlayerLaser, isProjectileReflectionSuccess } from './collision.js';
 import {
   chooseBossPattern,
   chooseWarningScoreStep,
@@ -35,6 +39,22 @@ import { createObstacle, updateObstacle } from './obstacles.js';
 import { advanceScore } from './score.js';
 import { getAircraftDefinition, isAircraftUnlocked } from './aircraft.js';
 import { createStageShuffleBag, getStageDefinition } from './stages.js';
+import { advanceBossEncounter, createBossEncounter, shouldStartBossChallenge } from './boss.js';
+import {
+  createBossProjectile,
+  createQuarterLaser,
+  createSingleLaser,
+  isProjectileInReflectionWindow,
+  reflectProjectile,
+  updateBossProjectile,
+  updateLaser,
+} from './boss-attacks.js';
+import {
+  createChallenge,
+  createChallengeFailureEffect,
+  handleChallengeKey,
+  updateChallenge,
+} from './wasd-challenge.js';
 
 function safeRandom(rng) {
   return Math.min(0.999999, Math.max(0, Number(rng()) || 0));
@@ -72,6 +92,10 @@ export function createGameEngine(deps = {}) {
   let stageIndex = 0;
   let stageElapsedSeconds = 0;
   let stageTransition = null;
+  let bossEncounter = null;
+  let challenge = null;
+  let feedbackEffect = null;
+  let nextAttackId = 1;
 
   function getScore() {
     return scoreSession.score;
@@ -136,6 +160,9 @@ export function createGameEngine(deps = {}) {
       specialObstacleIds: new Set(),
       specialSpawnedCount: 0,
     };
+    bossEncounter = isBoss
+      ? createBossEncounter(Math.max(1, Math.floor(candidate.warningIndex / 5)), rng)
+      : null;
   }
 
   function spawnObstacle(difficulty) {
@@ -195,6 +222,13 @@ export function createGameEngine(deps = {}) {
       if (obstacle.x + obstacle.width >= playerLeft || obstacle.passed) continue;
       obstacle.passed = true;
       if (advanceScore(scoreSession, obstacle.id, aircraft.scoreMultiplier)) {
+        if (bossEncounter && obstacle.warningIndex === warningSession?.index) {
+          if (obstacle.kind === 'normal') {
+            advanceBossEncounter(bossEncounter, 'normal-wall-passed');
+          } else {
+            advanceBossEncounter(bossEncounter, 'special-resolved', elapsedSeconds);
+          }
+        }
         if (warningSession?.specialObstacleIds.has(obstacle.id)) {
           warningSession.specialObstacleIds.delete(obstacle.id);
         }
@@ -204,7 +238,8 @@ export function createGameEngine(deps = {}) {
 
     if (warningSession
       && warningSession.spawnedCount === warningSession.targetCount
-      && warningSession.specialObstacleIds.size === 0) {
+      && warningSession.specialObstacleIds.size === 0
+      && !warningSession.isBoss) {
       completedWarningCount += 1;
       nextWarningScore = getScore() + chooseWarningScoreStep(rng);
       warningSession = null;
@@ -230,6 +265,10 @@ export function createGameEngine(deps = {}) {
     stageIndex = 0;
     stageElapsedSeconds = 0;
     stageTransition = null;
+    bossEncounter = null;
+    challenge = null;
+    feedbackEffect = null;
+    nextAttackId = 1;
     lastUpdateMs = now();
     state = GAME_STATES.PLAYING;
     startWarningIfNeeded();
@@ -279,6 +318,119 @@ export function createGameEngine(deps = {}) {
     }
   }
 
+  function resolveChallenge() {
+    if (!challenge || challenge.result === 'pending') return;
+    if (challenge.result === 'failure') feedbackEffect = createChallengeFailureEffect(rng);
+    if (bossEncounter) {
+      advanceBossEncounter(bossEncounter, 'challenge-complete');
+      bossEncounter.wallSpawningPaused = false;
+    }
+  }
+
+  function getBossWallContext() {
+    const activeWall = obstacles
+      .filter((obstacle) => !obstacle.passed && obstacle.x >= player.x)
+      .sort((left, right) => left.x - right.x)[0];
+    return {
+      gapCenter: activeWall?.gapCenter ?? WORLD_HEIGHT / 2,
+      gapHeight: activeWall?.gapHeight ?? 180,
+    };
+  }
+
+  function scheduleBossAttack(difficulty) {
+    if (!bossEncounter || !warningSession?.isBoss || bossEncounter.attack || challenge?.active) return;
+    if (warningSession.specialObstacleIds.size > 0) return;
+    if (bossEncounter.normalWallsSinceProjectile < BOSS_PROJECTILE_NORMAL_WALL_COOLDOWN) return;
+    if (bossEncounter.lastSpecialResolvedAt !== null
+      && elapsedSeconds - bossEncounter.lastSpecialResolvedAt < BOSS_RESPONSE_COOLDOWN_SECONDS) return;
+    if (bossEncounter.lastProjectileResolvedAt !== null
+      && elapsedSeconds - bossEncounter.lastProjectileResolvedAt < BOSS_RESPONSE_COOLDOWN_SECONDS) return;
+
+    const stageDefinition = getStageState().definition;
+    const attackId = `boss-attack-${nextAttackId++}`;
+    if (bossEncounter.number >= 5 && safeRandom(rng) < 0.25) {
+      const context = getBossWallContext();
+      const laser = safeRandom(rng) < 0.5
+        ? createSingleLaser({ ...context, rng, styleKey: stageDefinition.laserStyle })
+        : createQuarterLaser({ rng, styleKey: stageDefinition.laserStyle });
+      bossEncounter.attack = { id: attackId, kind: 'laser', ...laser };
+      bossEncounter.wallSpawningPaused = true;
+      return;
+    }
+
+    bossEncounter.attack = {
+      id: attackId,
+      kind: 'projectile',
+      ...createBossProjectile({
+        id: attackId,
+        bossX: 840,
+        bossY: 80 + safeRandom(rng) * (WORLD_HEIGHT - 160),
+        playerX: player.x,
+        playerY: player.y,
+        baseSpeed: difficulty.scrollSpeed,
+        rng,
+        styleKey: stageDefinition.projectileStyle,
+      }),
+    };
+    bossEncounter.wallSpawningPaused = false;
+  }
+
+  function updateBossAttack(deltaSeconds) {
+    if (!bossEncounter?.attack) return;
+    const attack = bossEncounter.attack;
+    if (attack.kind === 'projectile') {
+      updateBossProjectile(attack, deltaSeconds);
+      if (attack.state === 'missed' && attack.hitPlayer) {
+        stop('projectile');
+        return;
+      }
+      if (attack.state === 'returning') {
+        bossEncounter.reflectedProjectile = {
+          id: attack.id,
+          progress: attack.returnProgress,
+        };
+      }
+      if (attack.state === 'resolved') {
+        bossEncounter.reflectedProjectile = null;
+        advanceBossEncounter(bossEncounter, 'projectile-resolved', elapsedSeconds);
+        bossEncounter.attack = null;
+      }
+      return;
+    }
+
+    updateLaser(attack, deltaSeconds);
+    if (intersectsPlayerLaser(player, attack, WORLD_HEIGHT)) {
+      stop('laser');
+      return;
+    }
+    if (attack.telegraphRemainingSeconds === 0 && attack.activeRemainingSeconds === 0) {
+      bossEncounter.attack = null;
+      bossEncounter.wallSpawningPaused = false;
+      bossEncounter.lastProjectileResolvedAt = elapsedSeconds + BOSS_LASER_FOLLOW_UP_SECONDS;
+      bossEncounter.normalWallsSinceProjectile = BOSS_PROJECTILE_NORMAL_WALL_COOLDOWN;
+    }
+  }
+
+  function completeBossIfReady() {
+    if (!bossEncounter || !warningSession?.isBoss || bossEncounter.hp > 0 || bossEncounter.attack || challenge?.active) {
+      return;
+    }
+    advanceBossEncounter(bossEncounter, 'boss-cleared');
+    scoreSession.score += 10;
+    completedWarningCount += 1;
+    nextWarningScore = getScore() + chooseWarningScoreStep(rng);
+    warningSession = null;
+    bossEncounter = null;
+    spawnAccumulatorSeconds = 0;
+  }
+
+  function handleChallengeInput(code) {
+    if (!challenge?.active) return false;
+    const result = handleChallengeKey(challenge, code);
+    if (result === 'success' || result === 'failure') resolveChallenge();
+    return result !== 'ignored';
+  }
+
   function setAccountBestScore(bestScore) {
     if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED || state === GAME_STATES.GAME_OVER) {
       return accountBestScore;
@@ -315,11 +467,17 @@ export function createGameEngine(deps = {}) {
     lastUpdateMs = nowMs;
     if (deltaSeconds <= 0) return;
 
+    if (challenge?.active) {
+      updateChallenge(challenge, deltaSeconds);
+      resolveChallenge();
+      return;
+    }
+
     updatePlayer(player, deltaSeconds, gravity * aircraft.gravityMultiplier);
     elapsedSeconds += deltaSeconds;
     updateStage(deltaSeconds);
     let difficulty = getCurrentDifficulty();
-    updateSpawning(deltaSeconds, difficulty);
+    if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
 
     for (const obstacle of obstacles) {
@@ -330,6 +488,11 @@ export function createGameEngine(deps = {}) {
       }
     }
     advanceDash(player, deltaSeconds);
+    updateBossAttack(deltaSeconds);
+    if (feedbackEffect) {
+      feedbackEffect.remainingSeconds = Math.max(0, feedbackEffect.remainingSeconds - deltaSeconds);
+      if (feedbackEffect.remainingSeconds === 0) feedbackEffect = null;
+    }
 
     if (isOutOfBounds(player, WORLD_HEIGHT)) {
       stop('boundary');
@@ -342,12 +505,15 @@ export function createGameEngine(deps = {}) {
     }
 
     processPassedObstacles();
+    completeBossIfReady();
+    scheduleBossAttack(difficulty);
   }
 
   function pause() {
     if (state !== GAME_STATES.PLAYING) {
       return { score: getScore() };
     }
+    if (challenge?.active) return { score: getScore() };
 
     scoreSession.score = Math.max(0, getScore() - PAUSE_SCORE_PENALTY);
     state = GAME_STATES.PAUSED;
@@ -362,6 +528,19 @@ export function createGameEngine(deps = {}) {
 
   function dash() {
     if (state !== GAME_STATES.PLAYING) return false;
+    if (challenge?.active) return false;
+    if (bossEncounter?.attack?.kind === 'projectile'
+      && isProjectileInReflectionWindow(bossEncounter.attack, player.x)
+      && isProjectileReflectionSuccess({ player, projectile: bossEncounter.attack })) {
+      reflectProjectile(bossEncounter.attack, player.x, player.y);
+      advanceBossEncounter(bossEncounter, 'projectile-reflected');
+      if (shouldStartBossChallenge(bossEncounter)) {
+        challenge = createChallenge({ bossNumber: bossEncounter.number, rng });
+        bossEncounter.wallSpawningPaused = true;
+      }
+      startDash(player, DASH_DURATION_SECONDS, null, 'normal');
+      return true;
+    }
     const difficulty = getCurrentDifficulty();
     const target = obstacles
       .filter((obstacle) => obstacle.kind === 'special' && !obstacle.passed && obstacle.x >= player.x)
@@ -420,6 +599,15 @@ export function createGameEngine(deps = {}) {
         bossBackgroundKey: stageState.definition.bossBackgroundKey,
         transition: stageTransition ? { ...stageTransition } : null,
       },
+      boss: bossEncounter ? {
+        ...bossEncounter,
+        attack: bossEncounter.attack ? { ...bossEncounter.attack } : null,
+        reflectedProjectile: bossEncounter.reflectedProjectile
+          ? { ...bossEncounter.reflectedProjectile }
+          : null,
+      } : null,
+      challenge: challenge ? { ...challenge, sequence: [...challenge.sequence] } : null,
+      feedbackEffect: feedbackEffect ? { ...feedbackEffect } : null,
       player: { ...player },
       obstacles: obstacles.map((obstacle) => ({ ...obstacle, breakEffect: obstacle.breakEffect ? { ...obstacle.breakEffect } : null })),
       difficulty: { ...getCurrentDifficulty() },
@@ -444,6 +632,7 @@ export function createGameEngine(deps = {}) {
     stop,
     setAircraft,
     setAccountBestScore,
+    handleChallengeKey: handleChallengeInput,
     getSnapshot,
   };
 }
