@@ -10,7 +10,7 @@
 
 ## Active Task
 
-[T07 Leaderboard Aircraft Data](./phases/2026-09-23-void-surfer-expansion/P03-data-qa-deployment/T07-leaderboard-aircraft-data.md)
+[T08 Integration QA and Docs](./phases/2026-09-23-void-surfer-expansion/P03-data-qa-deployment/T08-integration-qa-docs.md)
 
 ## Status
 
@@ -18,4 +18,4 @@
 
 ## Next Step (IMPORTANT)
 
-T07 청사진을 읽고 기체 정보가 포함된 Supabase 점수 제출·조회와 계정 최고점 해금을 연결한다.
+T07 completed. Proceed with T08 integration QA and deployment documentation.

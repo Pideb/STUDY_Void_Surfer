@@ -1,5 +1,6 @@
 import { createValidationError, mapLeaderboardError } from './leaderboard-errors.js';
 import { normalizeLeaderboardRows, normalizeScoreRecord } from './leaderboard-types.js';
+import { AIRCRAFT_CATALOG } from '../game/aircraft.js';
 
 const DEFAULT_TOP_LIMIT = 10;
 const MAX_TOP_LIMIT = 50;
@@ -12,13 +13,17 @@ function clampInteger(value, fallback, minimum, maximum) {
   return Math.min(maximum, Math.max(minimum, Math.trunc(numeric)));
 }
 
-function validateSubmission({ score, displayName }) {
+function validateSubmission({ score, displayName, aircraftId }) {
   if (!Number.isInteger(score) || score < 0) {
     return createValidationError('점수는 0 이상의 정수여야 합니다.');
   }
 
   if (typeof displayName !== 'string' || !displayName.trim()) {
     return createValidationError('표시 이름을 확인할 수 없습니다.');
+  }
+
+  if (!AIRCRAFT_CATALOG.some(({ id }) => id === aircraftId)) {
+    return createValidationError('선택한 기체 정보를 확인할 수 없습니다.');
   }
 
   return null;
@@ -34,8 +39,8 @@ async function getCurrentUserId(client) {
   }
 }
 
-export async function submitBestScore(client, { score, displayName } = {}) {
-  const validationError = validateSubmission({ score, displayName });
+export async function submitBestScore(client, { score, displayName, aircraftId = 'default' } = {}) {
+  const validationError = validateSubmission({ score, displayName, aircraftId });
   if (validationError) {
     return { updated: false, record: null, error: validationError };
   }
@@ -44,6 +49,7 @@ export async function submitBestScore(client, { score, displayName } = {}) {
     const { data, error } = await client.rpc('submit_score', {
       p_score: score,
       p_display_name: displayName.trim(),
+      p_aircraft_id: aircraftId,
     });
 
     if (error) {

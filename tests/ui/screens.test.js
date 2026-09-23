@@ -14,7 +14,7 @@ describe('product flow screens', () => {
     expect(screen.classList.contains('menu-overlay')).toBe(true);
     expect(screen.querySelector('.menu-brand strong')?.textContent).toBe('Pilot');
     expect(screen.querySelector('.menu-greeting')?.textContent)
-      .toBe('Pilot파일럿, 다시 도전하는 것을 환영합니다.');
+      .toBe('Pilot 파일럿, 다시 도전하는 것을 환영합니다.');
     const labels = [...screen.querySelectorAll('button')].map((button) => button.textContent.trim());
     expect(labels).not.toContain('조작법');
     expect(labels).toContain('게임 시작');

@@ -1,6 +1,6 @@
 # Task: T07 Leaderboard Aircraft Data
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -74,6 +74,6 @@ Task: T07-leaderboard-aircraft-data
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Client tests and production build passed; SQL runtime test not run (Supabase CLI unavailable; Docker unavailable in this environment)
+- commit: included in T07 changeset

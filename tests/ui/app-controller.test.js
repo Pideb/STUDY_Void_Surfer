@@ -209,7 +209,9 @@ describe('app controller product flow', () => {
     expect(harness.root.textContent).toContain('재시작');
     expect(harness.root.textContent).toContain('메인 메뉴');
     expect(harness.root.textContent).toContain('불러오는 중');
-    expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledWith(pilot, { score: 0, displayName: 'Pilot' });
+    expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledWith(pilot, {
+      score: 0, displayName: 'Pilot', aircraftId: 'default',
+    });
   });
 
   it('submits and queries leaderboard independently then displays rows in safe text cells', async () => {
@@ -220,11 +222,15 @@ describe('app controller product flow', () => {
     } });
     harness.controller.mount();
     await settle();
+    harness.snapshot.aircraft = { id: 'velocity' };
     harness.controller.dispatch('START_GAME_FROM_MENU');
     harness.controller.dispatch('START_PLAYING');
     harness.controller.dispatch('GAME_OVER');
     await settle();
 
+    expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledWith(pilot, {
+      score: 0, displayName: 'Pilot', aircraftId: 'velocity',
+    });
     expect(harness.root.querySelector('img')).toBeNull();
     expect(harness.root.textContent).toContain('<img src=x>');
     expect(harness.root.querySelector('[aria-current="true"]')).not.toBeNull();

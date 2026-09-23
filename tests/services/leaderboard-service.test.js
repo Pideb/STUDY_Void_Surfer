@@ -24,6 +24,7 @@ function dbRow(overrides = {}) {
     display_name: '<Pilot>',
     best_score: 25,
     achieved_at: '2026-09-22T00:00:00.000Z',
+    aircraft_id: 'velocity',
     ...overrides,
   };
 }
@@ -32,21 +33,22 @@ describe('submitBestScore', () => {
   it('submits only through the score RPC and normalizes the returned record', async () => {
     const client = makeClient({
       rpcImpl: vi.fn(async () => ({
-        data: { user_id: 'player-1', best_score: 31, achieved_at: '2026-09-22T01:00:00Z' },
+        data: { user_id: 'player-1', best_score: 31, achieved_at: '2026-09-22T01:00:00Z', aircraft_id: 'aegis' },
         error: null,
       })),
     });
 
-    const result = await submitBestScore(client, { score: 31, displayName: '  Pilot  ' });
+    const result = await submitBestScore(client, { score: 31, displayName: '  Pilot  ', aircraftId: 'aegis' });
 
     expect(result).toEqual({
       updated: true,
-      record: { userId: 'player-1', bestScore: 31, achievedAt: '2026-09-22T01:00:00Z' },
+      record: { userId: 'player-1', bestScore: 31, achievedAt: '2026-09-22T01:00:00Z', aircraftId: 'aegis' },
       error: null,
     });
     expect(client.rpc).toHaveBeenCalledExactlyOnceWith('submit_score', {
       p_score: 31,
       p_display_name: 'Pilot',
+      p_aircraft_id: 'aegis',
     });
   });
 
@@ -75,6 +77,14 @@ describe('submitBestScore', () => {
 
     expect(result.updated).toBe(false);
     expect(result.record).toBeNull();
+    expect(result.error.code).toBe('VALIDATION_ERROR');
+    expect(client.rpc).not.toHaveBeenCalled();
+  });
+
+  it('rejects unknown aircraft IDs before calling the RPC', async () => {
+    const client = makeClient();
+    const result = await submitBestScore(client, { score: 1, displayName: 'Pilot', aircraftId: 'admin' });
+
     expect(result.error.code).toBe('VALIDATION_ERROR');
     expect(client.rpc).not.toHaveBeenCalled();
   });
@@ -149,9 +159,17 @@ describe('leaderboard row normalization and error mapping', () => {
         displayName: '<Pilot>',
         bestScore: 25,
         achievedAt: '2026-09-22T00:00:00.000Z',
+        aircraftId: 'velocity',
         isCurrentUser: true,
       },
     ]);
+  });
+
+  it('defaults missing or unknown legacy aircraft IDs to the basic ship', () => {
+    expect(normalizeLeaderboardRows([
+      dbRow({ aircraft_id: null }),
+      dbRow({ aircraft_id: 'untrusted-value' }),
+    ]).map((row) => row.aircraftId)).toEqual(['default', 'default']);
   });
 
   it('maps auth, network, and database errors distinctly', () => {

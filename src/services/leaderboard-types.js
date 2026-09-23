@@ -1,6 +1,14 @@
+import { AIRCRAFT_CATALOG } from '../game/aircraft.js';
+
 function toFiniteNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
+}
+
+const KNOWN_AIRCRAFT_IDS = new Set(AIRCRAFT_CATALOG.map(({ id }) => id));
+
+function normalizeAircraftId(value) {
+  return KNOWN_AIRCRAFT_IDS.has(value) ? value : 'default';
 }
 
 export function normalizeScoreRecord(value) {
@@ -17,6 +25,7 @@ export function normalizeScoreRecord(value) {
     userId: String(userId),
     bestScore,
     achievedAt: String(achievedAt),
+    aircraftId: normalizeAircraftId(row.aircraft_id ?? row.aircraftId),
   };
 }
 
@@ -43,6 +52,7 @@ export function normalizeLeaderboardRows(rows, currentUserId = null) {
       displayName: displayName.trim(),
       bestScore,
       achievedAt: String(achievedAt),
+      aircraftId: normalizeAircraftId(row.aircraft_id ?? row.aircraftId),
       isCurrentUser: currentUserId !== null && String(userId) === String(currentUserId),
     });
   }

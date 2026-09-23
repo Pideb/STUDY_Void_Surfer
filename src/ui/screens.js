@@ -48,7 +48,7 @@ export function renderMenuScreen(model, handlers) {
   greeting.className = 'menu-greeting';
   const pilotName = document.createElement('strong');
   pilotName.textContent = model.displayName;
-  greeting.append(pilotName, document.createTextNode('파일럿, 다시 도전하는 것을 환영합니다.'));
+  greeting.append(pilotName, document.createTextNode(' 파일럿, 다시 도전하는 것을 환영합니다.'));
   const aircraft = document.createElement('p');
   aircraft.className = 'menu-aircraft-status';
   aircraft.textContent = `출격 기체 · ${model.selectedAircraft ?? 'DEFAULT'}`;

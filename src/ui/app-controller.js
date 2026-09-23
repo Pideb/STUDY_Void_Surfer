@@ -413,6 +413,7 @@ export function createAppController(deps) {
     const requestId = ++state.gameOverRequest;
     const score = state.snapshot?.score ?? 0;
     const displayName = getDisplayName(state.user);
+    const aircraftId = state.snapshot?.aircraft?.id ?? 'default';
     state.leaderboard = {
       top: { loading: true }, neighborhood: { loading: true },
     };
@@ -420,7 +421,7 @@ export function createAppController(deps) {
     paint();
 
     const submit = submitScore
-      ? leaderboardService.submitBestScore(state.user, { score, displayName })
+      ? leaderboardService.submitBestScore(state.user, { score, displayName, aircraftId })
       : Promise.resolve({ error: null });
     const top = leaderboardService.fetchTopScores();
     const neighborhood = leaderboardService.fetchPlayerNeighborhood();

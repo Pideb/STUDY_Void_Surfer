@@ -1,3 +1,13 @@
+import { AIRCRAFT_CATALOG } from '../game/aircraft.js';
+
+const AIRCRAFT_ICONS = Object.freeze({ default: '✦', velocity: '➤', aegis: '⬟' });
+const AIRCRAFT_PRESENTATION = Object.freeze({
+  ...Object.fromEntries(AIRCRAFT_CATALOG.map(({ id, name }) => [
+    id,
+    Object.freeze({ name, icon: AIRCRAFT_ICONS[id] ?? '✦' }),
+  ])),
+});
+
 function createLeaderboardTable(title, rows, emptyMessage) {
   const section = document.createElement('section');
   section.className = 'leaderboard-section';
@@ -19,7 +29,7 @@ function createLeaderboardTable(title, rows, emptyMessage) {
   table.append(caption);
   const head = document.createElement('thead');
   const headerRow = document.createElement('tr');
-  for (const label of ['순위', '파일럿', '점수']) {
+  for (const label of ['순위', '파일럿', '기체', '점수']) {
     const cell = document.createElement('th');
     cell.scope = 'col';
     cell.textContent = label;
@@ -35,7 +45,8 @@ function createLeaderboardTable(title, rows, emptyMessage) {
       tableRow.className = 'current-player-row';
       tableRow.setAttribute('aria-current', 'true');
     }
-    for (const value of [row.rank, row.displayName, row.bestScore]) {
+    const aircraft = AIRCRAFT_PRESENTATION[row.aircraftId] ?? AIRCRAFT_PRESENTATION.default;
+    for (const value of [row.rank, row.displayName, `${aircraft.icon} ${aircraft.name}`, row.bestScore]) {
       const cell = document.createElement('td');
       cell.textContent = String(value);
       tableRow.append(cell);
