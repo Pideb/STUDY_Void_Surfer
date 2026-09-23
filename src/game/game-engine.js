@@ -353,14 +353,14 @@ export function createGameEngine(deps = {}) {
       const laser = safeRandom(rng) < 0.5
         ? createSingleLaser({ ...context, rng, styleKey: stageDefinition.laserStyle })
         : createQuarterLaser({ rng, styleKey: stageDefinition.laserStyle });
-      bossEncounter.attack = { id: attackId, kind: 'laser', ...laser };
+      bossEncounter.attack = { id: attackId, type: 'laser', ...laser };
       bossEncounter.wallSpawningPaused = true;
       return;
     }
 
     bossEncounter.attack = {
       id: attackId,
-      kind: 'projectile',
+      type: 'projectile',
       ...createBossProjectile({
         id: attackId,
         bossX: 840,
@@ -378,7 +378,7 @@ export function createGameEngine(deps = {}) {
   function updateBossAttack(deltaSeconds) {
     if (!bossEncounter?.attack) return;
     const attack = bossEncounter.attack;
-    if (attack.kind === 'projectile') {
+    if (attack.type === 'projectile') {
       updateBossProjectile(attack, deltaSeconds);
       if (attack.state === 'missed' && attack.hitPlayer) {
         stop('projectile');
@@ -392,6 +392,7 @@ export function createGameEngine(deps = {}) {
       }
       if (attack.state === 'resolved') {
         bossEncounter.reflectedProjectile = null;
+        bossEncounter.hitEffect = { remainingSeconds: 0.38, durationSeconds: 0.38 };
         advanceBossEncounter(bossEncounter, 'projectile-resolved', elapsedSeconds);
         bossEncounter.attack = null;
       }
@@ -489,6 +490,10 @@ export function createGameEngine(deps = {}) {
     }
     advanceDash(player, deltaSeconds);
     updateBossAttack(deltaSeconds);
+    if (bossEncounter?.hitEffect) {
+      bossEncounter.hitEffect.remainingSeconds = Math.max(0, bossEncounter.hitEffect.remainingSeconds - deltaSeconds);
+      if (bossEncounter.hitEffect.remainingSeconds === 0) bossEncounter.hitEffect = null;
+    }
     if (feedbackEffect) {
       feedbackEffect.remainingSeconds = Math.max(0, feedbackEffect.remainingSeconds - deltaSeconds);
       if (feedbackEffect.remainingSeconds === 0) feedbackEffect = null;
@@ -529,7 +534,7 @@ export function createGameEngine(deps = {}) {
   function dash() {
     if (state !== GAME_STATES.PLAYING) return false;
     if (challenge?.active) return false;
-    if (bossEncounter?.attack?.kind === 'projectile'
+    if (bossEncounter?.attack?.type === 'projectile'
       && isProjectileInReflectionWindow(bossEncounter.attack, player.x)
       && isProjectileReflectionSuccess({ player, projectile: bossEncounter.attack })) {
       reflectProjectile(bossEncounter.attack, player.x, player.y);
@@ -602,6 +607,7 @@ export function createGameEngine(deps = {}) {
       boss: bossEncounter ? {
         ...bossEncounter,
         attack: bossEncounter.attack ? { ...bossEncounter.attack } : null,
+        hitEffect: bossEncounter.hitEffect ? { ...bossEncounter.hitEffect } : null,
         reflectedProjectile: bossEncounter.reflectedProjectile
           ? { ...bossEncounter.reflectedProjectile }
           : null,

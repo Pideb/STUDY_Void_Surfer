@@ -1,6 +1,6 @@
 # Task: T04 Stage Rendering
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -84,6 +84,6 @@ Task: T04-stage-rendering
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- commit: `cd820b6`

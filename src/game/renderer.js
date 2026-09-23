@@ -1,5 +1,10 @@
 import { DASH_DURATION_SECONDS, WORLD_HEIGHT, WORLD_WIDTH } from './constants.js';
-import { STAR_FIELD, VISUAL_THEME } from './visual-theme.js';
+import {
+  AIRCRAFT_VISUALS,
+  getStageVisualTheme,
+  STAR_FIELD,
+  VISUAL_THEME,
+} from './visual-theme.js';
 
 function getDevicePixelRatio() {
   return Math.max(1, Number(globalThis.devicePixelRatio) || 1);
@@ -15,22 +20,56 @@ function resetGlow(ctx) {
   ctx.shadowBlur = 0;
 }
 
-export function drawShip(ctx, player, theme = VISUAL_THEME) {
+export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'default') {
   const tilt = Math.max(-0.35, Math.min(0.35, player.velocityY / 1000));
   const dashIntensity = getDashIntensity(player);
+  const craft = AIRCRAFT_VISUALS[aircraftId] ?? AIRCRAFT_VISUALS.default;
 
   ctx.save();
   ctx.translate(player.x, player.y);
   ctx.rotate(tilt);
-  setGlow(ctx, theme.shipAccent, theme.shipGlow);
-  ctx.fillStyle = theme.ship;
+  setGlow(ctx, craft.outline, theme.shipGlow);
+  ctx.fillStyle = craft.fill;
   ctx.beginPath();
-  ctx.moveTo(player.width / 2, 0);
-  ctx.lineTo(-player.width / 2, -player.height / 2);
-  ctx.lineTo(-player.width / 2 + 8, 0);
-  ctx.lineTo(-player.width / 2, player.height / 2);
+  if (craft.shape === 'slim') {
+    ctx.moveTo(player.width / 2, 0);
+    ctx.lineTo(-player.width / 2, -player.height * 0.34);
+    ctx.lineTo(-player.width / 2 + 5, 0);
+    ctx.lineTo(-player.width / 2, player.height * 0.34);
+  } else if (craft.shape === 'armored') {
+    ctx.moveTo(player.width / 2, 0);
+    ctx.lineTo(player.width * 0.08, -player.height / 2);
+    ctx.lineTo(-player.width / 2, -player.height * 0.4);
+    ctx.lineTo(-player.width * 0.28, 0);
+    ctx.lineTo(-player.width / 2, player.height * 0.4);
+    ctx.lineTo(player.width * 0.08, player.height / 2);
+  } else {
+    ctx.moveTo(player.width / 2, 0);
+    ctx.lineTo(-player.width / 2, -player.height / 2);
+    ctx.lineTo(-player.width / 2 + 8, 0);
+    ctx.lineTo(-player.width / 2, player.height / 2);
+  }
   ctx.closePath();
   ctx.fill();
+  ctx.strokeStyle = craft.outline;
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.95;
+  ctx.strokeStyle = craft.accent;
+  ctx.lineWidth = craft.shape === 'armored' ? 2 : 1.5;
+  ctx.beginPath();
+  if (craft.shape === 'armored') {
+    ctx.moveTo(player.width * 0.1, -player.height * 0.3);
+    ctx.lineTo(-player.width * 0.2, 0);
+    ctx.lineTo(player.width * 0.1, player.height * 0.3);
+    ctx.moveTo(-player.width * 0.34, -player.height * 0.23);
+    ctx.lineTo(-player.width * 0.34, player.height * 0.23);
+  } else {
+    ctx.moveTo(-player.width * 0.22, 0);
+    ctx.lineTo(player.width * 0.24, 0);
+  }
+  ctx.stroke();
 
   if (dashIntensity > 0) {
     const pulse = 0.55 + Math.sin((1 - dashIntensity) * Math.PI * 3) * 0.15;
@@ -41,13 +80,13 @@ export function drawShip(ctx, player, theme = VISUAL_THEME) {
     ctx.stroke();
     resetGlow(ctx);
     ctx.globalAlpha = 0.72 + dashIntensity * 0.22;
-    ctx.fillStyle = theme.dash.core;
+    ctx.fillStyle = craft.accent;
     ctx.beginPath();
     ctx.arc(-player.width / 5, 0, 3 + dashIntensity * 1.5, 0, Math.PI * 2);
     ctx.fill();
   } else {
     resetGlow(ctx);
-    ctx.fillStyle = theme.shipAccent;
+    ctx.fillStyle = craft.accent;
     ctx.beginPath();
     ctx.arc(-player.width / 5, 0, 3, 0, Math.PI * 2);
     ctx.fill();
@@ -121,10 +160,15 @@ function getTimingGuideWidth(obstacle, difficulty) {
   return Math.max(0, speed * windowSeconds);
 }
 
+function resolveStageTheme(stageId) {
+  return stageId ? getStageVisualTheme(stageId) : VISUAL_THEME;
+}
+
 export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = null) {
   const isSpecial = obstacle.kind === 'special';
-  const primary = isSpecial ? theme.specialObstacle : theme.obstacle;
-  const accent = isSpecial ? theme.specialAccent : theme.obstacleAccent;
+  const visual = obstacle.stageId ? resolveStageTheme(obstacle.stageId) : theme;
+  const primary = isSpecial ? visual.specialObstacle : visual.obstacle;
+  const accent = isSpecial ? visual.specialAccent : visual.obstacleAccent;
   const gapTop = obstacle.gapCenter - obstacle.gapHeight / 2;
   const bottomTop = obstacle.gapCenter + obstacle.gapHeight / 2;
   const timingGuideWidth = getTimingGuideWidth(obstacle, difficulty);
@@ -136,15 +180,15 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
     ctx.fillRect(obstacle.x - timingGuideWidth, 0, timingGuideWidth, WORLD_HEIGHT);
     ctx.globalAlpha = 1;
   }
-  setGlow(ctx, primary, theme.obstacleGlow);
+  setGlow(ctx, primary, theme.obstacleGlow ?? 12);
   ctx.fillStyle = primary;
   if (isSpecial) {
     const effect = obstacle.breakEffect;
     const opening = effect ? Math.max(0, Math.min(WORLD_HEIGHT, effect.centerY ?? 0)) : null;
     if (opening === null) ctx.fillRect(obstacle.x, 0, obstacle.width, WORLD_HEIGHT);
     else {
-      const top = Math.max(0, opening - theme.breakOpeningHalfHeight);
-      const bottom = Math.min(WORLD_HEIGHT, opening + theme.breakOpeningHalfHeight);
+      const top = Math.max(0, opening - (theme.breakOpeningHalfHeight ?? 28));
+      const bottom = Math.min(WORLD_HEIGHT, opening + (theme.breakOpeningHalfHeight ?? 28));
       ctx.fillRect(obstacle.x, 0, obstacle.width, top);
       ctx.fillRect(obstacle.x, bottom, obstacle.width, WORLD_HEIGHT - bottom);
       ctx.strokeStyle = theme.breakFragment;
@@ -185,36 +229,128 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
       ctx.lineTo(obstacle.x + obstacle.width - 8, y + 10);
       ctx.stroke();
     }
+  } else {
+    // Quiet stage-specific panel seams add identity without changing the collision silhouette.
+    ctx.globalAlpha = 0.3;
+    ctx.strokeStyle = accent;
+    ctx.lineWidth = 1;
+    const style = visual.obstacleStyle;
+    for (const y of [Math.max(8, gapTop * 0.48), bottomTop + (WORLD_HEIGHT - bottomTop) * 0.5]) {
+      if (y < 0 || y > WORLD_HEIGHT) continue;
+      ctx.beginPath();
+      if (style === 'industrial' || style === 'solar') {
+        ctx.moveTo(obstacle.x + 5, y);
+        ctx.lineTo(obstacle.x + obstacle.width - 5, y);
+      } else if (style === 'gravity') {
+        ctx.moveTo(obstacle.x + obstacle.width / 2, y - 7);
+        ctx.lineTo(obstacle.x + obstacle.width / 2, y + 7);
+      } else {
+        ctx.moveTo(obstacle.x + 6, y - 6);
+        ctx.lineTo(obstacle.x + obstacle.width - 6, y + 6);
+      }
+      ctx.stroke();
+    }
   }
 
+  ctx.restore();
+}
+
+function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false) {
+  const theme = resolveStageTheme(stageId);
+  ctx.fillStyle = boss ? theme.bossBackground : theme.background;
+  ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  const gradient = ctx.createRadialGradient?.(WORLD_WIDTH * 0.63, WORLD_HEIGHT * 0.46, 18,
+    WORLD_WIDTH * 0.63, WORLD_HEIGHT * 0.46, WORLD_WIDTH * 0.8);
+  if (gradient) {
+    gradient.addColorStop(0, `${theme.backgroundGlow}${boss ? '55' : '88'}`);
+    gradient.addColorStop(1, `${boss ? theme.bossBackground : theme.background}00`);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  }
+  ctx.fillStyle = theme.star;
+  for (let index = 0; index < STAR_FIELD.length; index += 1) {
+    const [baseX, baseY, radius] = STAR_FIELD[index];
+    const x = (baseX + elapsedSeconds * (6 + index * 1.3)) % WORLD_WIDTH;
+    const y = baseY + Math.sin(elapsedSeconds * 0.22 + index) * 4;
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Low-contrast motifs occupy the whole field; gameplay remains readable edge-to-edge.
+  ctx.save();
+  ctx.globalAlpha = boss ? 0.17 : 0.12;
+  ctx.strokeStyle = theme.primary;
+  ctx.lineWidth = 1;
+  const style = theme.particleStyle;
+  for (let index = 0; index < 7; index += 1) {
+    const x = (index * 173 + elapsedSeconds * (style === 'industrial' ? 12 : 4)) % (WORLD_WIDTH + 100) - 50;
+    const y = (index * 89 + 24) % WORLD_HEIGHT;
+    ctx.beginPath();
+    if (style === 'gravity') {
+      ctx.arc(x, y, 18 + (index % 3) * 8, -0.5, 1.4);
+    } else if (style === 'industrial' || style === 'solar') {
+      ctx.moveTo(x - 24, y); ctx.lineTo(x + 24, y); ctx.lineTo(x + 24, y + 16);
+    } else if (style === 'abyssal') {
+      ctx.moveTo(x - 28, y); ctx.lineTo(x - 12, y - 4); ctx.lineTo(x + 6, y + 3); ctx.lineTo(x + 28, y - 2);
+    } else {
+      ctx.moveTo(x, y - 18); ctx.lineTo(x + 12, y); ctx.lineTo(x, y + 18); ctx.lineTo(x - 12, y); ctx.closePath();
+    }
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
 function drawBackground(ctx, theme) {
   ctx.fillStyle = theme.background;
   ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-
-  const gradient = ctx.createRadialGradient?.(
-    WORLD_WIDTH / 2,
-    0,
-    20,
-    WORLD_WIDTH / 2,
-    0,
-    WORLD_HEIGHT,
-  );
+  const gradient = ctx.createRadialGradient?.(WORLD_WIDTH / 2, 0, 20, WORLD_WIDTH / 2, 0, WORLD_HEIGHT);
   if (gradient) {
     gradient.addColorStop(0, `${theme.backgroundGlow}99`);
     gradient.addColorStop(1, `${theme.background}00`);
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   }
-
   ctx.fillStyle = theme.star;
   for (const [x, y, radius] of STAR_FIELD) {
-    ctx.beginPath();
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.fill();
   }
+}
+
+function backgroundKeyToId(key) {
+  return (key ?? 'crystal-gates').replace(/-boss$/, '');
+}
+
+function drawBackgroundTransition(ctx, stage, elapsedSeconds) {
+  const transition = stage?.transition;
+  if (!transition) {
+    drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss');
+    return;
+  }
+  const progress = Math.max(0, Math.min(1, transition.progress ?? 1));
+  ctx.save();
+  ctx.globalAlpha = 1 - progress;
+  drawStageBackground(ctx, backgroundKeyToId(transition.fromKey), elapsedSeconds,
+    String(transition.fromKey).endsWith('-boss'));
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha = progress;
+  drawStageBackground(ctx, backgroundKeyToId(transition.toKey), elapsedSeconds,
+    String(transition.toKey).endsWith('-boss'));
+  ctx.restore();
+}
+
+function drawStageAtmosphere(ctx, mode, elapsedSeconds = 0) {
+  if (mode !== 'warning' && mode !== 'boss') return;
+  ctx.save();
+  if (mode === 'boss') {
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+  } else {
+    const pulse = 0.035 + (Math.sin(elapsedSeconds * 5) + 1) * 0.012;
+    ctx.fillStyle = `rgba(255, 42, 86, ${pulse})`;
+  }
+  ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  ctx.restore();
 }
 
 function drawMenuNebula(ctx, theme) {
@@ -242,29 +378,52 @@ function drawMenuDepthLines(ctx, theme) {
   ctx.restore();
 }
 
-function drawBoss(ctx, difficulty, theme) {
+function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0) {
   if (!difficulty?.isBoss) {
     return;
   }
 
   ctx.save();
-  ctx.globalAlpha = 0.78;
+  ctx.globalAlpha = 0.9;
   setGlow(ctx, theme.boss, 28);
   ctx.fillStyle = theme.boss;
   ctx.beginPath();
-  ctx.arc(840, WORLD_HEIGHT / 2, 86, 0, Math.PI * 2);
+  const hitProgress = boss?.hitEffect
+    ? Math.max(0, Math.min(1, boss.hitEffect.remainingSeconds / (boss.hitEffect.durationSeconds || 1)))
+    : 0;
+  const x = 842 + Math.sin(elapsedSeconds * 1.4) * 4 + hitProgress * 12;
+  const y = WORLD_HEIGHT / 2 + Math.sin(elapsedSeconds * 1.1) * 18;
+  ctx.arc(x, y, 68, 0, Math.PI * 2);
   ctx.fill();
   resetGlow(ctx);
+  ctx.fillStyle = theme.background ?? '#050816';
+  ctx.beginPath();
+  ctx.arc(x, y, 48, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = hitProgress > 0 ? '#ffffff' : theme.boss;
+  ctx.beginPath();
+  ctx.arc(x - 18, y - 9, 7, 0, Math.PI * 2);
+  ctx.arc(x + 18, y - 9, 7, 0, Math.PI * 2);
+  ctx.fill();
 
-  ctx.fillStyle = theme.background;
+  // Distinct stage silhouette signatures, all decorative and outside collision logic.
+  const style = theme.bossStyle;
+  ctx.strokeStyle = theme.accent;
+  ctx.lineWidth = 4;
   ctx.beginPath();
-  ctx.arc(840, WORLD_HEIGHT / 2, 58, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = theme.boss;
-  ctx.beginPath();
-  ctx.arc(820, WORLD_HEIGHT / 2 - 10, 8, 0, Math.PI * 2);
-  ctx.arc(860, WORLD_HEIGHT / 2 - 10, 8, 0, Math.PI * 2);
-  ctx.fill();
+  if (style === 'gravity-crescent') {
+    ctx.arc(x, y, 80, -1.15, 1.15);
+  } else if (style === 'orbital-factory' || style === 'solar-machine') {
+    ctx.moveTo(x - 74, y - 50); ctx.lineTo(x - 96, y - 12); ctx.lineTo(x - 72, y + 47);
+    ctx.moveTo(x + 55, y - 40); ctx.lineTo(x + 82, y); ctx.lineTo(x + 54, y + 42);
+  } else if (style === 'abyssal-leviathan') {
+    ctx.moveTo(x - 54, y + 38); ctx.lineTo(x - 98, y + 62); ctx.lineTo(x - 76, y + 6);
+    ctx.moveTo(x - 54, y - 38); ctx.lineTo(x - 98, y - 62); ctx.lineTo(x - 76, y - 6);
+  } else {
+    ctx.moveTo(x - 60, y - 54); ctx.lineTo(x - 80, y); ctx.lineTo(x - 60, y + 54);
+    ctx.moveTo(x + 60, y - 54); ctx.lineTo(x + 80, y); ctx.lineTo(x + 60, y + 54);
+  }
+  ctx.stroke();
 
   ctx.font = '700 18px system-ui, sans-serif';
   ctx.textAlign = 'center';
@@ -272,14 +431,118 @@ function drawBoss(ctx, difficulty, theme) {
   ctx.restore();
 }
 
-function drawWarningOverlay(ctx, difficulty, theme) {
-  if (!difficulty?.isWarning) {
-    return;
-  }
-
+function drawProjectile(ctx, attack, theme) {
+  if (!attack || attack.type !== 'projectile') return;
+  const color = theme.projectile;
   ctx.save();
-  ctx.fillStyle = difficulty.isBoss ? `${theme.bossOverlay}66` : `${theme.warning}18`;
-  ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  if (attack.state === 'charging' && attack.telegraphPoints?.length > 1) {
+    ctx.globalAlpha = 0.45;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    attack.telegraphPoints.forEach((point, index) => {
+      if (index === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    });
+    ctx.stroke();
+    ctx.globalAlpha = 0.8;
+    attack.telegraphPoints.forEach((point) => {
+      ctx.beginPath(); ctx.arc(point.x, point.y, 2, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+    });
+  } else if (attack.state === 'charging') {
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(attack.bossX, attack.bossY); ctx.lineTo(attack.targetX, attack.targetY); ctx.stroke();
+  }
+  if (attack.state !== 'charging') {
+    ctx.globalAlpha = attack.state === 'returning' ? 1 : 0.92;
+    ctx.fillStyle = color;
+    setGlow(ctx, color, attack.state === 'returning' ? 18 : 12);
+    ctx.beginPath(); ctx.arc(attack.x, attack.y, attack.state === 'returning' ? 9 : 7, 0, Math.PI * 2); ctx.fill();
+    resetGlow(ctx);
+    if (attack.state === 'returning') {
+      ctx.globalAlpha = 0.55;
+      ctx.strokeStyle = theme.accent;
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(attack.x, attack.y); ctx.lineTo(attack.bossX, attack.bossY); ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawLaser(ctx, attack, theme) {
+  if (!attack || attack.type !== 'laser') return;
+  const telegraph = attack.telegraphRemainingSeconds > 0;
+  const alpha = telegraph ? 0.42 : 0.9;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = theme.laser;
+  ctx.fillStyle = theme.laser;
+  ctx.lineWidth = Math.max(2, attack.thickness ?? 8);
+  setGlow(ctx, theme.laser, telegraph ? 8 : 20);
+  if (attack.kind === 'single') {
+    ctx.beginPath(); ctx.moveTo(0, attack.y); ctx.lineTo(WORLD_WIDTH, attack.y); ctx.stroke();
+    if (!telegraph) ctx.fillRect(0, attack.y - (attack.thickness ?? 8) / 2, WORLD_WIDTH, attack.thickness ?? 8);
+  } else if (attack.kind === 'quarter') {
+    const zoneHeight = attack.zoneHeight ?? WORLD_HEIGHT / 4;
+    for (let zone = 0; zone < 4; zone += 1) {
+      const top = zone * zoneHeight;
+      if (zone === attack.safeZone) {
+        ctx.globalAlpha = 0.8;
+        ctx.strokeStyle = theme.primary;
+        ctx.lineWidth = 2;
+        ctx.strokeRect?.(0, top, WORLD_WIDTH, zoneHeight);
+        ctx.fillStyle = `${theme.primary}16`;
+        ctx.fillRect(0, top, WORLD_WIDTH, zoneHeight);
+        ctx.globalAlpha = alpha;
+      } else if (!telegraph) {
+        ctx.globalAlpha = 0.24;
+        ctx.fillRect(0, top, WORLD_WIDTH, zoneHeight);
+        ctx.globalAlpha = alpha;
+      }
+    }
+  }
+  resetGlow(ctx);
+  ctx.restore();
+}
+
+function drawChallengeEffects(ctx, challenge, feedbackEffect) {
+  if (challenge?.active) {
+    ctx.save();
+    ctx.fillStyle = 'rgba(2, 4, 12, 0.66)';
+    ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#e8fbff';
+    ctx.font = '700 24px system-ui, sans-serif';
+    ctx.fillText('INPUT SEQUENCE', WORLD_WIDTH / 2, 168);
+    const sequence = challenge.sequence ?? [];
+    const size = Math.min(46, 420 / Math.max(1, sequence.length));
+    ctx.font = `700 ${size}px system-ui, sans-serif`;
+    sequence.forEach((key, index) => {
+      ctx.fillStyle = index < (challenge.cursor ?? 0) ? '#55f6e5' : '#ffffff';
+      ctx.fillText(key.slice(-1).toUpperCase(), WORLD_WIDTH / 2 + (index - (sequence.length - 1) / 2) * (size + 18), 258);
+    });
+    ctx.restore();
+  }
+  if (!feedbackEffect || feedbackEffect.remainingSeconds <= 0) return;
+  const progress = Math.max(0, Math.min(1, feedbackEffect.remainingSeconds / (feedbackEffect.durationSeconds || 1)));
+  ctx.save();
+  ctx.globalAlpha = progress * 0.58;
+  if (feedbackEffect.kind === 'ink') {
+    ctx.fillStyle = '#05040a';
+    for (let index = 0; index < 8; index += 1) {
+      const x = (index * 137 + 83) % WORLD_WIDTH;
+      const y = (index * 79 + 38) % WORLD_HEIGHT;
+      ctx.beginPath(); ctx.arc(x, y, 34 + (index % 3) * 12, 0, Math.PI * 2); ctx.fill();
+    }
+  } else {
+    ctx.fillStyle = '#bafcff';
+    for (let index = 0; index < 11; index += 1) {
+      const y = (index * 53 + 17) % WORLD_HEIGHT;
+      ctx.fillRect((index * 71) % 460, y, WORLD_WIDTH * (0.25 + (index % 3) * 0.12), 2 + (index % 3));
+    }
+  }
   ctx.restore();
 }
 
@@ -302,17 +565,23 @@ export function createRenderer(canvas) {
   function render(snapshot) {
     ctx.save();
     ctx.setTransform?.(pixelRatio, 0, 0, pixelRatio, 0, 0);
-    drawBackground(ctx, VISUAL_THEME);
+    const stage = snapshot.stage ?? { id: 'crystal-gates', mode: 'normal', elapsedSeconds: snapshot.elapsedSeconds ?? 0 };
+    const theme = resolveStageTheme(stage.id);
+    const elapsed = stage.elapsedSeconds ?? snapshot.elapsedSeconds ?? 0;
+    drawBackgroundTransition(ctx, stage, elapsed);
 
     for (const obstacle of snapshot.obstacles ?? []) {
-      drawObstacle(ctx, obstacle, VISUAL_THEME, snapshot.difficulty);
+      drawObstacle(ctx, obstacle, theme, snapshot.difficulty);
     }
 
-    drawBoss(ctx, snapshot.difficulty, VISUAL_THEME);
+    drawLaser(ctx, snapshot.boss?.attack, theme);
+    drawProjectile(ctx, snapshot.boss?.attack, theme);
+    drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed);
     drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
     drawSpecialDashBurst(ctx, snapshot.player, VISUAL_THEME);
-    drawShip(ctx, snapshot.player, VISUAL_THEME);
-    drawWarningOverlay(ctx, snapshot.difficulty, VISUAL_THEME);
+    drawStageAtmosphere(ctx, stage.mode, elapsed);
+    drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id);
+    drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect);
     ctx.restore();
   }
 

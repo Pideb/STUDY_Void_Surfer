@@ -3,7 +3,7 @@ import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import {
   createRenderer, drawDashTrail, drawObstacle, drawShip,
 } from '../../src/game/renderer.js';
-import { VISUAL_THEME } from '../../src/game/visual-theme.js';
+import { STAGE_VISUAL_THEMES, VISUAL_THEME } from '../../src/game/visual-theme.js';
 
 function createContext() {
   const gradient = { addColorStop: vi.fn() };
@@ -125,7 +125,7 @@ describe('renderer', () => {
       obstacles: [], difficulty: {},
     });
 
-    expect(normalContext.stroke).toHaveBeenCalledTimes(5);
+    expect(normalContext.stroke).toHaveBeenCalledTimes(14);
     expect(specialContext.stroke.mock.calls.length).toBeGreaterThan(normalContext.stroke.mock.calls.length);
     expect(specialContext.arc.mock.calls.length).toBeGreaterThan(normalContext.arc.mock.calls.length);
     normalRenderer.destroy();
@@ -158,7 +158,7 @@ describe('renderer', () => {
       x: 240, y: 270, velocityY: 0, width: 36, height: 24,
       isDashing: true, dashRemainingSeconds: 0.6,
     });
-    expect(dashShipContext.stroke).toHaveBeenCalledTimes(1);
+    expect(dashShipContext.stroke).toHaveBeenCalledTimes(3);
     expect(dashShipContext.arc).toHaveBeenCalledTimes(1);
   });
 
@@ -174,6 +174,48 @@ describe('renderer', () => {
     expect(context.createRadialGradient).toHaveBeenCalled();
     expect(context.moveTo).toHaveBeenCalled();
     expect(context.translate).toHaveBeenCalledWith(300, WORLD_HEIGHT / 2);
+    renderer.destroy();
+  });
+
+  it('renders stage-specific full-screen scenes and crossfades background keys', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const renderer = createRenderer(canvas);
+    renderer.render({
+      player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+      obstacles: [],
+      difficulty: {},
+      stage: {
+        id: 'solar-forge', mode: 'normal', elapsedSeconds: 3,
+        transition: { fromKey: 'gravity-well-boss', toKey: 'solar-forge', progress: 0.4 },
+      },
+    });
+
+    expect(Object.keys(STAGE_VISUAL_THEMES)).toHaveLength(6);
+    expect(context.fillRect).toHaveBeenCalledWith(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    expect(context.arc).toHaveBeenCalled();
+    renderer.destroy();
+  });
+
+  it('renders boss projectile telegraphs, quarter lasers, and challenge cues from snapshot state', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const renderer = createRenderer(canvas);
+    renderer.render({
+      player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+      obstacles: [],
+      difficulty: { isBoss: true, bossPattern: 'signal' },
+      stage: { id: 'signal-monoliths', mode: 'boss', elapsedSeconds: 2 },
+      boss: {
+        hitEffect: { remainingSeconds: 0.2, durationSeconds: 0.38 },
+        attack: { type: 'projectile', state: 'charging', telegraphPoints: [{ x: 840, y: 180 }, { x: 240, y: 270 }] },
+      },
+      challenge: { active: true, sequence: ['KeyW', 'KeyA', 'KeyD'], cursor: 1 },
+    });
+    expect(context.fillText).toHaveBeenCalledWith('W', expect.any(Number), 258);
+    expect(context.fillText).toHaveBeenCalledWith('BOSS: SIGNAL', 840, 392);
     renderer.destroy();
   });
 });
