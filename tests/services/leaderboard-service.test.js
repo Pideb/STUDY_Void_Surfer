@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
   fetchPlayerNeighborhood,
+  fetchPlayerBestScore,
   fetchTopScores,
   normalizeLeaderboardRows,
   submitBestScore,
@@ -93,6 +94,13 @@ describe('submitBestScore', () => {
 });
 
 describe('leaderboard queries', () => {
+  it('loads the authenticated account best score for aircraft unlocks', async () => {
+    const client = makeClient({ rpcImpl: vi.fn(async () => ({ data: { best_score: 50 }, error: null })) });
+
+    await expect(fetchPlayerBestScore(client)).resolves.toEqual({ bestScore: 50, error: null });
+    expect(client.rpc).toHaveBeenCalledWith('get_player_best_score');
+  });
+
   it('clamps top-list limits, marks the current user, and preserves server order', async () => {
     const rows = [dbRow({ rank: 4, user_id: 'other', display_name: 'Other' }), dbRow({ rank: 7 })];
     const client = makeClient({ rpcImpl: vi.fn(async () => ({ data: rows, error: null })) });

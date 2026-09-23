@@ -3,6 +3,7 @@ import {
   BOSS_OBSTACLE_COUNT,
   DASH_DURATION_SECONDS,
   GRAVITY,
+  LIFT_VELOCITY,
   MAX_FRAME_DELTA_SECONDS,
   NORMAL_MOVING_GAP_CYCLE_SECONDS,
   NORMAL_SPAWN_INTERVAL_SECONDS,
@@ -30,6 +31,7 @@ import {
 } from './difficulty.js';
 import { createObstacle, updateObstacle } from './obstacles.js';
 import { advanceScore } from './score.js';
+import { getAircraftDefinition, isAircraftUnlocked } from './aircraft.js';
 
 function safeRandom(rng) {
   return Math.min(0.999999, Math.max(0, Number(rng()) || 0));
@@ -46,6 +48,8 @@ export function createGameEngine(deps = {}) {
   const initialScore = Math.max(0, Math.trunc(deps.initialScore ?? 0));
   const initialCompletedWarningCount = Math.max(0, Math.trunc(deps.initialCompletedWarningCount ?? 0));
   const rng = deps.rng ?? Math.random;
+  let accountBestScore = Math.max(0, Number(deps.accountBestScore) || 0);
+  let aircraft = getAircraftDefinition(deps.aircraftId);
 
   let state = GAME_STATES.MENU;
   let player = createPlayer();
@@ -67,7 +71,8 @@ export function createGameEngine(deps = {}) {
 
   function getCurrentDifficulty() {
     if (!warningSession) {
-      return getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore);
+      const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore);
+      return applyAircraftDifficulty(base);
     }
 
     const base = getDifficulty(
@@ -81,7 +86,7 @@ export function createGameEngine(deps = {}) {
       ? getBossSpeedMultiplier(warningSession.bossPattern, elapsedSeconds)
       : 1;
 
-    return {
+    return applyAircraftDifficulty({
       ...base,
       warningIndex: warningSession.index,
       isWarning: true,
@@ -93,6 +98,16 @@ export function createGameEngine(deps = {}) {
       specialChance: base.specialChance,
       movingGapChance: base.movingGapChance,
       timingWindowSeconds: base.timingWindowSeconds,
+    });
+  }
+
+  function applyAircraftDifficulty(difficulty) {
+    return {
+      ...difficulty,
+      aircraftId: aircraft.id,
+      aircraftScrollSpeedMultiplier: aircraft.scrollSpeedMultiplier,
+      aircraftSpawnIntervalMultiplier: aircraft.spawnIntervalMultiplier,
+      scrollSpeed: difficulty.scrollSpeed * aircraft.scrollSpeedMultiplier,
     };
   }
 
@@ -153,14 +168,16 @@ export function createGameEngine(deps = {}) {
   function updateSpawning(deltaSeconds, difficulty) {
     spawnAccumulatorSeconds += deltaSeconds;
     let activeDifficulty = difficulty;
-    let interval = warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS;
+    let interval = (warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
+      * aircraft.spawnIntervalMultiplier;
 
     while (spawnAccumulatorSeconds >= interval
       && (!warningSession || warningSession.spawnedCount < warningSession.targetCount)) {
       spawnAccumulatorSeconds -= interval;
       spawnObstacle(activeDifficulty);
       activeDifficulty = getCurrentDifficulty();
-      interval = warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS;
+      interval = (warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
+        * aircraft.spawnIntervalMultiplier;
     }
   }
 
@@ -169,7 +186,7 @@ export function createGameEngine(deps = {}) {
     for (const obstacle of obstacles) {
       if (obstacle.x + obstacle.width >= playerLeft || obstacle.passed) continue;
       obstacle.passed = true;
-      if (advanceScore(scoreSession, obstacle.id)) {
+      if (advanceScore(scoreSession, obstacle.id, aircraft.scoreMultiplier)) {
         if (warningSession?.specialObstacleIds.has(obstacle.id)) {
           warningSession.specialObstacleIds.delete(obstacle.id);
         }
@@ -196,7 +213,7 @@ export function createGameEngine(deps = {}) {
     gameOverReason = null;
     obstacles = [];
     nextObstacleId = 1;
-    spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS;
+    spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier;
     completedWarningCount = initialCompletedWarningCount;
     warningSession = null;
     nextWarningScore = WARNING_START_SCORE + initialCompletedWarningCount * 10;
@@ -204,6 +221,27 @@ export function createGameEngine(deps = {}) {
     lastUpdateMs = now();
     state = GAME_STATES.PLAYING;
     startWarningIfNeeded();
+  }
+
+  function setAccountBestScore(bestScore) {
+    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED || state === GAME_STATES.GAME_OVER) {
+      return accountBestScore;
+    }
+    accountBestScore = Math.max(0, Number(bestScore) || 0);
+    if (!isAircraftUnlocked(aircraft.id, accountBestScore)) {
+      aircraft = getAircraftDefinition('default');
+    }
+    return accountBestScore;
+  }
+
+  function setAircraft(id) {
+    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED || state === GAME_STATES.GAME_OVER) {
+      return false;
+    }
+    const definition = getAircraftDefinition(id);
+    if (!isAircraftUnlocked(definition.id, accountBestScore)) return false;
+    aircraft = definition;
+    return aircraft.id;
   }
 
   function update(nowMs) {
@@ -221,7 +259,7 @@ export function createGameEngine(deps = {}) {
     lastUpdateMs = nowMs;
     if (deltaSeconds <= 0) return;
 
-    updatePlayer(player, deltaSeconds, gravity);
+    updatePlayer(player, deltaSeconds, gravity * aircraft.gravityMultiplier);
     elapsedSeconds += deltaSeconds;
     let difficulty = getCurrentDifficulty();
     updateSpawning(deltaSeconds, difficulty);
@@ -261,7 +299,7 @@ export function createGameEngine(deps = {}) {
 
   function lift() {
     if (state !== GAME_STATES.PLAYING) return false;
-    applyLift(player);
+    applyLift(player, LIFT_VELOCITY * aircraft.liftMultiplier);
     return true;
   }
 
@@ -306,6 +344,13 @@ export function createGameEngine(deps = {}) {
       score: getScore(),
       elapsedSeconds,
       gameOverReason,
+      aircraft: {
+        id: aircraft.id,
+        name: aircraft.name,
+        scoreMultiplier: aircraft.scoreMultiplier,
+        gravityMultiplier: aircraft.gravityMultiplier,
+        liftMultiplier: aircraft.liftMultiplier,
+      },
       player: { ...player },
       obstacles: obstacles.map((obstacle) => ({ ...obstacle, breakEffect: obstacle.breakEffect ? { ...obstacle.breakEffect } : null })),
       difficulty: { ...getCurrentDifficulty() },
@@ -320,5 +365,16 @@ export function createGameEngine(deps = {}) {
     };
   }
 
-  return { start, update, lift, dash, pause, resume, stop, getSnapshot };
+  return {
+    start,
+    update,
+    lift,
+    dash,
+    pause,
+    resume,
+    stop,
+    setAircraft,
+    setAccountBestScore,
+    getSnapshot,
+  };
 }

@@ -1,4 +1,4 @@
-export function advanceScore(session, obstacleId) {
+export function advanceScore(session, obstacleId, points = 1) {
   if (!session || obstacleId === undefined || obstacleId === null) {
     return false;
   }
@@ -10,6 +10,7 @@ export function advanceScore(session, obstacleId) {
   }
 
   session.passedObstacleIds.add(obstacleId);
-  session.score = Math.max(0, Math.trunc(session.score ?? 0)) + 1;
+  const safePoints = Number.isFinite(points) ? Math.max(0, Math.trunc(points)) : 1;
+  session.score = Math.max(0, Math.trunc(session.score ?? 0)) + safePoints;
   return true;
 }

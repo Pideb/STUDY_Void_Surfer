@@ -21,8 +21,9 @@ export function createPlayer() {
   };
 }
 
-export function applyLift(player) {
-  player.velocityY = -LIFT_VELOCITY;
+export function applyLift(player, liftVelocity = LIFT_VELOCITY) {
+  const safeLiftVelocity = Number.isFinite(liftVelocity) ? Math.max(0, liftVelocity) : LIFT_VELOCITY;
+  player.velocityY = -safeLiftVelocity;
 }
 
 export function updatePlayer(player, deltaSeconds, gravity = GRAVITY) {

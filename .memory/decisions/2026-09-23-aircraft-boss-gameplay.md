@@ -121,3 +121,28 @@
 
 - **Chosen**: Mark the active menu item with a neon triangular cursor and a short horizontal scanline. The same state is used for mouse and keyboard focus.
 - **Rationale**: Make the focused action immediately readable while reinforcing the HUD identity.
+
+## D24. Background transitions
+
+- **Chosen**: Background state changes must transition continuously rather than switching on a single frame. Crossfade the outgoing and incoming layers while interpolating palette, particle density, and edge energy. Keep the central gameplay corridor readable during the transition.
+- **Rationale**: Preserve immersion when entering WARNING or BOSS and avoid a visible hard cut in the arcade presentation.
+
+## D25. Wobbling special-wall fairness
+
+- **Chosen**: Special walls use a mostly straight, readable base silhouette. Their visible energy surface may wobble slightly, but the collision geometry, gap position, and special timing window remain fixed. The visual wobble is limited to a small amplitude so it does not imply a moving hitbox.
+- **Rationale**: Preserve the special-wall identity while keeping the success timing and collision result predictable.
+
+## D26. Stage background rotation and coverage
+
+- **Chosen**: Use all six stage backgrounds in a randomized order: CRYSTAL GATES, INDUSTRIAL VOID, SIGNAL MONOLITHS, GRAVITY WELL, ABYSSAL BEAST, and SOLAR FORGE. Every background fills the entire play area rather than leaving a deliberately empty center. Keep contrast and particle density controlled so the player, walls, projectiles, and telegraphs remain readable. WARNING uses a warning-atmosphere treatment, while BOSS always switches to the dedicated BOSS atmosphere for the active stage.
+- **Rationale**: Give runs visual variety while preserving a consistent gameplay field and clear hazard visibility.
+
+## D27. New-stage boss, projectile, and laser visual direction
+
+- **Chosen**: Use the approved side-view visual direction for the three new themes. GRAVITY WELL uses a crescent/black-hole boss with violet gravity rings, a dark violet projectile, and a thin lensing laser. ABYSSAL BEAST uses a restrained alien leviathan with teal shell/tentacle contours, an organic cyan projectile, and a thin ripple laser. SOLAR FORGE uses a heavy obsidian-and-amber mechanical boss, an angular molten-amber projectile, and a thin heat-shimmer laser. The player is readable on the left, the boss is on the right, and projectile/laser presentation communicates the right-to-left threat direction.
+- **Rationale**: Align each threat set with its stage identity while making the gameplay direction understandable at a glance.
+
+## D28. Existing-stage boss, projectile, and laser visual direction
+
+- **Chosen**: Use the approved side-view visual direction for the three established themes. CRYSTAL GATES uses a faceted crystal gate guardian with shard projectiles and a thin prism-refraction laser. INDUSTRIAL VOID uses a heavy orbital factory/mech boss with segmented bolt projectiles and a thin industrial beam. SIGNAL MONOLITHS uses a tall monolithic signal sentinel with geometric pulse projectiles and a thin waveform scanline laser. In every theme the player remains readable on the left, the boss is on the right, and incoming threats communicate right-to-left travel.
+- **Rationale**: Complete the six-theme visual language with distinct silhouettes and coherent threat readability.

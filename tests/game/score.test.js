@@ -24,4 +24,11 @@ describe('score', () => {
     expect(session.score).toBe(1);
     expect(session.passedObstacleIds.has('wall-1')).toBe(true);
   });
+
+  it('applies a score multiplier to a newly passed wall', () => {
+    const session = { score: 4, passedObstacleIds: new Set() };
+
+    expect(advanceScore(session, 'wall-1', 2)).toBe(true);
+    expect(session.score).toBe(6);
+  });
 });

@@ -1,0 +1,13 @@
+# Phase: P02 Visual UI and Audio
+
+## Tasks
+
+| Task | Status | Summary | Blueprint |
+| :--- | :--- | :--- | :--- |
+| T04 | `pending` | 여섯 테마의 배경·벽·기체·보스·투사체·레이저를 Canvas에 렌더링한다. | [T04](./T04-stage-rendering.md) |
+| T05 | `pending` | 행거 선택 화면, 메인 메뉴 HUD, BOSS HP와 WASD 챌린지 UI를 연결한다. | [T05](./T05-aircraft-and-boss-ui.md) |
+| T06 | `pending` | 상태별 procedural music과 보스·레이저·반사·챌린지 효과음을 확장한다. | [T06](./T06-audio-feedback.md) |
+
+## Progress
+
+- done: 0/3 (blocked until P01 completes)

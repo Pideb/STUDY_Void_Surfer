@@ -97,4 +97,21 @@ export async function fetchPlayerNeighborhood(client, radius = DEFAULT_NEIGHBORH
   }
 }
 
+export async function fetchPlayerBestScore(client) {
+  try {
+    const { data, error } = await client.rpc('get_player_best_score');
+    if (error) return { bestScore: 0, error: mapLeaderboardError(error) };
+
+    const row = Array.isArray(data) ? data[0] : data;
+    const bestScore = Number(row?.best_score ?? row?.bestScore ?? row?.score ?? row);
+    if (!Number.isFinite(bestScore) || bestScore < 0) {
+      return { bestScore: 0, error: mapLeaderboardError(new Error('Malformed best score response')) };
+    }
+
+    return { bestScore: Math.trunc(bestScore), error: null };
+  } catch (error) {
+    return { bestScore: 0, error: mapLeaderboardError(error) };
+  }
+}
+
 export { normalizeLeaderboardRows };

@@ -2,20 +2,20 @@
 
 ## Active Plan
 
-[Entra Vercel Authentication](./plans/2026-09-22-entra-vercel-auth.md)
+[VOID SURFER Gameplay and Visual Expansion](./plans/2026-09-23-void-surfer-expansion.md)
 
 ## Active Phase
 
-[P01 Entra Vercel Authentication](./phases/2026-09-22-entra-vercel-auth/P01-entra-vercel-auth/phase.md)
+[P01 Gameplay Systems](./phases/2026-09-23-void-surfer-expansion/P01-gameplay-systems/phase.md)
 
 ## Active Task
 
-None — all tasks in P01 are complete.
+[T02 Stage Runtime](./phases/2026-09-23-void-surfer-expansion/P01-gameplay-systems/T02-stage-runtime.md)
 
 ## Status
 
-- Plan complete
+- T01 완료: 기체 카탈로그·해금·엔진 성능 보정 구현 및 검증 완료
 
 ## Next Step (IMPORTANT)
 
-Configure Entra, Supabase, and Vercel with the operator guide, then share the production URL with players.
+T02 청사진을 읽고 `src/game/stages.js`, `src/game/game-engine.js`, `src/game/constants.js`와 관련 테스트를 구현한다. 완료 후 지정 검증 커맨드를 실행하고 T03으로 포인터를 전진한다.

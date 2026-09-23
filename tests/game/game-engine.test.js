@@ -45,6 +45,39 @@ describe('game engine', () => {
     expect(engine.getSnapshot().player.velocityY).toBeLessThan(0);
   });
 
+  it('keeps the shared hitbox while applying aircraft physics and movement profiles', () => {
+    const { engine, step } = createRuntimeEngine({ aircraftId: 'aegis', accountBestScore: 50 });
+    engine.start();
+    const initial = engine.getSnapshot();
+
+    expect(initial.aircraft).toMatchObject({ id: 'aegis', gravityMultiplier: 2, liftMultiplier: 0.35 });
+    expect(initial.player).toMatchObject({ width: 36, height: 24 });
+    engine.lift();
+    expect(engine.getSnapshot().player.velocityY).toBeCloseTo(-126, 10);
+    step();
+    expect(engine.getSnapshot().player.width).toBe(36);
+  });
+
+  it('uses VELOCITY movement and score multipliers only when unlocked', () => {
+    const { engine, step } = createRuntimeEngine({ aircraftId: 'velocity', accountBestScore: 100 });
+    expect(engine.setAircraft('velocity')).toBe('velocity');
+    engine.start();
+    const snapshot = step();
+
+    expect(snapshot.aircraft).toMatchObject({ id: 'velocity', scoreMultiplier: 2 });
+    expect(snapshot.difficulty).toMatchObject({ scrollSpeed: 480, aircraftSpawnIntervalMultiplier: 0.5 });
+    expect(snapshot.obstacles.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('rejects locked aircraft and changing aircraft during an active run', () => {
+    const engine = createGameEngine({ now: () => 1000, accountBestScore: 0 });
+
+    expect(engine.setAircraft('aegis')).toBe(false);
+    expect(engine.setAircraft('unknown')).toBe('default');
+    engine.start();
+    expect(engine.setAircraft('default')).toBe(false);
+  });
+
   it('spawns the first obstacle then moves it left at the active scroll speed', () => {
     const { engine, step } = createRuntimeEngine();
     engine.start();
