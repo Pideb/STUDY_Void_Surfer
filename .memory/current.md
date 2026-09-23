@@ -10,12 +10,12 @@
 
 ## Active Task
 
-[T08 Integration QA and Docs](./phases/2026-09-23-void-surfer-expansion/P03-data-qa-deployment/T08-integration-qa-docs.md)
+[No active task — plan complete]
 
 ## Status
 
-- P01/P02 완료: 게임 런타임·렌더링·행거/HUD·절차적 오디오 구현 및 검증 완료
+- P01/P02/P03 구현과 자동 검증 완료. 실제 Entra OAuth 및 원격 Supabase 리더보드 smoke test는 미검증.
 
 ## Next Step (IMPORTANT)
 
-T07 completed. Proceed with T08 integration QA and deployment documentation.
+다음 운영 단계: 배포된 Vercel URL에서 조직 계정으로 로그인해 메뉴 → 행거 → 게임 → BOSS → 게임 오버 리더보드 흐름을 수동 확인한다.

@@ -24,7 +24,7 @@
 | :--- | :--- | :--- | :--- |
 | P01 | `done` | 기체·스테이지·보스 전투 도메인과 게임 엔진 상태를 구현한다. | [P01](../phases/2026-09-23-void-surfer-expansion/P01-gameplay-systems/phase.md) |
 | P02 | `done` | 여섯 테마의 Canvas 렌더링, 메뉴/행거/HUD, 오디오 피드백을 연결한다. | [P02](../phases/2026-09-23-void-surfer-expansion/P02-visual-ui-audio/phase.md) |
-| P03 | `in_progress` | Supabase 리더보드 확장, 통합 검증, 배포 문서를 마무리한다. | [P03](../phases/2026-09-23-void-surfer-expansion/P03-data-qa-deployment/phase.md) |
+| P03 | `done` | Supabase 리더보드 확장, 통합 검증, 배포 문서를 마무리한다. | [P03](../phases/2026-09-23-void-surfer-expansion/P03-data-qa-deployment/phase.md) |
 
 ## Cross-cutting Constraints
 

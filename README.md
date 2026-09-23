@@ -30,6 +30,16 @@ npm run verify:config
 - [Vercel 배포와 callback 검증](./docs/vercel-deploy.md)
 - [Supabase 스키마/RLS/RPC 계약](./docs/supabase-schema.md)
 
+## 게임 진행과 해금
+
+- 클릭/터치로 상승하고, Space로 대시합니다. P 또는 Escape로 일시정지하며 한 번에 10점을 잃습니다.
+- 기본 기체는 항상 사용 가능하고, 최고 점수 50점에서 AEGIS, 100점에서 VELOCITY가 해금됩니다. 해금은 계정 최고 점수에 연결되어 다른 기기에서도 유지됩니다.
+- 스테이지는 CRYSTAL GATES, INDUSTRIAL VOID, SIGNAL MONOLITHS, GRAVITY WELL, ABYSSAL BEAST, SOLAR FORGE 여섯 테마가 약 30초마다 무작위 순환합니다.
+- WARNING은 20점부터 시작해 구간을 끝낼 때마다 10~15점 뒤 다시 나타납니다. 5번째, 10번째 등 매 다섯 번째 WARNING은 BOSS입니다. 보스 #3부터 WASD 챌린지, 보스 #5부터 5 체력과 레이저 공격이 추가됩니다.
+- 리더보드 연결에 실패해도 현재 점수와 재시작/메뉴 버튼은 사용할 수 있습니다. 기체 최고 점수 조회가 실패하면 기본 기체로 안전하게 진행합니다.
+
+배포 URL을 받은 플레이어는 저장소 clone, Docker, Supabase 설정이 필요 없습니다. Entra 조직 계정으로 로그인하면 됩니다. Supabase migration, Entra redirect URI, Vercel 변수는 위 운영 가이드에서 배포 담당자만 설정합니다.
+
 ---
 
 # 🚀 Project Memory Starter Kit
