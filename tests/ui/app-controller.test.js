@@ -44,6 +44,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
     unlock: vi.fn(async () => {}),
     setMuted: vi.fn(),
     setMusicMode: vi.fn(),
+    setMusicScene: vi.fn(),
     pauseMusic: vi.fn(),
     resumeMusic: vi.fn(),
     play: vi.fn(),
@@ -291,5 +292,56 @@ describe('app controller product flow', () => {
     expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('none');
     harness.controller.dispatch('RETURN_TO_MENU');
     expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('menu');
+  });
+
+  it('plays combat cues once per attack phase and crossfades stage scenes', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+
+    harness.snapshot.stage = { id: 'crystal-gates' };
+    harness.snapshot.boss = {
+      number: 3, hp: 3, maxHp: 3,
+      attack: { id: 'shot-1', type: 'projectile', state: 'charging' },
+    };
+    harness.frames.shift()(16);
+    harness.frames.shift()(32);
+    expect(harness.audioManager.play).toHaveBeenCalledWith('bossCharge', { id: 'shot-1' });
+    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'bossCharge')).toHaveLength(1);
+    expect(harness.audioManager.setMusicScene).toHaveBeenCalledWith('crystal-gates');
+
+    harness.snapshot.boss.attack.state = 'returning';
+    harness.snapshot.boss.hp = 2;
+    harness.frames.shift()(48);
+    expect(harness.audioManager.play).toHaveBeenCalledWith('projectileReflect', { id: 'shot-1' });
+    expect(harness.audioManager.play).toHaveBeenCalledWith('bossHit', { id: '3:2' });
+
+    harness.snapshot.boss.attack = { id: 'laser-1', type: 'laser', kind: 'single', telegraphRemainingSeconds: 0.7 };
+    harness.frames.shift()(64);
+    expect(harness.audioManager.play).toHaveBeenCalledWith('laserTelegraph', { id: 'laser-1' });
+  });
+
+  it('plays WASD outcome cues once and selects the ink or glitch failure timbre', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+
+    harness.snapshot.challenge = { active: true, result: 'pending' };
+    harness.frames.shift()(16);
+    harness.snapshot.challenge = { active: false, result: 'success' };
+    harness.frames.shift()(32);
+    harness.frames.shift()(48);
+    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'challengeSuccess')).toHaveLength(1);
+
+    harness.snapshot.challenge = { active: true, result: 'pending' };
+    harness.frames.shift()(64);
+    harness.snapshot.challenge = { active: false, result: 'failure' };
+    harness.snapshot.feedbackEffect = { kind: 'glitch', remainingSeconds: 0.7 };
+    harness.frames.shift()(80);
+    expect(harness.audioManager.play).toHaveBeenCalledWith('challengeFailureGlitch', { id: 'challenge-2' });
   });
 });

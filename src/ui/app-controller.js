@@ -58,6 +58,12 @@ export function createAppController(deps) {
   let gameHud = null;
   let lastDifficultyMode = 'normal';
   let accountRequestId = 0;
+  let lastStageId = null;
+  let lastAttackId = null;
+  let lastAttackPhase = null;
+  let previousBoss = null;
+  let challengeRunId = 0;
+  let previousChallengeActive = false;
 
   function paint() {
     gameHud = null;
@@ -82,6 +88,7 @@ export function createAppController(deps) {
     if (state.screen === 'menu') {
       renderer.renderMenuBackground?.();
       audioManager.setMusicMode?.('menu');
+      audioManager.setMusicScene?.(null);
       root.replaceChildren(renderMenuScreen({
         displayName: getDisplayName(state.user), muted: state.muted,
         selectedAircraft: AIRCRAFT_CATALOG.find(({ id }) => id === state.selectedAircraftId)?.name ?? 'DEFAULT',
@@ -286,6 +293,60 @@ export function createAppController(deps) {
     }
   }
 
+  function syncCombatAudio(snapshot) {
+    const stageId = snapshot?.stage?.id ?? null;
+    if (stageId !== lastStageId) {
+      lastStageId = stageId;
+      audioManager.setMusicScene?.(stageId);
+    }
+
+    const attack = snapshot?.boss?.attack;
+    if (!attack) {
+      lastAttackId = null;
+      lastAttackPhase = null;
+    } else {
+      if (attack.id !== lastAttackId) {
+        lastAttackId = attack.id;
+        lastAttackPhase = null;
+      }
+      if (attack.type === 'projectile' && attack.state === 'charging' && lastAttackPhase !== 'charging') {
+        audioManager.play('bossCharge', { id: attack.id });
+        lastAttackPhase = 'charging';
+      } else if (attack.type === 'projectile' && attack.state === 'returning' && lastAttackPhase !== 'returning') {
+        audioManager.play('projectileReflect', { id: attack.id });
+        lastAttackPhase = 'returning';
+      } else if (attack.type === 'laser' && attack.telegraphRemainingSeconds > 0 && lastAttackPhase !== 'telegraph') {
+        audioManager.play('laserTelegraph', { id: attack.id });
+        lastAttackPhase = 'telegraph';
+      }
+    }
+
+    const boss = snapshot?.boss;
+    if (boss) {
+      const bossKey = String(boss.number ?? 'boss');
+      const previous = previousBoss?.key === bossKey ? previousBoss.hp : boss.maxHp;
+      if (Number.isFinite(previous) && Number.isFinite(boss.hp) && boss.hp < previous) {
+        audioManager.play('bossHit', { id: `${bossKey}:${boss.hp}` });
+      }
+      previousBoss = { key: bossKey, hp: boss.hp };
+    } else {
+      previousBoss = null;
+    }
+
+    const challenge = snapshot?.challenge;
+    if (challenge?.active && !previousChallengeActive) challengeRunId += 1;
+    if (challenge && !challenge.active && previousChallengeActive) {
+      const challengeId = `challenge-${challengeRunId}`;
+      if (challenge.result === 'success') {
+        audioManager.play('challengeSuccess', { id: challengeId });
+      } else if (challenge.result === 'failure') {
+        const effectKind = snapshot.feedbackEffect?.kind;
+        audioManager.play(effectKind === 'glitch' ? 'challengeFailureGlitch' : 'challengeFailureInk', { id: challengeId });
+      }
+    }
+    previousChallengeActive = Boolean(challenge?.active);
+  }
+
   function stopLoop() {
     if (animationFrame !== null) {
       globalThis.cancelAnimationFrame?.(animationFrame);
@@ -315,6 +376,7 @@ export function createAppController(deps) {
     renderer.render(state.snapshot);
     gameHud?.update(state.snapshot);
     syncDifficultyFeedback(state.snapshot);
+    syncCombatAudio(state.snapshot);
     if (state.snapshot.state === 'game-over') {
       finishGame();
       return;
@@ -336,6 +398,12 @@ export function createAppController(deps) {
     audioManager.setMusicMode?.('gameplay');
     Promise.resolve(audioManager.unlock?.()).catch(() => {});
     state.snapshot = gameEngine.getSnapshot();
+    lastStageId = null;
+    lastAttackId = null;
+    lastAttackPhase = null;
+    previousBoss = null;
+    previousChallengeActive = false;
+    syncCombatAudio(state.snapshot);
     setScreen('playing', '게임 시작. 클릭 또는 터치로 상승하세요.');
     stopLoop();
     animationFrame = globalThis.requestAnimationFrame(renderFrame);
@@ -404,6 +472,10 @@ export function createAppController(deps) {
         else {
           stopLoop();
           lastDifficultyMode = 'normal';
+          lastAttackId = null;
+          lastAttackPhase = null;
+          previousBoss = null;
+          previousChallengeActive = false;
           setScreen('menu');
         }
         break;

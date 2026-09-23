@@ -6,16 +6,16 @@
 
 ## Active Phase
 
-[P02 Visual UI and Audio](./phases/2026-09-23-void-surfer-expansion/P02-visual-ui-audio/phase.md)
+[P03 Data, QA, and Deployment](./phases/2026-09-23-void-surfer-expansion/P03-data-qa-deployment/phase.md)
 
 ## Active Task
 
-[T06 Audio Feedback](./phases/2026-09-23-void-surfer-expansion/P02-visual-ui-audio/T06-audio-feedback.md)
+[T07 Leaderboard Aircraft Data](./phases/2026-09-23-void-surfer-expansion/P03-data-qa-deployment/T07-leaderboard-aircraft-data.md)
 
 ## Status
 
-- P01 완료: 기체·스테이지·보스 전투 런타임과 검증 완료
+- P01/P02 완료: 게임 런타임·렌더링·행거/HUD·절차적 오디오 구현 및 검증 완료
 
 ## Next Step (IMPORTANT)
 
-T06 청사진을 읽고 상태별 절차적 음악과 보스·레이저·반사·챌린지 효과음을 구현한다.
+T07 청사진을 읽고 기체 정보가 포함된 Supabase 점수 제출·조회와 계정 최고점 해금을 연결한다.

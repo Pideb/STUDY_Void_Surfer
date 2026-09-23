@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createAudioManager } from '../../src/audio/audio-manager.js';
+import { AUDIO_EVENTS, createAudioManager } from '../../src/audio/audio-manager.js';
 
 class MockAudioContext {
   static instances = [];
@@ -28,6 +28,11 @@ class MockAudioContext {
       this.oscillators.push(oscillator);
       return oscillator;
     });
+    this.sampleRate = 22050;
+    this.createBuffer = vi.fn((_channels, length) => ({ getChannelData: () => new Float32Array(length) }));
+    this.createBufferSource = vi.fn(() => ({
+      connect: vi.fn(), start: vi.fn(), stop: vi.fn(), disconnect: vi.fn(),
+    }));
     MockAudioContext.instances.push(this);
   }
 }
@@ -65,7 +70,7 @@ describe('audio manager', () => {
 
     manager.setMusicMode('boss');
     expect(context.createOscillator).toHaveBeenCalledTimes(3);
-    expect(context.oscillators[0].stop).toHaveBeenCalledTimes(2);
+    expect(context.oscillators[0].stop).toHaveBeenCalledTimes(1);
     vi.advanceTimersByTime(250);
     expect(context.createOscillator).toHaveBeenCalledTimes(4);
     manager.destroy();
@@ -112,9 +117,55 @@ describe('audio manager', () => {
     manager.pauseMusic();
     manager.resumeMusic();
     manager.play('collision');
+    AUDIO_EVENTS.forEach((event) => manager.play(event, { id: `offline-${event}` }));
     manager.setMuted(true);
 
     expect(manager.isMuted()).toBe(true);
+    manager.destroy();
+  });
+
+  it('crossfades procedural stage pitch and music modes without stopping the AudioContext', async () => {
+    vi.useFakeTimers();
+    const manager = createAudioManager(MockAudioContext);
+    manager.setMusicMode('gameplay');
+    manager.setMusicScene('crystal-gates');
+    await manager.unlock();
+    const context = MockAudioContext.instances[0];
+    const firstVoice = context.oscillators[0];
+
+    manager.setMusicScene('solar-forge');
+    vi.advanceTimersByTime(190 * 4);
+    expect(context.oscillators.at(-1).frequency.value).toBeGreaterThan(firstVoice.frequency.value);
+
+    manager.setMusicMode('boss');
+    expect(context.close).not.toHaveBeenCalled();
+    expect(firstVoice.stop).toHaveBeenCalledTimes(1);
+    manager.destroy();
+    expect(context.close).toHaveBeenCalledOnce();
+  });
+
+  it('synthesizes distinct boss and challenge cues, deduplicates IDs, and respects mute', async () => {
+    const manager = createAudioManager(MockAudioContext);
+    await manager.unlock();
+    const context = MockAudioContext.instances[0];
+    manager.play('bossCharge', { id: 'attack-1' });
+    const afterCharge = context.createOscillator.mock.calls.length;
+    manager.play('bossCharge', { id: 'attack-1' });
+    expect(context.createOscillator).toHaveBeenCalledTimes(afterCharge);
+
+    manager.play('projectileReflect', { id: 'attack-1' });
+    manager.play('bossHit', { id: 'boss-1:2' });
+    manager.play('laserTelegraph', { id: 'laser-1' });
+    manager.play('challengeSuccess', { id: 'challenge-1' });
+    manager.play('challengeFailureInk', { id: 'challenge-2' });
+    manager.play('challengeFailureGlitch', { id: 'challenge-3' });
+    expect(context.createOscillator.mock.calls.length).toBeGreaterThan(afterCharge + 7);
+    expect(context.createBufferSource).toHaveBeenCalledTimes(2);
+
+    manager.setMuted(true);
+    const mutedCount = context.createOscillator.mock.calls.length;
+    manager.play('bossHit', { id: 'boss-1:1' });
+    expect(context.createOscillator).toHaveBeenCalledTimes(mutedCount);
     manager.destroy();
   });
 });

@@ -1,6 +1,6 @@
 # Task: T06 Audio Feedback
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -67,6 +67,6 @@ Task: T06-audio-feedback
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- commit: `b911fda`

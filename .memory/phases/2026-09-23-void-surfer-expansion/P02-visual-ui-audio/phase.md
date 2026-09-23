@@ -10,4 +10,4 @@
 
 ## Progress
 
-- done: 2/3 (active: T06)
+- done: 3/3 (phase complete)

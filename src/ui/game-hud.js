@@ -134,11 +134,13 @@ export function createGameHud(model, handlers) {
     const challenge = snapshot.challenge;
     challengeOverlay.hidden = !challenge?.active;
     if (challenge?.active) {
-      challengeSequence.replaceChildren(...(challenge.sequence ?? []).map((code, index) => {
+      const sequence = challenge.sequence ?? [];
+      const cursor = Math.max(0, Math.trunc(Number(challenge.cursor) || 0));
+      challengeSequence.replaceChildren(...sequence.map((code, index) => {
         const item = document.createElement('li');
         item.textContent = code.slice(-1).toUpperCase();
-        item.className = index < challenge.cursor ? 'is-complete' : index === challenge.cursor ? 'is-current' : '';
-        item.setAttribute('aria-label', `${index + 1}: ${code.slice(-1).toUpperCase()}${index < challenge.cursor ? ', 입력 완료' : ''}`);
+        item.className = index < cursor ? 'is-complete' : index === cursor ? 'is-current' : '';
+        item.setAttribute('aria-label', `${index + 1}: ${code.slice(-1).toUpperCase()}${index < cursor ? ', 입력 완료' : ''}`);
         return item;
       }));
       const limit = Math.max(0.1, Number(challenge.timeLimitSeconds) || 1);
@@ -148,7 +150,7 @@ export function createGameHud(model, handlers) {
       challengeTimer.setAttribute('aria-valuetext', `${remaining.toFixed(1)}초 남음`);
       challengeTimer.style.setProperty('--challenge-time-progress', `${Math.max(0, Math.min(1, remaining / limit)) * 100}%`);
       challengeTimeText.textContent = `${remaining.toFixed(1)}초`;
-      challengeStatus.textContent = `키보드 챌린지 ${challenge.cursor + 1} / ${challenge.sequence.length}. ${challenge.sequence[challenge.cursor]?.slice(-1).toUpperCase() ?? '완료'} 키를 입력하세요.`;
+      challengeStatus.textContent = `키보드 챌린지 ${cursor + 1} / ${sequence.length}. ${sequence[cursor]?.slice(-1).toUpperCase() ?? '완료'} 키를 입력하세요.`;
     }
 
     const effect = snapshot.feedbackEffect;
