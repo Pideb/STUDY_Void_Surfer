@@ -9,10 +9,12 @@ import {
 } from '../../src/game/difficulty.js';
 
 describe('difficulty', () => {
-  it('increases base speed by ten percent every twenty seconds', () => {
+  it('increases base speed by ten percent every ten progression points', () => {
     expect(getBaseSpeed(0)).toBe(240);
-    expect(getBaseSpeed(20)).toBeCloseTo(264);
-    expect(getBaseSpeed(40)).toBeCloseTo(290.4);
+    expect(getBaseSpeed(9)).toBe(240);
+    expect(getBaseSpeed(10)).toBeCloseTo(264);
+    expect(getBaseSpeed(20)).toBeCloseTo(290.4);
+    expect(getDifficulty(0, 120, 0, Math.random, null, 20, 10).baseSpeed).toBeCloseTo(264);
   });
 
   it('keeps special walls locked below score ten', () => {

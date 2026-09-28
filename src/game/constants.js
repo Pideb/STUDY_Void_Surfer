@@ -13,7 +13,7 @@ export const MAX_FRAME_DELTA_SECONDS = 0.1;
 export const PAUSE_SCORE_PENALTY = 10;
 
 export const BASE_SCROLL_SPEED = 240;
-export const SPEED_STEP_SECONDS = 20;
+export const SPEED_STEP_SCORE_POINTS = 10;
 export const SPEED_STEP_MULTIPLIER = 1.1;
 export const OBSTACLE_WIDTH = 72;
 export const SPECIAL_OBSTACLE_WIDTH = 24;
@@ -54,7 +54,7 @@ export const BOSS_PATTERNS = Object.freeze({
 export const AIRCRAFT_DEFAULT_UNLOCK_SCORE = 0;
 export const AIRCRAFT_AEGIS_UNLOCK_SCORE = 50;
 export const AIRCRAFT_VELOCITY_UNLOCK_SCORE = 100;
-export const VELOCITY_SCORE_MULTIPLIER = 2;
+export const VELOCITY_SCORE_MULTIPLIER = 1.5;
 export const VELOCITY_MOVEMENT_MULTIPLIER = 2;
 export const VELOCITY_SPAWN_INTERVAL_MULTIPLIER = 0.5;
 export const AEGIS_GRAVITY_MULTIPLIER = 2;

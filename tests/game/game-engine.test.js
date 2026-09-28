@@ -179,7 +179,8 @@ describe('game engine', () => {
     engine.start();
     const snapshot = step();
 
-    expect(snapshot.aircraft).toMatchObject({ id: 'velocity', scoreMultiplier: 2 });
+    expect(snapshot.aircraft).toMatchObject({ id: 'velocity', scoreMultiplier: 1.5 });
+    expect(snapshot).toMatchObject({ baseScore: 0, finalScore: 0, scoreMultiplier: 1.5 });
     expect(snapshot.difficulty).toMatchObject({ scrollSpeed: 480, aircraftSpawnIntervalMultiplier: 0.5 });
     expect(snapshot.obstacles.length).toBeGreaterThanOrEqual(1);
   });
@@ -377,6 +378,8 @@ describe('game engine', () => {
 
     expect(whilePaused.state).toBe(GAME_STATES.PAUSED);
     expect(whilePaused.score).toBe(5);
+    expect(whilePaused.progressionScore).toBe(15);
+    expect(whilePaused.difficulty.baseSpeed).toBeCloseTo(264);
     expect(whilePaused.player.y).toBe(beforePause.player.y);
   });
 
@@ -396,6 +399,13 @@ describe('game engine', () => {
     engine.start();
 
     expect(engine.pause()).toEqual({ score: 0 });
+  });
+
+  it('rounds VELOCITY final score while retaining the raw score in the snapshot', () => {
+    const engine = createGameEngine({ now: () => 1000, initialScore: 33, accountBestScore: 100, aircraftId: 'velocity' });
+    engine.start();
+
+    expect(engine.getSnapshot()).toMatchObject({ score: 33, baseScore: 33, scoreMultiplier: 1.5, finalScore: 50 });
   });
 
   it('ends the game when gravity carries the player into a boundary', () => {

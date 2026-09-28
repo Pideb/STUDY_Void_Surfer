@@ -7,6 +7,7 @@ describe('score', () => {
 
     expect(advanceScore(session, 'wall-1')).toBe(true);
     expect(session.score).toBe(1);
+    expect(session.progressionScore).toBe(1);
   });
 
   it('does not award duplicate points for the same obstacle', () => {
@@ -15,6 +16,7 @@ describe('score', () => {
     advanceScore(session, 'wall-1');
     expect(advanceScore(session, 'wall-1')).toBe(false);
     expect(session.score).toBe(4);
+    expect(session.progressionScore).toBe(4);
   });
 
   it('initializes a missing passed-id set and preserves non-negative score', () => {
@@ -25,10 +27,11 @@ describe('score', () => {
     expect(session.passedObstacleIds.has('wall-1')).toBe(true);
   });
 
-  it('applies a score multiplier to a newly passed wall', () => {
-    const session = { score: 4, passedObstacleIds: new Set() };
+  it('increments raw score and monotonic progression by unmultiplied points', () => {
+    const session = { score: 4, progressionScore: 9, passedObstacleIds: new Set() };
 
-    expect(advanceScore(session, 'wall-1', 2)).toBe(true);
-    expect(session.score).toBe(6);
+    expect(advanceScore(session, 'wall-1')).toBe(true);
+    expect(session.score).toBe(5);
+    expect(session.progressionScore).toBe(10);
   });
 });

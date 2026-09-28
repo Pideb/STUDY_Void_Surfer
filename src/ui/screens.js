@@ -189,7 +189,9 @@ export function renderGameOverScreen(model, handlers) {
   const panel = createPanel('비행 종료', 'game-over-screen');
   const score = document.createElement('p');
   score.className = 'final-score';
-  score.textContent = `최종 점수 ${model.score}`;
+  score.textContent = model.aircraftId === 'velocity'
+    ? `기본 점수 ${model.baseScore} × 1.5 = 최종 점수 ${model.score}`
+    : `최종 점수 ${model.score}`;
   panel.append(score);
 
   const actions = document.createElement('div');

@@ -40,8 +40,8 @@ function getHangarAircraft(bestScore) {
       ? '최고 속도로 돌파하는 고속 기체'
       : craft.id === 'aegis' ? '무겁지만 정밀한 조작이 가능한 기체' : '균형 잡힌 기본 기체',
     stats: craft.id === 'velocity'
-      ? '이동 속도 ×2 · 벽 점수 ×2'
-      : craft.id === 'aegis' ? '중력 ×2 · 상승력 35%' : '속도 · 중력 · 상승력 표준',
+      ? '이동 속도 ×2 · 최종 점수 ×1.5'
+      : craft.id === 'aegis' ? '중력 ×2 · 상승력 60%' : '속도 · 중력 · 상승력 표준',
   }));
 }
 
@@ -144,7 +144,10 @@ export function createAppController(deps) {
     }
     if (state.screen === 'game-over') {
       root.replaceChildren(renderGameOverScreen({
-        score: state.snapshot?.score ?? 0,
+        score: state.snapshot?.finalScore ?? state.snapshot?.score ?? 0,
+        baseScore: state.snapshot?.baseScore ?? state.snapshot?.score ?? 0,
+        scoreMultiplier: state.snapshot?.scoreMultiplier ?? state.snapshot?.aircraft?.scoreMultiplier ?? 1,
+        aircraftId: state.snapshot?.aircraft?.id ?? 'default',
         leaderboard: state.leaderboard ?? {
           top: { loading: true }, neighborhood: { loading: true },
         },
@@ -441,7 +444,7 @@ export function createAppController(deps) {
   async function loadGameOverData({ submitScore = true } = {}) {
     if (state.submitState === 'saving') return;
     const requestId = ++state.gameOverRequest;
-    const score = state.snapshot?.score ?? 0;
+    const score = state.snapshot?.finalScore ?? state.snapshot?.score ?? 0;
     const displayName = getDisplayName(state.user);
     const aircraftId = state.snapshot?.aircraft?.id ?? 'default';
     state.leaderboard = {

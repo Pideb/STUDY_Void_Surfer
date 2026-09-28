@@ -11,7 +11,7 @@ describe('aircraft catalog', () => {
     expect(AIRCRAFT_CATALOG.map(({ id }) => id)).toEqual(['default', 'velocity', 'aegis']);
     expect(getAircraftDefinition('velocity')).toMatchObject({
       unlockBestScore: 100,
-      scoreMultiplier: 2,
+      scoreMultiplier: 1.5,
       scrollSpeedMultiplier: 2,
       spawnIntervalMultiplier: 0.5,
       gravityMultiplier: 1,
@@ -31,6 +31,10 @@ describe('aircraft catalog', () => {
     expect(getUnlockedAircraftIds(-10)).toEqual(['default']);
     expect(getUnlockedAircraftIds(50)).toEqual(['default', 'aegis']);
     expect(getUnlockedAircraftIds(100)).toEqual(['default', 'velocity', 'aegis']);
+  });
+
+  it('keeps the default aircraft id while displaying its NOVA name', () => {
+    expect(getAircraftDefinition('default')).toMatchObject({ id: 'default', name: 'NOVA' });
   });
 
   it('normalizes unknown definitions but does not treat unknown ids as unlocked', () => {

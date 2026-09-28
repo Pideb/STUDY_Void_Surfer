@@ -259,15 +259,19 @@ describe('app controller product flow', () => {
     } });
     harness.controller.mount();
     await settle();
-    harness.snapshot.aircraft = { id: 'velocity' };
+    Object.assign(harness.snapshot, {
+      score: 33, baseScore: 33, finalScore: 50, scoreMultiplier: 1.5,
+      aircraft: { id: 'velocity' },
+    });
     harness.controller.dispatch('START_GAME_FROM_MENU');
     harness.controller.dispatch('START_PLAYING');
     harness.controller.dispatch('GAME_OVER');
     await settle();
 
     expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledWith(pilot, {
-      score: 0, displayName: 'Pilot', aircraftId: 'velocity',
+      score: 50, displayName: 'Pilot', aircraftId: 'velocity',
     });
+    expect(harness.root.textContent).toContain('기본 점수 33 × 1.5 = 최종 점수 50');
     expect(harness.root.querySelector('img')).toBeNull();
     expect(harness.root.textContent).toContain('<img src=x>');
     expect(harness.root.querySelector('[aria-current="true"]')).not.toBeNull();

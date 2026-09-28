@@ -1,7 +1,7 @@
 import {
   BASE_GAP_HEIGHT, BASE_SCROLL_SPEED, BOSS_FAST_MULTIPLIER, BOSS_PATTERNS, BOSS_SLOW_MULTIPLIER,
   MOVING_GAP_CHANCE, MOVING_GAP_UNLOCK_SCORE, NORMAL_SPECIAL_CHANCE, NORMAL_TIMING_WINDOW_SECONDS,
-  SPECIAL_UNLOCK_SCORE, SPEED_STEP_MULTIPLIER, SPEED_STEP_SECONDS, WARNING_GAP_MULTIPLIER,
+  SPECIAL_UNLOCK_SCORE, SPEED_STEP_MULTIPLIER, SPEED_STEP_SCORE_POINTS, WARNING_GAP_MULTIPLIER,
   WARNING_SCORE_STEP_MAX, WARNING_SCORE_STEP_MIN, WARNING_SPECIAL_CHANCE, WARNING_START_SCORE,
   WARNING_TIMING_WINDOW_SECONDS,
 } from './constants.js';
@@ -11,8 +11,8 @@ function normalizeElapsed(value) { return Number.isFinite(value) ? Math.max(0, v
 function normalizeWarningCount(value) { return Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0; }
 function roll(rng) { return Math.min(0.999999, Math.max(0, Number(rng()) || 0)); }
 
-export function getBaseSpeed(elapsedSeconds) {
-  return BASE_SCROLL_SPEED * (SPEED_STEP_MULTIPLIER ** Math.floor(normalizeElapsed(elapsedSeconds) / SPEED_STEP_SECONDS));
+export function getBaseSpeed(progressionScore) {
+  return BASE_SCROLL_SPEED * (SPEED_STEP_MULTIPLIER ** Math.floor(normalizeScore(progressionScore) / SPEED_STEP_SCORE_POINTS));
 }
 export function chooseBossPattern(rng = Math.random) {
   const patterns = Object.values(BOSS_PATTERNS);
@@ -26,7 +26,7 @@ export function getBossSpeedMultiplier(pattern, elapsedSeconds = 0) {
   if (pattern === BOSS_PATTERNS.FAST) return BOSS_FAST_MULTIPLIER;
   return Math.floor(normalizeElapsed(elapsedSeconds) / 2) % 2 === 0 ? BOSS_SLOW_MULTIPLIER : BOSS_FAST_MULTIPLIER;
 }
-export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE) {
+export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score) {
   const safeScore = normalizeScore(score);
   const activeWarningIndex = normalizeWarningCount(warningCount) + 1;
   const warningThreshold = normalizeScore(nextWarningScore);
@@ -36,9 +36,9 @@ export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.ra
   const speedMultiplier = isBoss ? getBossSpeedMultiplier(bossPattern, elapsedSeconds) : 1;
   const warningMode = isWarning || isBoss;
   return {
-    score: safeScore, elapsedSeconds: normalizeElapsed(elapsedSeconds), warningIndex: isWarning ? activeWarningIndex : 0,
-    isWarning, isBoss, bossPattern, baseSpeed: getBaseSpeed(elapsedSeconds), speedMultiplier,
-    scrollSpeed: getBaseSpeed(elapsedSeconds) * speedMultiplier,
+    score: safeScore, progressionScore: normalizeScore(progressionScore), elapsedSeconds: normalizeElapsed(elapsedSeconds), warningIndex: isWarning ? activeWarningIndex : 0,
+    isWarning, isBoss, bossPattern, baseSpeed: getBaseSpeed(progressionScore), speedMultiplier,
+    scrollSpeed: getBaseSpeed(progressionScore) * speedMultiplier,
     gapHeight: warningMode ? BASE_GAP_HEIGHT * WARNING_GAP_MULTIPLIER : BASE_GAP_HEIGHT,
     specialChance: safeScore >= SPECIAL_UNLOCK_SCORE ? (warningMode ? WARNING_SPECIAL_CHANCE : NORMAL_SPECIAL_CHANCE) : 0,
     movingGapChance: safeScore >= MOVING_GAP_UNLOCK_SCORE ? MOVING_GAP_CHANCE : 0,

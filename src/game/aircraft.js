@@ -18,7 +18,7 @@ export const AIRCRAFT_IDS = Object.freeze({
 const definitions = [
   {
     id: AIRCRAFT_IDS.DEFAULT,
-    name: 'DEFAULT',
+    name: 'NOVA',
     unlockBestScore: AIRCRAFT_DEFAULT_UNLOCK_SCORE,
     scoreMultiplier: 1,
     scrollSpeedMultiplier: 1,

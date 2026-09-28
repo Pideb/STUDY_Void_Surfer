@@ -114,6 +114,15 @@ describe('product flow screens', () => {
     expect(screen.querySelector('[aria-current="true"]')).not.toBeNull();
   });
 
+  it('shows the VELOCITY base-to-final score equation', () => {
+    const screen = renderGameOverScreen({
+      score: 50, baseScore: 33, scoreMultiplier: 1.5, aircraftId: 'velocity',
+      leaderboard: { top: { rows: [] }, neighborhood: { rows: [] } },
+    }, { restart: vi.fn(), menu: vi.fn(), retryLeaderboard: vi.fn() });
+
+    expect(screen.querySelector('.final-score').textContent).toBe('기본 점수 33 × 1.5 = 최종 점수 50');
+  });
+
   it('provides a touch-friendly space action and accessible warning banner', () => {
     const hud = createGameHud({ muted: false, getMuted: () => false }, {
       pause: vi.fn(), toggleMute: vi.fn(), space: vi.fn(),

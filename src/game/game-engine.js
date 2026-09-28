@@ -76,7 +76,7 @@ export function createGameEngine(deps = {}) {
 
   let state = GAME_STATES.MENU;
   let player = createPlayer();
-  let scoreSession = { score: initialScore, passedObstacleIds: new Set() };
+  let scoreSession = { score: initialScore, progressionScore: initialScore, passedObstacleIds: new Set() };
   let elapsedSeconds = 0;
   let lastUpdateMs = null;
   let gameOverReason = null;
@@ -104,7 +104,7 @@ export function createGameEngine(deps = {}) {
 
   function getCurrentDifficulty() {
     if (!warningSession) {
-      const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore);
+      const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore);
       return applyAircraftDifficulty(base);
     }
 
@@ -113,7 +113,7 @@ export function createGameEngine(deps = {}) {
       elapsedSeconds,
       completedWarningCount,
       rng,
-      warningSession.bossPattern, nextWarningScore,
+      warningSession.bossPattern, nextWarningScore, scoreSession.progressionScore,
     );
     const speedMultiplier = warningSession.isBoss
       ? getBossSpeedMultiplier(warningSession.bossPattern, elapsedSeconds)
@@ -147,7 +147,7 @@ export function createGameEngine(deps = {}) {
   function startWarningIfNeeded() {
     if (warningSession) return;
 
-    const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore);
+    const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore);
     if (!candidate.isWarning) return;
 
     const isBoss = candidate.warningIndex % 5 === 0;
@@ -236,7 +236,7 @@ export function createGameEngine(deps = {}) {
     for (const obstacle of obstacles) {
       if (obstacle.x + obstacle.width >= playerLeft || obstacle.passed) continue;
       obstacle.passed = true;
-      if (advanceScore(scoreSession, obstacle.id, aircraft.scoreMultiplier)) {
+      if (advanceScore(scoreSession, obstacle.id)) {
         if (bossEncounter && obstacle.warningIndex === warningSession?.index) {
           if (obstacle.kind === 'normal') {
             advanceBossEncounter(bossEncounter, 'normal-wall-passed');
@@ -278,7 +278,7 @@ export function createGameEngine(deps = {}) {
 
   function start() {
     player = createPlayer();
-    scoreSession = { score: initialScore, passedObstacleIds: new Set() };
+    scoreSession = { score: initialScore, progressionScore: initialScore, passedObstacleIds: new Set() };
     elapsedSeconds = 0;
     gameOverReason = null;
     obstacles = [];
@@ -449,6 +449,7 @@ export function createGameEngine(deps = {}) {
     }
     advanceBossEncounter(bossEncounter, 'boss-cleared');
     scoreSession.score += 10;
+    scoreSession.progressionScore += 10;
     completedWarningCount += 1;
     nextWarningScore = getScore() + chooseWarningScoreStep(rng);
     wallsUntilStageAdvance = 2;
@@ -617,6 +618,10 @@ export function createGameEngine(deps = {}) {
     return {
       state,
       score: getScore(),
+      progressionScore: scoreSession.progressionScore,
+      baseScore: getScore(),
+      scoreMultiplier: aircraft.scoreMultiplier,
+      finalScore: Math.round(getScore() * aircraft.scoreMultiplier),
       elapsedSeconds,
       backgroundScrollDistancePx,
       gameOverReason,
