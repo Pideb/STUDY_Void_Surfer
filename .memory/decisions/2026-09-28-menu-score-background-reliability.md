@@ -13,5 +13,5 @@
 - **Constraint**: Do not connect to or mutate the remote Supabase project as part of this local code change. Document that applying all migrations remains necessary for aircraft-specific records and current account-score RPCs.
 
 ## D03. Gameplay background brightness and motion
-- **Chosen**: Apply a modest dark readability veil over gameplay backgrounds and continuously pan the full scene gently from right to left with a subtle vertical parallax drift. Keep the existing stage transition and reduced-motion handling.
+- **Chosen**: Apply a modest dark readability veil over gameplay backgrounds and use a very slow, eased cyclical horizontal drift that starts by moving the full scene from right to left, with subtle vertical parallax. Keep the existing stage transition and reduced-motion handling.
 - **Rationale**: The user selected an understated whole-scene drift and requested better contrast without losing the full-screen stage art.

@@ -331,8 +331,8 @@ function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = f
   const height = WORLD_HEIGHT * scale;
   const overflowX = width - WORLD_WIDTH;
   const overflowY = height - WORLD_HEIGHT;
-  const drift = reducedMotion ? 0 : elapsedSeconds * 0.8;
-  const offsetX = reducedMotion ? overflowX / 2 : (drift % overflowX);
+  const driftProgress = reducedMotion ? 0 : (1 - Math.cos((elapsedSeconds * Math.PI * 2) / 150)) / 2;
+  const offsetX = reducedMotion ? overflowX / 2 : driftProgress * overflowX;
   const offsetY = reducedMotion
     ? overflowY / 2
     : overflowY / 2 + Math.sin(elapsedSeconds * 0.12) * Math.min(overflowY * 0.18, 7);

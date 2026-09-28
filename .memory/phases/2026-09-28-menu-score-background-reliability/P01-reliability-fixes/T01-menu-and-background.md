@@ -23,7 +23,7 @@ Ensure the main-menu logout button fits inside the game frame on desktop, and ma
   - `src/game/renderer.js` :: `drawStageBackground`, `drawBackgroundTransition`; modify
 - Details:
   - Use a shared background draw helper for both static stage rendering and transition scenes, so both receive the same visual treatment.
-  - For loaded stage art, draw with slight overscan and a slow bounded horizontal drift corresponding to right-to-left movement; add only subtle vertical parallax. Avoid exposing blank canvas edges.
+  - For loaded stage art, draw with slight overscan and a very slow eased cyclical horizontal drift that starts right-to-left; add only subtle vertical parallax. Use a smooth cycle rather than a modulo reset so the scene never snaps, and avoid exposing blank canvas edges.
   - Add a low-opacity dark overlay after drawing the background art to improve player/obstacle contrast; keep Warning/Boss atmosphere overlays separate and in their existing order.
   - When `prefers-reduced-motion` is active, disable continuous pan while retaining the stage transition's existing reduced-motion behavior.
   - Keep procedural background fallback behavior and all gameplay entities/collision unchanged.
