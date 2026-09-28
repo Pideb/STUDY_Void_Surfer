@@ -8,7 +8,7 @@ import {
 
 describe('aircraft catalog', () => {
   it('defines the three balanced profiles with the approved thresholds', () => {
-    expect(AIRCRAFT_CATALOG.map(({ id }) => id)).toEqual(['default', 'velocity', 'aegis']);
+    expect(AIRCRAFT_CATALOG.map(({ id }) => id)).toEqual(['default', 'aegis', 'velocity']);
     expect(getAircraftDefinition('velocity')).toMatchObject({
       unlockBestScore: 100,
       scoreMultiplier: 1.5,
@@ -23,14 +23,14 @@ describe('aircraft catalog', () => {
       scrollSpeedMultiplier: 1,
       spawnIntervalMultiplier: 1,
       gravityMultiplier: 2,
-      liftMultiplier: 0.35,
+      liftMultiplier: 0.6,
     });
   });
 
   it('unlocks default, then aegis, then velocity by account best score', () => {
     expect(getUnlockedAircraftIds(-10)).toEqual(['default']);
     expect(getUnlockedAircraftIds(50)).toEqual(['default', 'aegis']);
-    expect(getUnlockedAircraftIds(100)).toEqual(['default', 'velocity', 'aegis']);
+    expect(getUnlockedAircraftIds(100)).toEqual(['default', 'aegis', 'velocity']);
   });
 
   it('keeps the default aircraft id while displaying its NOVA name', () => {

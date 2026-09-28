@@ -5,6 +5,7 @@ import {
   BOSS_RESPONSE_COOLDOWN_SECONDS,
   BOSS_LASER_FOLLOW_UP_SECONDS,
   DASH_DURATION_SECONDS,
+  FLIGHT_TRAIL_LIFETIME_SECONDS,
   GAP_CONTINUITY_SCORE,
   GRAVITY,
   LIFT_VELOCITY,
@@ -98,6 +99,7 @@ export function createGameEngine(deps = {}) {
   let nextWarningScore = WARNING_START_SCORE;
   let firstBossCleared = false;
   let previousBaseGapCenter = null;
+  let flightTrail = [];
   let stageOrder = [];
   let stageIndex = 0;
   let stageElapsedSeconds = 0;
@@ -153,6 +155,17 @@ export function createGameEngine(deps = {}) {
       aircraftSpawnIntervalMultiplier: aircraft.spawnIntervalMultiplier,
       scrollSpeed: difficulty.scrollSpeed * aircraft.scrollSpeedMultiplier,
     };
+  }
+
+  function updateFlightTrail(deltaSeconds, scrollSpeed) {
+    flightTrail = flightTrail
+      .map((point) => ({
+        x: point.x - scrollSpeed * deltaSeconds,
+        y: point.y,
+        ageSeconds: point.ageSeconds + deltaSeconds,
+      }))
+      .filter((point) => point.ageSeconds <= FLIGHT_TRAIL_LIFETIME_SECONDS && point.x >= -12);
+    flightTrail.push({ x: player.x - player.width * 0.47, y: player.y, ageSeconds: 0 });
   }
 
   function startWarningIfNeeded() {
@@ -306,6 +319,7 @@ export function createGameEngine(deps = {}) {
     nextWarningScore = WARNING_START_SCORE + initialCompletedWarningCount * 10;
     firstBossCleared = false;
     previousBaseGapCenter = null;
+    flightTrail = [];
     stageOrder = createStageShuffleBag(stageRng);
     stageIndex = 0;
     stageElapsedSeconds = 0;
@@ -529,6 +543,7 @@ export function createGameEngine(deps = {}) {
     updatePlayer(player, deltaSeconds, gravity * aircraft.gravityMultiplier);
     elapsedSeconds += deltaSeconds;
     let difficulty = getCurrentDifficulty();
+    updateFlightTrail(deltaSeconds, difficulty.scrollSpeed);
     backgroundScrollDistancePx += difficulty.scrollSpeed * deltaSeconds * 0.25;
     updateStage(deltaSeconds, difficulty.scrollSpeed);
     if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
@@ -679,6 +694,7 @@ export function createGameEngine(deps = {}) {
       challenge: challenge ? { ...challenge, sequence: [...challenge.sequence] } : null,
       feedbackEffect: feedbackEffect ? { ...feedbackEffect } : null,
       player: { ...player },
+      flightTrail: flightTrail.map((point) => ({ ...point })),
       obstacles: obstacles.map((obstacle) => ({ ...obstacle, breakEffect: obstacle.breakEffect ? { ...obstacle.breakEffect } : null })),
       difficulty: { ...getCurrentDifficulty() },
       warning: warningSession ? {

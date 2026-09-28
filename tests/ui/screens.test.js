@@ -45,12 +45,12 @@ describe('product flow screens', () => {
       bestScore: 50,
       selectedAircraftId: 'aegis',
       aircraft: [
-        { id: 'default', name: 'DEFAULT', unlockBestScore: 0, unlocked: true, description: '균형', stats: '표준' },
-        { id: 'velocity', name: 'VELOCITY', unlockBestScore: 100, unlocked: false, description: '고속', stats: '속도 ×2' },
+        { id: 'default', name: 'NOVA', unlockBestScore: 0, unlocked: true, description: '균형', stats: '표준' },
         { id: 'aegis', name: 'AEGIS', unlockBestScore: 50, unlocked: true, description: '중량', stats: '중력 ×2' },
+        { id: 'velocity', name: 'VELOCITY', unlockBestScore: 100, unlocked: false, description: '고속', stats: '속도 ×2' },
       ],
     }, { select, back: vi.fn() });
-    const [basic, velocity, aegis] = screen.querySelectorAll('.aircraft-option');
+    const [basic, aegis, velocity] = screen.querySelectorAll('.aircraft-option');
     expect(basic.querySelector('.aircraft-preview')?.getAttribute('src')).toContain('/assets/game/aircraft/default.png');
     expect(velocity.querySelector('.aircraft-preview')?.getAttribute('src')).toContain('/assets/game/aircraft/velocity.png');
     expect(aegis.querySelector('.aircraft-preview')?.getAttribute('src')).toContain('/assets/game/aircraft/aegis.png');

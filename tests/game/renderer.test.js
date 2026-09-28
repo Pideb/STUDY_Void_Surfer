@@ -120,28 +120,32 @@ describe('renderer', () => {
     expect(VISUAL_THEME.ship).not.toBe(VISUAL_THEME.obstacle);
   });
 
-  it('draws the gameplay ship 20% larger without changing logical hitbox geometry', () => {
+  it('draws the gameplay ship 50% larger without changing logical hitbox geometry', () => {
     const context = createContext();
     const image = { width: 1774, height: 887 };
     const player = { x: 240, y: 270, velocityY: 0, width: 36, height: 24 };
     drawShip(context, player, VISUAL_THEME, 'velocity', { get: () => image });
 
     const [, x, y, width, height] = context.drawImage.mock.calls[0];
-    expect(x).toBeCloseTo(-21.6);
-    expect(y).toBeCloseTo(-10.8);
-    expect(width).toBeCloseTo(43.2);
-    expect(height).toBeCloseTo(21.6);
+    expect(x).toBeCloseTo(-32.4);
+    expect(y).toBeCloseTo(-16.2);
+    expect(width).toBeCloseTo(64.8);
+    expect(height).toBeCloseTo(32.4);
     expect(player).toMatchObject({ width: 36, height: 24 });
   });
 
-  it('draws a faint aircraft-accent exhaust during ordinary flight without mutating the player', () => {
+  it('draws one tapered aircraft-accent trail following the recorded path', () => {
     const context = createContext();
     const player = { x: 240, y: 270, width: 36, height: 24, isDashing: false };
-    drawShipExhaust(context, player, 'velocity', 1.25);
+    drawShipExhaust(context, player, 'velocity', 1.25, [
+      { x: 100, y: 220 }, { x: 140, y: 250 }, { x: 190, y: 270 }, { x: 223, y: 270 },
+    ]);
 
     expect(context.stroke).toHaveBeenCalledTimes(3);
     expect(context.strokeStyle).toBe('#ff55cf');
-    expect(context.globalAlpha).toBeCloseTo(0.72 + (Math.sin(1.25 * 11) + 1) * 0.14);
+    expect(context.lineWidth).toBeCloseTo(5.5);
+    expect(context.moveTo.mock.calls[0]).toEqual([100, 220]);
+    expect(context.lineTo.mock.calls.at(-1)).toEqual([223, 270]);
     expect(player).toEqual({ x: 240, y: 270, width: 36, height: 24, isDashing: false });
   });
 
@@ -206,7 +210,7 @@ describe('renderer', () => {
       obstacles: [], difficulty: {},
     });
 
-    expect(normalContext.stroke).toHaveBeenCalledTimes(17);
+    expect(normalContext.stroke).toHaveBeenCalledTimes(14);
     expect(specialContext.stroke.mock.calls.length).toBeGreaterThan(normalContext.stroke.mock.calls.length);
     expect(specialContext.arc.mock.calls.length).toBeGreaterThan(normalContext.arc.mock.calls.length);
     normalRenderer.destroy();

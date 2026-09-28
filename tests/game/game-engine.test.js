@@ -168,10 +168,10 @@ describe('game engine', () => {
     engine.start();
     const initial = engine.getSnapshot();
 
-    expect(initial.aircraft).toMatchObject({ id: 'aegis', gravityMultiplier: 2, liftMultiplier: 0.35 });
+    expect(initial.aircraft).toMatchObject({ id: 'aegis', gravityMultiplier: 2, liftMultiplier: 0.6 });
     expect(initial.player).toMatchObject({ width: 36, height: 24 });
     engine.lift();
-    expect(engine.getSnapshot().player.velocityY).toBeCloseTo(-126, 10);
+    expect(engine.getSnapshot().player.velocityY).toBeCloseTo(-216, 10);
     step();
     expect(engine.getSnapshot().player.width).toBe(36);
   });
@@ -440,5 +440,26 @@ describe('game engine', () => {
     engine.update(10100);
 
     expect(engine.getSnapshot().elapsedSeconds).toBe(0.1);
+  });
+
+  it('records, scrolls, expires, and resets a detached flight path trail', () => {
+    const { engine, step } = createRuntimeEngine();
+    engine.start();
+    expect(engine.getSnapshot().flightTrail).toEqual([]);
+
+    step(100);
+    const first = engine.getSnapshot();
+    expect(first.flightTrail).toHaveLength(1);
+    step(100);
+    const second = engine.getSnapshot();
+    expect(second.flightTrail).toHaveLength(2);
+    expect(second.flightTrail[0].x).toBeLessThan(first.flightTrail[0].x);
+    second.flightTrail[0].x = 999;
+    expect(engine.getSnapshot().flightTrail[0].x).not.toBe(999);
+
+    for (let frame = 0; frame < 13; frame += 1) step(100);
+    expect(engine.getSnapshot().flightTrail.every(({ ageSeconds }) => ageSeconds <= 1.2)).toBe(true);
+    engine.start();
+    expect(engine.getSnapshot().flightTrail).toEqual([]);
   });
 });

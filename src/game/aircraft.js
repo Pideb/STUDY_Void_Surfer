@@ -28,17 +28,6 @@ const definitions = [
     visualKey: 'default',
   },
   {
-    id: AIRCRAFT_IDS.VELOCITY,
-    name: 'VELOCITY',
-    unlockBestScore: AIRCRAFT_VELOCITY_UNLOCK_SCORE,
-    scoreMultiplier: VELOCITY_SCORE_MULTIPLIER,
-    scrollSpeedMultiplier: VELOCITY_MOVEMENT_MULTIPLIER,
-    spawnIntervalMultiplier: VELOCITY_SPAWN_INTERVAL_MULTIPLIER,
-    gravityMultiplier: 1,
-    liftMultiplier: 1,
-    visualKey: 'velocity',
-  },
-  {
     id: AIRCRAFT_IDS.AEGIS,
     name: 'AEGIS',
     unlockBestScore: AIRCRAFT_AEGIS_UNLOCK_SCORE,
@@ -48,6 +37,17 @@ const definitions = [
     gravityMultiplier: AEGIS_GRAVITY_MULTIPLIER,
     liftMultiplier: AEGIS_LIFT_MULTIPLIER,
     visualKey: 'aegis',
+  },
+  {
+    id: AIRCRAFT_IDS.VELOCITY,
+    name: 'VELOCITY',
+    unlockBestScore: AIRCRAFT_VELOCITY_UNLOCK_SCORE,
+    scoreMultiplier: VELOCITY_SCORE_MULTIPLIER,
+    scrollSpeedMultiplier: VELOCITY_MOVEMENT_MULTIPLIER,
+    spawnIntervalMultiplier: VELOCITY_SPAWN_INTERVAL_MULTIPLIER,
+    gravityMultiplier: 1,
+    liftMultiplier: 1,
+    visualKey: 'velocity',
   },
 ].map((definition) => Object.freeze(definition));
 

@@ -16,7 +16,7 @@ describe('leaderboard aircraft identity', () => {
     expect([...table.querySelectorAll('thead th')].map((cell) => cell.textContent))
       .toEqual(['순위', '파일럿', '기체', '점수']);
     expect(rows[0].children[2].textContent).toBe('➤ VELOCITY');
-    expect(rows[1].children[2].textContent).toBe('✦ DEFAULT');
+    expect(rows[1].children[2].textContent).toBe('✦ NOVA');
     expect(panel.querySelector('img')).toBeNull();
     expect(rows[0].children[1].textContent).toBe('<img src=x>');
   });

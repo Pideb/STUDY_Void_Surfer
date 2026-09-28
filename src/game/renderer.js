@@ -41,8 +41,8 @@ export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'defaul
     ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.aircraft[aircraftId] ?? VISUAL_ASSET_MANIFEST.aircraft.default);
   if (image) {
     const scale = Math.min(player.width / image.width, player.height / image.height);
-    const width = image.width * scale * 1.2;
-    const height = image.height * scale * 1.2;
+    const width = image.width * scale * 1.8;
+    const height = image.height * scale * 1.8;
     ctx.drawImage(image, -width / 2, -height / 2, width, height);
     if (dashIntensity > 0) {
       ctx.globalAlpha = 0.55 + dashIntensity * 0.4;
@@ -56,7 +56,7 @@ export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'defaul
     ctx.restore();
     return;
   }
-  ctx.scale(1.2, 1.2);
+  ctx.scale(1.8, 1.8);
   setGlow(ctx, craft.outline, theme.shipGlow);
   ctx.fillStyle = craft.fill;
   ctx.beginPath();
@@ -125,20 +125,25 @@ export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'defaul
   ctx.restore();
 }
 
-export function drawShipExhaust(ctx, player, aircraftId = 'default', elapsedSeconds = 0) {
+export function drawShipExhaust(ctx, player, aircraftId = 'default', _elapsedSeconds = 0, flightTrail = []) {
   const craft = AIRCRAFT_VISUALS[aircraftId] ?? AIRCRAFT_VISUALS.default;
-  const pulse = 0.72 + (Math.sin((Number(elapsedSeconds) || 0) * 11) + 1) * 0.14;
-  const rearX = player.x - player.width * 0.47;
+  if (!Array.isArray(flightTrail) || flightTrail.length < 2) return;
 
   ctx.save();
-  ctx.globalAlpha = pulse;
   ctx.strokeStyle = craft.accent;
-  ctx.lineWidth = 1.35;
-  setGlow(ctx, craft.accent, 6);
-  for (const [offset, length] of [[-0.25, 8], [0, 13], [0.25, 8]]) {
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  setGlow(ctx, craft.accent, 9);
+  const segmentCount = flightTrail.length - 1;
+  for (let index = 0; index < segmentCount; index += 1) {
+    const start = flightTrail[index];
+    const end = flightTrail[index + 1];
+    const agePosition = index / Math.max(1, segmentCount - 1);
+    ctx.globalAlpha = 0.18 + agePosition * 0.74;
+    ctx.lineWidth = 0.7 + agePosition * 4.8;
     ctx.beginPath();
-    ctx.moveTo(rearX, player.y + player.height * offset);
-    ctx.lineTo(rearX - length, player.y + player.height * offset);
+    ctx.moveTo(start.x, start.y);
+    ctx.lineTo(end.x, end.y);
     ctx.stroke();
   }
   resetGlow(ctx);
@@ -896,7 +901,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
     drawSpecialDashBurst(ctx, snapshot.player, VISUAL_THEME);
     drawStageAtmosphere(ctx, stage.mode, elapsed);
-    drawShipExhaust(ctx, snapshot.player, snapshot.aircraft?.id, elapsed);
+    drawShipExhaust(ctx, snapshot.player, snapshot.aircraft?.id, elapsed, snapshot.flightTrail);
     drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect);
     ctx.restore();

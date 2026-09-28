@@ -1,6 +1,6 @@
 # Task: T03 Aircraft Tuning, Visibility, and Flight-Path Trail
 
-## Status: pending
+## Status: done
 
 ## Goal
 Make aircraft more visible without changing their shared collision hitbox; apply confirmed names/order/stats; replace three short straight marks with one long, bright trail following the ship's recent curved path and tapering toward its oldest end.
@@ -42,10 +42,10 @@ Make aircraft more visible without changing their shared collision hitbox; apply
 - Render one continuous stroke (smoothed path or densely sampled polyline), not parallel lines or a straight nozzle flame. Width and alpha narrow/fade toward oldest points; cap history at 1.2 s and viewport.
 
 ## Acceptance Criteria
-- [ ] NOVA/AEGIS/VELOCITY order and names appear consistently without changing stored IDs.
-- [ ] AEGIS lifts stronger and retains 2x gravity.
-- [ ] Ship art is about 1.5x more visible; hitbox is unchanged and equal across aircraft.
-- [ ] One long curved trail follows vertical movement, uses distinct bright colors, tapers/fades at its oldest end, and remains bounded/resettable.
+- [x] NOVA/AEGIS/VELOCITY order and names appear consistently without changing stored IDs.
+- [x] AEGIS lifts stronger and retains 2x gravity.
+- [x] Ship art is about 1.5x more visible; hitbox is unchanged and equal across aircraft.
+- [x] One long curved trail follows vertical movement, uses distinct bright colors, tapers/fades at its oldest end, and remains bounded/resettable.
 
 ## Validation
 - `npm test -- --run tests/game/aircraft.test.js tests/game/game-engine.test.js tests/game/renderer.test.js tests/ui/screens.test.js tests/ui/app-controller.test.js tests/services/leaderboard-service.test.js`
@@ -64,6 +64,6 @@ Task: T03-aircraft-and-trails
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed: focused 6-file suite (106 tests), `git diff --check`
+- commit: `feat(aircraft): improve visibility and add curved flight trails`
