@@ -59,7 +59,6 @@ export const VELOCITY_MOVEMENT_MULTIPLIER = 2;
 export const VELOCITY_SPAWN_INTERVAL_MULTIPLIER = 0.5;
 export const AEGIS_GRAVITY_MULTIPLIER = 2;
 export const AEGIS_LIFT_MULTIPLIER = 0.35;
-export const STAGE_ROTATION_SECONDS = 30;
 export const STAGE_TRANSITION_SECONDS = 1.5;
 export const BOSS_EARLY_HP = 3;
 export const BOSS_LATE_HP = 5;

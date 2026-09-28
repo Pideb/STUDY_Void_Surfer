@@ -14,7 +14,6 @@ import {
   PAUSE_SCORE_PENALTY,
   SPECIAL_TIMING_GUIDE_COUNT,
   SPECIAL_BREAK_DURATION_SECONDS,
-  STAGE_ROTATION_SECONDS,
   STAGE_TRANSITION_SECONDS,
   WARNING_START_SCORE,
   WARNING_MIN_SPECIALS,
@@ -92,6 +91,7 @@ export function createGameEngine(deps = {}) {
   let stageIndex = 0;
   let stageElapsedSeconds = 0;
   let stageTransition = null;
+  let wallsUntilStageAdvance = 0;
   let bossEncounter = null;
   let challenge = null;
   let feedbackEffect = null;
@@ -159,6 +159,7 @@ export function createGameEngine(deps = {}) {
       requiredSpecials: isBoss ? BOSS_MIN_SPECIALS : WARNING_MIN_SPECIALS,
       specialObstacleIds: new Set(),
       specialSpawnedCount: 0,
+      waveComplete: false,
     };
     bossEncounter = isBoss
       ? createBossEncounter(Math.max(1, Math.floor(candidate.warningIndex / 5)), rng)
@@ -217,6 +218,18 @@ export function createGameEngine(deps = {}) {
     }
   }
 
+  function startNextBossWallWaveIfNeeded() {
+    if (!warningSession?.isBoss || !bossEncounter || bossEncounter.hp <= 0
+      || bossEncounter.attack || challenge?.active || !bossEncounter.awaitingNextWave) {
+      return;
+    }
+    warningSession.spawnedCount = 0;
+    warningSession.specialSpawnedCount = 0;
+    warningSession.waveComplete = false;
+    spawnAccumulatorSeconds = 0;
+    bossEncounter.awaitingNextWave = false;
+  }
+
   function processPassedObstacles() {
     const playerLeft = player.x - player.width / 2;
     for (const obstacle of obstacles) {
@@ -235,6 +248,10 @@ export function createGameEngine(deps = {}) {
         }
         startWarningIfNeeded();
       }
+      if (wallsUntilStageAdvance > 0) {
+        wallsUntilStageAdvance -= 1;
+        if (wallsUntilStageAdvance === 0) advanceStage();
+      }
     }
 
     if (warningSession
@@ -247,7 +264,15 @@ export function createGameEngine(deps = {}) {
       spawnAccumulatorSeconds = 0;
     }
 
+    if (warningSession?.isBoss && warningSession.spawnedCount === warningSession.targetCount
+      && warningSession.specialObstacleIds.size === 0) {
+      const unresolvedBossWall = obstacles.some((obstacle) =>
+        !obstacle.passed && obstacle.warningIndex === warningSession.index);
+      if (!unresolvedBossWall) warningSession.waveComplete = true;
+    }
+
     obstacles = obstacles.filter((obstacle) => obstacle.x + obstacle.width >= 0);
+    startNextBossWallWaveIfNeeded();
   }
 
   function start() {
@@ -266,6 +291,7 @@ export function createGameEngine(deps = {}) {
     stageIndex = 0;
     stageElapsedSeconds = 0;
     stageTransition = null;
+    wallsUntilStageAdvance = 0;
     bossEncounter = null;
     challenge = null;
     feedbackEffect = null;
@@ -314,9 +340,6 @@ export function createGameEngine(deps = {}) {
       );
       if (stageTransition.progress >= 1) stageTransition = null;
     }
-    if (stageElapsedSeconds >= STAGE_ROTATION_SECONDS) {
-      advanceStage();
-    }
   }
 
   function resolveChallenge() {
@@ -340,6 +363,7 @@ export function createGameEngine(deps = {}) {
 
   function scheduleBossAttack(difficulty) {
     if (!bossEncounter || !warningSession?.isBoss || bossEncounter.attack || challenge?.active) return;
+    if (!warningSession.waveComplete) return;
     if (warningSession.specialObstacleIds.size > 0) return;
     if (bossEncounter.normalWallsSinceProjectile < BOSS_PROJECTILE_NORMAL_WALL_COOLDOWN) return;
     if (bossEncounter.lastSpecialResolvedAt !== null
@@ -396,6 +420,7 @@ export function createGameEngine(deps = {}) {
         bossEncounter.hitEffect = { remainingSeconds: 0.38, durationSeconds: 0.38 };
         advanceBossEncounter(bossEncounter, 'projectile-resolved', elapsedSeconds);
         bossEncounter.attack = null;
+        bossEncounter.awaitingNextWave = true;
       }
       return;
     }
@@ -410,6 +435,7 @@ export function createGameEngine(deps = {}) {
       bossEncounter.wallSpawningPaused = false;
       bossEncounter.lastProjectileResolvedAt = elapsedSeconds + BOSS_LASER_FOLLOW_UP_SECONDS;
       bossEncounter.normalWallsSinceProjectile = BOSS_PROJECTILE_NORMAL_WALL_COOLDOWN;
+      bossEncounter.awaitingNextWave = true;
     }
   }
 
@@ -421,6 +447,7 @@ export function createGameEngine(deps = {}) {
     scoreSession.score += 10;
     completedWarningCount += 1;
     nextWarningScore = getScore() + chooseWarningScoreStep(rng);
+    wallsUntilStageAdvance = 2;
     warningSession = null;
     bossEncounter = null;
     spawnAccumulatorSeconds = 0;

@@ -36,21 +36,95 @@ describe('game engine', () => {
     expect(engine.getSnapshot().stage.order).toHaveLength(6);
   });
 
-  it('rotates through the stage shuffle bag and exposes a smooth transition', () => {
-    const { engine, step } = createRuntimeEngine({ stageRng: () => 0.5 });
+  it('keeps the active stage after thirty seconds when no boss has been cleared', () => {
+    const { engine, step } = createRuntimeEngine({ stageRng: () => 0.5, rng: () => 0.5 });
     engine.start();
     const initial = engine.getSnapshot();
 
-    for (let frame = 0; frame < 299; frame += 1) step();
-    expect(engine.getSnapshot().stage.id).toBe(initial.stage.id);
+    let snapshot;
+    for (let frame = 0; frame < 301; frame += 1) snapshot = step();
+    expect(snapshot.elapsedSeconds).toBeGreaterThan(30);
+    expect(snapshot.stage.id).toBe(initial.stage.id);
+    expect(snapshot.stage.transition).toBeNull();
+  });
 
-    const rotated = step();
-    expect(rotated.stage.id).not.toBe(initial.stage.id);
-    expect(rotated.stage.transition).toMatchObject({ progress: 0, durationSeconds: 1.5 });
+  it('advances one stage after two walls pass following a boss clear', () => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 60,
+      initialCompletedWarningCount: 4,
+      rng: () => 0.5,
+      stageRng: () => 0.5,
+    });
+    engine.start();
+    const initial = engine.getSnapshot();
+    const nextStageId = initial.stage.order[1];
+    let previousScore = initial.score;
+    let bossCleared = false;
+    let subsequentWallsPassed = 0;
+    let changedAfterSecondWall = false;
+    let oldArtRemainedAtChange = false;
+    let newArtSpawned = false;
+    let previousSpawnedCount = initial.warning.spawnedCount;
+    let bossWavesCompleted = 0;
+    const fullBossWaveSpecialCounts = [];
 
-    const transitioning = step();
-    expect(transitioning.stage.transition.progress).toBeGreaterThan(0);
-    expect(transitioning.stage.transition.progress).toBeLessThan(1);
+    for (let frame = 0; frame < 7000 && (!changedAfterSecondWall || !newArtSpawned); frame += 1) {
+      const before = engine.getSnapshot();
+      const attack = before.boss?.attack;
+      if (attack?.type === 'projectile' && attack.state === 'flying'
+        && Math.abs(attack.x - before.player.x) <= attack.speed * attack.reflectionWindowSeconds
+        && Math.abs(attack.y - before.player.y) <= before.player.height / 2 + 30) {
+        engine.dash();
+      }
+
+      const specialWall = before.obstacles
+        .filter((obstacle) => obstacle.kind === 'special' && !obstacle.passed && obstacle.x >= before.player.x)
+        .sort((left, right) => left.x - right.x)[0];
+      if (specialWall
+        && (specialWall.x - before.player.x) / before.difficulty.scrollSpeed <= before.difficulty.timingWindowSeconds) {
+        engine.dash();
+      }
+
+      const snapshot = step(10);
+      if (before.boss && !snapshot.boss) {
+        bossCleared = true;
+        expect(snapshot.stage.id).toBe(initial.stage.id);
+        previousScore = snapshot.score;
+      } else if (bossCleared && snapshot.score > previousScore) {
+        subsequentWallsPassed += snapshot.score - previousScore;
+        if (subsequentWallsPassed === 1) {
+          expect(snapshot.stage.id).toBe(initial.stage.id);
+        }
+        if (subsequentWallsPassed >= 2) {
+          changedAfterSecondWall = snapshot.stage.id === nextStageId;
+          if (changedAfterSecondWall) {
+            oldArtRemainedAtChange = snapshot.obstacles.some((obstacle) => obstacle.stageId === initial.stage.id);
+          }
+        }
+      }
+      if (before.warning?.spawnedCount === 7 && snapshot.warning?.spawnedCount === 0) {
+        bossWavesCompleted += 1;
+      }
+      if (snapshot.warning?.spawnedCount === 7
+        && previousSpawnedCount !== 7 && snapshot.warning.index === 5) {
+        fullBossWaveSpecialCounts.push(snapshot.warning.specialSpawnedCount);
+      }
+      if (changedAfterSecondWall && snapshot.obstacles.some((obstacle) => obstacle.stageId === nextStageId)) {
+        newArtSpawned = true;
+      }
+      previousScore = snapshot.score;
+      previousSpawnedCount = snapshot.warning?.spawnedCount ?? -1;
+      if (snapshot.state === GAME_STATES.GAME_OVER) break;
+    }
+
+    expect(bossCleared).toBe(true);
+    expect(bossWavesCompleted).toBeGreaterThanOrEqual(2);
+    expect(fullBossWaveSpecialCounts.length).toBeGreaterThanOrEqual(2);
+    expect(fullBossWaveSpecialCounts.every((count) => count >= 3)).toBe(true);
+    expect(subsequentWallsPassed).toBeGreaterThanOrEqual(2);
+    expect(changedAfterSecondWall).toBe(true);
+    expect(oldArtRemainedAtChange).toBe(true);
+    expect(newArtSpawned).toBe(true);
   });
 
   it('uses the boss atmosphere variant while a boss warning is active', () => {
@@ -203,8 +277,8 @@ describe('game engine', () => {
 
   });
 
-  it('marks the first spawned special wall after score fifteen for timing guidance', () => {
-    const { engine, step } = createRuntimeEngine({ initialScore: 15, rng: () => 0 });
+  it('marks the first spawned special wall at score ten for timing guidance', () => {
+    const { engine, step } = createRuntimeEngine({ initialScore: 10, rng: () => 0 });
     engine.start();
 
     const snapshot = step();
