@@ -1,5 +1,6 @@
 import { createButton, createIconButton, createPanel } from './components.js';
 import { renderLeaderboardPanel } from './leaderboard-view.js';
+import { VISUAL_ASSET_MANIFEST } from '../game/visual-assets.js';
 
 function createMessage(text, className = 'screen-message') {
   const message = document.createElement('p');
@@ -74,8 +75,6 @@ export function renderMenuScreen(model, handlers) {
   return menu;
 }
 
-const AIRCRAFT_ICONS = Object.freeze({ default: '✦', velocity: '➤', aegis: '⬟' });
-
 export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'default', bestScore = 0, error = false } = {}, handlers = {}) {
   const screen = document.createElement('section');
   screen.className = 'hangar-screen';
@@ -106,10 +105,11 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
     button.setAttribute('aria-label', `${craft.name}${selected ? ', 선택됨' : ''}${unlocked ? '' : `, 최고 점수 ${craft.unlockBestScore}점에서 해금`}`);
     button.addEventListener('click', () => handlers.select?.(craft.id));
 
-    const icon = document.createElement('span');
-    icon.className = `aircraft-icon aircraft-icon-${craft.id}`;
-    icon.setAttribute('aria-hidden', 'true');
-    icon.textContent = AIRCRAFT_ICONS[craft.id] ?? '✦';
+    const preview = document.createElement('img');
+    preview.className = `aircraft-preview aircraft-preview-${craft.id}`;
+    preview.src = craft.imageSrc ?? VISUAL_ASSET_MANIFEST.aircraft[craft.id] ?? VISUAL_ASSET_MANIFEST.aircraft.default;
+    preview.alt = '';
+    preview.setAttribute('aria-hidden', 'true');
     const title = document.createElement('strong');
     title.textContent = craft.name;
     const description = document.createElement('span');
@@ -121,7 +121,7 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
     const lock = document.createElement('span');
     lock.className = 'aircraft-lock-reason';
     lock.textContent = unlocked ? (selected ? '현재 선택' : '선택 가능') : `최고 점수 ${craft.unlockBestScore}점에서 해금`;
-    button.append(icon, title, description, performance, lock);
+    button.append(preview, title, description, performance, lock);
     list.append(button);
   }
   screen.append(list);

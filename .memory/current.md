@@ -10,13 +10,13 @@
 
 ## Active Task
 
-[T03 Hangar and Visibility](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P02-flow-fixes/T03-hangar-and-visibility.md)
+[T04 Stage-Owned Obstacles](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P02-flow-fixes/T04-stage-owned-obstacles.md)
 
 ## Status
 
 - Confirmed: expand the approved visual direction to all six stages and apply the requested hangar, transition, visibility, and score-flow fixes.
-- T01 asset generation and T02 all-stage renderer integration completed and validated.
+- T01 asset generation, T02 all-stage renderer integration, and T03 hangar/visibility fixes completed and validated.
 
 ## Next Step (IMPORTANT)
 
-Update the hangar to show real aircraft previews, preserve logout and early special-wall timing guidance, and keep generic hitboxes hidden.
+Bind each obstacle to its spawn stage so active obstacles retain their art during the 1.5-second right-to-left stage transition.

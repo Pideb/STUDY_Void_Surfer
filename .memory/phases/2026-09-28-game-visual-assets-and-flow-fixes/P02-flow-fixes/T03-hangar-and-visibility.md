@@ -1,6 +1,6 @@
 # Task: T03 Hangar and Visibility
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -58,6 +58,6 @@ Task: T03-hangar-and-visibility
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

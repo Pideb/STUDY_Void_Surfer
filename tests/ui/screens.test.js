@@ -37,6 +37,9 @@ describe('product flow screens', () => {
       ],
     }, { select, back: vi.fn() });
     const [basic, velocity, aegis] = screen.querySelectorAll('.aircraft-option');
+    expect(basic.querySelector('.aircraft-preview')?.getAttribute('src')).toContain('/assets/game/aircraft/default.png');
+    expect(velocity.querySelector('.aircraft-preview')?.getAttribute('src')).toContain('/assets/game/aircraft/velocity.png');
+    expect(aegis.querySelector('.aircraft-preview')?.getAttribute('src')).toContain('/assets/game/aircraft/aegis.png');
     expect(basic.getAttribute('aria-pressed')).toBe('false');
     expect(velocity.disabled).toBe(true);
     expect(velocity.getAttribute('aria-label')).toContain('100점에서 해금');

@@ -595,20 +595,17 @@ button:focus-visible {
   transform: none;
 }
 
-.aircraft-icon {
-  display: grid;
-  place-items: center;
-  width: 3.4rem;
-  aspect-ratio: 1;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-  color: var(--color-neon-strong);
-  font-size: 2rem;
-  text-shadow: 0 0 16px currentColor;
+.aircraft-preview {
+  display: block;
+  width: min(100%, 13rem);
+  height: 5.5rem;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 0 12px rgba(85, 246, 229, 0.28));
 }
 
-.aircraft-icon-velocity { color: #ff55cf; }
-.aircraft-icon-aegis { color: #ffc45c; }
+.aircraft-preview-velocity { filter: drop-shadow(0 0 12px rgba(255, 85, 207, 0.32)); }
+.aircraft-preview-aegis { filter: drop-shadow(0 0 12px rgba(255, 196, 92, 0.32)); }
 .aircraft-description,
 .aircraft-performance,
 .aircraft-lock-reason { font-size: 0.82rem; line-height: 1.4; }
@@ -716,7 +713,7 @@ button:focus-visible {
     text-align: left;
   }
 
-  .aircraft-icon { grid-row: span 4; width: 2.7rem; font-size: 1.55rem; }
+  .aircraft-preview { width: 6.5rem; height: 4.25rem; }
 
   .hud-combat-status { max-width: 8rem; font-size: 0.68rem; }
 
