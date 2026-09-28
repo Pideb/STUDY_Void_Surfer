@@ -2,21 +2,21 @@
 
 ## Active Plan
 
-[Game Visual Asset Integration](./plans/2026-09-28-game-visual-asset-integration.md)
+[Game Visual Assets and Flow Fixes](./plans/2026-09-28-game-visual-assets-and-flow-fixes.md)
 
 ## Active Phase
 
-[P01 Visual Prototype](./phases/2026-09-28-game-visual-asset-integration/P01-visual-prototype/phase.md)
+[P01 Asset Expansion](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P01-asset-expansion/phase.md)
 
 ## Active Task
 
-[T04 Visual Approval Gate](./phases/2026-09-28-game-visual-asset-integration/P01-visual-prototype/T04-visual-approval-gate.md)
+[T02 Integrate Stage Art Packs](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P01-asset-expansion/T02-integrate-stage-art-packs.md)
 
 ## Status
 
-- Confirmed: use prior visual references, implement main menu + CRYSTAL GATES first, hide in-play stage/aircraft labels, and use a 1.5-second right-to-left stage push.
-- P02 is gated on explicit user approval of the integrated P01 visual prototype.
+- Confirmed: expand the approved visual direction to all six stages and apply the requested hangar, transition, visibility, and score-flow fixes.
+- T01 asset generation completed and validated.
 
 ## Next Step (IMPORTANT)
 
-Run final regression/build checks and present the integrated menu + CRYSTAL GATES prototype for the user's explicit visual approval. Resolve the recorded browser/manual visual QA gap if the environment provides a browser; do not start P02 without approval.
+Extend `src/game/visual-assets.js` and `src/game/renderer.js` so all six stage IDs select their local art pack, then run the targeted rendering tests.
