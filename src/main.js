@@ -5,6 +5,7 @@ import { completeOAuthPopup } from './auth/oauth-popup.js';
 import { createAudioManager } from './audio/audio-manager.js';
 import { createGameEngine } from './game/game-engine.js';
 import { createRenderer } from './game/renderer.js';
+import { createVisualAssetLoader } from './game/visual-assets.js';
 import { getSessionUser, signInWithMicrosoft, signOut, subscribeToAuth } from './services/auth-service.js';
 import {
   fetchPlayerBestScore, fetchPlayerNeighborhood, fetchTopScores, submitBestScore,
@@ -63,11 +64,17 @@ if (window.location.pathname === '/auth/callback') {
     async fetchPlayerNeighborhood() { return { rows: [], error: configError }; },
   };
 
+  const visualAssets = createVisualAssetLoader();
+  const { failed: failedVisualAssets } = await visualAssets.preload();
+  if (failedVisualAssets.length > 0) {
+    console.warn('Some local game art could not be loaded; procedural fallback is active for:', failedVisualAssets);
+  }
+
   const controller = createAppController({
     authService,
     leaderboardService,
     gameEngine: createGameEngine(),
-    renderer: createRenderer(canvas),
+    renderer: createRenderer(canvas, { visualAssets }),
     audioManager: createAudioManager(),
     root: uiRoot,
     liveRegion,

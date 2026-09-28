@@ -14,11 +14,15 @@ function createContext() {
     setTransform: vi.fn(),
     clearRect: vi.fn(),
     fillRect: vi.fn(),
+    drawImage: vi.fn(),
+    strokeRect: vi.fn(),
     fillText: vi.fn(),
     beginPath: vi.fn(),
     closePath: vi.fn(),
     moveTo: vi.fn(),
     lineTo: vi.fn(),
+    rect: vi.fn(),
+    clip: vi.fn(),
     stroke: vi.fn(),
     fill: vi.fn(),
     arc: vi.fn(),
@@ -216,6 +220,91 @@ describe('renderer', () => {
     });
     expect(context.fillText).toHaveBeenCalledWith('W', expect.any(Number), 258);
     expect(context.fillText).toHaveBeenCalledWith('BOSS: SIGNAL', 840, 392);
+    renderer.destroy();
+  });
+
+  it('draws the loaded Crystal Gates art in layer order without mutating snapshot geometry', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const image = (name, width = 1024, height = 1024) => ({ name, width, height });
+    const assets = new Map([
+      ['stages.crystal-gates.background', image('stage-background')],
+      ['stages.crystal-gates.normalWall', image('normal-wall', 1024, 1536)],
+      ['stages.crystal-gates.specialWall', image('special-wall', 1024, 1536)],
+      ['stages.crystal-gates.boss', image('boss')],
+      ['stages.crystal-gates.projectile', image('projectile')],
+      ['aircraft.velocity', image('velocity', 1774, 887)],
+    ]);
+    const renderer = createRenderer(canvas, { visualAssets: { get: (path) => assets.get(path) ?? null } });
+    const player = Object.freeze({ x: 240, y: 270, velocityY: 0, width: 36, height: 24 });
+    const normalWall = Object.freeze({ x: 500, width: 72, gapCenter: 270, gapHeight: 180, kind: 'normal' });
+    const specialWall = Object.freeze({ x: 700, width: 24, gapCenter: 270, gapHeight: 180, kind: 'special' });
+    const projectile = Object.freeze({ type: 'projectile', state: 'flying', x: 600, y: 260, speed: 320 });
+
+    renderer.render({
+      player,
+      aircraft: { id: 'velocity' },
+      obstacles: [normalWall, specialWall],
+      difficulty: { isBoss: true, bossPattern: 'shift' },
+      stage: { id: 'crystal-gates', mode: 'normal', elapsedSeconds: 2 },
+      boss: { attack: projectile },
+    });
+
+    const drawnImages = context.drawImage.mock.calls.map(([drawn]) => drawn.name);
+    expect(drawnImages).toContain('stage-background');
+    expect(drawnImages).toContain('normal-wall');
+    expect(drawnImages).toContain('special-wall');
+    expect(drawnImages).toContain('boss');
+    expect(drawnImages).toContain('projectile');
+    expect(drawnImages.at(-1)).toBe('velocity');
+    expect(normalWall).toEqual({ x: 500, width: 72, gapCenter: 270, gapHeight: 180, kind: 'normal' });
+    expect(specialWall).toEqual({ x: 700, width: 24, gapCenter: 270, gapHeight: 180, kind: 'special' });
+    expect(player).toEqual({ x: 240, y: 270, velocityY: 0, width: 36, height: 24 });
+    expect(projectile).toEqual({ type: 'projectile', state: 'flying', x: 600, y: 260, speed: 320 });
+    expect(context.clip).toHaveBeenCalled();
+    renderer.destroy();
+  });
+
+  it('draws Crystal Gates laser art and falls back only when an individual asset is missing', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const stageBackground = { name: 'stage-background', width: 2048, height: 1152 };
+    const laser = { name: 'laser', width: 2048, height: 768 };
+    const assets = new Map([
+      ['stages.crystal-gates.background', stageBackground],
+      ['stages.crystal-gates.laser', laser],
+    ]);
+    const renderer = createRenderer(canvas, { visualAssets: { get: (path) => assets.get(path) ?? null } });
+
+    renderer.render({
+      player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+      obstacles: [],
+      difficulty: {},
+      stage: { id: 'crystal-gates', mode: 'normal', elapsedSeconds: 0 },
+      boss: { attack: { type: 'laser', kind: 'single', y: 210, thickness: 8, telegraphRemainingSeconds: 0 } },
+    });
+
+    expect(context.drawImage).toHaveBeenCalledWith(stageBackground, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    expect(context.drawImage.mock.calls.some(([drawn]) => drawn === laser)).toBe(true);
+    expect(context.fill).toHaveBeenCalled(); // The unavailable player sprite uses the procedural fallback.
+    renderer.destroy();
+  });
+
+  it('uses the loaded menu background and aircraft while retaining missing-image fallback', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const background = { name: 'menu-background', width: 2048, height: 1152 };
+    const ship = { name: 'default-ship', width: 1536, height: 1024 };
+    const assets = new Map([['menuBackground', background], ['aircraft.default', ship]]);
+    const renderer = createRenderer(canvas, { visualAssets: { get: (path) => assets.get(path) ?? null } });
+
+    renderer.renderMenuBackground();
+
+    expect(context.drawImage.mock.calls.map(([drawn]) => drawn.name)).toEqual(['menu-background', 'default-ship']);
+    expect(context.createRadialGradient).not.toHaveBeenCalled();
     renderer.destroy();
   });
 });

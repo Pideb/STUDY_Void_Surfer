@@ -10,7 +10,7 @@
 
 ## Active Task
 
-[T02 Image Asset Rendering](./phases/2026-09-28-game-visual-asset-integration/P01-visual-prototype/T02-image-asset-rendering.md)
+[T03 Menu, HUD, and Stage Transition](./phases/2026-09-28-game-visual-asset-integration/P01-visual-prototype/T03-menu-hud-transition.md)
 
 ## Status
 
@@ -19,4 +19,4 @@
 
 ## Next Step (IMPORTANT)
 
-Implement the shared, testable image loader and render the T01 assets as dynamic visual layers without changing game collision geometry. Start by inspecting the T02 blueprint and current renderer/stage asset interfaces.
+Rebuild the menu layout around the approved background, remove gameplay stage/aircraft labels, and implement the 1.5-second right-to-left stage push. First inspect the T03 blueprint and current menu/HUD/stage transition paths.

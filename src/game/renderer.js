@@ -5,6 +5,7 @@ import {
   STAR_FIELD,
   VISUAL_THEME,
 } from './visual-theme.js';
+import { VISUAL_ASSET_MANIFEST } from './visual-assets.js';
 
 function getDevicePixelRatio() {
   return Math.max(1, Number(globalThis.devicePixelRatio) || 1);
@@ -20,7 +21,7 @@ function resetGlow(ctx) {
   ctx.shadowBlur = 0;
 }
 
-export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'default') {
+export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'default', visualAssets = null) {
   const tilt = Math.max(-0.35, Math.min(0.35, player.velocityY / 1000));
   const dashIntensity = getDashIntensity(player);
   const craft = AIRCRAFT_VISUALS[aircraftId] ?? AIRCRAFT_VISUALS.default;
@@ -28,6 +29,28 @@ export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'defaul
   ctx.save();
   ctx.translate(player.x, player.y);
   ctx.rotate(tilt);
+  const image = visualAssets?.get(`aircraft.${aircraftId}`)
+    ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.aircraft[aircraftId] ?? VISUAL_ASSET_MANIFEST.aircraft.default);
+  if (image) {
+    const scale = Math.min(player.width / image.width, player.height / image.height);
+    const width = image.width * scale;
+    const height = image.height * scale;
+    ctx.drawImage(image, -width / 2, -height / 2, width, height);
+    if (dashIntensity > 0) {
+      ctx.globalAlpha = 0.55 + dashIntensity * 0.4;
+      setGlow(ctx, theme.dash.outline, 12 + dashIntensity * 8);
+      ctx.strokeStyle = theme.dash.outline;
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(-player.width / 2, -player.height / 2, player.width, player.height);
+      ctx.beginPath();
+      ctx.arc(-player.width / 4, 0, 2 + dashIntensity * 2, 0, Math.PI * 2);
+      ctx.fillStyle = AIRCRAFT_VISUALS[aircraftId]?.accent ?? AIRCRAFT_VISUALS.default.accent;
+      ctx.fill();
+    }
+    resetGlow(ctx);
+    ctx.restore();
+    return;
+  }
   setGlow(ctx, craft.outline, theme.shipGlow);
   ctx.fillStyle = craft.fill;
   ctx.beginPath();
@@ -164,7 +187,23 @@ function resolveStageTheme(stageId) {
   return stageId ? getStageVisualTheme(stageId) : VISUAL_THEME;
 }
 
-export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = null) {
+function drawClippedWallAsset(ctx, image, obstacle, y, height, sourceXRatio, sourceWidthRatio) {
+  if (!image || height <= 0) return;
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(obstacle.x, y, obstacle.width, height);
+  ctx.clip();
+  const sourceX = image.width * sourceXRatio;
+  const sourceWidth = image.width * sourceWidthRatio;
+  const tileHeight = image.height * (obstacle.width / sourceWidth);
+  for (let tileY = y; tileY < y + height; tileY += tileHeight) {
+    ctx.drawImage(image, sourceX, 0, sourceWidth, image.height,
+      obstacle.x, tileY, obstacle.width, tileHeight);
+  }
+  ctx.restore();
+}
+
+export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = null, visualAssets = null) {
   const isSpecial = obstacle.kind === 'special';
   const visual = obstacle.stageId ? resolveStageTheme(obstacle.stageId) : theme;
   const primary = isSpecial ? visual.specialObstacle : visual.obstacle;
@@ -172,6 +211,10 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   const gapTop = obstacle.gapCenter - obstacle.gapHeight / 2;
   const bottomTop = obstacle.gapCenter + obstacle.gapHeight / 2;
   const timingGuideWidth = getTimingGuideWidth(obstacle, difficulty);
+  const wallAsset = visualAssets?.get(`stages.${obstacle.stageId ?? ''}.${isSpecial ? 'specialWall' : 'normalWall'}`)
+    ?? (obstacle.stageId === 'crystal-gates'
+      ? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'][isSpecial ? 'specialWall' : 'normalWall'])
+      : null);
 
   ctx.save();
   if (timingGuideWidth > 0) {
@@ -198,9 +241,25 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
         ctx.beginPath(); ctx.moveTo(obstacle.x + obstacle.width / 2, y); ctx.lineTo(obstacle.x + (index % 2 ? -10 : obstacle.width + 10), y + (index - 1.5) * 8); ctx.stroke();
       }
     }
+    if (wallAsset) {
+      const effect = obstacle.breakEffect;
+      if (!effect) {
+        drawClippedWallAsset(ctx, wallAsset, obstacle, 0, WORLD_HEIGHT, 0.455, 0.09);
+      } else {
+        const opening = Math.max(0, Math.min(WORLD_HEIGHT, effect.centerY ?? 0));
+        const top = Math.max(0, opening - (theme.breakOpeningHalfHeight ?? 28));
+        const bottom = Math.min(WORLD_HEIGHT, opening + (theme.breakOpeningHalfHeight ?? 28));
+        drawClippedWallAsset(ctx, wallAsset, obstacle, 0, top, 0.455, 0.09);
+        drawClippedWallAsset(ctx, wallAsset, obstacle, bottom, WORLD_HEIGHT - bottom, 0.455, 0.09);
+      }
+    }
   } else {
     ctx.fillRect(obstacle.x, 0, obstacle.width, gapTop);
     ctx.fillRect(obstacle.x, bottomTop, obstacle.width, WORLD_HEIGHT - bottomTop);
+    if (wallAsset) {
+      drawClippedWallAsset(ctx, wallAsset, obstacle, 0, gapTop, 0.37, 0.26);
+      drawClippedWallAsset(ctx, wallAsset, obstacle, bottomTop, WORLD_HEIGHT - bottomTop, 0.37, 0.26);
+    }
   }
   resetGlow(ctx);
 
@@ -255,8 +314,16 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   ctx.restore();
 }
 
-function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false) {
+function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, visualAssets = null) {
   const theme = resolveStageTheme(stageId);
+  const background = stageId === 'crystal-gates'
+    ? visualAssets?.get(`stages.crystal-gates.${boss ? 'bossBackground' : 'background'}`)
+      ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'][boss ? 'bossBackground' : 'background'])
+    : null;
+  if (background) {
+    ctx.drawImage(background, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    return;
+  }
   ctx.fillStyle = boss ? theme.bossBackground : theme.background;
   ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   const gradient = ctx.createRadialGradient?.(WORLD_WIDTH * 0.63, WORLD_HEIGHT * 0.46, 18,
@@ -321,22 +388,22 @@ function backgroundKeyToId(key) {
   return (key ?? 'crystal-gates').replace(/-boss$/, '');
 }
 
-function drawBackgroundTransition(ctx, stage, elapsedSeconds) {
+function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = null) {
   const transition = stage?.transition;
   if (!transition) {
-    drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss');
+    drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss', visualAssets);
     return;
   }
   const progress = Math.max(0, Math.min(1, transition.progress ?? 1));
   ctx.save();
   ctx.globalAlpha = 1 - progress;
   drawStageBackground(ctx, backgroundKeyToId(transition.fromKey), elapsedSeconds,
-    String(transition.fromKey).endsWith('-boss'));
+    String(transition.fromKey).endsWith('-boss'), visualAssets);
   ctx.restore();
   ctx.save();
   ctx.globalAlpha = progress;
   drawStageBackground(ctx, backgroundKeyToId(transition.toKey), elapsedSeconds,
-    String(transition.toKey).endsWith('-boss'));
+    String(transition.toKey).endsWith('-boss'), visualAssets);
   ctx.restore();
 }
 
@@ -378,52 +445,71 @@ function drawMenuDepthLines(ctx, theme) {
   ctx.restore();
 }
 
-function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0) {
+function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0, visualAssets = null, stageId = null) {
   if (!difficulty?.isBoss) {
     return;
   }
 
   ctx.save();
-  ctx.globalAlpha = 0.9;
-  setGlow(ctx, theme.boss, 28);
-  ctx.fillStyle = theme.boss;
-  ctx.beginPath();
   const hitProgress = boss?.hitEffect
     ? Math.max(0, Math.min(1, boss.hitEffect.remainingSeconds / (boss.hitEffect.durationSeconds || 1)))
     : 0;
   const x = 842 + Math.sin(elapsedSeconds * 1.4) * 4 + hitProgress * 12;
   const y = WORLD_HEIGHT / 2 + Math.sin(elapsedSeconds * 1.1) * 18;
-  ctx.arc(x, y, 68, 0, Math.PI * 2);
-  ctx.fill();
-  resetGlow(ctx);
-  ctx.fillStyle = theme.background ?? '#050816';
-  ctx.beginPath();
-  ctx.arc(x, y, 48, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = hitProgress > 0 ? '#ffffff' : theme.boss;
-  ctx.beginPath();
-  ctx.arc(x - 18, y - 9, 7, 0, Math.PI * 2);
-  ctx.arc(x + 18, y - 9, 7, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Distinct stage silhouette signatures, all decorative and outside collision logic.
-  const style = theme.bossStyle;
-  ctx.strokeStyle = theme.accent;
-  ctx.lineWidth = 4;
-  ctx.beginPath();
-  if (style === 'gravity-crescent') {
-    ctx.arc(x, y, 80, -1.15, 1.15);
-  } else if (style === 'orbital-factory' || style === 'solar-machine') {
-    ctx.moveTo(x - 74, y - 50); ctx.lineTo(x - 96, y - 12); ctx.lineTo(x - 72, y + 47);
-    ctx.moveTo(x + 55, y - 40); ctx.lineTo(x + 82, y); ctx.lineTo(x + 54, y + 42);
-  } else if (style === 'abyssal-leviathan') {
-    ctx.moveTo(x - 54, y + 38); ctx.lineTo(x - 98, y + 62); ctx.lineTo(x - 76, y + 6);
-    ctx.moveTo(x - 54, y - 38); ctx.lineTo(x - 98, y - 62); ctx.lineTo(x - 76, y - 6);
+  const image = stageId === 'crystal-gates'
+    ? visualAssets?.get('stages.crystal-gates.boss')
+      ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'].boss)
+    : null;
+  if (image) {
+    ctx.globalAlpha = 0.95;
+    setGlow(ctx, theme.boss, 22);
+    ctx.drawImage(image, x - 96, y - 64, 192, 128);
+    resetGlow(ctx);
+    if (hitProgress > 0) {
+      ctx.globalAlpha = hitProgress * 0.65;
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(x, y, 58, 0, Math.PI * 2);
+      ctx.stroke();
+    }
   } else {
-    ctx.moveTo(x - 60, y - 54); ctx.lineTo(x - 80, y); ctx.lineTo(x - 60, y + 54);
-    ctx.moveTo(x + 60, y - 54); ctx.lineTo(x + 80, y); ctx.lineTo(x + 60, y + 54);
+    ctx.globalAlpha = 0.9;
+    setGlow(ctx, theme.boss, 28);
+    ctx.fillStyle = theme.boss;
+    ctx.beginPath();
+    ctx.arc(x, y, 68, 0, Math.PI * 2);
+    ctx.fill();
+    resetGlow(ctx);
+    ctx.fillStyle = theme.background ?? '#050816';
+    ctx.beginPath();
+    ctx.arc(x, y, 48, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = hitProgress > 0 ? '#ffffff' : theme.boss;
+    ctx.beginPath();
+    ctx.arc(x - 18, y - 9, 7, 0, Math.PI * 2);
+    ctx.arc(x + 18, y - 9, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Distinct stage silhouette signatures, all decorative and outside collision logic.
+    const style = theme.bossStyle;
+    ctx.strokeStyle = theme.accent;
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    if (style === 'gravity-crescent') {
+      ctx.arc(x, y, 80, -1.15, 1.15);
+    } else if (style === 'orbital-factory' || style === 'solar-machine') {
+      ctx.moveTo(x - 74, y - 50); ctx.lineTo(x - 96, y - 12); ctx.lineTo(x - 72, y + 47);
+      ctx.moveTo(x + 55, y - 40); ctx.lineTo(x + 82, y); ctx.lineTo(x + 54, y + 42);
+    } else if (style === 'abyssal-leviathan') {
+      ctx.moveTo(x - 54, y + 38); ctx.lineTo(x - 98, y + 62); ctx.lineTo(x - 76, y + 6);
+      ctx.moveTo(x - 54, y - 38); ctx.lineTo(x - 98, y - 62); ctx.lineTo(x - 76, y - 6);
+    } else {
+      ctx.moveTo(x - 60, y - 54); ctx.lineTo(x - 80, y); ctx.lineTo(x - 60, y + 54);
+      ctx.moveTo(x + 60, y - 54); ctx.lineTo(x + 80, y); ctx.lineTo(x + 60, y + 54);
+    }
+    ctx.stroke();
   }
-  ctx.stroke();
 
   ctx.font = '700 18px system-ui, sans-serif';
   ctx.textAlign = 'center';
@@ -431,7 +517,7 @@ function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0) {
   ctx.restore();
 }
 
-function drawProjectile(ctx, attack, theme) {
+function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null) {
   if (!attack || attack.type !== 'projectile') return;
   const color = theme.projectile;
   ctx.save();
@@ -457,9 +543,21 @@ function drawProjectile(ctx, attack, theme) {
   }
   if (attack.state !== 'charging') {
     ctx.globalAlpha = attack.state === 'returning' ? 1 : 0.92;
-    ctx.fillStyle = color;
     setGlow(ctx, color, attack.state === 'returning' ? 18 : 12);
-    ctx.beginPath(); ctx.arc(attack.x, attack.y, attack.state === 'returning' ? 9 : 7, 0, Math.PI * 2); ctx.fill();
+    const image = stageId === 'crystal-gates'
+      ? visualAssets?.get('stages.crystal-gates.projectile')
+        ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'].projectile)
+      : null;
+    if (image) {
+      ctx.save();
+      ctx.translate(attack.x, attack.y);
+      if (attack.state === 'returning') ctx.rotate(Math.PI);
+      ctx.drawImage(image, -16, -11, 32, 22);
+      ctx.restore();
+    } else {
+      ctx.fillStyle = color;
+      ctx.beginPath(); ctx.arc(attack.x, attack.y, attack.state === 'returning' ? 9 : 7, 0, Math.PI * 2); ctx.fill();
+    }
     resetGlow(ctx);
     if (attack.state === 'returning') {
       ctx.globalAlpha = 0.55;
@@ -471,7 +569,7 @@ function drawProjectile(ctx, attack, theme) {
   ctx.restore();
 }
 
-function drawLaser(ctx, attack, theme) {
+function drawLaser(ctx, attack, theme, visualAssets = null, stageId = null) {
   if (!attack || attack.type !== 'laser') return;
   const telegraph = attack.telegraphRemainingSeconds > 0;
   const alpha = telegraph ? 0.42 : 0.9;
@@ -481,9 +579,25 @@ function drawLaser(ctx, attack, theme) {
   ctx.fillStyle = theme.laser;
   ctx.lineWidth = Math.max(2, attack.thickness ?? 8);
   setGlow(ctx, theme.laser, telegraph ? 8 : 20);
+  const image = stageId === 'crystal-gates'
+    ? visualAssets?.get('stages.crystal-gates.laser')
+      ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'].laser)
+    : null;
+  const drawLaserImage = (y) => {
+    if (!image) return;
+    const sourceY = image.height * 0.38;
+    const sourceHeight = image.height * 0.24;
+    const thickness = attack.thickness ?? 8;
+    ctx.drawImage(image, 0, sourceY, image.width, sourceHeight,
+      0, y - thickness, WORLD_WIDTH, thickness * 2);
+  };
   if (attack.kind === 'single') {
-    ctx.beginPath(); ctx.moveTo(0, attack.y); ctx.lineTo(WORLD_WIDTH, attack.y); ctx.stroke();
-    if (!telegraph) ctx.fillRect(0, attack.y - (attack.thickness ?? 8) / 2, WORLD_WIDTH, attack.thickness ?? 8);
+    if (image) {
+      drawLaserImage(attack.y);
+    } else {
+      ctx.beginPath(); ctx.moveTo(0, attack.y); ctx.lineTo(WORLD_WIDTH, attack.y); ctx.stroke();
+      if (!telegraph) ctx.fillRect(0, attack.y - (attack.thickness ?? 8) / 2, WORLD_WIDTH, attack.thickness ?? 8);
+    }
   } else if (attack.kind === 'quarter') {
     const zoneHeight = attack.zoneHeight ?? WORLD_HEIGHT / 4;
     for (let zone = 0; zone < 4; zone += 1) {
@@ -499,6 +613,7 @@ function drawLaser(ctx, attack, theme) {
       } else if (!telegraph) {
         ctx.globalAlpha = 0.24;
         ctx.fillRect(0, top, WORLD_WIDTH, zoneHeight);
+        drawLaserImage(top + zoneHeight / 2);
         ctx.globalAlpha = alpha;
       }
     }
@@ -546,7 +661,7 @@ function drawChallengeEffects(ctx, challenge, feedbackEffect) {
   ctx.restore();
 }
 
-export function createRenderer(canvas) {
+export function createRenderer(canvas, { visualAssets = null } = {}) {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Canvas 2D context를 사용할 수 없습니다.');
@@ -568,19 +683,20 @@ export function createRenderer(canvas) {
     const stage = snapshot.stage ?? { id: 'crystal-gates', mode: 'normal', elapsedSeconds: snapshot.elapsedSeconds ?? 0 };
     const theme = resolveStageTheme(stage.id);
     const elapsed = stage.elapsedSeconds ?? snapshot.elapsedSeconds ?? 0;
-    drawBackgroundTransition(ctx, stage, elapsed);
+    drawBackgroundTransition(ctx, stage, elapsed, visualAssets);
 
     for (const obstacle of snapshot.obstacles ?? []) {
-      drawObstacle(ctx, obstacle, theme, snapshot.difficulty);
+      const stageObstacle = obstacle.stageId ? obstacle : { ...obstacle, stageId: stage.id };
+      drawObstacle(ctx, stageObstacle, theme, snapshot.difficulty, visualAssets);
     }
 
-    drawLaser(ctx, snapshot.boss?.attack, theme);
-    drawProjectile(ctx, snapshot.boss?.attack, theme);
-    drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed);
+    drawLaser(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
+    drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
+    drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id);
     drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
     drawSpecialDashBurst(ctx, snapshot.player, VISUAL_THEME);
     drawStageAtmosphere(ctx, stage.mode, elapsed);
-    drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id);
+    drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect);
     ctx.restore();
   }
@@ -589,16 +705,22 @@ export function createRenderer(canvas) {
     ctx.save();
     ctx.setTransform?.(pixelRatio, 0, 0, pixelRatio, 0, 0);
     ctx.clearRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    drawBackground(ctx, VISUAL_THEME);
-    drawMenuNebula(ctx, VISUAL_THEME);
-    drawMenuDepthLines(ctx, VISUAL_THEME);
+    const background = visualAssets?.get('menuBackground')
+      ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.menuBackground);
+    if (background) {
+      ctx.drawImage(background, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    } else {
+      drawBackground(ctx, VISUAL_THEME);
+      drawMenuNebula(ctx, VISUAL_THEME);
+      drawMenuDepthLines(ctx, VISUAL_THEME);
+    }
     drawShip(ctx, {
       x: 300,
       y: WORLD_HEIGHT / 2,
       velocityY: 0,
       width: 72,
       height: 48,
-    }, VISUAL_THEME);
+    }, VISUAL_THEME, 'default', visualAssets);
     ctx.restore();
   }
 
