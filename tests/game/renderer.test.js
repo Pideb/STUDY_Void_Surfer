@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import {
-  createRenderer, drawDashTrail, drawObstacle, drawShip,
+  createRenderer, drawDashTrail, drawObstacle, drawShip, drawShipExhaust,
 } from '../../src/game/renderer.js';
 import { STAGE_VISUAL_THEMES, VISUAL_THEME } from '../../src/game/visual-theme.js';
 
@@ -28,6 +28,7 @@ function createContext() {
     arc: vi.fn(),
     translate: vi.fn(),
     rotate: vi.fn(),
+    scale: vi.fn(),
     createRadialGradient: vi.fn(() => gradient),
     gradient,
   };
@@ -81,6 +82,31 @@ describe('renderer', () => {
     expect(VISUAL_THEME.ship).not.toBe(VISUAL_THEME.obstacle);
   });
 
+  it('draws the gameplay ship 20% larger without changing logical hitbox geometry', () => {
+    const context = createContext();
+    const image = { width: 1774, height: 887 };
+    const player = { x: 240, y: 270, velocityY: 0, width: 36, height: 24 };
+    drawShip(context, player, VISUAL_THEME, 'velocity', { get: () => image });
+
+    const [, x, y, width, height] = context.drawImage.mock.calls[0];
+    expect(x).toBeCloseTo(-21.6);
+    expect(y).toBeCloseTo(-10.8);
+    expect(width).toBeCloseTo(43.2);
+    expect(height).toBeCloseTo(21.6);
+    expect(player).toMatchObject({ width: 36, height: 24 });
+  });
+
+  it('draws a faint aircraft-accent exhaust during ordinary flight without mutating the player', () => {
+    const context = createContext();
+    const player = { x: 240, y: 270, width: 36, height: 24, isDashing: false };
+    drawShipExhaust(context, player, 'velocity', 1.25);
+
+    expect(context.stroke).toHaveBeenCalledTimes(3);
+    expect(context.strokeStyle).toBe('#ff55cf');
+    expect(context.globalAlpha).toBeCloseTo(0.72 + (Math.sin(1.25 * 11) + 1) * 0.14);
+    expect(player).toEqual({ x: 240, y: 270, width: 36, height: 24, isDashing: false });
+  });
+
   it('renders special walls as a full-height dash-only barrier', () => {
     const context = createContext();
     drawObstacle(context, { x: 520, width: 72, gapCenter: 270, gapHeight: 180, kind: 'special' });
@@ -129,7 +155,7 @@ describe('renderer', () => {
       obstacles: [], difficulty: {},
     });
 
-    expect(normalContext.stroke).toHaveBeenCalledTimes(14);
+    expect(normalContext.stroke).toHaveBeenCalledTimes(17);
     expect(specialContext.stroke.mock.calls.length).toBeGreaterThan(normalContext.stroke.mock.calls.length);
     expect(specialContext.arc.mock.calls.length).toBeGreaterThan(normalContext.arc.mock.calls.length);
     normalRenderer.destroy();
@@ -150,7 +176,7 @@ describe('renderer', () => {
     expect(context.fillRect).not.toHaveBeenCalled();
   });
 
-  it('omits acceleration lines outside a dash and adds a ship-local dash outline during one', () => {
+  it('omits acceleration lines outside a dash and keeps the procedural ship dash accents', () => {
     const idleTrailContext = createContext();
     drawDashTrail(idleTrailContext, {
       x: 240, y: 270, velocityY: 0, width: 36, height: 24, isDashing: false,
@@ -164,6 +190,18 @@ describe('renderer', () => {
     });
     expect(dashShipContext.stroke).toHaveBeenCalledTimes(3);
     expect(dashShipContext.arc).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not draw a rectangular hitbox outline around an image-backed ship during dash', () => {
+    const context = createContext();
+    const image = { width: 100, height: 60 };
+    drawShip(context, {
+      x: 240, y: 270, velocityY: 0, width: 36, height: 24,
+      isDashing: true, dashRemainingSeconds: 0.6,
+    }, VISUAL_THEME, 'default', { get: () => image });
+
+    expect(context.strokeRect).not.toHaveBeenCalled();
+    expect(context.arc).toHaveBeenCalledTimes(1);
   });
 
   it('renders a deterministic static menu scene', () => {
@@ -286,7 +324,7 @@ describe('renderer', () => {
       boss: { attack: { type: 'laser', kind: 'single', y: 210, thickness: 8, telegraphRemainingSeconds: 0 } },
     });
 
-    expect(context.drawImage).toHaveBeenCalledWith(stageBackground, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    expect(context.drawImage.mock.calls.some(([drawn]) => drawn === stageBackground)).toBe(true);
     expect(context.drawImage.mock.calls.some(([drawn]) => drawn === laser)).toBe(true);
     expect(context.fill).toHaveBeenCalled(); // The unavailable player sprite uses the procedural fallback.
     renderer.destroy();
@@ -366,8 +404,8 @@ describe('renderer', () => {
     });
 
     expect(sceneDraws.slice(0, 2).map(({ name, x, y }) => ({ name, x, y }))).toEqual([
-      { name: 'boss', x: 0, y: 0 },
-      { name: 'normal', x: 0, y: 0 },
+      { name: 'boss', x: -57.60000000000002, y: -32.400000000000034 },
+      { name: 'normal', x: -57.60000000000002, y: -32.400000000000034 },
     ]);
     expect(sceneDraws[0].alpha).toBeCloseTo(0.5);
     expect(sceneDraws[1].alpha).toBeCloseTo(0.5);
