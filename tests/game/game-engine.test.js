@@ -122,6 +122,15 @@ describe('game engine', () => {
     expect(movedSnapshot.difficulty.scrollSpeed).toBe(240);
   });
 
+  it('tags newly spawned obstacles with the current stage for visual ownership', () => {
+    const { engine, step } = createRuntimeEngine({ stageRng: () => 0.5 });
+    engine.start();
+
+    const snapshot = step();
+
+    expect(snapshot.obstacles[0].stageId).toBe(snapshot.stage.id);
+  });
+
   it('scores each passed normal obstacle once and starts WARNING at score twenty', () => {
     const { engine, step } = createRuntimeEngine();
     engine.start();

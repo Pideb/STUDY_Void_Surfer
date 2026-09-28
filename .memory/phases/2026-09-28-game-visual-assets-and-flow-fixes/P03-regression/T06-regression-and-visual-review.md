@@ -55,6 +55,7 @@ Task: T06-regression-and-visual-review
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Automated implementation checks complete
+- [x] Automated validation passed: 29 test files / 157 tests, production build, 46 manifest PNG files in `dist`, and local Vite HTTP 200 smoke check
+- [ ] Manual browser visual review complete
 - commit: pending
