@@ -10,7 +10,7 @@ Apply the confirmed aircraft naming, visibility, handling, score, trail, special
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | Refactor score pacing, tune encounters and aircraft, and update game presentation. | [P01](../phases/2026-09-28-aircraft-visibility-score-pacing/P01-gameplay-and-aircraft/phase.md) |
+| P01 | `done` | Refactor score pacing, tune encounters and aircraft, and update game presentation. | [P01](../phases/2026-09-28-aircraft-visibility-score-pacing/P01-gameplay-and-aircraft/phase.md) |
 
 ## Global Constraints
 - Keep the internal aircraft ID `default` stable for existing settings and leaderboard rows; present its name as NOVA.
@@ -25,5 +25,5 @@ Apply the confirmed aircraft naming, visibility, handling, score, trail, special
 - Keep commits scoped to one Task, run its focused tests, and use the exact commit message in its blueprint.
 
 ## Completion
-- All four task blueprints are done and committed; full `npm test -- --run`, `npm run build`, and `git diff --check` pass.
+- All four task blueprints are done and committed; full `npm test -- --run` (188 tests), `npm run build`, and `git diff --check` pass.
 - Report runtime-only authenticated leaderboard/unlock checks separately if unavailable.

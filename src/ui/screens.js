@@ -44,6 +44,7 @@ export function renderMenuScreen(model, handlers) {
   const brand = document.createElement('div');
   brand.className = 'menu-brand';
   const title = document.createElement('h1');
+  title.className = 'menu-wordmark';
   title.textContent = 'VOID SURFER';
   const greeting = document.createElement('p');
   greeting.className = 'menu-greeting';
@@ -177,7 +178,10 @@ export function renderTutorialScreen(_model, handlers) {
 
 export function renderPausedScreen(model, handlers) {
   const panel = createPanel('일시정지', 'pause-screen');
-  panel.append(createMessage(`현재 점수 ${model.score} · 일시정지할 때마다 10점 차감`));
+  panel.append(
+    createMessage(`현재 점수 ${model.score}`),
+    createMessage('일시정지할 때마다 점수 10점이 차감되며, 이미 오른 속도는 내려가지 않습니다.'),
+  );
   panel.append(
     createButton('계속하기', handlers.resume, { className: 'primary-button' }),
     createButton('메인 메뉴', handlers.menu, { className: 'secondary-button' }),

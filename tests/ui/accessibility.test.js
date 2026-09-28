@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { createApp } from '../../src/app/create-app.js';
 import { announce } from '../../src/ui/components.js';
 import { createGameHud } from '../../src/ui/game-hud.js';
-import { renderGameOverScreen, renderMenuScreen } from '../../src/ui/screens.js';
+import { renderGameOverScreen, renderMenuScreen, renderPausedScreen } from '../../src/ui/screens.js';
 
 const styles = readFileSync(resolve(process.cwd(), 'src', 'styles.css'), 'utf8');
 
@@ -71,7 +71,19 @@ describe('accessibility and responsive UI contract', () => {
     expect(styles).toContain('grid-row: 3');
     expect(styles).toMatch(/\.menu-brand\s*\{[^}]*grid-column:\s*2;/s);
     expect(styles).toMatch(/\.menu-actions\s*\{[^}]*grid-column:\s*2;/s);
+    expect(styles).toContain('.menu-brand .menu-wordmark');
+    expect(styles).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.menu-brand \.menu-wordmark\s*\{[^}]*font-size:[^}]*letter-spacing:/);
     expect(styles).not.toContain('.hud-identity');
     expect(styles).toContain('prefers-reduced-motion: reduce');
+  });
+
+  it('keeps the title semantic and pause guidance visible in DOM text', () => {
+    const menu = renderMenuScreen({ displayName: 'Pilot', muted: false }, {
+      start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
+    });
+    const pause = renderPausedScreen({ score: 4 }, { resume: vi.fn(), menu: vi.fn() });
+
+    expect(menu.querySelector('h1')?.textContent).toBe('VOID SURFER');
+    expect(pause.textContent).toContain('이미 오른 속도는 내려가지 않습니다.');
   });
 });

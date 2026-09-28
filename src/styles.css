@@ -207,6 +207,29 @@ button:focus-visible {
   text-shadow: 0 0 24px rgba(85, 246, 229, 0.3);
 }
 
+.menu-brand .menu-wordmark {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  color: #eaffff;
+  font-family: "Arial", "Avenir Next", system-ui, sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  line-height: 1.05;
+  text-shadow: 0 0 1px #fff, 0 0 14px rgba(85, 246, 229, 0.26);
+  -webkit-text-stroke: 0.35px rgba(85, 246, 229, 0.48);
+}
+
+.menu-brand .menu-wordmark::after {
+  display: block;
+  width: 72%;
+  height: 2px;
+  margin-top: 0.32em;
+  background: linear-gradient(90deg, var(--color-neon), rgba(85, 246, 229, 0.08));
+  content: "";
+  box-shadow: 0 0 10px rgba(85, 246, 229, 0.42);
+}
+
 .menu-greeting {
   margin: 0.85rem 0 0;
   color: var(--color-muted);
@@ -738,6 +761,13 @@ button:focus-visible {
   .menu-brand {
     grid-column: 1;
     grid-row: 1;
+    text-align: center;
+  }
+
+  .menu-brand .menu-wordmark {
+    width: 100%;
+    font-size: clamp(1.65rem, 8.2vw, 2.8rem);
+    letter-spacing: 0.09em;
     text-align: center;
   }
 

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import {
-  renderGameOverScreen, renderHangarScreen, renderLoginScreen, renderMenuScreen, renderTutorialScreen,
+  renderGameOverScreen, renderHangarScreen, renderLoginScreen, renderMenuScreen, renderPausedScreen, renderTutorialScreen,
 } from '../../src/ui/screens.js';
 import { createGameHud } from '../../src/ui/game-hud.js';
 
@@ -17,6 +17,7 @@ describe('product flow screens', () => {
     ]);
     expect(screen.querySelector('.menu-aircraft-image')?.getAttribute('src')).toContain('/assets/game/aircraft/default.png');
     expect(screen.querySelector('.menu-brand strong')?.textContent).toBe('Pilot');
+    expect(screen.querySelector('h1.menu-wordmark')?.textContent).toBe('VOID SURFER');
     expect(screen.querySelector('.menu-greeting')?.textContent)
       .toBe('Pilot 파일럿, 다시 도전하는 것을 환영합니다.');
     const labels = [...screen.querySelectorAll('button')].map((button) => button.textContent.trim());
@@ -121,6 +122,16 @@ describe('product flow screens', () => {
     }, { restart: vi.fn(), menu: vi.fn(), retryLeaderboard: vi.fn() });
 
     expect(screen.querySelector('.final-score').textContent).toBe('기본 점수 33 × 1.5 = 최종 점수 50');
+  });
+
+  it('explains the pause penalty without implying that speed rolls back', () => {
+    const resume = vi.fn();
+    const menu = vi.fn();
+    const screen = renderPausedScreen({ score: 12 }, { resume, menu });
+
+    expect(screen.textContent).toContain('일시정지할 때마다 점수 10점이 차감되며, 이미 오른 속도는 내려가지 않습니다.');
+    [...screen.querySelectorAll('button')].find((button) => button.textContent === '계속하기').click();
+    expect(resume).toHaveBeenCalledOnce();
   });
 
   it('provides a touch-friendly space action and accessible warning banner', () => {

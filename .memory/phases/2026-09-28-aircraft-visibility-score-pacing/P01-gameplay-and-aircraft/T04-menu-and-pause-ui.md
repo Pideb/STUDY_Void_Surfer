@@ -1,6 +1,6 @@
 # Task: T04 Main-Menu Wordmark and Pause Guidance
 
-## Status: pending
+## Status: done
 
 ## Goal
 Restyle the main-menu `VOID SURFER` title with the selected clean geometric sci-fi wordmark treatment and explicitly tell players that pausing reduces score but does not reduce speed.
@@ -37,10 +37,10 @@ Restyle the main-menu `VOID SURFER` title with the selected clean geometric sci-
 - Keep copy in accessible visible DOM, not only an aria-live announcement. Do not suggest pause restores speed or cancels its penalty.
 
 ## Acceptance Criteria
-- [ ] Main-menu title remains exact `VOID SURFER`, semantic, and matches selected geometric cyan direction.
-- [ ] Title does not clip on desktop/mobile.
-- [ ] Pause screen clearly says each pause costs 10 points and speed does not decrease.
-- [ ] Pause/resume/menu behavior is unchanged.
+- [x] Main-menu title remains exact `VOID SURFER`, semantic, and matches selected geometric cyan direction.
+- [x] Title does not clip on desktop/mobile.
+- [x] Pause screen clearly says each pause costs 10 points and speed does not decrease.
+- [x] Pause/resume/menu behavior is unchanged.
 
 ## Validation
 - `npm test -- --run tests/ui/screens.test.js tests/ui/accessibility.test.js tests/ui/app-controller.test.js`
@@ -60,6 +60,6 @@ Task: T04-menu-and-pause-ui
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed: focused UI suite (33 tests), full suite (188 tests), production build, `git diff --check`
+- commit: `feat(ui): style title wordmark and explain pause speed behavior`
