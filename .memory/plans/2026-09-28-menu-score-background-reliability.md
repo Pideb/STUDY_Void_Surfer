@@ -10,7 +10,7 @@ Make the logout control reliably visible, preserve best-score writes when a depl
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | Fix menu fit, gameplay background readability/motion, and legacy leaderboard write compatibility. | [P01](../phases/2026-09-28-menu-score-background-reliability/P01-reliability-fixes/phase.md) |
+| P01 | `done` | Fix menu fit, gameplay background readability/motion, and legacy leaderboard write compatibility. | [P01](../phases/2026-09-28-menu-score-background-reliability/P01-reliability-fixes/phase.md) |
 
 ## Global Constraints
 - Do not change gameplay collision, scoring, obstacle timing, or stage ownership.

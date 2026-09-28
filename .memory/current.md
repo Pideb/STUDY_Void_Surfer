@@ -7,10 +7,10 @@
 [P01 Reliability Fixes](./phases/2026-09-28-menu-score-background-reliability/P01-reliability-fixes/phase.md)
 
 ## Active Task
-[T02 Score RPC Compatibility](./phases/2026-09-28-menu-score-background-reliability/P01-reliability-fixes/T02-score-rpc-compatibility.md)
+None — all tasks in this plan are complete.
 
 ## Status
-- T01 menu fit and background readability/motion are implemented; production build passed.
+- T01 and T02 are implemented; production builds passed. Remote Supabase migrations remain an operator action.
 
 ## Next Step (IMPORTANT)
-Read the active T02 blueprint, update score RPC compatibility and migration guidance, then run the production build.
+To enable aircraft-specific leaderboard records on the hosted project, apply all migrations in `supabase/migrations/` with `npx supabase db push` after confirming the linked project.

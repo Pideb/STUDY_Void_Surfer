@@ -1,6 +1,6 @@
 # Task: T02 Score RPC Compatibility
 
-## Status: pending
+## Status: done
 
 ## Goal
 Keep personal best-score writes working when the deployed Supabase project has the original two-argument score RPC, while retaining aircraft-specific writes when the latest migration is installed.
@@ -32,10 +32,10 @@ Keep personal best-score writes working when the deployed Supabase project has t
   - Do not include secrets or claim the remote project has been updated.
 
 ## Acceptance Criteria
-- [ ] New schema uses the three-argument RPC without fallback.
-- [ ] Missing three-argument RPC uses the two-argument compatibility path once.
-- [ ] Other errors are returned without a legacy retry.
-- [ ] Documentation identifies the required migration and its aircraft-score impact.
+- [x] New schema uses the three-argument RPC without fallback.
+- [x] Missing three-argument RPC uses the two-argument compatibility path once.
+- [x] Other errors are returned without a legacy retry.
+- [x] Documentation identifies the required migration and its aircraft-score impact.
 
 ## Validation
 - `npm run build`
@@ -54,6 +54,6 @@ Task: T02-score-rpc-compatibility
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Build validation passed
+- [x] Implementation complete
+- [x] Build validation passed: `npm run build`
 - commit: pending

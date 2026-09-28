@@ -28,7 +28,7 @@
    npx supabase db push
    ```
 
-   적용 대상은 `supabase/migrations/202609210001_void_surfer_leaderboard.sql`입니다. Docker Desktop을 사용할 수 없는 환경에서는 `supabase start`, `db reset`은 건너뛰고 위 원격 적용만 수행해도 됩니다. 운영 프로젝트에서 `db reset`을 실행하면 안 됩니다.
+   적용 대상은 `supabase/migrations/`의 migration 전체이며, `202609210001_void_surfer_leaderboard.sql` 다음에 `202609230001_aircraft_scores.sql`도 적용해야 합니다. Docker Desktop을 사용할 수 없는 환경에서는 `supabase start`, `db reset`은 건너뛰고 위 원격 적용만 수행해도 됩니다. 운영 프로젝트에서 `db reset`을 실행하면 안 됩니다.
 
 5. Dashboard의 Table Editor 또는 SQL Editor에서 `profiles`, `player_scores`, `submit_score`, `get_leaderboard`, `get_player_neighborhood`가 생성됐는지 확인합니다.
 

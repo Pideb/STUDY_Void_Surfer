@@ -60,6 +60,22 @@ best_score DESC, achieved_at ASC, user_id ASC
 - `get_player_neighborhood(p_radius integer)`: 현재 로그인 사용자의 순위 전후 기록과 각 기체 ID를 반환합니다.
 - `get_player_best_score()`: 현재 인증 사용자의 최고 점수만 반환하며, 기체 선택 화면의 해금 기준으로 사용합니다.
 
+## 점수 migration 적용
+
+점수 기능을 새 프로젝트에 설정하거나 이전 버전에서 갱신할 때는 아래 migration을 순서대로 적용해야 합니다.
+
+1. `supabase/migrations/202609210001_void_surfer_leaderboard.sql`
+2. `supabase/migrations/202609230001_aircraft_scores.sql`
+
+최신 프론트엔드는 기체 ID까지 저장하는 3개 인자 `submit_score` RPC를 먼저 호출합니다. 두 번째 migration이 아직 적용되지 않은 프로젝트에서는 호환을 위해 기존 2개 인자 RPC로 한 번 재시도하여 점수 자체는 저장합니다. 이 구형 경로에서는 기체 ID를 기록하지 못하며, 새 기체 점수 정보와 `get_player_best_score()` 기능을 사용하려면 두 migration 모두 적용해야 합니다.
+
+원격 migration은 프로젝트 담당자가 대상 Supabase 프로젝트를 확인한 뒤 다음 명령으로 적용합니다. 이 저장소 변경만으로 원격 데이터베이스가 자동 갱신되지는 않습니다.
+
+```powershell
+npx supabase link --project-ref <your-project-ref>
+npx supabase db push
+```
+
 클라이언트는 테이블에 직접 `insert/update/delete`하지 않고 위 RPC만 호출해야 합니다.
 
 ## 보안 규칙

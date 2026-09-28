@@ -29,6 +29,14 @@ function validateSubmission({ score, displayName, aircraftId }) {
   return null;
 }
 
+function isMissingAircraftScoreRpc(error) {
+  const code = String(error?.code ?? '').toUpperCase();
+  if (code === 'PGRST202' || code === '42883') return true;
+
+  const message = typeof error?.message === 'string' ? error.message : '';
+  return /could not find (?:the )?function.*submit_score|function .*submit_score.*does not exist|submit_score.*not found/i.test(message);
+}
+
 async function getCurrentUserId(client) {
   try {
     const { data, error } = await client.auth.getSession();
@@ -46,11 +54,18 @@ export async function submitBestScore(client, { score, displayName, aircraftId =
   }
 
   try {
-    const { data, error } = await client.rpc('submit_score', {
+    let { data, error } = await client.rpc('submit_score', {
       p_score: score,
       p_display_name: displayName.trim(),
       p_aircraft_id: aircraftId,
     });
+
+    if (error && isMissingAircraftScoreRpc(error)) {
+      ({ data, error } = await client.rpc('submit_score', {
+        p_score: score,
+        p_display_name: displayName.trim(),
+      }));
+    }
 
     if (error) {
       return { updated: false, record: null, error: mapLeaderboardError(error) };
