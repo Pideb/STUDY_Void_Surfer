@@ -18,6 +18,7 @@ describe('obstacles', () => {
       gapCenter: 90,
       gapHeight: 180,
       kind: 'normal',
+      stageId: null,
       movingGap: false,
       visualSeed: 0.25,
       passed: false,
@@ -46,6 +47,18 @@ describe('obstacles', () => {
     updateObstacle(obstacle, 0.5, 240);
 
     expect(obstacle.x).toBe(880);
+  });
+
+  it('stores the stage that spawned an obstacle as visual metadata', () => {
+    const obstacle = createObstacle({
+      id: 'industrial-wall-1',
+      x: 1000,
+      gapCenter: 270,
+      gapHeight: 180,
+      stageId: 'industrial-void',
+    });
+
+    expect(obstacle.stageId).toBe('industrial-void');
   });
 
   it('moves a normal gap sinusoidally without leaving its valid bounds', () => {

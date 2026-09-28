@@ -1,6 +1,6 @@
 # Task: T04 Stage-Owned Obstacles
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -56,6 +56,6 @@ Task: T04-stage-owned-obstacles
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

@@ -189,6 +189,7 @@ export function createGameEngine(deps = {}) {
       gapMotionPhase: movingGap ? safeRandom(rng) * Math.PI * 2 : null,
       gapMotionCycleSeconds,
       showTimingGuide,
+      stageId: getStageState().definition.id,
       rng,
     });
 

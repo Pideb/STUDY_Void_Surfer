@@ -18,6 +18,7 @@ export function createObstacle({
   gapMotionAmplitude = MOVING_GAP_AMPLITUDE,
   gapMotionCycleSeconds = null,
   showTimingGuide = false,
+  stageId = null,
   rng = Math.random,
 }) {
   if (!id) {
@@ -52,6 +53,7 @@ export function createObstacle({
     gapMotionAmplitude: canMoveGap ? safeAmplitude : 0,
     gapMotionCycleSeconds: canMoveGap ? safeCycle : null,
     showTimingGuide: normalizedKind === 'special' && Boolean(showTimingGuide),
+    stageId: typeof stageId === 'string' && stageId.length > 0 ? stageId : null,
     visualSeed: Number(rng()) || 0,
     passed: false,
   };
