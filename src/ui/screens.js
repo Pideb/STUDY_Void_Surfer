@@ -55,6 +55,23 @@ export function renderMenuScreen(model, handlers) {
   aircraft.textContent = `출격 기체 · ${model.selectedAircraft ?? 'DEFAULT'}`;
   brand.append(title, greeting, aircraft);
 
+  const aircraftPreview = document.createElement('div');
+  const aircraftId = VISUAL_ASSET_MANIFEST.aircraft[model.selectedAircraftId]
+    ? model.selectedAircraftId
+    : 'default';
+  aircraftPreview.className = `menu-aircraft-preview menu-aircraft-preview-${aircraftId}`;
+  aircraftPreview.setAttribute('role', 'img');
+  aircraftPreview.setAttribute('aria-label', `선택 기체 ${model.selectedAircraft ?? 'DEFAULT'}`);
+  const exhaust = document.createElement('span');
+  exhaust.className = 'menu-aircraft-exhaust';
+  exhaust.setAttribute('aria-hidden', 'true');
+  const aircraftImage = document.createElement('img');
+  aircraftImage.className = 'menu-aircraft-image';
+  aircraftImage.src = VISUAL_ASSET_MANIFEST.aircraft[aircraftId];
+  aircraftImage.alt = '';
+  aircraftImage.setAttribute('aria-hidden', 'true');
+  aircraftPreview.append(exhaust, aircraftImage);
+
   const actions = document.createElement('div');
   actions.className = 'menu-actions';
   actions.append(
@@ -71,7 +88,7 @@ export function renderMenuScreen(model, handlers) {
   const accountActions = document.createElement('div');
   accountActions.className = 'account-actions';
   accountActions.append(createButton('로그아웃', handlers.signOut, { className: 'text-button' }));
-  menu.append(brand, actions, accountActions);
+  menu.append(brand, aircraftPreview, actions, accountActions);
   return menu;
 }
 

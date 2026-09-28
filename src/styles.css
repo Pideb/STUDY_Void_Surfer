@@ -226,6 +226,69 @@ button:focus-visible {
   letter-spacing: 0.08em;
 }
 
+.menu-aircraft-preview {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  position: relative;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  width: min(100%, 26rem);
+  aspect-ratio: 1.65;
+  pointer-events: none;
+}
+
+.menu-aircraft-image {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(90%, 22rem);
+  height: auto;
+  object-fit: contain;
+  animation: menu-aircraft-float 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 14px rgba(117, 226, 255, 0.34));
+}
+
+.menu-aircraft-preview-velocity .menu-aircraft-image {
+  filter: drop-shadow(0 0 16px rgba(255, 85, 207, 0.4));
+}
+
+.menu-aircraft-preview-aegis .menu-aircraft-image {
+  filter: drop-shadow(0 0 16px rgba(255, 196, 92, 0.4));
+}
+
+.menu-aircraft-exhaust {
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 2%;
+  width: 38%;
+  height: 0.8rem;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, rgba(74, 221, 255, 0.2), rgba(123, 245, 255, 0.85));
+  filter: blur(0.55rem);
+  animation: menu-exhaust-pulse 1.15s ease-in-out infinite alternate;
+}
+
+.menu-aircraft-preview-velocity .menu-aircraft-exhaust {
+  background: linear-gradient(90deg, transparent, rgba(255, 85, 207, 0.2), rgba(255, 143, 224, 0.88));
+}
+
+.menu-aircraft-preview-aegis .menu-aircraft-exhaust {
+  background: linear-gradient(90deg, transparent, rgba(255, 166, 64, 0.2), rgba(255, 222, 120, 0.88));
+}
+
+@keyframes menu-aircraft-float {
+  0%, 100% { transform: translateY(-3px); }
+  50% { transform: translateY(3px); }
+}
+
+@keyframes menu-exhaust-pulse {
+  from { opacity: 0.55; transform: translateY(-50%) scaleX(0.84); }
+  to { opacity: 0.95; transform: translateY(-50%) scaleX(1.08); }
+}
+
 .menu-actions {
   grid-column: 2;
   grid-row: 2;
@@ -665,7 +728,7 @@ button:focus-visible {
 
   .menu-overlay {
     grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto minmax(6rem, 22vh) auto auto;
     align-content: start;
     gap: 0.55rem;
     overflow-y: auto;
@@ -678,9 +741,19 @@ button:focus-visible {
     text-align: center;
   }
 
-  .menu-actions {
+  .menu-aircraft-preview {
     grid-column: 1;
     grid-row: 2;
+    width: min(100%, 19rem);
+    height: 100%;
+    aspect-ratio: auto;
+  }
+
+  .menu-aircraft-image { width: min(88%, 16rem); }
+
+  .menu-actions {
+    grid-column: 1;
+    grid-row: 3;
     justify-items: stretch;
     gap: 0.3rem;
     min-width: 0;
@@ -692,7 +765,7 @@ button:focus-visible {
 
   .menu-overlay .account-actions {
     grid-column: 1;
-    grid-row: 3;
+    grid-row: 4;
     justify-self: center;
     margin-top: 0.25rem;
     padding-top: 0;
@@ -727,6 +800,11 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .menu-aircraft-image,
+  .menu-aircraft-exhaust {
+    animation: none !important;
+  }
+
   *,
   *::before,
   *::after {

@@ -150,6 +150,7 @@ describe('app controller product flow', () => {
     velocity.click();
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '뒤로가기').click();
     expect(harness.root.querySelector('.menu-aircraft-status').textContent).toContain('VELOCITY');
+    expect(harness.root.querySelector('.menu-aircraft-image').getAttribute('src')).toContain('/assets/game/aircraft/velocity.png');
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '게임 시작').click();
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '출격하기').click();
     expect(harness.gameEngine.setAccountBestScore).toHaveBeenCalledWith(100);

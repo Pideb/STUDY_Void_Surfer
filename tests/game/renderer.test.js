@@ -253,7 +253,7 @@ describe('renderer', () => {
     expect(context.clearRect).toHaveBeenCalledWith(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     expect(context.createRadialGradient).toHaveBeenCalled();
     expect(context.moveTo).toHaveBeenCalled();
-    expect(context.translate).toHaveBeenCalledWith(300, WORLD_HEIGHT / 2);
+    expect(context.drawImage).not.toHaveBeenCalled();
     renderer.destroy();
   });
 
@@ -393,19 +393,17 @@ describe('renderer', () => {
     renderer.destroy();
   });
 
-  it('uses the loaded menu background and aircraft while retaining missing-image fallback', () => {
+  it('uses the loaded menu background without drawing a duplicate default aircraft', () => {
     const canvas = document.createElement('canvas');
     const context = createContext();
     canvas.getContext = vi.fn(() => context);
     const background = { name: 'menu-background', width: 2048, height: 1152 };
-    const ship = { name: 'default-ship', width: 1536, height: 1024 };
-    const assets = new Map([['menuBackground', background], ['aircraft.default', ship]]);
+    const assets = new Map([['menuBackground', background]]);
     const renderer = createRenderer(canvas, { visualAssets: { get: (path) => assets.get(path) ?? null } });
 
     renderer.renderMenuBackground();
 
-    expect(context.drawImage.mock.calls.map(([drawn]) => drawn.name)).toEqual(['menu-background', 'default-ship']);
-    expect(context.createRadialGradient).not.toHaveBeenCalled();
+    expect(context.drawImage.mock.calls.map(([drawn]) => drawn.name)).toEqual(['menu-background']);
     renderer.destroy();
   });
 

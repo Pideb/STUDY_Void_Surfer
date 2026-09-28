@@ -92,6 +92,7 @@ export function createAppController(deps) {
       audioManager.setMusicScene?.(null);
       root.replaceChildren(renderMenuScreen({
         displayName: getDisplayName(state.user), muted: state.muted,
+        selectedAircraftId: state.selectedAircraftId,
         selectedAircraft: AIRCRAFT_CATALOG.find(({ id }) => id === state.selectedAircraftId)?.name ?? 'DEFAULT',
       }, {
         start: () => dispatch({ type: 'START_GAME_FROM_MENU' }),

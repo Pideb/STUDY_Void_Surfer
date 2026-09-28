@@ -880,13 +880,6 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       drawMenuNebula(ctx, VISUAL_THEME);
       drawMenuDepthLines(ctx, VISUAL_THEME);
     }
-    drawShip(ctx, {
-      x: 300,
-      y: WORLD_HEIGHT / 2,
-      velocityY: 0,
-      width: 72,
-      height: 48,
-    }, VISUAL_THEME, 'default', visualAssets);
     ctx.restore();
   }
 

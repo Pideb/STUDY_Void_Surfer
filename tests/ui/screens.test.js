@@ -13,8 +13,9 @@ describe('product flow screens', () => {
     expect(screen.classList.contains('screen-panel')).toBe(false);
     expect(screen.classList.contains('menu-overlay')).toBe(true);
     expect([...screen.children].map((child) => child.className)).toEqual([
-      'menu-brand', 'menu-actions', 'account-actions',
+      'menu-brand', 'menu-aircraft-preview menu-aircraft-preview-default', 'menu-actions', 'account-actions',
     ]);
+    expect(screen.querySelector('.menu-aircraft-image')?.getAttribute('src')).toContain('/assets/game/aircraft/default.png');
     expect(screen.querySelector('.menu-brand strong')?.textContent).toBe('Pilot');
     expect(screen.querySelector('.menu-greeting')?.textContent)
       .toBe('Pilot 파일럿, 다시 도전하는 것을 환영합니다.');
@@ -23,6 +24,19 @@ describe('product flow screens', () => {
     expect(labels).toContain('게임 시작');
     expect(labels).toContain('기체 선택');
     expect(labels).toContain('로그아웃');
+  });
+
+  it('shows the selected aircraft as decorative, accessible title-screen artwork', () => {
+    const screen = renderMenuScreen({ displayName: 'Pilot', muted: false, selectedAircraft: 'VELOCITY', selectedAircraftId: 'velocity' }, {
+      start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
+    });
+    const preview = screen.querySelector('.menu-aircraft-preview');
+
+    expect(preview.className).toContain('menu-aircraft-preview-velocity');
+    expect(preview.getAttribute('aria-label')).toBe('선택 기체 VELOCITY');
+    expect(preview.querySelector('img').getAttribute('src')).toContain('/assets/game/aircraft/velocity.png');
+    expect(preview.querySelector('img').getAttribute('alt')).toBe('');
+    expect(preview.querySelector('.menu-aircraft-exhaust')).not.toBeNull();
   });
 
   it('shows hangar unlock states and only allows selecting unlocked aircraft', () => {
