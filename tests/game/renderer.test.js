@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import {
-  createRenderer, drawDashTrail, drawObstacle, drawShip, drawShipExhaust,
+  createRenderer, drawBoss, drawDashTrail, drawObstacle, drawShip, drawShipExhaust,
 } from '../../src/game/renderer.js';
 import { STAGE_VISUAL_THEMES, VISUAL_THEME } from '../../src/game/visual-theme.js';
 
@@ -35,6 +35,44 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('animates six distinct boss idle signatures and freezes them for reduced motion', () => {
+    const stageIds = [
+      'crystal-gates', 'industrial-void', 'signal-monoliths',
+      'gravity-well', 'abyssal-beast', 'solar-forge',
+    ];
+    const signatures = [];
+    const motionCalls = (context) => JSON.stringify({
+      arcs: context.arc.mock.calls,
+      moves: context.moveTo.mock.calls,
+      lines: context.lineTo.mock.calls,
+      rotations: context.rotate.mock.calls,
+      images: context.drawImage.mock.calls,
+    });
+
+    for (const stageId of stageIds) {
+      const image = { name: `${stageId}-boss`, width: 800, height: 600 };
+      const assets = { get: (path) => path === `stages.${stageId}.boss` ? image : null };
+      const theme = STAGE_VISUAL_THEMES[stageId];
+      const first = createContext();
+      const later = createContext();
+      const reducedA = createContext();
+      const reducedB = createContext();
+      const boss = Object.freeze({ hp: 3, attack: Object.freeze({ state: 'charging', x: 600 }) });
+
+      drawBoss(first, { isBoss: true, bossPattern: 'shift' }, theme, boss, 0, assets, stageId, false);
+      drawBoss(later, { isBoss: true, bossPattern: 'shift' }, theme, boss, 1.2, assets, stageId, false);
+      drawBoss(reducedA, { isBoss: true, bossPattern: 'shift' }, theme, boss, 0, assets, stageId, true);
+      drawBoss(reducedB, { isBoss: true, bossPattern: 'shift' }, theme, boss, 8, assets, stageId, true);
+
+      expect(motionCalls(first)).not.toBe(motionCalls(later));
+      expect(motionCalls(reducedA)).toBe(motionCalls(reducedB));
+      signatures.push(motionCalls(later));
+      expect(boss).toEqual({ hp: 3, attack: { state: 'charging', x: 600 } });
+    }
+
+    expect(new Set(signatures).size).toBe(6);
+  });
+
   it('keeps logical coordinates while resizing the physical canvas for DPR', () => {
     const canvas = document.createElement('canvas');
     const context = createContext();

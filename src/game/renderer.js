@@ -13,6 +13,12 @@ function getDevicePixelRatio() {
   return Math.max(1, Number(globalThis.devicePixelRatio) || 1);
 }
 
+function resolveReducedMotion(preference) {
+  return typeof preference === 'function'
+    ? Boolean(preference())
+    : preference ?? Boolean(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+}
+
 function setGlow(ctx, color, blur) {
   ctx.shadowColor = color;
   ctx.shadowBlur = blur;
@@ -456,9 +462,7 @@ function backgroundKeyToId(key) {
 
 function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = null, reducedMotion = null, scrollDistancePx = 0, scrollSpeed = 240) {
   const transition = stage?.transition;
-  const prefersReducedMotion = typeof reducedMotion === 'function'
-    ? reducedMotion()
-    : reducedMotion ?? Boolean(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  const prefersReducedMotion = resolveReducedMotion(reducedMotion);
   if (!transition) {
     drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss', visualAssets, prefersReducedMotion, scrollDistancePx, scrollSpeed);
     return;
@@ -527,7 +531,90 @@ function drawMenuDepthLines(ctx, theme) {
   ctx.restore();
 }
 
-function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0, visualAssets = null, stageId = null) {
+function drawBossIdleAccents(ctx, style, x, y, elapsedSeconds, theme, reducedMotion) {
+  const time = reducedMotion ? 0 : elapsedSeconds;
+  ctx.save();
+  ctx.globalAlpha = 0.58;
+  ctx.strokeStyle = theme.accent;
+  ctx.fillStyle = theme.boss;
+  ctx.lineWidth = 2.5;
+  setGlow(ctx, theme.accent, 10);
+
+  if (style === 'crystal-guardian') {
+    for (let index = 0; index < 2; index += 1) {
+      const angle = time * 0.8 + index * Math.PI;
+      const shardX = x + Math.cos(angle) * 92;
+      const shardY = y + Math.sin(angle) * 58;
+      ctx.beginPath();
+      ctx.moveTo(shardX + 7, shardY);
+      ctx.lineTo(shardX, shardY - 11);
+      ctx.lineTo(shardX - 7, shardY);
+      ctx.lineTo(shardX, shardY + 11);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (style === 'orbital-factory') {
+    ctx.translate(x, y);
+    ctx.rotate(time * 0.42);
+    ctx.beginPath();
+    ctx.arc(0, 0, 87, 0, Math.PI * 2);
+    ctx.stroke();
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.arc(side * 87, 0, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (style === 'signal-sentinel') {
+    const scanY = y + Math.sin(time * 1.6) * 58;
+    ctx.globalAlpha = 0.68;
+    ctx.beginPath();
+    ctx.moveTo(x - 100, scanY);
+    ctx.lineTo(x + 100, scanY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(x, y, 76 + Math.sin(time * 1.6) * 3, -0.5, 0.5);
+    ctx.stroke();
+  } else if (style === 'gravity-crescent') {
+    ctx.beginPath();
+    ctx.arc(x, y, 82, time * 0.55, time * 0.55 + Math.PI * 1.55);
+    ctx.stroke();
+    for (let index = 0; index < 3; index += 1) {
+      const angle = time * 0.72 + index * Math.PI * 2 / 3;
+      ctx.beginPath();
+      ctx.arc(x + Math.cos(angle) * 98, y + Math.sin(angle) * 65, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else if (style === 'abyssal-leviathan') {
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(x - 60, y + side * 30);
+      for (let index = 1; index <= 4; index += 1) {
+        const pointX = x - 60 - index * 16;
+        const pointY = y + side * (30 + index * 10) + Math.sin(time * 1.8 + index * 0.8) * 7;
+        ctx.lineTo(pointX, pointY);
+      }
+      ctx.stroke();
+    }
+  } else if (style === 'solar-machine') {
+    const pulse = 77 + Math.sin(time * 2) * 8;
+    ctx.globalAlpha = 0.4 + (Math.sin(time * 2) + 1) * 0.12;
+    ctx.beginPath();
+    ctx.arc(x, y, pulse, 0, Math.PI * 2);
+    ctx.stroke();
+    const ventY = y + Math.sin(time * 2) * 5;
+    ctx.beginPath();
+    ctx.moveTo(x - 38, ventY - 51);
+    ctx.lineTo(x - 13, ventY - 57);
+    ctx.moveTo(x + 13, ventY + 57);
+    ctx.lineTo(x + 38, ventY + 51);
+    ctx.stroke();
+  }
+
+  resetGlow(ctx);
+  ctx.restore();
+}
+
+export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0, visualAssets = null, stageId = null, reducedMotion = false) {
   if (!difficulty?.isBoss) {
     return;
   }
@@ -536,8 +623,10 @@ function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0, visua
   const hitProgress = boss?.hitEffect
     ? Math.max(0, Math.min(1, boss.hitEffect.remainingSeconds / (boss.hitEffect.durationSeconds || 1)))
     : 0;
-  const x = 842 + Math.sin(elapsedSeconds * 1.4) * 4 + hitProgress * 12;
-  const y = WORLD_HEIGHT / 2 + Math.sin(elapsedSeconds * 1.1) * 18;
+  const idleTime = reducedMotion ? 0 : elapsedSeconds;
+  const x = 842 + Math.sin(idleTime * 1.4) * 4 + hitProgress * 12;
+  const y = WORLD_HEIGHT / 2 + Math.sin(idleTime * 1.1) * 18;
+  drawBossIdleAccents(ctx, theme.bossStyle, x, y, idleTime, theme, reducedMotion);
   const image = getStageAsset(visualAssets, stageId, 'boss');
   if (image) {
     ctx.globalAlpha = 0.95;
@@ -756,6 +845,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     const stage = snapshot.stage ?? { id: 'crystal-gates', mode: 'normal', elapsedSeconds: snapshot.elapsedSeconds ?? 0 };
     const theme = resolveStageTheme(stage.id);
     const elapsed = stage.elapsedSeconds ?? snapshot.elapsedSeconds ?? 0;
+    const prefersReducedMotion = resolveReducedMotion(reducedMotion);
     const backgroundScroll = snapshot.backgroundScrollDistancePx ?? elapsed * (snapshot.difficulty?.scrollSpeed ?? 240) * 0.25;
     const scrollSpeed = snapshot.difficulty?.scrollSpeed ?? 240;
     drawBackgroundTransition(ctx, stage, elapsed, visualAssets, reducedMotion, backgroundScroll, scrollSpeed);
@@ -767,7 +857,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
 
     drawLaser(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
     drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
-    drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id);
+    drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id, prefersReducedMotion);
     drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
     drawSpecialDashBurst(ctx, snapshot.player, VISUAL_THEME);
     drawStageAtmosphere(ctx, stage.mode, elapsed);
