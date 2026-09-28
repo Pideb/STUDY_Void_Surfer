@@ -1,16 +1,22 @@
 # Current Context
 
 ## Active Plan
-[Menu, Score, and Background Reliability](./plans/2026-09-28-menu-score-background-reliability.md)
+[Gameplay and Visual Polish](./plans/2026-09-28-gameplay-visual-polish.md)
 
 ## Active Phase
-[P01 Reliability Fixes](./phases/2026-09-28-menu-score-background-reliability/P01-reliability-fixes/phase.md)
+Complete
 
 ## Active Task
-None — all tasks in this plan are complete.
+None
 
 ## Status
-- T01 and T02 are implemented; production builds passed. Remote Supabase migrations remain an operator action.
+- T01 completed and committed as `db038f0`; focused validation passed (22 tests).
+- T02 completed and committed as `b355bc4`; focused validation passed (32 tests). Boss wall waves preserve the existing mix and repeat until the required projectile reflections are complete.
+- T03 completed and committed as `7a19660`; focused validation passed (49 tests).
+- T04 completed and committed as `7f05768`; focused validation passed (45 tests) and production build passed.
+- T05 completed and committed as `9b802e7`; focused validation passed (26 tests) and production build passed.
+- T06 completed and committed as `aecfbd0`; focused validation passed (47 tests) and production build passed.
+- T07 completed and committed as `9ce3edb`; focused validation passed (40 tests), full suite passed (176 tests), and production build passed.
 
 ## Next Step (IMPORTANT)
-To enable aircraft-specific leaderboard records on the hosted project, apply all migrations in `supabase/migrations/` with `npx supabase db push` after confirming the linked project.
+Plan complete. Remote Supabase account/RPC behavior still requires a real authenticated run; no remote migrations or production score writes were performed during this work.
