@@ -189,6 +189,14 @@ function resolveStageTheme(stageId) {
   return stageId ? getStageVisualTheme(stageId) : VISUAL_THEME;
 }
 
+function getStageAsset(visualAssets, stageId, assetName) {
+  const stageManifest = VISUAL_ASSET_MANIFEST.stages[stageId];
+  if (!stageManifest) return null;
+  return visualAssets?.get(`stages.${stageId}.${assetName}`)
+    ?? visualAssets?.get(stageManifest[assetName])
+    ?? null;
+}
+
 function drawClippedWallAsset(ctx, image, obstacle, y, height, sourceXRatio, sourceWidthRatio) {
   if (!image || height <= 0) return;
   ctx.save();
@@ -213,10 +221,11 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   const gapTop = obstacle.gapCenter - obstacle.gapHeight / 2;
   const bottomTop = obstacle.gapCenter + obstacle.gapHeight / 2;
   const timingGuideWidth = getTimingGuideWidth(obstacle, difficulty);
-  const wallAsset = visualAssets?.get(`stages.${obstacle.stageId ?? ''}.${isSpecial ? 'specialWall' : 'normalWall'}`)
-    ?? (obstacle.stageId === 'crystal-gates'
-      ? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'][isSpecial ? 'specialWall' : 'normalWall'])
-      : null);
+  const wallAsset = getStageAsset(
+    visualAssets,
+    obstacle.stageId,
+    isSpecial ? 'specialWall' : 'normalWall',
+  );
 
   ctx.save();
   if (timingGuideWidth > 0) {
@@ -318,10 +327,7 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
 
 function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, visualAssets = null) {
   const theme = resolveStageTheme(stageId);
-  const background = stageId === 'crystal-gates'
-    ? visualAssets?.get(`stages.crystal-gates.${boss ? 'bossBackground' : 'background'}`)
-      ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'][boss ? 'bossBackground' : 'background'])
-    : null;
+  const background = getStageAsset(visualAssets, stageId, boss ? 'bossBackground' : 'background');
   if (background) {
     ctx.drawImage(background, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     return;
@@ -475,10 +481,7 @@ function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0, visua
     : 0;
   const x = 842 + Math.sin(elapsedSeconds * 1.4) * 4 + hitProgress * 12;
   const y = WORLD_HEIGHT / 2 + Math.sin(elapsedSeconds * 1.1) * 18;
-  const image = stageId === 'crystal-gates'
-    ? visualAssets?.get('stages.crystal-gates.boss')
-      ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'].boss)
-    : null;
+  const image = getStageAsset(visualAssets, stageId, 'boss');
   if (image) {
     ctx.globalAlpha = 0.95;
     setGlow(ctx, theme.boss, 22);
@@ -563,10 +566,7 @@ function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null)
   if (attack.state !== 'charging') {
     ctx.globalAlpha = attack.state === 'returning' ? 1 : 0.92;
     setGlow(ctx, color, attack.state === 'returning' ? 18 : 12);
-    const image = stageId === 'crystal-gates'
-      ? visualAssets?.get('stages.crystal-gates.projectile')
-        ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'].projectile)
-      : null;
+    const image = getStageAsset(visualAssets, stageId, 'projectile');
     if (image) {
       ctx.save();
       ctx.translate(attack.x, attack.y);
@@ -598,10 +598,7 @@ function drawLaser(ctx, attack, theme, visualAssets = null, stageId = null) {
   ctx.fillStyle = theme.laser;
   ctx.lineWidth = Math.max(2, attack.thickness ?? 8);
   setGlow(ctx, theme.laser, telegraph ? 8 : 20);
-  const image = stageId === 'crystal-gates'
-    ? visualAssets?.get('stages.crystal-gates.laser')
-      ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.stages['crystal-gates'].laser)
-    : null;
+  const image = getStageAsset(visualAssets, stageId, 'laser');
   const drawLaserImage = (y) => {
     if (!image) return;
     const sourceY = image.height * 0.38;

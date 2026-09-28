@@ -1,7 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createVisualAssetLoader } from '../../src/game/visual-assets.js';
+import { createVisualAssetLoader, VISUAL_ASSET_MANIFEST } from '../../src/game/visual-assets.js';
 
 describe('visual asset loader', () => {
+  it('declares a complete seven-asset pack for every stage', () => {
+    const expectedAssets = ['background', 'bossBackground', 'normalWall', 'specialWall', 'boss', 'projectile', 'laser'];
+    expect(Object.keys(VISUAL_ASSET_MANIFEST.stages)).toEqual([
+      'crystal-gates', 'industrial-void', 'signal-monoliths', 'gravity-well', 'abyssal-beast', 'solar-forge',
+    ]);
+    for (const stage of Object.values(VISUAL_ASSET_MANIFEST.stages)) {
+      expect(Object.keys(stage)).toEqual(expectedAssets);
+      for (const path of Object.values(stage)) expect(path).toMatch(/^\/assets\/game\/stages\/.+\.png$/);
+    }
+  });
+
   it('loads each unique URL once and resolves assets by key or URL', async () => {
     const images = [];
     const imageFactory = vi.fn(() => {

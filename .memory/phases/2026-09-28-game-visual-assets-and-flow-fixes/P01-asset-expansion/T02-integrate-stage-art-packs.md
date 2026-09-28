@@ -1,6 +1,6 @@
 # Task: T02 Integrate Stage Art Packs
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -57,6 +57,6 @@ Task: T02-integrate-stage-art-packs
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
