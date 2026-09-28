@@ -48,6 +48,16 @@ describe('game engine', () => {
     expect(snapshot.stage.transition).toBeNull();
   });
 
+  it('integrates background travel at one quarter of current wall speed', () => {
+    const { engine, step } = createRuntimeEngine({ rng: () => 0.5 });
+    engine.start();
+
+    expect(engine.getSnapshot().backgroundScrollDistancePx).toBe(0);
+    const snapshot = step(100);
+    expect(snapshot.difficulty.scrollSpeed).toBe(240);
+    expect(snapshot.backgroundScrollDistancePx).toBeCloseTo(6);
+  });
+
   it('advances one stage after two walls pass following a boss clear', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60,

@@ -14,13 +14,13 @@ import {
   PAUSE_SCORE_PENALTY,
   SPECIAL_TIMING_GUIDE_COUNT,
   SPECIAL_BREAK_DURATION_SECONDS,
-  STAGE_TRANSITION_SECONDS,
   WARNING_START_SCORE,
   WARNING_MIN_SPECIALS,
   WARNING_MOVING_GAP_CYCLE_SECONDS,
   WARNING_OBSTACLE_COUNT,
   WARNING_SPAWN_INTERVAL_SECONDS,
   WORLD_HEIGHT,
+  WORLD_WIDTH,
 } from './constants.js';
 import { applyLift, createPlayer, isOutOfBounds, updatePlayer } from './player.js';
 import { GAME_STATES } from './game-state.js';
@@ -91,6 +91,7 @@ export function createGameEngine(deps = {}) {
   let stageIndex = 0;
   let stageElapsedSeconds = 0;
   let stageTransition = null;
+  let backgroundScrollDistancePx = 0;
   let wallsUntilStageAdvance = 0;
   let bossEncounter = null;
   let challenge = null;
@@ -291,6 +292,7 @@ export function createGameEngine(deps = {}) {
     stageIndex = 0;
     stageElapsedSeconds = 0;
     stageTransition = null;
+    backgroundScrollDistancePx = 0;
     wallsUntilStageAdvance = 0;
     bossEncounter = null;
     challenge = null;
@@ -326,18 +328,20 @@ export function createGameEngine(deps = {}) {
       fromKey: getActiveBackgroundKey(previous.definition, previous.mode),
       toKey: getActiveBackgroundKey(next.definition, next.mode),
       progress: 0,
-      durationSeconds: STAGE_TRANSITION_SECONDS,
+      travelledPixels: 0,
+      durationSeconds: WORLD_WIDTH / Math.max(1, getCurrentDifficulty().scrollSpeed),
     };
     stageElapsedSeconds = 0;
   }
 
-  function updateStage(deltaSeconds) {
+  function updateStage(deltaSeconds, scrollSpeed) {
     stageElapsedSeconds += deltaSeconds;
     if (stageTransition) {
-      stageTransition.progress = Math.min(
-        1,
-        stageTransition.progress + deltaSeconds / STAGE_TRANSITION_SECONDS,
+      stageTransition.travelledPixels = Math.min(
+        WORLD_WIDTH,
+        stageTransition.travelledPixels + scrollSpeed * deltaSeconds,
       );
+      stageTransition.progress = stageTransition.travelledPixels / WORLD_WIDTH;
       if (stageTransition.progress >= 1) stageTransition = null;
     }
   }
@@ -504,8 +508,9 @@ export function createGameEngine(deps = {}) {
 
     updatePlayer(player, deltaSeconds, gravity * aircraft.gravityMultiplier);
     elapsedSeconds += deltaSeconds;
-    updateStage(deltaSeconds);
     let difficulty = getCurrentDifficulty();
+    backgroundScrollDistancePx += difficulty.scrollSpeed * deltaSeconds * 0.25;
+    updateStage(deltaSeconds, difficulty.scrollSpeed);
     if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
 
@@ -613,6 +618,7 @@ export function createGameEngine(deps = {}) {
       state,
       score: getScore(),
       elapsedSeconds,
+      backgroundScrollDistancePx,
       gameOverReason,
       aircraft: {
         id: aircraft.id,

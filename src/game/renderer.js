@@ -1,5 +1,5 @@
 import {
-  DASH_DURATION_SECONDS, STAGE_TRANSITION_SECONDS, WORLD_HEIGHT, WORLD_WIDTH,
+  DASH_DURATION_SECONDS, WORLD_HEIGHT, WORLD_WIDTH,
 } from './constants.js';
 import {
   AIRCRAFT_VISUALS,
@@ -343,28 +343,51 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   ctx.restore();
 }
 
-function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = false) {
+function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = false, scrollDistancePx = 0, scrollSpeed = 240) {
   const scale = 1.12;
   const width = WORLD_WIDTH * scale;
   const height = WORLD_HEIGHT * scale;
-  const overflowX = width - WORLD_WIDTH;
   const overflowY = height - WORLD_HEIGHT;
-  const driftProgress = reducedMotion ? 0 : (1 - Math.cos((elapsedSeconds * Math.PI * 2) / 150)) / 2;
-  const offsetX = reducedMotion ? overflowX / 2 : driftProgress * overflowX;
-  const offsetY = reducedMotion
-    ? overflowY / 2
-    : overflowY / 2 + Math.sin(elapsedSeconds * 0.12) * Math.min(overflowY * 0.18, 7);
+  const offsetY = overflowY / 2 + (reducedMotion ? 0 : Math.sin(elapsedSeconds * 0.12) * Math.min(overflowY * 0.18, 7));
+  if (reducedMotion) {
+    ctx.drawImage(background, -(width - WORLD_WIDTH) / 2, -offsetY, width, height);
+  } else {
+    const overlap = Math.min(width * 0.12, Math.max(12, scrollSpeed * 0.25 * 0.35));
+    const period = width - overlap;
+    const phase = ((scrollDistancePx % period) + period) % period;
+    const firstX = -phase;
+    const nextX = period - phase;
+    ctx.drawImage(background, firstX, -offsetY, width, height);
 
-  ctx.drawImage(background, -offsetX, -offsetY, width, height);
+    // Crossfade the repeated image over the overlap so its edge is never a hard seam.
+    const strips = 8;
+    for (let index = 0; index < strips; index += 1) {
+      const stripX = nextX + overlap * index / strips;
+      const stripWidth = overlap / strips + 1;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(stripX, 0, stripWidth, WORLD_HEIGHT);
+      ctx.clip();
+      ctx.globalAlpha = (index + 1) / strips;
+      ctx.drawImage(background, nextX, -offsetY, width, height);
+      ctx.restore();
+    }
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(nextX + overlap, 0, WORLD_WIDTH - nextX - overlap, WORLD_HEIGHT);
+    ctx.clip();
+    ctx.drawImage(background, nextX, -offsetY, width, height);
+    ctx.restore();
+  }
   ctx.fillStyle = 'rgba(2, 6, 18, 0.24)';
   ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 }
 
-function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, visualAssets = null, reducedMotion = false) {
+function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, visualAssets = null, reducedMotion = false, scrollDistancePx = 0, scrollSpeed = 240) {
   const theme = resolveStageTheme(stageId);
   const background = getStageAsset(visualAssets, stageId, boss ? 'bossBackground' : 'background');
   if (background) {
-    drawStageArtwork(ctx, background, elapsedSeconds, reducedMotion);
+    drawStageArtwork(ctx, background, elapsedSeconds, reducedMotion, scrollDistancePx, scrollSpeed);
     return;
   }
   ctx.fillStyle = boss ? theme.bossBackground : theme.background;
@@ -380,7 +403,7 @@ function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, vis
   ctx.fillStyle = theme.star;
   for (let index = 0; index < STAR_FIELD.length; index += 1) {
     const [baseX, baseY, radius] = STAR_FIELD[index];
-    const x = (baseX + elapsedSeconds * (6 + index * 1.3)) % WORLD_WIDTH;
+    const x = ((baseX - scrollDistancePx * (0.7 + index * 0.04)) % WORLD_WIDTH + WORLD_WIDTH) % WORLD_WIDTH;
     const y = baseY + Math.sin(elapsedSeconds * 0.22 + index) * 4;
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
@@ -394,7 +417,7 @@ function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, vis
   ctx.lineWidth = 1;
   const style = theme.particleStyle;
   for (let index = 0; index < 7; index += 1) {
-    const x = (index * 173 + elapsedSeconds * (style === 'industrial' ? 12 : 4)) % (WORLD_WIDTH + 100) - 50;
+    const x = ((index * 173 - scrollDistancePx) % (WORLD_WIDTH + 100) + WORLD_WIDTH + 100) % (WORLD_WIDTH + 100) - 50;
     const y = (index * 89 + 24) % WORLD_HEIGHT;
     ctx.beginPath();
     if (style === 'gravity') {
@@ -431,27 +454,26 @@ function backgroundKeyToId(key) {
   return (key ?? 'crystal-gates').replace(/-boss$/, '');
 }
 
-function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = null, reducedMotion = null) {
+function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = null, reducedMotion = null, scrollDistancePx = 0, scrollSpeed = 240) {
   const transition = stage?.transition;
   const prefersReducedMotion = typeof reducedMotion === 'function'
     ? reducedMotion()
     : reducedMotion ?? Boolean(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
   if (!transition) {
-    drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss', visualAssets, prefersReducedMotion);
+    drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss', visualAssets, prefersReducedMotion, scrollDistancePx, scrollSpeed);
     return;
   }
   const progress = Math.max(0, Math.min(1, transition.progress ?? 1));
-  const durationSeconds = Number(transition.durationSeconds) || STAGE_TRANSITION_SECONDS;
-  const crossfadeProgress = Math.min(1, (progress * durationSeconds) / 0.15);
-  const spatialProgress = progress * progress * (3 - 2 * progress);
+  const travelledPixels = Math.max(0, Math.min(WORLD_WIDTH, Number(transition.travelledPixels) || progress * WORLD_WIDTH));
+  const crossfadeProgress = Math.min(1, travelledPixels / Math.max(1, scrollSpeed * 0.15));
   const scenes = prefersReducedMotion
     ? [
       { key: transition.fromKey, x: 0, alpha: 1 - crossfadeProgress },
       { key: transition.toKey, x: 0, alpha: crossfadeProgress },
     ]
     : [
-      { key: transition.fromKey, x: spatialProgress === 0 ? 0 : -spatialProgress * WORLD_WIDTH, alpha: 1 },
-      { key: transition.toKey, x: (1 - spatialProgress) * WORLD_WIDTH, alpha: 1 },
+      { key: transition.fromKey, x: travelledPixels === 0 ? 0 : -travelledPixels, alpha: 1 },
+      { key: transition.toKey, x: WORLD_WIDTH - travelledPixels, alpha: 1 },
     ];
 
   for (const { key, x, alpha } of scenes) {
@@ -462,7 +484,7 @@ function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = nul
     ctx.globalAlpha = alpha;
     ctx.translate(x, 0);
     drawStageBackground(ctx, backgroundKeyToId(key), elapsedSeconds,
-      String(key).endsWith('-boss'), visualAssets, prefersReducedMotion);
+      String(key).endsWith('-boss'), visualAssets, prefersReducedMotion, scrollDistancePx, scrollSpeed);
     ctx.restore();
   }
 }
@@ -734,7 +756,9 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     const stage = snapshot.stage ?? { id: 'crystal-gates', mode: 'normal', elapsedSeconds: snapshot.elapsedSeconds ?? 0 };
     const theme = resolveStageTheme(stage.id);
     const elapsed = stage.elapsedSeconds ?? snapshot.elapsedSeconds ?? 0;
-    drawBackgroundTransition(ctx, stage, elapsed, visualAssets, reducedMotion);
+    const backgroundScroll = snapshot.backgroundScrollDistancePx ?? elapsed * (snapshot.difficulty?.scrollSpeed ?? 240) * 0.25;
+    const scrollSpeed = snapshot.difficulty?.scrollSpeed ?? 240;
+    drawBackgroundTransition(ctx, stage, elapsed, visualAssets, reducedMotion, backgroundScroll, scrollSpeed);
 
     for (const obstacle of snapshot.obstacles ?? []) {
       const stageObstacle = obstacle.stageId ? obstacle : { ...obstacle, stageId: stage.id };

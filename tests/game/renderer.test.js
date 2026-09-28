@@ -240,6 +240,31 @@ describe('renderer', () => {
     renderer.destroy();
   });
 
+  it('scrolls repeated stage artwork leftward and overlaps copies at the wrap seam', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const background = { name: 'scrolling-bg', width: 2048, height: 1152 };
+    const renderer = createRenderer(canvas, {
+      visualAssets: { get: (path) => path === 'stages.crystal-gates.background' ? background : null },
+      reducedMotion: false,
+    });
+
+    renderer.render({
+      player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+      obstacles: [],
+      difficulty: { scrollSpeed: 240 },
+      backgroundScrollDistancePx: 100,
+      stage: { id: 'crystal-gates', mode: 'normal', elapsedSeconds: 0 },
+    });
+
+    const backgroundCalls = context.drawImage.mock.calls.filter(([drawn]) => drawn === background);
+    expect(backgroundCalls[0][1]).toBe(-100);
+    expect(backgroundCalls.length).toBeGreaterThan(2);
+    expect(context.clip).toHaveBeenCalled();
+    renderer.destroy();
+  });
+
   it('renders boss projectile telegraphs, quarter lasers, and challenge cues from snapshot state', () => {
     const canvas = document.createElement('canvas');
     const context = createContext();
@@ -346,8 +371,10 @@ describe('renderer', () => {
     renderer.destroy();
   });
 
-  it('pushes Crystal Gates scenes across the viewport using eased right-to-left offsets', () => {
-    for (const [progress, outgoingX, incomingX] of [[0, 0, 960], [0.5, -480, 480], [1, -960, 0]]) {
+  it('pushes Crystal Gates scenes from right to left at explicit travel distances', () => {
+    for (const [progress, travelledPixels, outgoingX, incomingX] of [
+      [0, 0, 0, 960], [0.25, 240, -240, 720], [0.5, 480, -480, 480], [1, 960, -960, 0],
+    ]) {
       const canvas = document.createElement('canvas');
       const context = createContext();
       canvas.getContext = vi.fn(() => context);
@@ -366,7 +393,7 @@ describe('renderer', () => {
         stage: {
           id: 'crystal-gates', mode: 'normal', elapsedSeconds: 0,
           transition: {
-            fromKey: 'crystal-gates-boss', toKey: 'crystal-gates', progress, durationSeconds: 1.5,
+            fromKey: 'crystal-gates-boss', toKey: 'crystal-gates', progress, travelledPixels, durationSeconds: 1.5,
           },
         },
       });
@@ -398,7 +425,7 @@ describe('renderer', () => {
       stage: {
         id: 'crystal-gates', mode: 'normal', elapsedSeconds: 0,
         transition: {
-          fromKey: 'crystal-gates-boss', toKey: 'crystal-gates', progress: 0.05, durationSeconds: 1.5,
+          fromKey: 'crystal-gates-boss', toKey: 'crystal-gates', progress: 0.02, durationSeconds: 1.5,
         },
       },
     });
@@ -407,8 +434,8 @@ describe('renderer', () => {
       { name: 'boss', x: -57.60000000000002, y: -32.400000000000034 },
       { name: 'normal', x: -57.60000000000002, y: -32.400000000000034 },
     ]);
-    expect(sceneDraws[0].alpha).toBeCloseTo(0.5);
-    expect(sceneDraws[1].alpha).toBeCloseTo(0.5);
+    expect(sceneDraws[0].alpha).toBeCloseTo(1 - (0.02 * WORLD_WIDTH) / 36);
+    expect(sceneDraws[1].alpha).toBeCloseTo((0.02 * WORLD_WIDTH) / 36);
     expect(context.translate.mock.calls.slice(0, 2)).toEqual([[0, 0], [0, 0]]);
     renderer.destroy();
   });
