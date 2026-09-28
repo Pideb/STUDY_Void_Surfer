@@ -14,6 +14,7 @@ describe('boss projectiles', () => {
 
     expect(projectile).toMatchObject({
       id: 'shot-1', kind: 'direct', state: 'charging', chargeRemainingSeconds: 0.6,
+      reflectionWindowSeconds: 0.18,
     });
     expect(projectile.speed).toBe(168);
     updateBossProjectile(projectile, 0.6);

@@ -1,9 +1,14 @@
-import { BOSS_LASER_THICKNESS, DASH_DURATION_SECONDS, WORLD_HEIGHT } from './constants.js';
+import {
+  BOSS_LASER_THICKNESS,
+  DASH_DURATION_SECONDS,
+  PLAYER_FRONT_HITBOX_TRIM,
+  WORLD_HEIGHT,
+} from './constants.js';
 
 function getPlayerBounds(player) {
   return {
     left: player.x - player.width / 2,
-    right: player.x + player.width / 2,
+    right: player.x + player.width / 2 - PLAYER_FRONT_HITBOX_TRIM,
     top: player.y - player.height / 2,
     bottom: player.y + player.height / 2,
   };

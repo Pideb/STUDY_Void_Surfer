@@ -59,6 +59,16 @@ describe('collision', () => {
     expect(intersectsPlayerObstacle(player, normalWall)).toBe(true);
   });
 
+  it('trims only three pixels from the forward collision edge', () => {
+    const player = createPlayer();
+    const noseOnlyWall = makeObstacle({ x: 256, kind: 'special' });
+    const hullWall = makeObstacle({ x: 254, kind: 'special' });
+
+    expect(intersectsPlayerObstacle(player, noseOnlyWall)).toBe(false);
+    expect(intersectsPlayerObstacle(player, hullWall)).toBe(true);
+    expect(player).toMatchObject({ width: 36, height: 24 });
+  });
+
   it('recognizes a short projectile reflection window and safe laser zone', () => {
     const player = { x: 240, y: 270, width: 36, height: 24 };
     const projectile = { state: 'flying', x: 242, y: 270, speed: 240, reflectionWindowSeconds: 0.15 };

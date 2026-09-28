@@ -15,17 +15,18 @@ describe('difficulty', () => {
     expect(getBaseSpeed(40)).toBeCloseTo(290.4);
   });
 
-  it('keeps special walls locked before score fifteen', () => {
-    const difficulty = getDifficulty(14, 0, 0);
+  it('keeps special walls locked below score ten', () => {
+    const difficulty = getDifficulty(9, 0, 0);
 
     expect(difficulty.specialChance).toBe(0);
     expect(shouldSpawnSpecial(() => 0, difficulty)).toBe(false);
   });
 
-  it('uses normal special probability after unlock', () => {
-    const difficulty = getDifficulty(15, 0, 0);
+  it('unlocks special walls at score ten and uses the widened normal timing window', () => {
+    const difficulty = getDifficulty(10, 0, 0);
 
     expect(difficulty.specialChance).toBe(0.2);
+    expect(difficulty.timingWindowSeconds).toBe(0.30);
     expect(shouldSpawnSpecial(() => 0.19, difficulty)).toBe(true);
     expect(shouldSpawnSpecial(() => 0.2, difficulty)).toBe(false);
   });
@@ -37,7 +38,7 @@ describe('difficulty', () => {
       warningIndex: 1,
       specialChance: 0.5,
       gapHeight: 135,
-      timingWindowSeconds: 0.125,
+      timingWindowSeconds: 0.15,
     });
     expect(getDifficulty(20, 0, 1, Math.random, null, 30).isWarning).toBe(false);
     expect(getDifficulty(30, 0, 1).warningIndex).toBe(2);

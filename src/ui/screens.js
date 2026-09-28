@@ -140,7 +140,7 @@ export function renderTutorialScreen(_model, handlers) {
   list.className = 'tutorial-list';
   for (const instruction of [
     '클릭/터치: 위로 상승',
-    'SPACE: 언제든 대시 잔상이 남습니다',
+    'SPACE: 대시 (회피)',
     '특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다',
     'P/Esc 또는 일시정지 버튼: 일시정지 (-10점)',
   ]) {

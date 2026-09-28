@@ -76,7 +76,8 @@ describe('product flow screens', () => {
     const menu = vi.fn();
     const tutorial = renderTutorialScreen({}, { start: vi.fn(), menu });
     expect(tutorial.textContent).toContain('클릭/터치: 위로 상승');
-    expect(tutorial.textContent).toContain('SPACE: 언제든 대시 잔상이 남습니다');
+    expect(tutorial.textContent).toContain('SPACE: 대시 (회피)');
+    expect(tutorial.textContent).not.toContain('SPACE: 언제든 대시 잔상이 남습니다');
     expect(tutorial.textContent).toContain('특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다');
     expect(tutorial.textContent).toContain('일시정지 (-10점)');
     [...tutorial.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
