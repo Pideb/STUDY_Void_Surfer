@@ -37,6 +37,13 @@ function isMissingAircraftScoreRpc(error) {
   return /could not find (?:the )?function.*submit_score|function .*submit_score.*does not exist|submit_score.*not found/i.test(message);
 }
 
+function isMissingBestScoreRpc(error) {
+  const code = String(error?.code ?? '').toUpperCase();
+  if (code === 'PGRST202' || code === '42883') return true;
+  const message = typeof error?.message === 'string' ? error.message : '';
+  return /could not find (?:the )?function.*get_player_best_score|function .*get_player_best_score.*does not exist/i.test(message);
+}
+
 async function getCurrentUserId(client) {
   try {
     const { data, error } = await client.auth.getSession();
@@ -121,7 +128,26 @@ export async function fetchPlayerNeighborhood(client, radius = DEFAULT_NEIGHBORH
 export async function fetchPlayerBestScore(client) {
   try {
     const { data, error } = await client.rpc('get_player_best_score');
-    if (error) return { bestScore: 0, error: mapLeaderboardError(error) };
+    if (error && !isMissingBestScoreRpc(error)) return { bestScore: 0, error: mapLeaderboardError(error) };
+
+    if (error) {
+      const userId = await getCurrentUserId(client);
+      if (!userId) {
+        return { bestScore: 0, error: mapLeaderboardError({ code: '42501' }) };
+      }
+      const fallback = await client.from('player_scores')
+        .select('best_score')
+        .eq('user_id', userId)
+        .maybeSingle();
+      if (fallback.error) return { bestScore: 0, error: mapLeaderboardError(fallback.error) };
+
+      const fallbackScore = fallback.data?.best_score ?? 0;
+      const bestScore = Number(fallbackScore);
+      if (!Number.isInteger(bestScore) || bestScore < 0) {
+        return { bestScore: 0, error: mapLeaderboardError(new Error('Malformed best score response')) };
+      }
+      return { bestScore, error: null };
+    }
 
     const row = Array.isArray(data) ? data[0] : data;
     const rawScore = row && typeof row === 'object'

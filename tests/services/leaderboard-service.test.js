@@ -111,6 +111,61 @@ describe('leaderboard queries', () => {
     expect(client.rpc).toHaveBeenCalledWith('get_player_best_score');
   });
 
+  it('falls back to the authenticated player_scores row when the best-score RPC is not deployed', async () => {
+    const maybeSingle = vi.fn(async () => ({ data: { best_score: 74 }, error: null }));
+    const eq = vi.fn(() => ({ maybeSingle }));
+    const select = vi.fn(() => ({ eq }));
+    const client = makeClient({
+      rpcImpl: vi.fn(async () => ({
+        data: null,
+        error: { code: 'PGRST202', message: 'Could not find the function public.get_player_best_score' },
+      })),
+    });
+    client.from = vi.fn(() => ({ select }));
+
+    await expect(fetchPlayerBestScore(client)).resolves.toEqual({ bestScore: 74, error: null });
+    expect(client.from).toHaveBeenCalledExactlyOnceWith('player_scores');
+    expect(select).toHaveBeenCalledExactlyOnceWith('best_score');
+    expect(eq).toHaveBeenCalledExactlyOnceWith('user_id', 'player-1');
+    expect(maybeSingle).toHaveBeenCalledOnce();
+  });
+
+  it('returns zero when the authenticated player has no score row in the fallback table', async () => {
+    const client = makeClient({
+      rpcImpl: vi.fn(async () => ({ data: null, error: { code: 'PGRST202' } })),
+    });
+    client.from = vi.fn(() => ({
+      select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: null }) }) }),
+    }));
+
+    await expect(fetchPlayerBestScore(client)).resolves.toEqual({ bestScore: 0, error: null });
+  });
+
+  it('does not use the table fallback for unrelated RPC errors', async () => {
+    const client = makeClient({
+      rpcImpl: vi.fn(async () => ({ data: null, error: { code: '42501', message: 'permission denied' } })),
+    });
+    client.from = vi.fn();
+
+    const result = await fetchPlayerBestScore(client);
+
+    expect(result).toMatchObject({ bestScore: 0, error: { code: 'AUTH_REQUIRED' } });
+    expect(client.from).not.toHaveBeenCalled();
+  });
+
+  it('reports a query error from the fallback table instead of silently returning zero', async () => {
+    const client = makeClient({
+      rpcImpl: vi.fn(async () => ({ data: null, error: { code: 'PGRST202' } })),
+    });
+    client.from = vi.fn(() => ({
+      select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null, error: { code: '42501' } }) }) }),
+    }));
+
+    const result = await fetchPlayerBestScore(client);
+
+    expect(result).toMatchObject({ bestScore: 0, error: { code: 'AUTH_REQUIRED' } });
+  });
+
   it.each([
     [0, 0],
     [[{ best_score: 64 }], 64],
