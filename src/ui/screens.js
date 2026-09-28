@@ -205,7 +205,7 @@ export function renderGameOverScreen(model, handlers) {
   } else if (model.submitState === 'saved') {
     panel.append(createMessage('점수가 계정에 등록되었습니다.'));
   } else if (model.submitError) {
-    panel.append(createMessage('점수를 저장하지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message'));
+    panel.append(createMessage(model.submitErrorMessage || '점수를 저장하지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message'));
   }
   panel.append(renderLeaderboardPanel(model.leaderboard, handlers.retryLeaderboard));
   return panel;

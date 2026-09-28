@@ -34,7 +34,14 @@ describe('mobile and keyboard controls', () => {
     controller = createAppController({
       root, canvas, gameEngine: engine,
       authService: { getSessionUser: async () => ({ id: 'pilot', email: 'pilot@example.com' }), subscribeToAuth: () => vi.fn(), signInWithMicrosoft: vi.fn(), signOut: vi.fn() },
-      leaderboardService: { submitBestScore: async () => ({ error: null }), fetchTopScores: async () => ({ rows: [] }), fetchPlayerNeighborhood: async () => ({ rows: [] }) },
+      leaderboardService: {
+        submitBestScore: async (_user, { score, aircraftId = 'default' }) => ({
+          updated: true,
+          record: { userId: 'pilot-1', bestScore: score, achievedAt: '2026-09-28T00:00:00.000Z', aircraftId },
+          error: null,
+        }),
+        fetchTopScores: async () => ({ rows: [] }), fetchPlayerNeighborhood: async () => ({ rows: [] }),
+      },
       renderer: { render() {}, destroy() {} }, audioManager,
     });
     vi.spyOn(globalThis, 'requestAnimationFrame').mockReturnValue(1);

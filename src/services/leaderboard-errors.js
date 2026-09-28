@@ -2,6 +2,16 @@ const AUTH_CODES = new Set(['401', '403', '42501', 'PGRST301', 'PGRST302']);
 
 export function mapLeaderboardError(error) {
   const code = String(error?.code ?? error?.status ?? '').toUpperCase();
+  const rawMessage = typeof error?.message === 'string' ? error.message : '';
+  if (code === 'PGRST202' || code === '42883'
+    || /could not find (?:the )?function|function .* does not exist/i.test(rawMessage)) {
+    return {
+      code: 'SCHEMA_MISSING',
+      message: 'Supabase 리더보드 함수가 없습니다. 프로젝트의 DB migration이 모두 적용되었는지 확인하세요.',
+      retryable: false,
+      requiresAuth: false,
+    };
+  }
   const message = typeof error?.message === 'string' ? error.message : '리더보드 요청을 처리하지 못했습니다.';
 
   if (AUTH_CODES.has(code) || /auth(entication)? required|jwt|not authenticated|permission denied/i.test(message)) {

@@ -18,6 +18,19 @@ function getDisplayName(user) {
     ?? '파일럿';
 }
 
+function isValidScoreSubmission(result, submittedScore, expectedUserId) {
+  const record = result?.record;
+  return !result?.error
+    && typeof result?.updated === 'boolean'
+    && record
+    && String(record.userId ?? '') === String(expectedUserId ?? '')
+    && Number.isInteger(record.bestScore)
+    && record.bestScore >= submittedScore
+    && typeof record.achievedAt === 'string'
+    && Boolean(record.achievedAt)
+    && AIRCRAFT_CATALOG.some(({ id }) => id === record.aircraftId);
+}
+
 function getHangarAircraft(bestScore) {
   const unlocked = new Set(getUnlockedAircraftIds(bestScore));
   return AIRCRAFT_CATALOG.map((craft) => ({
@@ -47,7 +60,7 @@ export function createAppController(deps) {
   const state = {
     screen: 'loading', user: null, error: null, connectionError: false, busy: false,
     muted: Boolean(audioManager.isMuted?.()), snapshot: null, leaderboard: null,
-    submitError: false, gameOverRequest: 0, selectedAircraftId: 'default',
+    submitError: false, submitErrorMessage: null, gameOverRequest: 0, selectedAircraftId: 'default',
     accountBestScore: 0, accountBestScoreLoading: false, accountBestScoreError: false,
     submitState: 'idle',
   };
@@ -136,6 +149,7 @@ export function createAppController(deps) {
           top: { loading: true }, neighborhood: { loading: true },
         },
         submitError: state.submitError,
+        submitErrorMessage: state.submitErrorMessage,
         submitState: state.submitState,
       }, {
         restart: () => dispatch({ type: 'RESTART_IMMEDIATE' }),
@@ -194,6 +208,8 @@ export function createAppController(deps) {
     if (state.screen === 'hangar') paint();
     if (typeof leaderboardService.fetchPlayerBestScore !== 'function') {
       state.accountBestScoreLoading = false;
+      state.accountBestScoreError = true;
+      if (state.screen === 'hangar') paint();
       return;
     }
     try {
@@ -213,7 +229,7 @@ export function createAppController(deps) {
       }
       if (state.screen === 'hangar') paint();
     } catch {
-      if (requestId !== accountRequestId) return;
+      if (requestId !== accountRequestId || state.user?.id !== user?.id) return;
       state.accountBestScore = 0;
       state.accountBestScoreLoading = false;
       state.accountBestScoreError = true;
@@ -372,6 +388,7 @@ export function createAppController(deps) {
     state.snapshot = gameEngine.getSnapshot();
     state.leaderboard = null;
     state.submitError = false;
+    state.submitErrorMessage = null;
     state.submitState = 'idle';
     state.screen = 'game-over';
     lastDifficultyMode = 'normal';
@@ -431,18 +448,32 @@ export function createAppController(deps) {
       top: { loading: true }, neighborhood: { loading: true },
     };
     state.submitError = false;
-    if (submitScore) state.submitState = 'saving';
+    if (submitScore) {
+      state.submitState = 'saving';
+      state.submitErrorMessage = null;
+    }
     paint();
 
-    let submitResult = { error: null };
+    let submitResult = null;
     if (submitScore) {
       try {
         submitResult = await leaderboardService.submitBestScore(state.user, { score, displayName, aircraftId });
       } catch (error) {
         submitResult = { error };
       }
-      if (submitResult?.error) state.submitState = 'error';
-      else state.submitState = 'saved';
+      if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
+      if (isValidScoreSubmission(submitResult, score, state.user?.id)) state.submitState = 'saved';
+      else {
+        submitResult = submitResult?.error
+          ? submitResult
+          : { ...submitResult, error: new Error('Invalid score submission response') };
+        state.submitState = 'error';
+        state.submitErrorMessage = submitResult.error?.code === 'SCHEMA_MISSING'
+          ? submitResult.error.message
+          : submitResult.error?.code
+            ? submitResult.error.message
+            : '점수를 저장하지 못했습니다. 다시 시도해 주세요.';
+      }
     }
 
     try {
@@ -451,7 +482,9 @@ export function createAppController(deps) {
         leaderboardService.fetchPlayerNeighborhood(),
       ]);
       if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
-      state.submitError = Boolean(submitResult?.error);
+      state.submitError = submitScore
+        ? !isValidScoreSubmission(submitResult, score, state.user?.id)
+        : state.submitState === 'error';
       state.leaderboard = {
         top: { rows: topResult?.rows ?? [], error: topResult?.error ?? null },
         neighborhood: { rows: neighborhoodResult?.rows ?? [], error: neighborhoodResult?.error ?? null },
@@ -460,7 +493,7 @@ export function createAppController(deps) {
       paint();
     } catch {
       if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
-      state.submitError = true;
+      state.submitError = state.submitState === 'error';
       state.leaderboard = {
         top: { error: true }, neighborhood: { error: true }, submitError: true,
       };
@@ -569,6 +602,7 @@ export function createAppController(deps) {
     try {
       unsubscribeAuth = authService.subscribeToAuth((user) => {
         if (!user) {
+          accountRequestId += 1;
           state.user = null;
           stopLoop();
           audioManager.setMusicMode?.('none');

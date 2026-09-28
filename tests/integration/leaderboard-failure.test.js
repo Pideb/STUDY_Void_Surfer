@@ -12,7 +12,11 @@ function createHarness() {
   document.body.append(root);
   const snapshot = { state: 'menu', score: 12, player: {} };
   const leaderboardService = {
-    submitBestScore: vi.fn(async () => ({ error: null })),
+    submitBestScore: vi.fn(async (_user, { score, aircraftId = 'default' }) => ({
+      updated: true,
+      record: { userId: pilot.id, bestScore: score, achievedAt: '2026-09-28T00:00:00.000Z', aircraftId },
+      error: null,
+    })),
     fetchTopScores: vi.fn(async () => ({ rows: [], error: { code: 'NETWORK_ERROR', retryable: true } })),
     fetchPlayerNeighborhood: vi.fn(async () => ({ rows: [{ rank: 3, displayName: 'Pilot', bestScore: 12, isCurrentUser: true }], error: null })),
   };

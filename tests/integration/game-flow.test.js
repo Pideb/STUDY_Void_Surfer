@@ -28,7 +28,11 @@ function createFlowHarness({ leaderboard = {} } = {}) {
     signInWithMicrosoft: vi.fn(), signOut: vi.fn(),
   };
   const leaderboardService = {
-    submitBestScore: vi.fn(leaderboard.submitBestScore ?? (async () => ({ error: null }))),
+    submitBestScore: vi.fn(leaderboard.submitBestScore ?? (async (_user, { score, aircraftId = 'default' }) => ({
+      updated: true,
+      record: { userId: 'pilot-1', bestScore: score, achievedAt: '2026-09-28T00:00:00.000Z', aircraftId },
+      error: null,
+    }))),
     fetchTopScores: vi.fn(leaderboard.fetchTopScores ?? (async () => ({ rows: [], error: null }))),
     fetchPlayerNeighborhood: vi.fn(leaderboard.fetchPlayerNeighborhood ?? (async () => ({ rows: [], error: null }))),
   };

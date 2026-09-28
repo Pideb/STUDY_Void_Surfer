@@ -3,6 +3,14 @@ import { createAppController } from '../../src/ui/app-controller.js';
 
 const pilot = { id: 'pilot-1', email: 'pilot@example.com', user_metadata: { name: 'Pilot' } };
 
+function savedScoreResult(score = 0, aircraftId = 'default', userId = pilot.id) {
+  return {
+    updated: true,
+    record: { userId, bestScore: score, achievedAt: '2026-09-28T00:00:00.000Z', aircraftId },
+    error: null,
+  };
+}
+
 function deferred() {
   let resolve;
   const promise = new Promise((done) => { resolve = done; });
@@ -33,7 +41,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
     signOut: vi.fn(async () => {}),
   };
   const leaderboardService = {
-    submitBestScore: vi.fn(leaderboard.submitBestScore ?? (async () => ({ error: null }))),
+    submitBestScore: vi.fn(leaderboard.submitBestScore ?? (async (_user, { score, aircraftId }) => savedScoreResult(score, aircraftId))),
     fetchTopScores: vi.fn(leaderboard.fetchTopScores ?? (async () => ({ rows: [], error: null }))),
     fetchPlayerNeighborhood: vi.fn(leaderboard.fetchPlayerNeighborhood ?? (async () => ({ rows: [], error: null }))),
     fetchPlayerBestScore: vi.fn(leaderboard.fetchPlayerBestScore ?? (async () => ({ bestScore, error: null }))),
@@ -169,6 +177,34 @@ describe('app controller product flow', () => {
       .toHaveLength(1);
   });
 
+  it('ignores a late best-score rejection after the authenticated account changes', async () => {
+    let rejectFirstRequest;
+    let notifyAuth;
+    const oldRequest = new Promise((_resolve, reject) => { rejectFirstRequest = reject; });
+    harness = makeHarness({ leaderboard: {
+      fetchPlayerBestScore: vi.fn()
+        .mockReturnValueOnce(oldRequest)
+        .mockResolvedValue({ bestScore: 100, error: null }),
+    } });
+    harness.authService.subscribeToAuth.mockImplementation((listener) => {
+      notifyAuth = listener;
+      return vi.fn();
+    });
+    harness.controller.mount();
+    await settle();
+
+    notifyAuth({ id: 'pilot-2', email: 'second@example.com', user_metadata: { name: 'Second' } });
+    await settle();
+    harness.controller.dispatch('OPEN_HANGAR');
+    await settle();
+    rejectFirstRequest(new Error('old account request failed late'));
+    await settle();
+
+    expect([...harness.root.querySelectorAll('.aircraft-option')].filter((button) => !button.disabled))
+      .toHaveLength(3);
+    expect(harness.root.textContent).not.toContain('湲곕낯 湲곗껜留??ъ슜');
+  });
+
   it('routes only WASD to an active challenge and suppresses flight/pause inputs', async () => {
     harness = makeHarness();
     harness.snapshot.challenge = { active: true, sequence: ['KeyW'], cursor: 0 };
@@ -217,7 +253,7 @@ describe('app controller product flow', () => {
 
   it('submits and queries leaderboard independently then displays rows in safe text cells', async () => {
     harness = makeHarness({ leaderboard: {
-      submitBestScore: async () => ({ error: null }),
+      submitBestScore: async (_user, { score, aircraftId }) => savedScoreResult(score, aircraftId),
       fetchTopScores: async () => ({ rows: [{ rank: 1, userId: 'other', displayName: '<img src=x>', bestScore: 18 }], error: null }),
       fetchPlayerNeighborhood: async () => ({ rows: [{ rank: 2, userId: 'pilot-1', displayName: 'Pilot', bestScore: 0, isCurrentUser: true }], error: null }),
     } });
@@ -242,7 +278,7 @@ describe('app controller product flow', () => {
   it('retries a failed score write, then refreshes the leaderboard after success', async () => {
     const submitBestScore = vi.fn()
       .mockResolvedValueOnce({ error: new Error('temporary write failure') })
-      .mockResolvedValueOnce({ error: null });
+      .mockResolvedValueOnce(savedScoreResult());
     harness = makeHarness({ leaderboard: { submitBestScore } });
     harness.controller.mount();
     await settle();
@@ -257,6 +293,52 @@ describe('app controller product flow', () => {
 
     expect(submitBestScore).toHaveBeenCalledTimes(2);
     expect(harness.root.textContent).toContain('점수가 계정에 등록되었습니다.');
+  });
+
+  it('does not report a malformed resolved score response as saved', async () => {
+    harness = makeHarness({ leaderboard: { submitBestScore: async () => ({ error: null }) } });
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    harness.controller.dispatch('GAME_OVER');
+    await settle();
+
+    expect(harness.root.textContent).toContain('점수를 저장하지 못했습니다');
+    expect(harness.root.textContent).not.toContain('점수가 계정에 등록되었습니다');
+  });
+
+  it('shows a migration hint when the score RPC is missing', async () => {
+    harness = makeHarness({ leaderboard: {
+      submitBestScore: async () => ({ error: {
+        code: 'SCHEMA_MISSING',
+        message: 'Supabase 리더보드 함수가 없습니다. 프로젝트의 DB migration이 모두 적용되었는지 확인하세요.',
+      } }),
+    } });
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    harness.controller.dispatch('GAME_OVER');
+    await settle();
+
+    expect(harness.root.textContent).toContain('DB migration이 모두 적용되었는지 확인하세요');
+  });
+
+  it('keeps a successful score save distinct from a failed leaderboard refresh', async () => {
+    harness = makeHarness({ leaderboard: {
+      fetchTopScores: async () => { throw new Error('read failed'); },
+    } });
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    harness.controller.dispatch('GAME_OVER');
+    await settle();
+
+    expect(harness.root.textContent).toContain('점수가 계정에 등록되었습니다');
+    expect(harness.root.textContent).not.toContain('점수를 저장하지 못했습니다');
+    expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledOnce();
   });
 
   it('plays dash feedback only for successful special-wall dashes and announces mode changes once', async () => {

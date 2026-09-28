@@ -111,6 +111,23 @@ describe('leaderboard queries', () => {
     expect(client.rpc).toHaveBeenCalledWith('get_player_best_score');
   });
 
+  it.each([
+    [0, 0],
+    [[{ best_score: 64 }], 64],
+  ])('normalizes valid scalar or one-row best-score responses', async (data, bestScore) => {
+    const client = makeClient({ rpcImpl: vi.fn(async () => ({ data, error: null })) });
+    await expect(fetchPlayerBestScore(client)).resolves.toEqual({ bestScore, error: null });
+  });
+
+  it.each([null, [], { best_score: null }, { best_score: 1.5 }])(
+    'rejects malformed best-score payloads instead of silently unlocking aircraft', async (data) => {
+      const client = makeClient({ rpcImpl: vi.fn(async () => ({ data, error: null })) });
+      const result = await fetchPlayerBestScore(client);
+      expect(result.bestScore).toBe(0);
+      expect(result.error).toMatchObject({ code: 'DATABASE_ERROR' });
+    },
+  );
+
   it('clamps top-list limits, marks the current user, and preserves server order', async () => {
     const rows = [dbRow({ rank: 4, user_id: 'other', display_name: 'Other' }), dbRow({ rank: 7 })];
     const client = makeClient({ rpcImpl: vi.fn(async () => ({ data: rows, error: null })) });
@@ -176,5 +193,7 @@ describe('leaderboard row normalization and error mapping', () => {
     expect(mapLeaderboardError({ status: 401 })).toMatchObject({ code: 'AUTH_REQUIRED', requiresAuth: true });
     expect(mapLeaderboardError(new TypeError('fetch failed'))).toMatchObject({ code: 'NETWORK_ERROR', retryable: true });
     expect(mapLeaderboardError({ code: '23514', message: 'check constraint failed' })).toMatchObject({ code: 'DATABASE_ERROR', retryable: false });
+    expect(mapLeaderboardError({ code: 'PGRST202', message: 'Could not find the function public.get_player_best_score' }))
+      .toMatchObject({ code: 'SCHEMA_MISSING', retryable: false });
   });
 });

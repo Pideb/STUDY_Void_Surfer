@@ -124,8 +124,11 @@ export async function fetchPlayerBestScore(client) {
     if (error) return { bestScore: 0, error: mapLeaderboardError(error) };
 
     const row = Array.isArray(data) ? data[0] : data;
-    const bestScore = Number(row?.best_score ?? row?.bestScore ?? row?.score ?? row);
-    if (!Number.isFinite(bestScore) || bestScore < 0) {
+    const rawScore = row && typeof row === 'object'
+      ? row.best_score ?? row.bestScore ?? row.score
+      : row;
+    const bestScore = Number(rawScore);
+    if (rawScore === null || rawScore === undefined || !Number.isInteger(bestScore) || bestScore < 0) {
       return { bestScore: 0, error: mapLeaderboardError(new Error('Malformed best score response')) };
     }
 
