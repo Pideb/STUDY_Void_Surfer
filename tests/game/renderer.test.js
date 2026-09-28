@@ -307,4 +307,71 @@ describe('renderer', () => {
     expect(context.createRadialGradient).not.toHaveBeenCalled();
     renderer.destroy();
   });
+
+  it('pushes Crystal Gates scenes across the viewport using eased right-to-left offsets', () => {
+    for (const [progress, outgoingX, incomingX] of [[0, 0, 960], [0.5, -480, 480], [1, -960, 0]]) {
+      const canvas = document.createElement('canvas');
+      const context = createContext();
+      canvas.getContext = vi.fn(() => context);
+      const backgrounds = new Map([
+        ['stages.crystal-gates.background', { name: 'normal', width: 1600, height: 900 }],
+        ['stages.crystal-gates.bossBackground', { name: 'boss', width: 1600, height: 900 }],
+      ]);
+      const renderer = createRenderer(canvas, {
+        visualAssets: { get: (path) => backgrounds.get(path) ?? null },
+      });
+
+      renderer.render({
+        player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+        obstacles: [],
+        difficulty: {},
+        stage: {
+          id: 'crystal-gates', mode: 'normal', elapsedSeconds: 0,
+          transition: {
+            fromKey: 'crystal-gates-boss', toKey: 'crystal-gates', progress, durationSeconds: 1.5,
+          },
+        },
+      });
+
+      expect(context.translate.mock.calls.slice(0, 2)).toEqual([[outgoingX, 0], [incomingX, 0]]);
+      renderer.destroy();
+    }
+  });
+
+  it('uses a brief crossfade rather than a spatial slide for reduced motion', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const sceneDraws = [];
+    context.drawImage = vi.fn((image, x, y) => sceneDraws.push({ name: image.name, x, y, alpha: context.globalAlpha }));
+    const backgrounds = new Map([
+      ['stages.crystal-gates.background', { name: 'normal', width: 1600, height: 900 }],
+      ['stages.crystal-gates.bossBackground', { name: 'boss', width: 1600, height: 900 }],
+    ]);
+    const renderer = createRenderer(canvas, {
+      visualAssets: { get: (path) => backgrounds.get(path) ?? null },
+      reducedMotion: true,
+    });
+
+    renderer.render({
+      player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+      obstacles: [],
+      difficulty: {},
+      stage: {
+        id: 'crystal-gates', mode: 'normal', elapsedSeconds: 0,
+        transition: {
+          fromKey: 'crystal-gates-boss', toKey: 'crystal-gates', progress: 0.05, durationSeconds: 1.5,
+        },
+      },
+    });
+
+    expect(sceneDraws.slice(0, 2).map(({ name, x, y }) => ({ name, x, y }))).toEqual([
+      { name: 'boss', x: 0, y: 0 },
+      { name: 'normal', x: 0, y: 0 },
+    ]);
+    expect(sceneDraws[0].alpha).toBeCloseTo(0.5);
+    expect(sceneDraws[1].alpha).toBeCloseTo(0.5);
+    expect(context.translate.mock.calls.slice(0, 2)).toEqual([[0, 0], [0, 0]]);
+    renderer.destroy();
+  });
 });

@@ -10,7 +10,7 @@
 
 ## Active Task
 
-[T03 Menu, HUD, and Stage Transition](./phases/2026-09-28-game-visual-asset-integration/P01-visual-prototype/T03-menu-hud-transition.md)
+[T04 Visual Approval Gate](./phases/2026-09-28-game-visual-asset-integration/P01-visual-prototype/T04-visual-approval-gate.md)
 
 ## Status
 
@@ -19,4 +19,4 @@
 
 ## Next Step (IMPORTANT)
 
-Rebuild the menu layout around the approved background, remove gameplay stage/aircraft labels, and implement the 1.5-second right-to-left stage push. First inspect the T03 blueprint and current menu/HUD/stage transition paths.
+Run final regression/build checks and present the integrated menu + CRYSTAL GATES prototype for the user's explicit visual approval. Resolve the recorded browser/manual visual QA gap if the environment provides a browser; do not start P02 without approval.

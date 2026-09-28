@@ -12,6 +12,9 @@ describe('product flow screens', () => {
 
     expect(screen.classList.contains('screen-panel')).toBe(false);
     expect(screen.classList.contains('menu-overlay')).toBe(true);
+    expect([...screen.children].map((child) => child.className)).toEqual([
+      'menu-brand', 'menu-actions', 'account-actions',
+    ]);
     expect(screen.querySelector('.menu-brand strong')?.textContent).toBe('Pilot');
     expect(screen.querySelector('.menu-greeting')?.textContent)
       .toBe('Pilot 파일럿, 다시 도전하는 것을 환영합니다.');

@@ -1,4 +1,6 @@
-import { DASH_DURATION_SECONDS, WORLD_HEIGHT, WORLD_WIDTH } from './constants.js';
+import {
+  DASH_DURATION_SECONDS, STAGE_TRANSITION_SECONDS, WORLD_HEIGHT, WORLD_WIDTH,
+} from './constants.js';
 import {
   AIRCRAFT_VISUALS,
   getStageVisualTheme,
@@ -388,23 +390,40 @@ function backgroundKeyToId(key) {
   return (key ?? 'crystal-gates').replace(/-boss$/, '');
 }
 
-function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = null) {
+function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = null, reducedMotion = null) {
   const transition = stage?.transition;
   if (!transition) {
     drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss', visualAssets);
     return;
   }
   const progress = Math.max(0, Math.min(1, transition.progress ?? 1));
-  ctx.save();
-  ctx.globalAlpha = 1 - progress;
-  drawStageBackground(ctx, backgroundKeyToId(transition.fromKey), elapsedSeconds,
-    String(transition.fromKey).endsWith('-boss'), visualAssets);
-  ctx.restore();
-  ctx.save();
-  ctx.globalAlpha = progress;
-  drawStageBackground(ctx, backgroundKeyToId(transition.toKey), elapsedSeconds,
-    String(transition.toKey).endsWith('-boss'), visualAssets);
-  ctx.restore();
+  const prefersReducedMotion = typeof reducedMotion === 'function'
+    ? reducedMotion()
+    : reducedMotion ?? Boolean(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  const durationSeconds = Number(transition.durationSeconds) || STAGE_TRANSITION_SECONDS;
+  const crossfadeProgress = Math.min(1, (progress * durationSeconds) / 0.15);
+  const spatialProgress = progress * progress * (3 - 2 * progress);
+  const scenes = prefersReducedMotion
+    ? [
+      { key: transition.fromKey, x: 0, alpha: 1 - crossfadeProgress },
+      { key: transition.toKey, x: 0, alpha: crossfadeProgress },
+    ]
+    : [
+      { key: transition.fromKey, x: spatialProgress === 0 ? 0 : -spatialProgress * WORLD_WIDTH, alpha: 1 },
+      { key: transition.toKey, x: (1 - spatialProgress) * WORLD_WIDTH, alpha: 1 },
+    ];
+
+  for (const { key, x, alpha } of scenes) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    ctx.clip();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, 0);
+    drawStageBackground(ctx, backgroundKeyToId(key), elapsedSeconds,
+      String(key).endsWith('-boss'), visualAssets);
+    ctx.restore();
+  }
 }
 
 function drawStageAtmosphere(ctx, mode, elapsedSeconds = 0) {
@@ -661,7 +680,7 @@ function drawChallengeEffects(ctx, challenge, feedbackEffect) {
   ctx.restore();
 }
 
-export function createRenderer(canvas, { visualAssets = null } = {}) {
+export function createRenderer(canvas, { visualAssets = null, reducedMotion = null } = {}) {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Canvas 2D context를 사용할 수 없습니다.');
@@ -683,7 +702,7 @@ export function createRenderer(canvas, { visualAssets = null } = {}) {
     const stage = snapshot.stage ?? { id: 'crystal-gates', mode: 'normal', elapsedSeconds: snapshot.elapsedSeconds ?? 0 };
     const theme = resolveStageTheme(stage.id);
     const elapsed = stage.elapsedSeconds ?? snapshot.elapsedSeconds ?? 0;
-    drawBackgroundTransition(ctx, stage, elapsed, visualAssets);
+    drawBackgroundTransition(ctx, stage, elapsed, visualAssets, reducedMotion);
 
     for (const obstacle of snapshot.obstacles ?? []) {
       const stageObstacle = obstacle.stageId ? obstacle : { ...obstacle, stageId: stage.id };

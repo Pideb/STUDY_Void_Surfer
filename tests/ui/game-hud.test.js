@@ -8,7 +8,7 @@ function makeHud() {
 }
 
 describe('game HUD', () => {
-  it('shows stage and aircraft identity plus an accessible segmented boss gauge', () => {
+  it('hides stage and aircraft identity while retaining score and an accessible segmented boss gauge', () => {
     const hud = makeHud();
     hud.update({
       score: 75,
@@ -17,8 +17,10 @@ describe('game HUD', () => {
       boss: { hp: 3, maxHp: 5 },
     });
     const gauge = hud.element.querySelector('[role="progressbar"][aria-label="보스 체력"]');
-    expect(hud.element.querySelector('.hud-stage').textContent).toBe('SOLAR FORGE');
-    expect(hud.element.querySelector('.hud-aircraft').textContent).toContain('VELOCITY');
+    expect(hud.element.querySelector('.hud-identity')).toBeNull();
+    expect(hud.element.textContent).not.toContain('SOLAR FORGE');
+    expect(hud.element.textContent).not.toContain('VELOCITY');
+    expect(hud.element.textContent).toContain('점수 75');
     expect(gauge.getAttribute('aria-valuenow')).toBe('3');
     expect(gauge.getAttribute('aria-valuemax')).toBe('5');
     expect(gauge.querySelectorAll('.boss-health-segment')).toHaveLength(5);

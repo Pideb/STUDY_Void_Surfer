@@ -17,13 +17,6 @@ export function createGameHud(model, handlers) {
   const score = document.createElement('p');
   score.className = 'hud-score';
   score.setAttribute('aria-live', 'polite');
-  const identity = document.createElement('div');
-  identity.className = 'hud-identity';
-  const stageName = document.createElement('span');
-  stageName.className = 'hud-stage';
-  const aircraftName = document.createElement('span');
-  aircraftName.className = 'hud-aircraft';
-  identity.append(stageName, aircraftName);
   const actions = document.createElement('div');
   actions.className = 'hud-actions';
   let muted = Boolean(model.muted);
@@ -37,7 +30,7 @@ export function createGameHud(model, handlers) {
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   status.setAttribute('aria-atomic', 'true');
-  topBar.append(score, identity, status, actions);
+  topBar.append(score, status, actions);
 
   const bossHealth = document.createElement('section');
   bossHealth.className = 'boss-health';
@@ -94,9 +87,6 @@ export function createGameHud(model, handlers) {
 
   function update(snapshot) {
     score.textContent = `점수 ${snapshot.score ?? 0}`;
-    const stage = snapshot.stage ?? {};
-    stageName.textContent = stage.name ?? 'CRYSTAL GATES';
-    aircraftName.textContent = `기체 ${snapshot.aircraft?.name ?? 'DEFAULT'}`;
     const boss = snapshot.boss;
     bossHealth.hidden = !boss;
     if (boss) {

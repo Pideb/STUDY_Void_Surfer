@@ -46,7 +46,7 @@ describe('game engine', () => {
 
     const rotated = step();
     expect(rotated.stage.id).not.toBe(initial.stage.id);
-    expect(rotated.stage.transition).toMatchObject({ progress: 0, durationSeconds: 0.8 });
+    expect(rotated.stage.transition).toMatchObject({ progress: 0, durationSeconds: 1.5 });
 
     const transitioning = step();
     expect(transitioning.stage.transition.progress).toBeGreaterThan(0);

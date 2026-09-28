@@ -183,15 +183,19 @@ button:focus-visible {
   align-self: center;
   justify-self: stretch;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.8fr);
+  grid-template-rows: auto auto auto;
   align-items: center;
   align-content: center;
-  gap: clamp(1rem, 5vw, 4rem);
+  gap: clamp(1rem, 5vw, 4rem) clamp(1.5rem, 6vw, 5rem);
   padding: clamp(1.25rem, 5vw, 4rem);
 }
 
 .menu-brand {
+  grid-column: 2;
+  grid-row: 1;
   min-width: 0;
+  max-width: 38rem;
   text-align: left;
 }
 
@@ -223,21 +227,45 @@ button:focus-visible {
 }
 
 .menu-actions {
+  grid-column: 2;
+  grid-row: 2;
   display: grid;
   justify-items: stretch;
   gap: 0.7rem;
   min-width: 8rem;
 }
 
-.menu-actions .icon-button {
-  justify-self: center;
+.menu-screen .menu-actions > button:not(.icon-button) {
+  width: 100%;
+  justify-content: flex-start;
+  padding-inline: 0.8rem;
+  border: 0;
+  border-bottom: 1px solid rgba(139, 166, 191, 0.28);
+  border-radius: 0;
+  background: linear-gradient(90deg, rgba(8, 31, 62, 0.58), transparent);
+  text-align: left;
+}
+
+.menu-screen .menu-actions > button:not(.icon-button):hover {
+  border-bottom-color: var(--color-neon-strong);
+  background: linear-gradient(90deg, rgba(25, 107, 133, 0.42), transparent);
+  box-shadow: none;
+}
+
+.menu-screen .menu-actions .icon-button {
+  justify-self: start;
+  border: 0;
+  background: transparent;
 }
 
 .menu-overlay .account-actions {
-  grid-column: 1 / -1;
-  margin-top: clamp(2.5rem, 9vh, 5rem);
-  padding-top: 1.25rem;
-  text-align: left;
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: end;
+  margin-top: 1.2rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid rgba(139, 166, 191, 0.25);
+  text-align: right;
 }
 
 .tutorial-list {
@@ -355,31 +383,6 @@ button:focus-visible {
 
 .warning-banner[hidden] {
   display: none;
-}
-
-.hud-identity {
-  display: grid;
-  gap: 0.28rem;
-  justify-items: center;
-  min-width: 0;
-  padding: 0.55rem 0.8rem;
-  border: 1px solid rgba(139, 166, 191, 0.2);
-  border-radius: 0.6rem;
-  background: rgba(5, 12, 33, 0.62);
-  color: var(--color-muted);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.hud-stage {
-  color: var(--color-neon-strong);
-  font-weight: 800;
-}
-
-.hud-aircraft {
-  color: var(--color-text);
 }
 
 .hud-combat-status {
@@ -665,17 +668,39 @@ button:focus-visible {
 
   .menu-overlay {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    padding: clamp(1rem, 6vw, 2rem);
+    grid-template-rows: auto auto auto;
+    align-content: start;
+    gap: 0.55rem;
+    overflow-y: auto;
+    padding: clamp(0.75rem, 4vw, 1.25rem);
   }
 
-  .menu-brand,
-  .menu-overlay .account-actions {
+  .menu-brand {
+    grid-column: 1;
+    grid-row: 1;
     text-align: center;
   }
 
   .menu-actions {
-    justify-items: center;
+    grid-column: 1;
+    grid-row: 2;
+    justify-items: stretch;
+    gap: 0.3rem;
+    min-width: 0;
+  }
+
+  .menu-screen .menu-actions .icon-button {
+    justify-self: center;
+  }
+
+  .menu-overlay .account-actions {
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: center;
+    margin-top: 0.25rem;
+    padding-top: 0;
+    border-top: 0;
+    text-align: center;
   }
 
   .hangar-aircraft-list {
@@ -693,14 +718,6 @@ button:focus-visible {
 
   .aircraft-icon { grid-row: span 4; width: 2.7rem; font-size: 1.55rem; }
 
-  .hud-identity {
-    display: grid;
-    gap: 0.15rem;
-    padding: 0.3rem 0.4rem;
-    font-size: 0.52rem;
-    letter-spacing: 0.02em;
-  }
-
   .hud-combat-status { max-width: 8rem; font-size: 0.68rem; }
 
   .boss-health {
@@ -710,9 +727,6 @@ button:focus-visible {
     font-size: 0.63rem;
   }
 
-  .menu-overlay .account-actions {
-    margin-top: 1.5rem;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

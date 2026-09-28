@@ -1,6 +1,6 @@
 # Task: T03 Menu HUD and Stage Transition
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -24,7 +24,7 @@ Make the main menu visibly match the approved HUD COMMAND composition, hide stag
 
 #### Details
 
-- Keep current menu actions (`게임 시작`, `기체 선택`, icon-only sound toggle, `로그아웃`), bold pilot identity/greeting, keyboard focus, accessible labels, logout separation, and no card-panel wrapper. Place branding/identity over the left illustrated scene; place menu actions on the right at desktop width.
+- Keep current menu actions (`게임 시작`, `기체 선택`, icon-only sound toggle, `로그아웃`), bold pilot identity/greeting, keyboard focus, accessible labels, logout separation, and no card-panel wrapper. Preserve the approved composition: leave the left illustrated scene/aircraft visually open; stack branding, identity, and menu actions on the right at desktop width.
 - Reflow to a readable single-column touch layout at the existing `max-width: 700px` breakpoint; maintain touch target sizes and reduced-motion behavior.
 - Remove construction and updates for visible stage/aircraft identity labels in `createGameHud`. Keep score, pause/mute controls, WARNING/BOSS banner, BOSS HP, attack messages/telegraphs, challenge sequence/timer/status, and mobile Space control.
 - Add tests asserting gameplay HUD never contains the stage or aircraft name even when snapshot has both, while the retained score and boss/attack labels still render. Keep screen-reader-only challenge/accessibility announcements intact.
@@ -47,13 +47,18 @@ Make the main menu visibly match the approved HUD COMMAND composition, hide stag
 
 ## Acceptance Criteria
 
-- [ ] Main menu has the approved left-scene/right-HUD layout without card framing, with logout separated below.
-- [ ] Gameplay display contains no stage/region or aircraft identity text; essential game/combat information remains.
-- [ ] At progress 0, outgoing scene is at x=0 and incoming at x=960; at 0.5 both are moving in the correct direction; at 1 incoming scene is at x=0.
-- [ ] Engine transition duration is exactly 1.5 seconds and no collision/scoring snapshots change because of rendering.
-- [ ] Reduced-motion preference avoids the spatial slide and remains readable.
+- [x] Main menu uses the approved left-scene/right-HUD layout without card framing; logout is visually separated below the menu actions.
+- [x] Gameplay display contains no stage/region or aircraft identity text; score and combat/status UI remain.
+- [x] Transition tests assert outgoing/incoming positions at progress 0, 0.5, and 1, including direction.
+- [x] Engine transition duration is exactly 1.5 seconds; rendering only translates/clips backgrounds and leaves gameplay snapshots untouched.
+- [x] Reduced-motion preference uses a short 0.15-second crossfade without spatial movement.
 
 ## Validation
+
+- Targeted tests passed: 50 tests across the five specified engine, renderer, UI, and accessibility files.
+- Full suite passed: 152 tests across 29 files.
+- `npm run build` passed. Local Vite dev smoke checks returned HTTP 200 for the app and menu background asset.
+- Manual desktop/mobile screenshot inspection was unavailable in this session because no browser surface was connected. `.env.local` is also absent, so authenticated play could not be entered. Carry out visual confirmation in T04 before requesting the explicit prototype approval.
 
 - `npm run test -- --run tests/game/game-engine.test.js tests/game/renderer.test.js tests/ui/screens.test.js tests/ui/game-hud.test.js tests/ui/accessibility.test.js` — all targeted behavior and DOM assertions pass.
 - `npm run build` — desktop/mobile CSS and renderer bundle successfully.
@@ -74,6 +79,6 @@ Task: T03-menu-hud-transition
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Automated validation passed; manual desktop/mobile visual confirmation is recorded for T04.
 - commit: pending

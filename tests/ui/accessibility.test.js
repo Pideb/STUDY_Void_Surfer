@@ -66,6 +66,12 @@ describe('accessibility and responsive UI contract', () => {
     expect(styles).toContain('display: inline-flex');
     expect(styles).toContain('.account-actions');
     expect(styles).toContain('safe-area-inset-left');
+    expect(styles).toContain('.menu-screen .menu-actions > button:not(.icon-button)');
+    expect(styles).toContain('grid-template-columns: 1fr');
+    expect(styles).toContain('grid-row: 3');
+    expect(styles).toMatch(/\.menu-brand\s*\{[^}]*grid-column:\s*2;/s);
+    expect(styles).toMatch(/\.menu-actions\s*\{[^}]*grid-column:\s*2;/s);
+    expect(styles).not.toContain('.hud-identity');
     expect(styles).toContain('prefers-reduced-motion: reduce');
   });
 });
