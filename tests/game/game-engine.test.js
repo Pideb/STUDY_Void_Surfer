@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GAME_STATES } from '../../src/game/game-state.js';
-import { createGameEngine } from '../../src/game/game-engine.js';
+import { constrainGapCenter, createGameEngine } from '../../src/game/game-engine.js';
 
 function createRuntimeEngine(overrides = {}) {
   let currentTime = 0;
@@ -61,13 +61,15 @@ describe('game engine', () => {
   it('advances one stage after two walls pass following a boss clear', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60,
-      initialCompletedWarningCount: 4,
+      initialCompletedWarningCount: 1,
       rng: () => 0.5,
       stageRng: () => 0.5,
     });
     engine.start();
     const initial = engine.getSnapshot();
     const nextStageId = initial.stage.order[1];
+    expect(initial.warning.index).toBe(2);
+    expect(initial.specialTimingGuideActive).toBe(true);
     let previousScore = initial.score;
     let bossCleared = false;
     let subsequentWallsPassed = 0;
@@ -98,6 +100,7 @@ describe('game engine', () => {
       const snapshot = step(10);
       if (before.boss && !snapshot.boss) {
         bossCleared = true;
+        expect(snapshot.specialTimingGuideActive).toBe(false);
         expect(snapshot.stage.id).toBe(initial.stage.id);
         previousScore = snapshot.score;
       } else if (bossCleared && snapshot.score > previousScore) {
@@ -116,7 +119,7 @@ describe('game engine', () => {
         bossWavesCompleted += 1;
       }
       if (snapshot.warning?.spawnedCount === 7
-        && previousSpawnedCount !== 7 && snapshot.warning.index === 5) {
+        && previousSpawnedCount !== 7 && snapshot.warning.index === 2) {
         fullBossWaveSpecialCounts.push(snapshot.warning.specialSpawnedCount);
       }
       if (changedAfterSecondWall && snapshot.obstacles.some((obstacle) => obstacle.stageId === nextStageId)) {
@@ -140,7 +143,7 @@ describe('game engine', () => {
   it('uses the boss atmosphere variant while a boss warning is active', () => {
     const { engine } = createRuntimeEngine({
       initialScore: 60,
-      initialCompletedWarningCount: 4,
+      initialCompletedWarningCount: 1,
       stageRng: () => 0,
     });
     engine.start();
@@ -246,15 +249,16 @@ describe('game engine', () => {
       .every((obstacle) => obstacle.gapHeight === 135)).toBe(true);
   });
 
-  it('runs the fifth warning as a frozen boss segment with seven walls and three specials', () => {
+  it('runs the second WARNING as a boss segment with seven walls and three specials', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60,
-      initialCompletedWarningCount: 4,
+      initialCompletedWarningCount: 1,
     });
     engine.start();
     const initial = engine.getSnapshot();
     expect(initial.difficulty).toMatchObject({ isWarning: true, isBoss: true, bossPattern: 'fast' });
-    expect(initial.warning).toMatchObject({ index: 5, targetCount: 7, requiredSpecials: 3 });
+    expect(initial.warning).toMatchObject({ index: 2, targetCount: 7, requiredSpecials: 3 });
+    expect(initial.obstacles.filter(({ kind }) => kind === 'special').every(({ showTimingGuide }) => showTimingGuide)).toBe(true);
 
     let snapshot;
     let completedSegmentSnapshot;
@@ -265,7 +269,7 @@ describe('game engine', () => {
         engine.dash();
       }
       snapshot = step();
-      if (snapshot.warning?.index === 5 && snapshot.warning.spawnedCount === 7) {
+      if (snapshot.warning?.index === 2 && snapshot.warning.spawnedCount === 7) {
         completedSegmentSnapshot = snapshot;
       }
     }
@@ -325,19 +329,25 @@ describe('game engine', () => {
     const values = [0.9, 0.5, 0.9, 0, 0.5, 0.25, 0.5];
     const { engine, step } = createRuntimeEngine({
       initialScore: 60,
-      initialCompletedWarningCount: 4,
+      initialCompletedWarningCount: 1,
       rng: () => values.shift() ?? 0.5,
     });
     engine.start();
 
     const snapshot = step();
 
-    expect(snapshot.difficulty).toMatchObject({ isWarning: true, isBoss: true });
+    expect(snapshot.difficulty).toMatchObject({ isWarning: true, isBoss: true, warningIndex: 2 });
     expect(snapshot.obstacles[0]).toMatchObject({
       kind: 'normal',
       movingGap: true,
       gapMotionCycleSeconds: 1.6,
     });
+  });
+
+  it('limits generated gap shifts by 70% of the next gap height and clamps to world bounds', () => {
+    expect(constrainGapCenter(450, 135, 270)).toBeCloseTo(364.5);
+    expect(constrainGapCenter(90, 135, 270)).toBeCloseTo(175.5);
+    expect(constrainGapCenter(0, 135, 100)).toBe(67.5);
   });
 
   it('ends on a normal obstacle collision and returns detached snapshot data', () => {

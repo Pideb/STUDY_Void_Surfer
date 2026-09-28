@@ -31,7 +31,7 @@ export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.ra
   const activeWarningIndex = normalizeWarningCount(warningCount) + 1;
   const warningThreshold = normalizeScore(nextWarningScore);
   const isWarning = safeScore >= warningThreshold;
-  const isBoss = isWarning && activeWarningIndex % 5 === 0;
+  const isBoss = isWarning && activeWarningIndex % 2 === 0;
   const bossPattern = isBoss ? (bossPatternOverride ?? chooseBossPattern(rng)) : null;
   const speedMultiplier = isBoss ? getBossSpeedMultiplier(bossPattern, elapsedSeconds) : 1;
   const warningMode = isWarning || isBoss;

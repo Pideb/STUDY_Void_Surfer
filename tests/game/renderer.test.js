@@ -169,6 +169,19 @@ describe('renderer', () => {
     expect(noGuideContext.fillRect).not.toHaveBeenCalledWith(400, 0, 120, WORLD_HEIGHT);
   });
 
+  it('draws the special-wall break opening, expanding shock ring, and radial fragments at the crossing point', () => {
+    const context = createContext();
+    drawObstacle(context, {
+      x: 520, width: 24, gapCenter: 270, gapHeight: 180, kind: 'special',
+      breakEffect: { centerY: 210, remainingSeconds: 0.3, durationSeconds: 0.65, seed: 0.2 },
+    });
+
+    expect(context.fillRect).toHaveBeenCalledWith(520, 0, 24, expect.any(Number));
+    expect(context.arc).toHaveBeenCalledWith(532, 210, expect.any(Number), 0, Math.PI * 2);
+    expect(context.moveTo.mock.calls.length).toBeGreaterThanOrEqual(8);
+    expect(context.lineTo.mock.calls.length).toBeGreaterThanOrEqual(8);
+  });
+
   it('draws a trail for any dash and a ring only for successful special dashes', () => {
     const canvas = document.createElement('canvas');
     const normalContext = createContext();

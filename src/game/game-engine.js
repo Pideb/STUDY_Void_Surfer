@@ -5,14 +5,15 @@ import {
   BOSS_RESPONSE_COOLDOWN_SECONDS,
   BOSS_LASER_FOLLOW_UP_SECONDS,
   DASH_DURATION_SECONDS,
+  GAP_CONTINUITY_SCORE,
   GRAVITY,
   LIFT_VELOCITY,
+  MAX_GAP_CENTER_SHIFT_FACTOR,
   MAX_FRAME_DELTA_SECONDS,
   NORMAL_MOVING_GAP_CYCLE_SECONDS,
   NORMAL_SPAWN_INTERVAL_SECONDS,
   OBSTACLE_SPAWN_X,
   PAUSE_SCORE_PENALTY,
-  SPECIAL_TIMING_GUIDE_COUNT,
   SPECIAL_BREAK_DURATION_SECONDS,
   WARNING_START_SCORE,
   WARNING_MIN_SPECIALS,
@@ -64,6 +65,15 @@ function createGapCenter(gapHeight, rng) {
   return halfGap + safeRandom(rng) * (WORLD_HEIGHT - gapHeight);
 }
 
+export function constrainGapCenter(candidate, gapHeight, previousCenter) {
+  const halfGap = gapHeight / 2;
+  const minCenter = halfGap;
+  const maxCenter = WORLD_HEIGHT - halfGap;
+  const maxShift = gapHeight * MAX_GAP_CENTER_SHIFT_FACTOR;
+  return Math.min(maxCenter, Math.max(minCenter,
+    Math.min(previousCenter + maxShift, Math.max(previousCenter - maxShift, candidate))));
+}
+
 export function createGameEngine(deps = {}) {
   const now = deps.now ?? (() => performance.now());
   const gravity = deps.gravity ?? GRAVITY;
@@ -86,7 +96,8 @@ export function createGameEngine(deps = {}) {
   let completedWarningCount = 0;
   let warningSession = null;
   let nextWarningScore = WARNING_START_SCORE;
-  let specialsSpawnedThisRun = 0;
+  let firstBossCleared = false;
+  let previousBaseGapCenter = null;
   let stageOrder = [];
   let stageIndex = 0;
   let stageElapsedSeconds = 0;
@@ -150,7 +161,7 @@ export function createGameEngine(deps = {}) {
     const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore);
     if (!candidate.isWarning) return;
 
-    const isBoss = candidate.warningIndex % 5 === 0;
+    const isBoss = candidate.warningIndex % 2 === 0;
     warningSession = {
       index: candidate.warningIndex,
       isBoss,
@@ -163,7 +174,7 @@ export function createGameEngine(deps = {}) {
       waveComplete: false,
     };
     bossEncounter = isBoss
-      ? createBossEncounter(Math.max(1, Math.floor(candidate.warningIndex / 5)), rng)
+      ? createBossEncounter(Math.max(1, Math.floor(candidate.warningIndex / 2)), rng)
       : null;
   }
 
@@ -179,11 +190,16 @@ export function createGameEngine(deps = {}) {
         ? WARNING_MOVING_GAP_CYCLE_SECONDS
         : NORMAL_MOVING_GAP_CYCLE_SECONDS)
       : null;
-    const showTimingGuide = kind === 'special' && ++specialsSpawnedThisRun <= SPECIAL_TIMING_GUIDE_COUNT;
+    const showTimingGuide = kind === 'special' && !firstBossCleared;
+    let gapCenter = createGapCenter(difficulty.gapHeight, rng);
+    if (previousBaseGapCenter !== null
+      && (scoreSession.progressionScore >= GAP_CONTINUITY_SCORE || aircraft.id === 'velocity')) {
+      gapCenter = constrainGapCenter(gapCenter, difficulty.gapHeight, previousBaseGapCenter);
+    }
     const obstacle = createObstacle({
       id: `wall-${nextObstacleId++}`,
       x: OBSTACLE_SPAWN_X,
-      gapCenter: createGapCenter(difficulty.gapHeight, rng),
+      gapCenter,
       gapHeight: difficulty.gapHeight,
       kind,
       warningIndex: session?.index ?? 0,
@@ -196,6 +212,7 @@ export function createGameEngine(deps = {}) {
     });
 
     obstacles.push(obstacle);
+    previousBaseGapCenter = obstacle.baseGapCenter;
     if (session) {
       session.spawnedCount += 1;
       if (kind === 'special') session.specialObstacleIds.add(obstacle.id);
@@ -287,7 +304,8 @@ export function createGameEngine(deps = {}) {
     completedWarningCount = initialCompletedWarningCount;
     warningSession = null;
     nextWarningScore = WARNING_START_SCORE + initialCompletedWarningCount * 10;
-    specialsSpawnedThisRun = 0;
+    firstBossCleared = false;
+    previousBaseGapCenter = null;
     stageOrder = createStageShuffleBag(stageRng);
     stageIndex = 0;
     stageElapsedSeconds = 0;
@@ -448,6 +466,7 @@ export function createGameEngine(deps = {}) {
       return;
     }
     advanceBossEncounter(bossEncounter, 'boss-cleared');
+    if (bossEncounter.number === 1) firstBossCleared = true;
     scoreSession.score += 10;
     scoreSession.progressionScore += 10;
     completedWarningCount += 1;
@@ -591,7 +610,12 @@ export function createGameEngine(deps = {}) {
       windowSeconds: difficulty.timingWindowSeconds,
     });
     startDash(player, DASH_DURATION_SECONDS, isSpecialDash ? target.id : null, isSpecialDash ? 'special' : 'normal');
-    if (isSpecialDash) target.breakEffect = { centerY: player.y, remainingSeconds: SPECIAL_BREAK_DURATION_SECONDS, durationSeconds: SPECIAL_BREAK_DURATION_SECONDS };
+    if (isSpecialDash) target.breakEffect = {
+      centerY: player.y,
+      remainingSeconds: SPECIAL_BREAK_DURATION_SECONDS,
+      durationSeconds: SPECIAL_BREAK_DURATION_SECONDS,
+      seed: safeRandom(rng) * Math.PI * 2,
+    };
     return true;
   }
 
@@ -622,6 +646,7 @@ export function createGameEngine(deps = {}) {
       baseScore: getScore(),
       scoreMultiplier: aircraft.scoreMultiplier,
       finalScore: Math.round(getScore() * aircraft.scoreMultiplier),
+      specialTimingGuideActive: !firstBossCleared,
       elapsedSeconds,
       backgroundScrollDistancePx,
       gameOverReason,

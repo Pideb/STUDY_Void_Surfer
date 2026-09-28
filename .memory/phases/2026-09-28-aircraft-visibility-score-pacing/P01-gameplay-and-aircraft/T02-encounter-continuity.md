@@ -1,6 +1,6 @@
 # Task: T02 Encounter Cadence, Gap Continuity, and Special-Wall Feedback
 
-## Status: pending
+## Status: done
 
 ## Goal
 Alternate regular WARNING and BOSS encounters, keep successive wall openings reachable at high speed, show special-wall timing guides until the first boss is defeated (with VELOCITY gap limiting from run start), and make successful special-wall destruction impactful at the player's crossing height.
@@ -43,11 +43,11 @@ Alternate regular WARNING and BOSS encounters, keep successive wall openings rea
 - Do not change dash success timing, collision result, normal walls, or failure effect behavior.
 
 ## Acceptance Criteria
-- [ ] Regular WARNING and BOSS alternate from first regular WARNING.
-- [ ] Gap-center shift is at most 70% of next gap height from score 60, or from run start for VELOCITY; bounds and first wall remain valid.
-- [ ] Moving gaps use base center as next spawn anchor.
-- [ ] Guides remain on all special walls through boss 1 and hide after boss 1 clears.
-- [ ] Special success has a visible centered shock ring and large outward fragments for about 0.65 seconds without collision changes.
+- [x] Regular WARNING and BOSS alternate from first regular WARNING.
+- [x] Gap-center shift is at most 70% of next gap height from score 60, or from run start for VELOCITY; bounds and first wall remain valid.
+- [x] Moving gaps use base center as next spawn anchor.
+- [x] Guides remain on all special walls through boss 1 and hide after boss 1 clears.
+- [x] Special success has a visible centered shock ring and large outward fragments for about 0.65 seconds without collision changes.
 
 ## Validation
 - `npm test -- --run tests/game/difficulty.test.js tests/game/game-engine.test.js tests/game/obstacles.test.js tests/game/renderer.test.js`
@@ -66,6 +66,6 @@ Task: T02-encounter-continuity
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed: focused 4-file suite (61 tests), `git diff --check`
+- commit: `feat(gameplay): alternate bosses and preserve reachable wall gaps`

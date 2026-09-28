@@ -7,11 +7,11 @@
 [P01 Gameplay and Aircraft](./phases/2026-09-28-aircraft-visibility-score-pacing/P01-gameplay-and-aircraft/phase.md)
 
 ## Active Task
-[T02 Encounter Continuity](./phases/2026-09-28-aircraft-visibility-score-pacing/P01-gameplay-and-aircraft/T02-encounter-continuity.md)
+[T03 Aircraft Tuning, Visibility, and Flight-Path Trail](./phases/2026-09-28-aircraft-visibility-score-pacing/P01-gameplay-and-aircraft/T03-aircraft-and-trails.md)
 
 ## Status
-- T01 complete and committed; focused validation passed.
-- Three tasks remain; T02 is active.
+- T01 and T02 complete and committed; focused validations passed.
+- Two tasks remain; T03 is active.
 
 ## Next Step (IMPORTANT)
-Read T02 in full and implement WARNING/BOSS cadence, high-speed gap continuity, timing-guide persistence, and special-wall success feedback. Validate and commit exactly as specified before advancing to T03.
+Read T03 in full and implement aircraft order/tuning/visibility plus the path-following flight trail. Validate and commit exactly as specified before advancing to T04.

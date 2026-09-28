@@ -263,10 +263,14 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   if (isSpecial) {
     const effect = obstacle.breakEffect;
     const opening = effect ? Math.max(0, Math.min(WORLD_HEIGHT, effect.centerY ?? 0)) : null;
+    const effectProgress = effect
+      ? Math.max(0, Math.min(1, 1 - effect.remainingSeconds / Math.max(0.001, effect.durationSeconds ?? 0.65)))
+      : 0;
+    const openingHalfHeight = (theme.breakOpeningHalfHeight ?? 28) + effectProgress * 24;
     if (opening === null) ctx.fillRect(obstacle.x, 0, obstacle.width, WORLD_HEIGHT);
     else {
-      const top = Math.max(0, opening - (theme.breakOpeningHalfHeight ?? 28));
-      const bottom = Math.min(WORLD_HEIGHT, opening + (theme.breakOpeningHalfHeight ?? 28));
+      const top = Math.max(0, opening - openingHalfHeight);
+      const bottom = Math.min(WORLD_HEIGHT, opening + openingHalfHeight);
       ctx.fillRect(obstacle.x, 0, obstacle.width, top);
       ctx.fillRect(obstacle.x, bottom, obstacle.width, WORLD_HEIGHT - bottom);
       ctx.strokeStyle = theme.breakFragment;
@@ -282,8 +286,10 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
         drawClippedWallAsset(ctx, wallAsset, obstacle, 0, WORLD_HEIGHT, 0.455, 0.09);
       } else {
         const opening = Math.max(0, Math.min(WORLD_HEIGHT, effect.centerY ?? 0));
-        const top = Math.max(0, opening - (theme.breakOpeningHalfHeight ?? 28));
-        const bottom = Math.min(WORLD_HEIGHT, opening + (theme.breakOpeningHalfHeight ?? 28));
+        const progress = Math.max(0, Math.min(1, 1 - effect.remainingSeconds / Math.max(0.001, effect.durationSeconds ?? 0.65)));
+        const halfHeight = (theme.breakOpeningHalfHeight ?? 28) + progress * 24;
+        const top = Math.max(0, opening - halfHeight);
+        const bottom = Math.min(WORLD_HEIGHT, opening + halfHeight);
         drawClippedWallAsset(ctx, wallAsset, obstacle, 0, top, 0.455, 0.09);
         drawClippedWallAsset(ctx, wallAsset, obstacle, bottom, WORLD_HEIGHT - bottom, 0.455, 0.09);
       }
@@ -322,6 +328,35 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
       ctx.moveTo(obstacle.x + 8, y);
       ctx.lineTo(obstacle.x + obstacle.width - 8, y + 10);
       ctx.stroke();
+    }
+    const effect = obstacle.breakEffect;
+    if (effect) {
+      const progress = Math.max(0, Math.min(1, 1 - effect.remainingSeconds / Math.max(0.001, effect.durationSeconds ?? 0.65)));
+      const centerX = obstacle.x + obstacle.width / 2;
+      const centerY = Math.max(0, Math.min(WORLD_HEIGHT, effect.centerY ?? 0));
+      const seed = Number.isFinite(effect.seed) ? effect.seed : 0;
+      ctx.save();
+      ctx.globalAlpha = (1 - progress) * 0.95;
+      ctx.strokeStyle = theme.breakRing ?? '#7cfff2';
+      ctx.lineWidth = 4 - progress * 2;
+      setGlow(ctx, theme.breakRing ?? '#7cfff2', 18);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 12 + progress * 72, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.globalAlpha = (1 - progress) * 0.9;
+      ctx.strokeStyle = theme.breakFragment;
+      ctx.lineWidth = 3 - progress * 1.5;
+      for (let index = 0; index < 8; index += 1) {
+        const angle = seed + (index / 8) * Math.PI * 2;
+        const inner = 8 + progress * 22;
+        const outer = 22 + progress * 68;
+        ctx.beginPath();
+        ctx.moveTo(centerX + Math.cos(angle) * inner, centerY + Math.sin(angle) * inner);
+        ctx.lineTo(centerX + Math.cos(angle) * outer, centerY + Math.sin(angle) * outer);
+        ctx.stroke();
+      }
+      resetGlow(ctx);
+      ctx.restore();
     }
   } else {
     // Quiet stage-specific panel seams add identity without changing the collision silhouette.

@@ -46,11 +46,13 @@ describe('difficulty', () => {
     expect(getDifficulty(30, 0, 1).warningIndex).toBe(2);
   });
 
-  it('marks every fifth active warning as a boss', () => {
-    const difficulty = getDifficulty(60, 0, 4, () => 0.5);
+  it('alternates regular WARNING first and BOSS second', () => {
+    const first = getDifficulty(20, 0, 0, () => 0.5);
+    const difficulty = getDifficulty(30, 0, 1, () => 0.5);
 
+    expect(first).toMatchObject({ isWarning: true, isBoss: false, warningIndex: 1 });
     expect(difficulty.isBoss).toBe(true);
-    expect(difficulty.warningIndex).toBe(5);
+    expect(difficulty.warningIndex).toBe(2);
     expect(Object.values(BOSS_PATTERNS)).toContain(difficulty.bossPattern);
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.SLOW)).toBe(0.5);
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.FAST)).toBe(1.8);
@@ -66,7 +68,7 @@ describe('difficulty', () => {
   });
 
   it('keeps an explicitly selected boss pattern instead of rolling again', () => {
-    const difficulty = getDifficulty(60, 10, 4, () => 0, BOSS_PATTERNS.FAST);
+    const difficulty = getDifficulty(30, 10, 1, () => 0, BOSS_PATTERNS.FAST);
 
     expect(difficulty.bossPattern).toBe(BOSS_PATTERNS.FAST);
     expect(difficulty.speedMultiplier).toBe(1.8);
