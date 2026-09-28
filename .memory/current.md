@@ -1,22 +1,16 @@
 # Current Context
 
 ## Active Plan
-
-[Game Visual Assets and Flow Fixes](./plans/2026-09-28-game-visual-assets-and-flow-fixes.md)
+[Menu, Score, and Background Reliability](./plans/2026-09-28-menu-score-background-reliability.md)
 
 ## Active Phase
-
-[P03 Regression](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P03-regression/phase.md)
+[P01 Reliability Fixes](./phases/2026-09-28-menu-score-background-reliability/P01-reliability-fixes/phase.md)
 
 ## Active Task
-
-[T06 Regression and Visual Review](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P03-regression/T06-regression-and-visual-review.md)
+[T02 Score RPC Compatibility](./phases/2026-09-28-menu-score-background-reliability/P01-reliability-fixes/T02-score-rpc-compatibility.md)
 
 ## Status
-
-- Confirmed: expand the approved visual direction to all six stages and apply the requested hangar, transition, visibility, and score-flow fixes.
-- T01–T05 asset integration, hangar/visibility, stage transition ownership, and account/score-flow fixes completed and validated.
+- T01 menu fit and background readability/motion are implemented; production build passed.
 
 ## Next Step (IMPORTANT)
-
-Run the complete Vitest suite, production build, asset URL smoke check, and final live visual review.
+Read the active T02 blueprint, update score RPC compatibility and migration guidance, then run the production build.

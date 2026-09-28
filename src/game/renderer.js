@@ -325,11 +325,28 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   ctx.restore();
 }
 
-function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, visualAssets = null) {
+function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = false) {
+  const scale = 1.12;
+  const width = WORLD_WIDTH * scale;
+  const height = WORLD_HEIGHT * scale;
+  const overflowX = width - WORLD_WIDTH;
+  const overflowY = height - WORLD_HEIGHT;
+  const drift = reducedMotion ? 0 : elapsedSeconds * 0.8;
+  const offsetX = reducedMotion ? overflowX / 2 : (drift % overflowX);
+  const offsetY = reducedMotion
+    ? overflowY / 2
+    : overflowY / 2 + Math.sin(elapsedSeconds * 0.12) * Math.min(overflowY * 0.18, 7);
+
+  ctx.drawImage(background, -offsetX, -offsetY, width, height);
+  ctx.fillStyle = 'rgba(2, 6, 18, 0.24)';
+  ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+}
+
+function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, visualAssets = null, reducedMotion = false) {
   const theme = resolveStageTheme(stageId);
   const background = getStageAsset(visualAssets, stageId, boss ? 'bossBackground' : 'background');
   if (background) {
-    ctx.drawImage(background, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    drawStageArtwork(ctx, background, elapsedSeconds, reducedMotion);
     return;
   }
   ctx.fillStyle = boss ? theme.bossBackground : theme.background;
@@ -398,14 +415,14 @@ function backgroundKeyToId(key) {
 
 function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = null, reducedMotion = null) {
   const transition = stage?.transition;
-  if (!transition) {
-    drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss', visualAssets);
-    return;
-  }
-  const progress = Math.max(0, Math.min(1, transition.progress ?? 1));
   const prefersReducedMotion = typeof reducedMotion === 'function'
     ? reducedMotion()
     : reducedMotion ?? Boolean(globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  if (!transition) {
+    drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss', visualAssets, prefersReducedMotion);
+    return;
+  }
+  const progress = Math.max(0, Math.min(1, transition.progress ?? 1));
   const durationSeconds = Number(transition.durationSeconds) || STAGE_TRANSITION_SECONDS;
   const crossfadeProgress = Math.min(1, (progress * durationSeconds) / 0.15);
   const spatialProgress = progress * progress * (3 - 2 * progress);
@@ -427,7 +444,7 @@ function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = nul
     ctx.globalAlpha = alpha;
     ctx.translate(x, 0);
     drawStageBackground(ctx, backgroundKeyToId(key), elapsedSeconds,
-      String(key).endsWith('-boss'), visualAssets);
+      String(key).endsWith('-boss'), visualAssets, prefersReducedMotion);
     ctx.restore();
   }
 }

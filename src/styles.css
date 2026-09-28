@@ -187,8 +187,8 @@ button:focus-visible {
   grid-template-rows: auto auto auto;
   align-items: center;
   align-content: center;
-  gap: clamp(1rem, 5vw, 4rem) clamp(1.5rem, 6vw, 5rem);
-  padding: clamp(1.25rem, 5vw, 4rem);
+  gap: clamp(0.55rem, 1.8vh, 1rem) clamp(1.5rem, 6vw, 5rem);
+  padding: clamp(0.75rem, 2.5vh, 1.25rem) clamp(1.25rem, 5vw, 4rem);
 }
 
 .menu-brand {
@@ -262,8 +262,8 @@ button:focus-visible {
   grid-column: 2;
   grid-row: 3;
   justify-self: end;
-  margin-top: 1.2rem;
-  padding-top: 0.8rem;
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
   border-top: 1px solid rgba(139, 166, 191, 0.25);
   text-align: right;
 }
