@@ -6,17 +6,17 @@
 
 ## Active Phase
 
-[P02 Flow Fixes](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P02-flow-fixes/phase.md)
+[P03 Regression](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P03-regression/phase.md)
 
 ## Active Task
 
-[T05 Score Flow Reliability](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P02-flow-fixes/T05-score-flow-reliability.md)
+[T06 Regression and Visual Review](./phases/2026-09-28-game-visual-assets-and-flow-fixes/P03-regression/T06-regression-and-visual-review.md)
 
 ## Status
 
 - Confirmed: expand the approved visual direction to all six stages and apply the requested hangar, transition, visibility, and score-flow fixes.
-- T01 asset generation, T02 all-stage renderer integration, T03 hangar/visibility fixes, and T04 stage-owned obstacle rendering completed and validated.
+- T01–T05 asset integration, hangar/visibility, stage transition ownership, and account/score-flow fixes completed and validated.
 
 ## Next Step (IMPORTANT)
 
-Stabilize account best-score loading and game-over score submission/retry sequencing.
+Run the complete Vitest suite, production build, asset URL smoke check, and final live visual review.

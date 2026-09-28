@@ -238,6 +238,26 @@ describe('app controller product flow', () => {
     expect(harness.root.textContent).toContain('내 주변 순위');
   });
 
+  it('retries a failed score write, then refreshes the leaderboard after success', async () => {
+    const submitBestScore = vi.fn()
+      .mockResolvedValueOnce({ error: new Error('temporary write failure') })
+      .mockResolvedValueOnce({ error: null });
+    harness = makeHarness({ leaderboard: { submitBestScore } });
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    harness.controller.dispatch('GAME_OVER');
+    await settle();
+
+    expect(submitBestScore).toHaveBeenCalledTimes(1);
+    harness.root.querySelector('.leaderboard-panel button').click();
+    await settle();
+
+    expect(submitBestScore).toHaveBeenCalledTimes(2);
+    expect(harness.root.textContent).toContain('점수가 계정에 등록되었습니다.');
+  });
+
   it('plays dash feedback only for successful special-wall dashes and announces mode changes once', async () => {
     harness = makeHarness();
     harness.controller.mount();

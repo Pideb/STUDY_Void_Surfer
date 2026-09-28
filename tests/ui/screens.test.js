@@ -50,6 +50,17 @@ describe('product flow screens', () => {
     expect(select).toHaveBeenCalledWith('aegis');
   });
 
+  it('shows an explicit account-score loading state before unlock decisions settle', () => {
+    const screen = renderHangarScreen({
+      loading: true,
+      bestScore: 0,
+      aircraft: [{ id: 'velocity', name: 'VELOCITY', unlockBestScore: 100, unlocked: false, description: 'speed', stats: 'x2' }],
+    }, { select: vi.fn(), back: vi.fn() });
+
+    expect(screen.querySelector('.hangar-best-score').textContent).toContain('불러오는 중');
+    expect(screen.querySelector('.aircraft-option')?.disabled).toBe(true);
+  });
+
   it('shows login configuration and connection errors with retry', () => {
     const screen = renderLoginScreen({
       error: 'Supabase 설정이 없습니다.', connectionError: true, busy: false,

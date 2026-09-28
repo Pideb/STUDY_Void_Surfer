@@ -75,7 +75,7 @@ export function renderMenuScreen(model, handlers) {
   return menu;
 }
 
-export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'default', bestScore = 0, error = false } = {}, handlers = {}) {
+export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'default', bestScore = 0, loading = false, error = false } = {}, handlers = {}) {
   const screen = document.createElement('section');
   screen.className = 'hangar-screen';
   screen.setAttribute('aria-labelledby', 'hangar-title');
@@ -84,7 +84,10 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
   heading.textContent = '기체 선택';
   const score = document.createElement('p');
   score.className = 'hangar-best-score';
-  score.textContent = `계정 최고 기록 ${bestScore}점`;
+  score.textContent = loading && !error && bestScore === 0
+    ? '계정 최고 기록 불러오는 중…'
+    : `계정 최고 기록 ${bestScore}점`;
+  score.setAttribute('aria-live', 'polite');
   screen.append(heading, score);
   if (error) {
     const status = createMessage('최고 기록을 불러오지 못해 기본 기체만 사용할 수 있습니다.', 'screen-message');
@@ -120,7 +123,9 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
     performance.textContent = craft.stats;
     const lock = document.createElement('span');
     lock.className = 'aircraft-lock-reason';
-    lock.textContent = unlocked ? (selected ? '현재 선택' : '선택 가능') : `최고 점수 ${craft.unlockBestScore}점에서 해금`;
+    lock.textContent = loading && !craft.unlocked
+      ? '계정 기록 확인 중'
+      : unlocked ? (selected ? '현재 선택' : '선택 가능') : `최고 점수 ${craft.unlockBestScore}점에서 해금`;
     button.append(preview, title, description, performance, lock);
     list.append(button);
   }
@@ -178,7 +183,11 @@ export function renderGameOverScreen(model, handlers) {
   );
   panel.append(actions);
 
-  if (model.submitError) {
+  if (model.submitState === 'saving') {
+    panel.append(createMessage('점수를 저장하는 중입니다.'));
+  } else if (model.submitState === 'saved') {
+    panel.append(createMessage('점수가 계정에 등록되었습니다.'));
+  } else if (model.submitError) {
     panel.append(createMessage('점수를 저장하지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message'));
   }
   panel.append(renderLeaderboardPanel(model.leaderboard, handlers.retryLeaderboard));

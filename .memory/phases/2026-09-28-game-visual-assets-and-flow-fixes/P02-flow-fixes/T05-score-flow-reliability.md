@@ -1,6 +1,6 @@
 # Task: T05 Score Flow Reliability
 
-## Status: pending
+## Status: done
 
 ## Goal
 
@@ -58,6 +58,6 @@ Task: T05-score-flow-reliability
 
 ## Progress
 
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

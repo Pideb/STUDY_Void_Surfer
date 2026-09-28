@@ -48,7 +48,8 @@ export function createAppController(deps) {
     screen: 'loading', user: null, error: null, connectionError: false, busy: false,
     muted: Boolean(audioManager.isMuted?.()), snapshot: null, leaderboard: null,
     submitError: false, gameOverRequest: 0, selectedAircraftId: 'default',
-    accountBestScore: 0, accountBestScoreError: false,
+    accountBestScore: 0, accountBestScoreLoading: false, accountBestScoreError: false,
+    submitState: 'idle',
   };
   let unsubscribeAuth = () => {};
   let pointerTarget = null;
@@ -105,6 +106,7 @@ export function createAppController(deps) {
         aircraft: getHangarAircraft(state.accountBestScore),
         selectedAircraftId: state.selectedAircraftId,
         bestScore: state.accountBestScore,
+        loading: state.accountBestScoreLoading,
         error: state.accountBestScoreError,
       }, {
         select: (aircraftId) => dispatch({ type: 'SELECT_AIRCRAFT', aircraftId }),
@@ -133,10 +135,11 @@ export function createAppController(deps) {
           top: { loading: true }, neighborhood: { loading: true },
         },
         submitError: state.submitError,
+        submitState: state.submitState,
       }, {
         restart: () => dispatch({ type: 'RESTART_IMMEDIATE' }),
         menu: () => dispatch({ type: 'RETURN_TO_MENU' }),
-        retryLeaderboard: () => loadGameOverData({ submitScore: false }),
+        retryLeaderboard: () => loadGameOverData({ submitScore: state.submitState === 'error' }),
       }));
       return;
     }
@@ -186,17 +189,22 @@ export function createAppController(deps) {
 
   async function loadAccountBestScore(user) {
     const requestId = ++accountRequestId;
-    state.accountBestScore = 0;
-    state.accountBestScoreError = false;
-    if (typeof leaderboardService.fetchPlayerBestScore !== 'function') return;
+    state.accountBestScoreLoading = true;
+    if (state.screen === 'hangar') paint();
+    if (typeof leaderboardService.fetchPlayerBestScore !== 'function') {
+      state.accountBestScoreLoading = false;
+      return;
+    }
     try {
       const result = await leaderboardService.fetchPlayerBestScore(user);
       if (requestId !== accountRequestId || state.user?.id !== user?.id) return;
       if (result?.error || !Number.isFinite(Number(result?.bestScore))) {
         state.accountBestScore = 0;
+        state.accountBestScoreLoading = false;
         state.accountBestScoreError = true;
       } else {
         state.accountBestScore = Math.max(0, Math.trunc(Number(result.bestScore)));
+        state.accountBestScoreLoading = false;
         state.accountBestScoreError = false;
       }
       if (!getUnlockedAircraftIds(state.accountBestScore).includes(state.selectedAircraftId)) {
@@ -206,6 +214,7 @@ export function createAppController(deps) {
     } catch {
       if (requestId !== accountRequestId) return;
       state.accountBestScore = 0;
+      state.accountBestScoreLoading = false;
       state.accountBestScoreError = true;
       state.selectedAircraftId = 'default';
       if (state.screen === 'hangar') paint();
@@ -238,6 +247,7 @@ export function createAppController(deps) {
       state.error = null;
       accountRequestId += 1;
       state.accountBestScore = 0;
+      state.accountBestScoreLoading = false;
       state.accountBestScoreError = false;
       state.selectedAircraftId = 'default';
       audioManager.setMusicMode?.('none');
@@ -361,6 +371,7 @@ export function createAppController(deps) {
     state.snapshot = gameEngine.getSnapshot();
     state.leaderboard = null;
     state.submitError = false;
+    state.submitState = 'idle';
     state.screen = 'game-over';
     lastDifficultyMode = 'normal';
     paint();
@@ -409,7 +420,8 @@ export function createAppController(deps) {
     animationFrame = globalThis.requestAnimationFrame(renderFrame);
   }
 
-  function loadGameOverData({ submitScore = true } = {}) {
+  async function loadGameOverData({ submitScore = true } = {}) {
+    if (state.submitState === 'saving') return;
     const requestId = ++state.gameOverRequest;
     const score = state.snapshot?.score ?? 0;
     const displayName = getDisplayName(state.user);
@@ -418,14 +430,25 @@ export function createAppController(deps) {
       top: { loading: true }, neighborhood: { loading: true },
     };
     state.submitError = false;
+    if (submitScore) state.submitState = 'saving';
     paint();
 
-    const submit = submitScore
-      ? leaderboardService.submitBestScore(state.user, { score, displayName, aircraftId })
-      : Promise.resolve({ error: null });
-    const top = leaderboardService.fetchTopScores();
-    const neighborhood = leaderboardService.fetchPlayerNeighborhood();
-    Promise.all([submit, top, neighborhood]).then(([submitResult, topResult, neighborhoodResult]) => {
+    let submitResult = { error: null };
+    if (submitScore) {
+      try {
+        submitResult = await leaderboardService.submitBestScore(state.user, { score, displayName, aircraftId });
+      } catch (error) {
+        submitResult = { error };
+      }
+      if (submitResult?.error) state.submitState = 'error';
+      else state.submitState = 'saved';
+    }
+
+    try {
+      const [topResult, neighborhoodResult] = await Promise.all([
+        leaderboardService.fetchTopScores(),
+        leaderboardService.fetchPlayerNeighborhood(),
+      ]);
       if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
       state.submitError = Boolean(submitResult?.error);
       state.leaderboard = {
@@ -434,14 +457,14 @@ export function createAppController(deps) {
         submitError: state.submitError,
       };
       paint();
-    }).catch(() => {
+    } catch {
       if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
       state.submitError = true;
       state.leaderboard = {
         top: { error: true }, neighborhood: { error: true }, submitError: true,
       };
       paint();
-    });
+    }
   }
 
   function dispatch(event) {
@@ -452,7 +475,10 @@ export function createAppController(deps) {
         if (state.user && state.screen === 'menu') setScreen('tutorial');
         break;
       case 'OPEN_HANGAR':
-        if (state.screen === 'menu' && state.user) setScreen('hangar');
+        if (state.screen === 'menu' && state.user) {
+          void loadAccountBestScore(state.user);
+          setScreen('hangar');
+        }
         break;
       case 'SELECT_AIRCRAFT':
         if (state.screen === 'hangar'
