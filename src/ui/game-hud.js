@@ -155,7 +155,12 @@ export function createGameHud(model, handlers) {
     if (mode !== previousMode && mode !== 'normal') bannerUntilSeconds = elapsedSeconds + 1;
     if (mode === 'normal') bannerUntilSeconds = 0;
     previousMode = mode;
-    banner.textContent = elapsedSeconds < bannerUntilSeconds ? (mode === 'boss' ? 'BOSS' : 'WARNING') : '';
+    const bossPreview = snapshot.bossPreview;
+    const patternName = ({ slow: '저속', fast: '고속', shift: '변속' })[bossPreview?.pattern];
+    banner.classList.toggle('is-boss-preview', Boolean(bossPreview));
+    banner.textContent = bossPreview && patternName
+      ? `BOSS — ${patternName}`
+      : elapsedSeconds < bannerUntilSeconds ? (mode === 'boss' ? 'BOSS' : 'WARNING') : '';
     banner.hidden = !banner.textContent;
 
     const nextMuted = Boolean(model.getMuted());

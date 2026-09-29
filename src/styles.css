@@ -471,6 +471,16 @@ button:focus-visible {
   display: none;
 }
 
+.warning-banner.is-boss-preview {
+  padding: 0.45rem 1rem;
+  border: 1px solid rgba(255, 157, 92, 0.62);
+  border-radius: 0.65rem;
+  background: rgba(7, 12, 26, 0.82);
+  color: var(--color-boss);
+  font-size: clamp(1.15rem, 4.1vw, 2rem);
+  letter-spacing: 0.06em;
+}
+
 .hud-combat-status {
   align-self: flex-start;
   max-width: 15rem;

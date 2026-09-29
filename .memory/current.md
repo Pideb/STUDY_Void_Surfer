@@ -1,16 +1,16 @@
 # Current Context
 
 ## Active Plan
-[Aircraft Visibility, Score, and Pace](./plans/2026-09-28-aircraft-visibility-score-pacing.md)
+[BOSS Combat Clarity](./plans/2026-09-29-boss-combat-clarity.md)
 
 ## Active Phase
-[P01 Gameplay and Aircraft](./phases/2026-09-28-aircraft-visibility-score-pacing/P01-gameplay-and-aircraft/phase.md)
+[P01 BOSS Readability](./phases/2026-09-29-boss-combat-clarity/P01-boss-readability/phase.md)
 
 ## Active Task
-None — plan complete.
+[T02 Projectile and Trajectory Telegraph Visibility](./phases/2026-09-29-boss-combat-clarity/P01-boss-readability/T02-projectile-telegraph-visibility.md)
 
 ## Status
-- All four tasks complete and committed; full test suite and production build passed.
+- T01 complete and committed; proceed with projectile path/visibility changes in T02.
 
 ## Next Step (IMPORTANT)
-No active task. The plan is complete; start a new plan for additional work.
+Read T02 fully, implement shared projectile path/visibility, run its focused validations, commit exactly as specified, then advance the pointer to T03.

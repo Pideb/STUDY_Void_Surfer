@@ -4,6 +4,7 @@ import {
   BOSS_PROJECTILE_NORMAL_WALL_COOLDOWN,
   BOSS_RESPONSE_COOLDOWN_SECONDS,
   BOSS_LASER_FOLLOW_UP_SECONDS,
+  BOSS_PATTERN_PREVIEW_SECONDS,
   DASH_DURATION_SECONDS,
   FLIGHT_TRAIL_LIFETIME_SECONDS,
   GAP_CONTINUITY_SCORE,
@@ -96,6 +97,7 @@ export function createGameEngine(deps = {}) {
   let spawnAccumulatorSeconds = 0;
   let completedWarningCount = 0;
   let warningSession = null;
+  let bossPreview = null;
   let nextWarningScore = WARNING_START_SCORE;
   let firstBossCleared = false;
   let previousBaseGapCenter = null;
@@ -117,7 +119,8 @@ export function createGameEngine(deps = {}) {
 
   function getCurrentDifficulty() {
     if (!warningSession) {
-      const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore);
+      const warningThreshold = bossPreview ? Number.MAX_SAFE_INTEGER : nextWarningScore;
+      const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, warningThreshold, scoreSession.progressionScore);
       return applyAircraftDifficulty(base);
     }
 
@@ -169,16 +172,29 @@ export function createGameEngine(deps = {}) {
   }
 
   function startWarningIfNeeded() {
-    if (warningSession) return;
+    if (warningSession || bossPreview) return;
 
     const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore);
     if (!candidate.isWarning) return;
 
     const isBoss = candidate.warningIndex % 2 === 0;
+    if (isBoss) {
+      bossPreview = {
+        warningIndex: candidate.warningIndex,
+        pattern: candidate.bossPattern ?? chooseBossPattern(rng),
+        remainingSeconds: BOSS_PATTERN_PREVIEW_SECONDS,
+      };
+      return;
+    }
+
+    beginWarningSession(candidate.warningIndex, false, null);
+  }
+
+  function beginWarningSession(warningIndex, isBoss, bossPattern) {
     warningSession = {
-      index: candidate.warningIndex,
+      index: warningIndex,
       isBoss,
-      bossPattern: isBoss ? chooseBossPattern(rng) : null,
+      bossPattern: isBoss ? bossPattern : null,
       targetCount: isBoss ? BOSS_OBSTACLE_COUNT : WARNING_OBSTACLE_COUNT,
       spawnedCount: 0,
       requiredSpecials: isBoss ? BOSS_MIN_SPECIALS : WARNING_MIN_SPECIALS,
@@ -187,8 +203,18 @@ export function createGameEngine(deps = {}) {
       waveComplete: false,
     };
     bossEncounter = isBoss
-      ? createBossEncounter(Math.max(1, Math.floor(candidate.warningIndex / 2)), rng)
+      ? createBossEncounter(Math.max(1, Math.floor(warningIndex / 2)), rng)
       : null;
+  }
+
+  function updateBossPreview(deltaSeconds) {
+    if (!bossPreview) return;
+    bossPreview.remainingSeconds = Math.max(0, bossPreview.remainingSeconds - deltaSeconds);
+    if (bossPreview.remainingSeconds > 0) return;
+
+    const { warningIndex, pattern } = bossPreview;
+    bossPreview = null;
+    beginWarningSession(warningIndex, true, pattern);
   }
 
   function spawnObstacle(difficulty) {
@@ -316,6 +342,7 @@ export function createGameEngine(deps = {}) {
     spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier;
     completedWarningCount = initialCompletedWarningCount;
     warningSession = null;
+    bossPreview = null;
     nextWarningScore = WARNING_START_SCORE + initialCompletedWarningCount * 10;
     firstBossCleared = false;
     previousBaseGapCenter = null;
@@ -542,6 +569,7 @@ export function createGameEngine(deps = {}) {
 
     updatePlayer(player, deltaSeconds, gravity * aircraft.gravityMultiplier);
     elapsedSeconds += deltaSeconds;
+    updateBossPreview(deltaSeconds);
     let difficulty = getCurrentDifficulty();
     updateFlightTrail(deltaSeconds, difficulty.scrollSpeed);
     backgroundScrollDistancePx += difficulty.scrollSpeed * deltaSeconds * 0.25;
@@ -649,6 +677,7 @@ export function createGameEngine(deps = {}) {
     }
 
     gameOverReason = reason;
+    bossPreview = null;
     state = GAME_STATES.GAME_OVER;
   }
 
@@ -662,6 +691,7 @@ export function createGameEngine(deps = {}) {
       scoreMultiplier: aircraft.scoreMultiplier,
       finalScore: Math.round(getScore() * aircraft.scoreMultiplier),
       specialTimingGuideActive: !firstBossCleared,
+      bossPreview: bossPreview ? { ...bossPreview } : null,
       elapsedSeconds,
       backgroundScrollDistancePx,
       gameOverReason,

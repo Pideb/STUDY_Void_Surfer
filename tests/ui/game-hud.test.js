@@ -55,4 +55,20 @@ describe('game HUD', () => {
     expect(hud.element.querySelector('.wasd-challenge-overlay').hidden).toBe(true);
     expect(hud.element.querySelector('.challenge-failure-effect').hidden).toBe(true);
   });
+
+  it('announces the selected BOSS pattern during the pre-entry preview', () => {
+    const hud = makeHud();
+    hud.update({
+      score: 60,
+      elapsedSeconds: 2,
+      difficulty: { isWarning: false, isBoss: false },
+      bossPreview: { warningIndex: 2, pattern: 'shift', remainingSeconds: 1.2 },
+    });
+
+    const banner = hud.element.querySelector('.warning-banner');
+    expect(banner.hidden).toBe(false);
+    expect(banner.textContent).toBe('BOSS — 변속');
+    expect(banner.getAttribute('aria-live')).toBe('assertive');
+    expect(banner.classList.contains('is-boss-preview')).toBe(true);
+  });
 });

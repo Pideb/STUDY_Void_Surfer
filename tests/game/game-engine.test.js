@@ -66,6 +66,7 @@ describe('game engine', () => {
       stageRng: () => 0.5,
     });
     engine.start();
+    for (let frame = 0; frame < 15; frame += 1) step(100);
     const initial = engine.getSnapshot();
     const nextStageId = initial.stage.order[1];
     expect(initial.warning.index).toBe(2);
@@ -141,12 +142,13 @@ describe('game engine', () => {
   });
 
   it('uses the boss atmosphere variant while a boss warning is active', () => {
-    const { engine } = createRuntimeEngine({
+    const { engine, step } = createRuntimeEngine({
       initialScore: 60,
       initialCompletedWarningCount: 1,
       stageRng: () => 0,
     });
     engine.start();
+    for (let frame = 0; frame < 15; frame += 1) step(100);
 
     const snapshot = engine.getSnapshot();
     expect(snapshot.stage.mode).toBe('boss');
@@ -255,6 +257,7 @@ describe('game engine', () => {
       initialCompletedWarningCount: 1,
     });
     engine.start();
+    for (let frame = 0; frame < 15; frame += 1) step(100);
     const initial = engine.getSnapshot();
     expect(initial.difficulty).toMatchObject({ isWarning: true, isBoss: true, bossPattern: 'fast' });
     expect(initial.warning).toMatchObject({ index: 2, targetCount: 7, requiredSpecials: 3 });
@@ -325,23 +328,54 @@ describe('game engine', () => {
     });
   });
 
-  it('uses the faster moving-gap cycle for warning and boss spawns', () => {
-    const values = [0.9, 0.5, 0.9, 0, 0.5, 0.25, 0.5];
+  it('uses the faster moving-gap cycle for warning spawns', () => {
+    let randomCall = 0;
     const { engine, step } = createRuntimeEngine({
-      initialScore: 60,
-      initialCompletedWarningCount: 1,
-      rng: () => values.shift() ?? 0.5,
+      initialScore: 50,
+      rng: () => {
+        const values = [0.9, 0.1, 0.5, 0.5];
+        return values[randomCall++ % values.length];
+      },
     });
     engine.start();
+    const snapshot = step(100);
+    const warningMovingWall = snapshot.obstacles.find((obstacle) => obstacle.warningIndex === 1);
 
-    const snapshot = step();
-
-    expect(snapshot.difficulty).toMatchObject({ isWarning: true, isBoss: true, warningIndex: 2 });
-    expect(snapshot.obstacles[0]).toMatchObject({
+    expect(warningMovingWall).toMatchObject({
       kind: 'normal',
       movingGap: true,
       gapMotionCycleSeconds: 1.6,
     });
+  });
+
+  it('previews a cached boss pattern for 1.5 seconds while normal play continues', () => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 60,
+      initialCompletedWarningCount: 1,
+      rng: () => 0.5,
+    });
+    engine.start();
+
+    const preview = engine.getSnapshot();
+    expect(preview.bossPreview).toMatchObject({ warningIndex: 2, pattern: 'fast', remainingSeconds: 1.5 });
+    expect(preview.warning).toBeNull();
+    expect(preview.boss).toBeNull();
+    expect(preview.difficulty).toMatchObject({ isWarning: false, isBoss: false, speedMultiplier: 1 });
+
+    let duringPreview;
+    for (let frame = 0; frame < 5; frame += 1) duringPreview = step(100);
+    expect(duringPreview.bossPreview.remainingSeconds).toBeCloseTo(1.0);
+    expect(duringPreview.elapsedSeconds).toBeCloseTo(0.5);
+    expect(duringPreview.warning).toBeNull();
+    expect(duringPreview.boss).toBeNull();
+    expect(duringPreview.difficulty.isBoss).toBe(false);
+
+    for (let frame = 0; frame < 10; frame += 1) step(100);
+    const activated = engine.getSnapshot();
+    expect(activated.bossPreview).toBeNull();
+    expect(activated.warning).toMatchObject({ index: 2, targetCount: 7 });
+    expect(activated.boss).not.toBeNull();
+    expect(activated.difficulty).toMatchObject({ isWarning: true, isBoss: true, bossPattern: 'fast' });
   });
 
   it('limits generated gap shifts by 70% of the next gap height and clamps to world bounds', () => {

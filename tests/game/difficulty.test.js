@@ -54,8 +54,12 @@ describe('difficulty', () => {
     expect(difficulty.isBoss).toBe(true);
     expect(difficulty.warningIndex).toBe(2);
     expect(Object.values(BOSS_PATTERNS)).toContain(difficulty.bossPattern);
-    expect(getBossSpeedMultiplier(BOSS_PATTERNS.SLOW)).toBe(0.5);
-    expect(getBossSpeedMultiplier(BOSS_PATTERNS.FAST)).toBe(1.8);
+    expect(getBossSpeedMultiplier(BOSS_PATTERNS.SLOW)).toBe(0.75);
+    expect(getBossSpeedMultiplier(BOSS_PATTERNS.FAST)).toBe(1.25);
+    expect(getBossSpeedMultiplier(BOSS_PATTERNS.SHIFT, 0)).toBe(0.75);
+    expect(getBossSpeedMultiplier(BOSS_PATTERNS.SHIFT, 1.99)).toBe(0.75);
+    expect(getBossSpeedMultiplier(BOSS_PATTERNS.SHIFT, 2)).toBe(1.25);
+    expect(getBossSpeedMultiplier(BOSS_PATTERNS.SHIFT, 4)).toBe(0.75);
   });
 
   it('unlocks moving normal-wall gaps at score fifty', () => {
@@ -71,6 +75,6 @@ describe('difficulty', () => {
     const difficulty = getDifficulty(30, 10, 1, () => 0, BOSS_PATTERNS.FAST);
 
     expect(difficulty.bossPattern).toBe(BOSS_PATTERNS.FAST);
-    expect(difficulty.speedMultiplier).toBe(1.8);
+    expect(difficulty.speedMultiplier).toBe(1.25);
   });
 });

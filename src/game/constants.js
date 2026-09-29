@@ -44,8 +44,9 @@ export const WARNING_TIMING_WINDOW_SECONDS = 0.15;
 export const SPECIAL_BREAK_DURATION_SECONDS = 0.65;
 export const FLIGHT_TRAIL_LIFETIME_SECONDS = 1.2;
 export const DASH_DURATION_SECONDS = 0.6;
-export const BOSS_SLOW_MULTIPLIER = 0.5;
-export const BOSS_FAST_MULTIPLIER = 1.8;
+export const BOSS_SLOW_MULTIPLIER = 0.75;
+export const BOSS_FAST_MULTIPLIER = 1.25;
+export const BOSS_PATTERN_PREVIEW_SECONDS = 1.5;
 
 export const BOSS_PATTERNS = Object.freeze({
   SLOW: 'slow',
