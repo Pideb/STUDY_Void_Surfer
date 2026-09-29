@@ -32,9 +32,9 @@ export function createBossProjectile({
   const speedMultiplier = BOSS_PROJECTILE_MIN_SPEED_MULTIPLIER
     + roll(rng) * (BOSS_PROJECTILE_MAX_SPEED_MULTIPLIER - BOSS_PROJECTILE_MIN_SPEED_MULTIPLIER);
   const curveDirection = roll(rng) < 0.5 ? -1 : 1;
-  const distance = Math.max(1, Math.abs(bossX - playerX));
+  const curveAmplitude = kind === 'parabolic' ? curveDirection * (56 + roll(rng) * 74) : 0;
 
-  return {
+  const projectile = {
     id: id ?? 'projectile-1',
     kind,
     x: Number(bossX) || 0,
@@ -45,33 +45,36 @@ export function createBossProjectile({
     targetY: Number(playerY) || 0,
     targetX: Number(playerX) || 0,
     speed: Math.max(1, Number(baseSpeed) || 1) * speedMultiplier,
-    curveAmplitude: kind === 'parabolic' ? curveDirection * (56 + roll(rng) * 74) : 0,
+    curveAmplitude,
     chargeRemainingSeconds: BOSS_PROJECTILE_CHARGE_SECONDS,
     reflectionWindowSeconds: BOSS_PROJECTILE_REFLECTION_WINDOW_SECONDS,
     state: 'charging',
-    telegraphPoints: kind === 'parabolic'
-      ? Array.from({ length: 7 }, (_, index) => {
-        const progress = index / 6;
-        return {
-          x: bossX - distance * progress,
-          y: (bossY + (playerY - bossY) * progress)
-            + Math.sin(progress * Math.PI) * (curveDirection * 65),
-        };
-      })
-      : [],
+    telegraphPoints: [],
     hitPlayer: false,
     returnProgress: 0,
     styleKey,
   };
+  projectile.telegraphPoints = Array.from({ length: 9 }, (_, index) =>
+    getBossProjectilePoint(projectile, index / 8));
+  return projectile;
+}
+
+export function getBossProjectilePoint(projectile, progress) {
+  const safeProgress = clamp(Number(progress) || 0, 0, 1);
+  const distance = Math.max(1, Math.abs(projectile.bossX - projectile.targetX));
+  const x = projectile.bossX - distance * safeProgress;
+  const linearY = projectile.startY + (projectile.targetY - projectile.startY) * safeProgress;
+  const y = linearY + (projectile.kind === 'parabolic'
+    ? Math.sin(safeProgress * Math.PI) * projectile.curveAmplitude
+    : 0);
+  return { x, y };
 }
 
 function updateFlyingProjectile(projectile, deltaSeconds) {
-  const distance = Math.max(1, projectile.bossX - projectile.targetX);
+  const distance = Math.max(1, Math.abs(projectile.bossX - projectile.targetX));
   projectile.x -= projectile.speed * deltaSeconds;
   const progress = clamp((projectile.bossX - projectile.x) / distance, 0, 1);
-  projectile.y = projectile.startY
-    + (projectile.targetY - projectile.startY) * progress
-    + (projectile.kind === 'parabolic' ? Math.sin(progress * Math.PI) * projectile.curveAmplitude : 0);
+  Object.assign(projectile, getBossProjectilePoint(projectile, progress));
   if (projectile.x <= projectile.targetX - projectile.speed * deltaSeconds) {
     projectile.state = 'missed';
     projectile.hitPlayer = true;

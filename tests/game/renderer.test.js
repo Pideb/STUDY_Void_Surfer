@@ -338,6 +338,28 @@ describe('renderer', () => {
     });
     expect(context.fillText).toHaveBeenCalledWith('W', expect.any(Number), 258);
     expect(context.fillText).toHaveBeenCalledWith('BOSS: SIGNAL', 840, 392);
+    expect(context.arc.mock.calls.map((call) => call[2])).toContain(4);
+    expect(context.arc.mock.calls.map((call) => call[2])).toContain(2);
+    renderer.destroy();
+  });
+
+  it('adds visible outer and inner outlines to flying boss projectiles', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const renderer = createRenderer(canvas);
+
+    renderer.render({
+      player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+      obstacles: [],
+      difficulty: { isBoss: true },
+      stage: { id: 'crystal-gates', mode: 'boss', elapsedSeconds: 0 },
+      boss: { attack: { type: 'projectile', state: 'flying', x: 600, y: 260 } },
+    });
+
+    const radii = context.arc.mock.calls.map((call) => call[2]);
+    expect(radii).toContain(18);
+    expect(radii).toContain(12);
     renderer.destroy();
   });
 

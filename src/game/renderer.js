@@ -730,27 +730,53 @@ function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null)
   const color = theme.projectile;
   ctx.save();
   if (attack.state === 'charging' && attack.telegraphPoints?.length > 1) {
-    ctx.globalAlpha = 0.45;
+    ctx.globalAlpha = 0.92;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
+    setGlow(ctx, color, 16);
     ctx.beginPath();
     attack.telegraphPoints.forEach((point, index) => {
       if (index === 0) ctx.moveTo(point.x, point.y);
       else ctx.lineTo(point.x, point.y);
     });
     ctx.stroke();
-    ctx.globalAlpha = 0.8;
+    resetGlow(ctx);
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = '#f4ffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    attack.telegraphPoints.forEach((point, index) => {
+      if (index === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    });
+    ctx.stroke();
+    ctx.globalAlpha = 1;
     attack.telegraphPoints.forEach((point) => {
-      ctx.beginPath(); ctx.arc(point.x, point.y, 2, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+      ctx.beginPath(); ctx.arc(point.x, point.y, 4, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+      ctx.beginPath(); ctx.arc(point.x, point.y, 2, 0, Math.PI * 2); ctx.fillStyle = '#f4ffff'; ctx.fill();
     });
   } else if (attack.state === 'charging') {
-    ctx.globalAlpha = 0.35;
+    ctx.globalAlpha = 0.9;
     ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 4;
+    setGlow(ctx, color, 16);
+    ctx.beginPath(); ctx.moveTo(attack.bossX, attack.bossY); ctx.lineTo(attack.targetX, attack.targetY); ctx.stroke();
+    resetGlow(ctx);
+    ctx.globalAlpha = 0.9;
+    ctx.strokeStyle = '#f4ffff';
+    ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(attack.bossX, attack.bossY); ctx.lineTo(attack.targetX, attack.targetY); ctx.stroke();
   }
   if (attack.state !== 'charging') {
     ctx.globalAlpha = attack.state === 'returning' ? 1 : 0.92;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    setGlow(ctx, color, 18);
+    ctx.beginPath(); ctx.arc(attack.x, attack.y, 18, 0, Math.PI * 2); ctx.stroke();
+    resetGlow(ctx);
+    ctx.strokeStyle = '#f4ffff';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(attack.x, attack.y, 12, 0, Math.PI * 2); ctx.stroke();
     setGlow(ctx, color, attack.state === 'returning' ? 18 : 12);
     const image = getStageAsset(visualAssets, stageId, 'projectile');
     if (image) {

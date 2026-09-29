@@ -1,6 +1,6 @@
 # Task: T02 Projectile and Trajectory Telegraph Visibility
 
-## Status: pending
+## Status: done
 
 ## Goal
 Make incoming BOSS projectiles and their pre-fire paths easy to distinguish on every stage while ensuring the visible preview exactly matches the projectile's actual direct or parabolic flight path.
@@ -69,6 +69,10 @@ Task: T02-projectile-telegraph-visibility
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed (`28` focused tests; `git diff --check`)
 - commit: pending
+
+## Learning Notes
+- Sampling the preview from the same helper used by in-flight updates prevents curve direction/amplitude drift without extra random draws.
+- Drawing a colored glow plus a thin light core improves contrast while the renderer's save/restore keeps style state local.

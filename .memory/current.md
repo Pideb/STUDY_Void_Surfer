@@ -7,10 +7,10 @@
 [P01 BOSS Readability](./phases/2026-09-29-boss-combat-clarity/P01-boss-readability/phase.md)
 
 ## Active Task
-[T02 Projectile and Trajectory Telegraph Visibility](./phases/2026-09-29-boss-combat-clarity/P01-boss-readability/T02-projectile-telegraph-visibility.md)
+[T03 Explain BOSS Clear Condition Before Launch](./phases/2026-09-29-boss-combat-clarity/P01-boss-readability/T03-boss-clear-tutorial.md)
 
 ## Status
-- T01 complete and committed; proceed with projectile path/visibility changes in T02.
+- T01 and T02 complete and committed; proceed with pre-flight BOSS clear instructions in T03.
 
 ## Next Step (IMPORTANT)
-Read T02 fully, implement shared projectile path/visibility, run its focused validations, commit exactly as specified, then advance the pointer to T03.
+Read T03 fully, add the BOSS reflection clear rules to the pre-flight tutorial, run its focused validations, commit exactly as specified, then mark the plan complete.
