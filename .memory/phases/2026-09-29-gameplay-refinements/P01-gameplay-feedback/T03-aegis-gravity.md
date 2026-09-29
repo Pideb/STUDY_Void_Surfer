@@ -1,6 +1,6 @@
 # Task: T03 Ease AEGIS Gravity
 
-## Status: pending
+## Status: done
 
 ## Goal
 Make AEGIS less punishing to control by reducing gravity from 2.0x to 1.5x while preserving its precise 0.6x lift response.
@@ -24,9 +24,9 @@ Make AEGIS less punishing to control by reducing gravity from 2.0x to 1.5x while
 - Preserve unlock threshold and aircraft name/visual key.
 
 ## Acceptance Criteria
-- [ ] AEGIS gravity is 1.5x and lift remains 0.6x.
-- [ ] AEGIS falls less sharply; NOVA and VELOCITY physics are unchanged.
-- [ ] Existing input semantics and shared hitbox remain unchanged.
+- [x] AEGIS gravity is 1.5x and lift remains 0.6x.
+- [x] AEGIS falls less sharply; NOVA and VELOCITY physics are unchanged.
+- [x] Existing input semantics and shared hitbox remain unchanged.
 
 ## Validation
 - `npm test -- --run tests/game/aircraft.test.js tests/game/game-engine.test.js tests/game/player.test.js`
@@ -45,6 +45,6 @@ Task: T03-aegis-gravity
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- commit: `fix(game): ease AEGIS gravity handling`

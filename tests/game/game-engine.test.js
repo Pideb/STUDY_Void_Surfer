@@ -166,12 +166,15 @@ describe('game engine', () => {
   });
 
   it('keeps the shared hitbox while applying aircraft physics and movement profiles', () => {
-    const { engine, step } = createRuntimeEngine({ aircraftId: 'aegis', accountBestScore: 50 });
+    const { engine, step } = createRuntimeEngine({ aircraftId: 'aegis', accountBestScore: 50, gravity: 900 });
     engine.start();
     const initial = engine.getSnapshot();
 
-    expect(initial.aircraft).toMatchObject({ id: 'aegis', gravityMultiplier: 2, liftMultiplier: 0.6 });
+    expect(initial.aircraft).toMatchObject({ id: 'aegis', gravityMultiplier: 1.5, liftMultiplier: 0.6 });
     expect(initial.player).toMatchObject({ width: 36, height: 24 });
+    const falling = step();
+    expect(falling.player.velocityY).toBeCloseTo(135);
+    expect(falling.player.y).toBeCloseTo(283.5);
     engine.lift();
     expect(engine.getSnapshot().player.velocityY).toBeCloseTo(-216, 10);
     step();

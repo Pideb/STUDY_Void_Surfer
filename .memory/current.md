@@ -7,10 +7,10 @@
 [P01 Gameplay Feedback and Balance](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/phase.md)
 
 ## Active Task
-[T03 AEGIS Gravity Balance](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/T03-aegis-gravity.md)
+[T04 Special-Wall Timing Guide Clarity](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/T04-special-wall-guide.md)
 
 ## Status
-- T02 complete and committed; begin T03 AEGIS gravity balance.
+- T03 complete and committed; begin T04 special-wall timing guide clarity.
 
 ## Next Step (IMPORTANT)
-Read T03 fully and reduce AEGIS gravity while retaining its existing lift response before proceeding to T04.
+Read T04 fully and improve the visual contrast/pulse of the existing timing guide without changing judgment timing before proceeding to T05.
