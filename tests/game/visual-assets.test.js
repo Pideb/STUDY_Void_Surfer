@@ -2,6 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { createVisualAssetLoader, VISUAL_ASSET_MANIFEST } from '../../src/game/visual-assets.js';
 
 describe('visual asset loader', () => {
+  it('registers the local menu wordmark in the shared asset preloader manifest', () => {
+    expect(VISUAL_ASSET_MANIFEST.menuTitle).toBe('/assets/game/menu/void-surfer-wordmark.png');
+  });
+
   it('declares a complete seven-asset pack for every stage', () => {
     const expectedAssets = ['background', 'bossBackground', 'normalWall', 'specialWall', 'boss', 'projectile', 'laser'];
     expect(Object.keys(VISUAL_ASSET_MANIFEST.stages)).toEqual([

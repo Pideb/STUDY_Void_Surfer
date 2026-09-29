@@ -94,6 +94,11 @@ describe('accessibility and responsive UI contract', () => {
     const pause = renderPausedScreen({ score: 4 }, { resume: vi.fn(), menu: vi.fn() });
 
     expect(menu.querySelector('h1')?.textContent).toBe('VOID SURFER');
+    expect(menu.querySelectorAll('h1')).toHaveLength(1);
+    expect(menu.querySelector('h1 .menu-wordmark-image')?.getAttribute('aria-hidden')).toBe('true');
+    expect(menu.querySelector('h1 .menu-wordmark-fallback')?.textContent).toBe('VOID SURFER');
+    expect(styles).toMatch(/\.menu-wordmark-image\s*\{[^}]*width:\s*100%;[^}]*object-fit:\s*contain;/s);
+    expect(styles).toContain('.menu-wordmark.is-logo-unavailable .menu-wordmark-image');
     expect(pause.textContent).toContain('이미 오른 속도는 내려가지 않습니다.');
   });
 

@@ -9,8 +9,8 @@ Improve death feedback, aircraft balance, special-wall readability, and title/vi
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | Add brief death feedback and tune aircraft/special-wall readability. | [P01](../phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/phase.md) |
-| P02 | `pending` | Fill the browser viewport and integrate the selected title as an image asset. | [P02](../phases/2026-09-29-gameplay-refinements/P02-fullscreen-and-title-art/phase.md) |
+| P01 | `done` | Add brief death feedback and tune aircraft/special-wall readability. | [P01](../phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/phase.md) |
+| P02 | `done` | Fill the browser viewport and integrate the selected title as an image asset. | [P02](../phases/2026-09-29-gameplay-refinements/P02-fullscreen-and-title-art/phase.md) |
 
 ## Global Constraints
 - Death effect lasts about `0.5s`; freeze gameplay and controls after lethal damage, animate only the effect, then expose game-over and submit the final score exactly once.

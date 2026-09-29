@@ -45,7 +45,19 @@ export function renderMenuScreen(model, handlers) {
   brand.className = 'menu-brand';
   const title = document.createElement('h1');
   title.className = 'menu-wordmark';
-  title.textContent = 'VOID SURFER';
+  const titleImage = document.createElement('img');
+  titleImage.className = 'menu-wordmark-image';
+  titleImage.src = VISUAL_ASSET_MANIFEST.menuTitle;
+  titleImage.alt = '';
+  titleImage.setAttribute('aria-hidden', 'true');
+  const titleFallback = document.createElement('span');
+  titleFallback.className = 'sr-only menu-wordmark-fallback';
+  titleFallback.textContent = 'VOID SURFER';
+  titleImage.addEventListener('error', () => {
+    title.classList.add('is-logo-unavailable');
+    titleFallback.classList.remove('sr-only');
+  }, { once: true });
+  title.append(titleImage, titleFallback);
   const greeting = document.createElement('p');
   greeting.className = 'menu-greeting';
   const pilotName = document.createElement('strong');

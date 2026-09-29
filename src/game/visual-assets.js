@@ -1,5 +1,6 @@
 export const VISUAL_ASSET_MANIFEST = Object.freeze({
   menuBackground: '/assets/game/menu/space-background.png',
+  menuTitle: '/assets/game/menu/void-surfer-wordmark.png',
   aircraft: Object.freeze({
     default: '/assets/game/aircraft/default.png',
     velocity: '/assets/game/aircraft/velocity.png',

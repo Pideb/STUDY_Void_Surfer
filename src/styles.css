@@ -210,9 +210,9 @@ button:focus-visible {
 
 .menu-brand .menu-wordmark {
   position: relative;
-  width: fit-content;
+  width: min(100%, 38rem);
   max-width: 100%;
-  color: #eaffff;
+  margin: 0;
   font-family: "Arial", "Avenir Next", system-ui, sans-serif;
   font-weight: 900;
   letter-spacing: 0.16em;
@@ -221,14 +221,22 @@ button:focus-visible {
   -webkit-text-stroke: 0.35px rgba(85, 246, 229, 0.48);
 }
 
-.menu-brand .menu-wordmark::after {
+.menu-wordmark-image {
   display: block;
-  width: 72%;
-  height: 2px;
-  margin-top: 0.32em;
-  background: linear-gradient(90deg, var(--color-neon), rgba(85, 246, 229, 0.08));
-  content: "";
-  box-shadow: 0 0 10px rgba(85, 246, 229, 0.42);
+  width: 100%;
+  max-height: clamp(3.5rem, 14vw, 7.5rem);
+  object-fit: contain;
+  object-position: left center;
+  filter: drop-shadow(0 0 10px rgba(85, 246, 229, 0.22));
+}
+
+.menu-wordmark.is-logo-unavailable .menu-wordmark-image {
+  display: none;
+}
+
+.menu-wordmark-fallback:not(.sr-only) {
+  display: inline-block;
+  color: #eaffff;
 }
 
 .menu-greeting {
@@ -790,6 +798,11 @@ button:focus-visible {
     font-size: clamp(1.65rem, 8.2vw, 2.8rem);
     letter-spacing: 0.09em;
     text-align: center;
+  }
+
+  .menu-wordmark-image {
+    max-height: clamp(3rem, 17vw, 5rem);
+    object-position: center;
   }
 
   .menu-aircraft-preview {

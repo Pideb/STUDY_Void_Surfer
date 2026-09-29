@@ -17,7 +17,13 @@ describe('product flow screens', () => {
     ]);
     expect(screen.querySelector('.menu-aircraft-image')?.getAttribute('src')).toContain('/assets/game/aircraft/default.png');
     expect(screen.querySelector('.menu-brand strong')?.textContent).toBe('Pilot');
-    expect(screen.querySelector('h1.menu-wordmark')?.textContent).toBe('VOID SURFER');
+    const wordmark = screen.querySelector('h1.menu-wordmark');
+    expect(wordmark?.textContent).toBe('VOID SURFER');
+    expect(wordmark?.querySelector('.menu-wordmark-image')?.getAttribute('src'))
+      .toBe('/assets/game/menu/void-surfer-wordmark.png');
+    expect(wordmark?.querySelector('.menu-wordmark-image')?.getAttribute('alt')).toBe('');
+    expect(wordmark?.querySelector('.menu-wordmark-image')?.getAttribute('aria-hidden')).toBe('true');
+    expect(wordmark?.querySelector('.menu-wordmark-fallback')?.classList.contains('sr-only')).toBe(true);
     expect(screen.querySelector('.menu-greeting')?.textContent)
       .toBe('Pilot 파일럿, 다시 도전하는 것을 환영합니다.');
     const labels = [...screen.querySelectorAll('button')].map((button) => button.textContent.trim());
@@ -25,6 +31,19 @@ describe('product flow screens', () => {
     expect(labels).toContain('게임 시작');
     expect(labels).toContain('기체 선택');
     expect(labels).toContain('로그아웃');
+  });
+
+  it('shows readable title text if the menu logo image fails to load', () => {
+    const screen = renderMenuScreen({ displayName: 'Pilot', muted: false }, {
+      start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
+    });
+    const wordmark = screen.querySelector('h1.menu-wordmark');
+    const image = wordmark.querySelector('.menu-wordmark-image');
+    image.dispatchEvent(new Event('error'));
+
+    expect(wordmark.classList.contains('is-logo-unavailable')).toBe(true);
+    expect(wordmark.querySelector('.menu-wordmark-fallback').classList.contains('sr-only')).toBe(false);
+    expect(wordmark.textContent).toBe('VOID SURFER');
   });
 
   it('shows the selected aircraft as decorative, accessible title-screen artwork', () => {

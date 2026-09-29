@@ -1,6 +1,6 @@
 # Task: T06 Integrate the Selected Title Image
 
-## Status: pending
+## Status: done
 
 ## Goal
 Show the approved geometric cyan VOID SURFER logo as an actual transparent image at the menu's existing title position while preserving semantic accessible text.
@@ -35,10 +35,10 @@ Show the approved geometric cyan VOID SURFER logo as an actual transparent image
 - Verify PNG alpha transparency, readable display size, and expected public URL in build output.
 
 ## Acceptance Criteria
-- [ ] Menu visibly uses an image at the prior title position and approved art direction.
-- [ ] Exact `VOID SURFER` accessible heading remains present once.
-- [ ] Asset is transparent, locally preloaded, and has readable fallback.
-- [ ] Logo does not clip at desktop or mobile sizes.
+- [x] Menu visibly uses an image at the prior title position and approved art direction.
+- [x] Exact `VOID SURFER` accessible heading remains present once.
+- [x] Asset is transparent, locally preloaded, and has readable fallback.
+- [x] Logo does not clip at desktop or mobile sizes.
 
 ## Validation
 - `npm test -- --run tests/game/visual-assets.test.js tests/ui/screens.test.js tests/ui/accessibility.test.js`
@@ -58,6 +58,6 @@ Task: T06-title-image-asset
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- commit: `feat(ui): apply transparent VOID SURFER title art`
