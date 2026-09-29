@@ -1,6 +1,6 @@
 # Task: T02 Tutorial Copy
 
-## Status: pending
+## Status: done
 
 ## Goal
 Use the requested pre-flight heading and remove the two tutorial details the user no longer wants shown.
@@ -47,6 +47,6 @@ Task: T02-tutorial-copy
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

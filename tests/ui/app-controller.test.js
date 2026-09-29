@@ -119,7 +119,7 @@ describe('app controller product flow', () => {
     harness.controller.dispatch({ type: 'GAME_OVER' });
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '게임 시작').click();
-    expect(harness.root.textContent).toContain('출격 전 조작 안내');
+    expect(harness.root.textContent).toContain('출격 전 안내');
   });
 
   it('renders the menu scene and returns from tutorial without starting a run', async () => {
@@ -144,7 +144,7 @@ describe('app controller product flow', () => {
     expect([...harness.root.querySelectorAll('button')].map((button) => button.textContent.trim()))
       .not.toContain('조작법');
     harness.controller.dispatch('SHOW_TUTORIAL');
-    expect(harness.root.textContent).toContain('출격 전 조작 안내');
+    expect(harness.root.textContent).toContain('출격 전 안내');
   });
 
   it('loads account unlocks, preserves hangar choice on return, and starts with that aircraft', async () => {

@@ -74,7 +74,7 @@ describe('authenticated game flow', () => {
     expect(harness.root.textContent).toContain('게임 시작');
 
     clickByLabel(harness.root, '게임 시작');
-    expect(harness.root.textContent).toContain('출격 전 조작 안내');
+    expect(harness.root.textContent).toContain('출격 전 안내');
     clickByLabel(harness.root, '출격하기');
     expect(harness.root.textContent).toContain('점수 0');
     expect(harness.audioManager.unlock).toHaveBeenCalledOnce();
