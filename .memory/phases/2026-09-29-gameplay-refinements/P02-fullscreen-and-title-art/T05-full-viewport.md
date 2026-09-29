@@ -1,6 +1,6 @@
 # Task: T05 Fill the Browser Viewport
 
-## Status: pending
+## Status: done
 
 ## Goal
 Use the entire browser viewport on desktop and mobile, stretching the existing 960×540 scene and UI to viewport shape without crop or letterboxing.
@@ -25,10 +25,10 @@ Use the entire browser viewport on desktop and mobile, stretching the existing 9
 - No Fullscreen API, crop, letterboxing, or camera/world change. Non-16:9 stretching is intentional.
 
 ## Acceptance Criteria
-- [ ] Desktop viewport has no unused app margin or 960px cap.
-- [ ] Mobile fills the dynamic viewport without letterbox bars.
-- [ ] Canvas and UI overlay stretch together; logical coordinates/HiDPI remain intact.
-- [ ] Touch actions remain usable within safe areas.
+- [x] Desktop viewport has no unused app margin or 960px cap.
+- [x] Mobile fills the dynamic viewport without letterbox bars.
+- [x] Canvas and UI overlay stretch together; logical coordinates/HiDPI remain intact.
+- [x] Touch actions remain usable within safe areas.
 
 ## Validation
 - `npm test -- --run tests/ui/accessibility.test.js tests/game/renderer.test.js`
@@ -47,6 +47,6 @@ Task: T05-full-viewport
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- commit: `feat(ui): fill desktop and mobile game viewport`

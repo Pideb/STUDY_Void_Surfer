@@ -958,7 +958,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     pixelRatio = getDevicePixelRatio();
     canvas.width = WORLD_WIDTH * pixelRatio;
     canvas.height = WORLD_HEIGHT * pixelRatio;
-    canvas.style.aspectRatio = `${WORLD_WIDTH} / ${WORLD_HEIGHT}`;
+    canvas.style.aspectRatio = 'auto';
     ctx.setTransform?.(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
 

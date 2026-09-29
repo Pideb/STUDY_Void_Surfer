@@ -21,8 +21,11 @@
 
 html,
 body {
+  width: 100%;
+  height: 100%;
   min-width: 320px;
-  min-height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
   margin: 0;
   background:
     radial-gradient(circle at 50% 0%, rgba(37, 67, 145, 0.22), transparent 45%),
@@ -30,9 +33,6 @@ body {
 }
 
 body {
-  display: grid;
-  min-height: 100vh;
-  place-items: center;
   overflow: hidden;
 }
 
@@ -65,14 +65,15 @@ button:focus-visible {
 #app {
   position: relative;
   display: grid;
-  width: min(100vw, calc(100vh * 16 / 9));
-  max-width: 960px;
-  aspect-ratio: 16 / 9;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  max-width: none;
+  aspect-ratio: auto;
   overflow: hidden;
-  border: 1px solid rgba(85, 246, 229, 0.3);
-  border-radius: 1rem;
+  border: 0;
+  border-radius: 0;
   background: #070d25;
-  box-shadow: 0 0 45px rgba(41, 185, 221, 0.18);
 }
 
 .game-canvas,
@@ -86,7 +87,7 @@ button:focus-visible {
   display: block;
   max-width: 100%;
   max-height: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: auto;
 }
 
 .ui-root {
@@ -732,9 +733,16 @@ button:focus-visible {
 
 @media (max-width: 700px) {
   #app {
-    width: calc(100vw - env(safe-area-inset-left) - env(safe-area-inset-right));
-    border-radius: 0;
-    border-inline: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+  }
+
+  .game-hud {
+    padding: max(0.5rem, env(safe-area-inset-top))
+      max(0.5rem, env(safe-area-inset-right))
+      max(0.5rem, env(safe-area-inset-bottom))
+      max(0.5rem, env(safe-area-inset-left));
   }
 
   .leaderboard-panel {
@@ -765,7 +773,10 @@ button:focus-visible {
     align-content: start;
     gap: 0.55rem;
     overflow-y: auto;
-    padding: clamp(0.75rem, 4vw, 1.25rem);
+    padding: max(clamp(0.75rem, 4vw, 1.25rem), env(safe-area-inset-top))
+      max(clamp(0.75rem, 4vw, 1.25rem), env(safe-area-inset-right))
+      max(clamp(0.75rem, 4vw, 1.25rem), env(safe-area-inset-bottom))
+      max(clamp(0.75rem, 4vw, 1.25rem), env(safe-area-inset-left));
   }
 
   .menu-brand {

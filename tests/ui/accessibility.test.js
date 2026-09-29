@@ -77,6 +77,16 @@ describe('accessibility and responsive UI contract', () => {
     expect(styles).toContain('prefers-reduced-motion: reduce');
   });
 
+  it('fills the browser viewport and stretches canvas with the UI without a framed 16:9 cap', () => {
+    expect(styles).toMatch(/html,[\s\S]*?body\s*\{[^}]*width:\s*100%;[^}]*height:\s*100%;/);
+    expect(styles).toMatch(/#app\s*\{[^}]*width:\s*100vw;[^}]*height:\s*100vh;[^}]*height:\s*100dvh;[^}]*max-width:\s*none;[^}]*aspect-ratio:\s*auto;/s);
+    expect(styles).toMatch(/\.game-canvas,\s*\.ui-root\s*\{[^}]*grid-area:\s*1\s*\/\s*1;[^}]*width:\s*100%;[^}]*height:\s*100%;/s);
+    expect(styles).toMatch(/\.game-canvas\s*\{[^}]*aspect-ratio:\s*auto;/s);
+    expect(styles).not.toMatch(/#app\s*\{[^}]*max-width:\s*960px/);
+    expect(styles).not.toMatch(/#app\s*\{[^}]*aspect-ratio:\s*16\s*\/\s*9/);
+    expect(styles).toContain('safe-area-inset-left');
+  });
+
   it('keeps the title semantic and pause guidance visible in DOM text', () => {
     const menu = renderMenuScreen({ displayName: 'Pilot', muted: false }, {
       start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
