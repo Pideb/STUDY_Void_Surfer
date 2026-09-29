@@ -170,13 +170,13 @@ describe('game engine', () => {
     engine.start();
     const initial = engine.getSnapshot();
 
-    expect(initial.aircraft).toMatchObject({ id: 'aegis', gravityMultiplier: 1.5, liftMultiplier: 0.6 });
+    expect(initial.aircraft).toMatchObject({ id: 'aegis', gravityMultiplier: 1.3, liftMultiplier: 0.7 });
     expect(initial.player).toMatchObject({ width: 36, height: 24 });
     const falling = step();
-    expect(falling.player.velocityY).toBeCloseTo(135);
-    expect(falling.player.y).toBeCloseTo(283.5);
+    expect(falling.player.velocityY).toBeCloseTo(117);
+    expect(falling.player.y).toBeCloseTo(281.7);
     engine.lift();
-    expect(engine.getSnapshot().player.velocityY).toBeCloseTo(-216, 10);
+    expect(engine.getSnapshot().player.velocityY).toBeCloseTo(-252, 10);
     step();
     expect(engine.getSnapshot().player.width).toBe(36);
   });

@@ -1,6 +1,6 @@
 # Task: T03 Viewport Overflow
 
-## Status: pending
+## Status: done
 
 ## Goal
 Ensure the canvas and UI overlay remain within the available browser viewport on desktop and landscape mobile, without creating offscreen game space or changing the intended full-viewport presentation.
@@ -15,6 +15,7 @@ Ensure the canvas and UI overlay remain within the available browser viewport on
 - Related files:
   - `src/styles.css` :: `#app`, `.game-canvas`, `.ui-root` — make the grid track and overlaid items shrink to available viewport dimensions; modify.
   - `tests/ui/accessibility.test.js` :: viewport layout test — assert the shrink constraints and retain existing full-viewport/safe-area checks; modify.
+  - `tests/game/game-engine.test.js` :: AEGIS physics multiplier expectations — update stale assertions from the previous approved values; modify.
 
 #### Details
 - Preserve `#app` `width: 100vw`, `height: 100vh`, `height: 100dvh`, `overflow: hidden`, `max-width: none`, and `aspect-ratio: auto`.
@@ -22,6 +23,7 @@ Ensure the canvas and UI overlay remain within the available browser viewport on
 - Add `min-width: 0` and `min-height: 0` to the overlaid `.game-canvas, .ui-root` items so the canvas intrinsic/logical size cannot enlarge the grid track.
 - Preserve canvas logical rendering size and its current CSS width/height; preserve UI layout and screen-specific alignment.
 - Extend the existing viewport test to assert shrinkable grid tracks and min-size resets. Keep assertions for full viewport dimensions, absence of a 960px cap/16:9 frame, and safe-area support.
+- Update the AEGIS snapshot/physics expectations in `tests/game/game-engine.test.js` to match the already confirmed `1.3` gravity and `0.7` lift values; do not alter engine physics.
 
 ### I02. Verify full suite and production build
 - Related files:
@@ -35,6 +37,7 @@ Ensure the canvas and UI overlay remain within the available browser viewport on
 ## Acceptance Criteria
 - [ ] The canvas and UI overlay are constrained by a shrinkable viewport-sized grid track.
 - [ ] Existing 100vw/100dvh full-screen behavior and landscape mobile behavior remain intact.
+- [ ] Existing physics tests assert the confirmed AEGIS values and resulting velocities.
 - [ ] Tests/build pass and no unrelated screen layout behavior changes.
 
 ## Validation
@@ -56,6 +59,6 @@ Task: T03-viewport-overflow
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

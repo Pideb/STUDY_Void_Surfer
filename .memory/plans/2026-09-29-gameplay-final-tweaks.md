@@ -9,7 +9,7 @@ Apply the confirmed AEGIS tuning and tutorial copy, and fix viewport overflow so
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | Update AEGIS and briefing copy, then constrain viewport layout without changing the established visual policy. | [P01](../phases/2026-09-29-gameplay-final-tweaks/P01-gameplay-and-viewport/phase.md) |
+| P01 | `done` | Updated AEGIS balance and briefing copy, and constrained viewport layout without changing the established visual policy. | [P01](../phases/2026-09-29-gameplay-final-tweaks/P01-gameplay-and-viewport/phase.md) |
 
 ## Global Constraints
 - Keep AEGIS gravity at `1.3` and lift at `0.7` multipliers.
@@ -18,4 +18,4 @@ Apply the confirmed AEGIS tuning and tutorial copy, and fix viewport overflow so
 - Do not change unrelated scoring, bosses, aircraft, obstacles, or login/leaderboard behavior.
 
 ## Completion
-- Pending implementation and validation.
+- All three tasks completed and validated. Test suite and production build pass.

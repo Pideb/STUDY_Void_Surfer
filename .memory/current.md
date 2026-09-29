@@ -7,10 +7,10 @@
 [P01 Gameplay and Viewport](./phases/2026-09-29-gameplay-final-tweaks/P01-gameplay-and-viewport/phase.md)
 
 ## Active Task
-[T03 Viewport Overflow](./phases/2026-09-29-gameplay-final-tweaks/P01-gameplay-and-viewport/T03-viewport-overflow.md)
+None — the plan is complete.
 
 ## Status
-- T01 AEGIS tuning and hangar stats, and T02 tutorial copy implemented, validated, and committed.
+- All three tasks completed, validated, and committed.
 
 ## Next Step (IMPORTANT)
-Read the T03 blueprint and constrain the viewport grid/canvas sizing, then run layout, full-suite, and build validation.
+No remaining tasks. `npm test -- --run`, `npm run build`, and `git diff --check` pass.
