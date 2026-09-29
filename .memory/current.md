@@ -10,7 +10,7 @@
 None — plan complete.
 
 ## Status
-- All Tasks complete; final full-suite/build validation and final commit are in progress.
+- Plan complete; all three Tasks are committed and full validation passed.
 
 ## Next Step (IMPORTANT)
-Plan complete after final validation and T03 commit.
+No active work remains.

@@ -71,7 +71,7 @@ Task: T02-projectile-telegraph-visibility
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed (`28` focused tests; `git diff --check`)
-- commit: pending
+- commit: `718516e`
 
 ## Learning Notes
 - Sampling the preview from the same helper used by in-flight updates prevents curve direction/amplitude drift without extra random draws.

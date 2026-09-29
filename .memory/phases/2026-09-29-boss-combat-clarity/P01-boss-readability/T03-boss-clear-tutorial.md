@@ -49,8 +49,8 @@ Task: T03-boss-clear-tutorial
 
 ## Progress
 - [x] Implementation complete
-- [x] Validation passed (`16` focused tests; `git diff --check`)
-- commit: pending
+- [x] Validation passed (`16` focused tests; full suite, build, and `git diff --check`)
+- commit: `c58a090`
 
 ## Learning Notes
 - Put rules that materially affect a first boss encounter in the pre-flight tutorial so players can learn them before combat, while retaining semantic list markup.

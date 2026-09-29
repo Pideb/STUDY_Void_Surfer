@@ -75,7 +75,7 @@ Task: T01-boss-speed-and-preview
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed (`39` focused tests; `git diff --check`)
-- commit: pending
+- commit: `70e7fa5`
 
 ## Learning Notes
 - A pre-entry preview must suppress threshold-driven WARNING selection while leaving ordinary simulation and obstacle spawning active.
