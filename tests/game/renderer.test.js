@@ -208,12 +208,42 @@ describe('renderer', () => {
     drawObstacle(context, specialWall, VISUAL_THEME, { scrollSpeed: 240, timingWindowSeconds: 0.5 });
 
     expect(context.fillRect).toHaveBeenCalledWith(400, 0, 120, WORLD_HEIGHT);
+    expect(context.moveTo).toHaveBeenCalledWith(400, 0);
+    expect(context.lineTo).toHaveBeenCalledWith(400, WORLD_HEIGHT);
+    expect(context.moveTo).toHaveBeenCalledWith(520, 0);
+    expect(context.lineTo).toHaveBeenCalledWith(520, WORLD_HEIGHT);
     const noGuideContext = createContext();
     drawObstacle(noGuideContext, { ...specialWall, showTimingGuide: false }, VISUAL_THEME, {
       scrollSpeed: 240,
       timingWindowSeconds: 0.5,
     });
     expect(noGuideContext.fillRect).not.toHaveBeenCalledWith(400, 0, 120, WORLD_HEIGHT);
+  });
+
+  it('brightens the exact-width guide as the wall approaches and freezes it for reduced motion', () => {
+    const renderGuide = (x, elapsedSeconds, reducedMotion = false) => {
+      const context = createContext();
+      let bandAlpha = 0;
+      context.fillRect.mockImplementation(function captureBandAlpha(...args) {
+        if (args[0] === x - 120 && args[1] === 0 && args[2] === 120 && args[3] === WORLD_HEIGHT) {
+          bandAlpha = this.globalAlpha;
+        }
+      });
+      drawObstacle(context, {
+        x, width: 24, gapCenter: 270, gapHeight: 180, kind: 'special', showTimingGuide: true,
+      }, VISUAL_THEME, {
+        scrollSpeed: 240, timingWindowSeconds: 0.5, playerX: 240, elapsedSeconds,
+      }, null, reducedMotion);
+      return { context, bandAlpha };
+    };
+
+    const distant = renderGuide(520, 0.5);
+    const approaching = renderGuide(280, 0.5);
+    const staticGuide = renderGuide(280, 0.5, true);
+    expect(distant.bandAlpha).toBeCloseTo(0.35 + Math.sin(3) * 0.04);
+    expect(approaching.bandAlpha).toBeCloseTo(0.35 + (1 - 40 / 120) * 0.08 + Math.sin(3) * 0.04);
+    expect(staticGuide.bandAlpha).toBe(0.42);
+    expect(staticGuide.context.shadowBlur).toBe(0);
   });
 
   it('draws the special-wall break opening, expanding shock ring, and radial fragments at the crossing point', () => {

@@ -1,6 +1,6 @@
 # Task: T04 Improve Special-Wall Timing Guide Visibility
 
-## Status: pending
+## Status: done
 
 ## Goal
 Make the first-run special-wall timing window easy to perceive while keeping every guide pixel aligned with the actual existing dash-success window.
@@ -25,10 +25,10 @@ Make the first-run special-wall timing window easy to perceive while keeping eve
 - Under reduced motion, keep a static bright band/edges. Do not change `isSpecialTimingSuccess`, timing window, dash targeting, collision bounds, wall dimensions, or spawn timing.
 
 ## Acceptance Criteria
-- [ ] Guide width remains exactly `scrollSpeed × timingWindowSeconds`.
-- [ ] Band and boundaries are readable against all stage backgrounds.
-- [ ] Approach pulse works and reduced motion displays a static guide.
-- [ ] Availability and actual gameplay judgment are unchanged.
+- [x] Guide width remains exactly `scrollSpeed × timingWindowSeconds`.
+- [x] Band and boundaries are readable against all stage backgrounds.
+- [x] Approach pulse works and reduced motion displays a static guide.
+- [x] Availability and actual gameplay judgment are unchanged.
 
 ## Validation
 - `npm test -- --run tests/game/renderer.test.js tests/game/game-engine.test.js`
@@ -47,6 +47,6 @@ Task: T04-special-wall-guide
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- commit: `fix(render): clarify special-wall dash timing window`

@@ -4,13 +4,13 @@
 [Gameplay Refinements](./plans/2026-09-29-gameplay-refinements.md)
 
 ## Active Phase
-[P01 Gameplay Feedback and Balance](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/phase.md)
+[P02 Full Viewport and Title Art](./phases/2026-09-29-gameplay-refinements/P02-fullscreen-and-title-art/phase.md)
 
 ## Active Task
-[T04 Special-Wall Timing Guide Clarity](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/T04-special-wall-guide.md)
+[T05 Full-Viewport Layout](./phases/2026-09-29-gameplay-refinements/P02-fullscreen-and-title-art/T05-full-viewport.md)
 
 ## Status
-- T03 complete and committed; begin T04 special-wall timing guide clarity.
+- P01 gameplay feedback/balance complete; begin T05 full-viewport layout.
 
 ## Next Step (IMPORTANT)
-Read T04 fully and improve the visual contrast/pulse of the existing timing guide without changing judgment timing before proceeding to T05.
+Read T05 fully and make the game and its UI use the available browser viewport on desktop and mobile.

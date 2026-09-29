@@ -250,6 +250,32 @@ function getTimingGuideWidth(obstacle, difficulty) {
   return Math.max(0, speed * windowSeconds);
 }
 
+function drawSpecialTimingGuide(ctx, obstacle, difficulty, width, reducedMotion = false) {
+  if (width <= 0) return;
+  const playerX = Number.isFinite(difficulty?.playerX) ? difficulty.playerX : 240;
+  const progress = Math.max(0, Math.min(1, 1 - (obstacle.x - playerX) / Math.max(1, width)));
+  const elapsed = Number.isFinite(difficulty?.elapsedSeconds) ? difficulty.elapsedSeconds : 0;
+  const pulse = reducedMotion ? 0 : Math.sin(elapsed * 6) * 0.04;
+  const left = obstacle.x - width;
+
+  ctx.save();
+  ctx.globalAlpha = reducedMotion ? 0.42 : Math.max(0.31, Math.min(0.47, 0.35 + progress * 0.08 + pulse));
+  ctx.fillStyle = '#55f6e5';
+  ctx.fillRect(left, 0, width, WORLD_HEIGHT);
+  ctx.globalAlpha = 0.95;
+  ctx.strokeStyle = '#cafffa';
+  ctx.lineWidth = 2;
+  setGlow(ctx, '#55f6e5', reducedMotion ? 8 : 13);
+  ctx.beginPath();
+  ctx.moveTo(left, 0);
+  ctx.lineTo(left, WORLD_HEIGHT);
+  ctx.moveTo(obstacle.x, 0);
+  ctx.lineTo(obstacle.x, WORLD_HEIGHT);
+  ctx.stroke();
+  resetGlow(ctx);
+  ctx.restore();
+}
+
 function resolveStageTheme(stageId) {
   return stageId ? getStageVisualTheme(stageId) : VISUAL_THEME;
 }
@@ -278,7 +304,7 @@ function drawClippedWallAsset(ctx, image, obstacle, y, height, sourceXRatio, sou
   ctx.restore();
 }
 
-export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = null, visualAssets = null) {
+export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = null, visualAssets = null, reducedMotion = false) {
   const isSpecial = obstacle.kind === 'special';
   const visual = obstacle.stageId ? resolveStageTheme(obstacle.stageId) : theme;
   const primary = isSpecial ? visual.specialObstacle : visual.obstacle;
@@ -293,12 +319,6 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   );
 
   ctx.save();
-  if (timingGuideWidth > 0) {
-    ctx.globalAlpha = 0.18;
-    ctx.fillStyle = theme.timingGuide;
-    ctx.fillRect(obstacle.x - timingGuideWidth, 0, timingGuideWidth, WORLD_HEIGHT);
-    ctx.globalAlpha = 1;
-  }
   setGlow(ctx, primary, theme.obstacleGlow ?? 12);
   ctx.fillStyle = primary;
   if (isSpecial) {
@@ -422,6 +442,7 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
     }
   }
 
+  if (timingGuideWidth > 0) drawSpecialTimingGuide(ctx, obstacle, difficulty, timingGuideWidth, reducedMotion);
   ctx.restore();
 }
 
@@ -954,7 +975,11 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
 
     for (const obstacle of snapshot.obstacles ?? []) {
       const stageObstacle = obstacle.stageId ? obstacle : { ...obstacle, stageId: stage.id };
-      drawObstacle(ctx, stageObstacle, theme, snapshot.difficulty, visualAssets);
+      drawObstacle(ctx, stageObstacle, theme, {
+        ...snapshot.difficulty,
+        playerX: snapshot.player?.x ?? 240,
+        elapsedSeconds: snapshot.elapsedSeconds ?? elapsed,
+      }, visualAssets, prefersReducedMotion);
     }
 
     drawLaser(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
