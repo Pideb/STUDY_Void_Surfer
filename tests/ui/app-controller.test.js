@@ -165,6 +165,17 @@ describe('app controller product flow', () => {
     expect(harness.gameEngine.setAircraft).toHaveBeenCalledWith('velocity');
   });
 
+  it('shows the updated AEGIS gravity and lift in the aircraft selection', async () => {
+    harness = makeHarness({ bestScore: 50 });
+    harness.controller.mount();
+    await settle();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '기체 선택').click();
+
+    const aegis = [...harness.root.querySelectorAll('.aircraft-option')]
+      .find((button) => button.getAttribute('aria-label').startsWith('AEGIS'));
+    expect(aegis.querySelector('.aircraft-performance').textContent).toBe('중력 ×1.3 · 상승력 70%');
+  });
+
   it('falls back to the default aircraft and explains a failed best-score lookup', async () => {
     harness = makeHarness({ leaderboard: {
       fetchPlayerBestScore: async () => ({ bestScore: 0, error: new Error('offline') }),

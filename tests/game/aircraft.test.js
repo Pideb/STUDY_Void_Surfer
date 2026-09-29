@@ -22,8 +22,8 @@ describe('aircraft catalog', () => {
       scoreMultiplier: 1,
       scrollSpeedMultiplier: 1,
       spawnIntervalMultiplier: 1,
-      gravityMultiplier: 1.5,
-      liftMultiplier: 0.6,
+      gravityMultiplier: 1.3,
+      liftMultiplier: 0.7,
     });
   });
 
