@@ -190,6 +190,45 @@ describe('game engine', () => {
     expect(snapshot.obstacles.length).toBeGreaterThanOrEqual(1);
   });
 
+  it('caps VELOCITY fast-BOSS movement at 2.2x while preserving other profiles', () => {
+    const enterBoss = (aircraftId, rngValue) => {
+      const { engine, step } = createRuntimeEngine({
+        aircraftId,
+        accountBestScore: 100,
+        initialScore: 60,
+        initialCompletedWarningCount: 1,
+        rng: () => rngValue,
+      });
+      engine.start();
+      let snapshot = engine.getSnapshot();
+      for (let frame = 0; frame < 30 && !snapshot.difficulty.isBoss; frame += 1) snapshot = step(100);
+      return { engine, step, snapshot };
+    };
+
+    const velocityFast = enterBoss('velocity', 0.4).snapshot;
+    expect(velocityFast.difficulty).toMatchObject({
+      bossPattern: 'fast', speedMultiplier: 1.25, speedAdjustmentMultiplier: 0.88,
+    });
+    expect(velocityFast.difficulty.scrollSpeed / velocityFast.difficulty.baseSpeed).toBeCloseTo(2.2);
+
+    const defaultFast = enterBoss('default', 0.4).snapshot;
+    expect(defaultFast.difficulty.scrollSpeed / defaultFast.difficulty.baseSpeed).toBeCloseTo(1.25);
+
+    const velocitySlow = enterBoss('velocity', 0).snapshot;
+    expect(velocitySlow.difficulty.bossPattern).toBe('slow');
+    expect(velocitySlow.difficulty.scrollSpeed / velocitySlow.difficulty.baseSpeed).toBeCloseTo(1.5);
+
+    const shift = enterBoss('velocity', 0.67);
+    expect(shift.snapshot.difficulty.bossPattern).toBe('shift');
+    for (let frame = 0; frame < 15 && shift.snapshot.elapsedSeconds < 2.2
+      && shift.snapshot.state === GAME_STATES.PLAYING; frame += 1) {
+      shift.snapshot = shift.step(100);
+    }
+    expect(shift.snapshot.elapsedSeconds).toBeGreaterThanOrEqual(2.2);
+    expect(shift.snapshot.difficulty.speedMultiplier).toBe(1.25);
+    expect(shift.snapshot.difficulty.scrollSpeed / shift.snapshot.difficulty.baseSpeed).toBeCloseTo(2.2);
+  });
+
   it('rejects locked aircraft and changing aircraft during an active run', () => {
     const engine = createGameEngine({ now: () => 1000, accountBestScore: 0 });
 

@@ -7,10 +7,10 @@
 [P01 Gameplay Feedback and Balance](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/phase.md)
 
 ## Active Task
-[T02 VELOCITY Fast Boss Speed Cap](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/T02-velocity-boss-speed.md)
+[T03 AEGIS Gravity Balance](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/T03-aegis-gravity.md)
 
 ## Status
-- T01 complete and committed; begin T02 VELOCITY fast-BOSS speed cap.
+- T02 complete and committed; begin T03 AEGIS gravity balance.
 
 ## Next Step (IMPORTANT)
-Read T02 fully and implement the VELOCITY fast-BOSS speed cap before proceeding to T03.
+Read T03 fully and reduce AEGIS gravity while retaining its existing lift response before proceeding to T04.

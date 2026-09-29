@@ -23,6 +23,7 @@ import {
   WARNING_MOVING_GAP_CYCLE_SECONDS,
   WARNING_OBSTACLE_COUNT,
   WARNING_SPAWN_INTERVAL_SECONDS,
+  VELOCITY_FAST_BOSS_SPEED_MULTIPLIER,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants.js';
@@ -153,12 +154,20 @@ export function createGameEngine(deps = {}) {
   }
 
   function applyAircraftDifficulty(difficulty) {
+    const fastBossAdjustment = aircraft.id === 'velocity'
+      && difficulty.isBoss
+      && difficulty.speedMultiplier === 1.25
+      ? VELOCITY_FAST_BOSS_SPEED_MULTIPLIER
+      : 1;
     return {
       ...difficulty,
       aircraftId: aircraft.id,
       aircraftScrollSpeedMultiplier: aircraft.scrollSpeedMultiplier,
       aircraftSpawnIntervalMultiplier: aircraft.spawnIntervalMultiplier,
-      scrollSpeed: difficulty.scrollSpeed * aircraft.scrollSpeedMultiplier,
+      speedAdjustmentMultiplier: fastBossAdjustment,
+      effectiveSpeedMultiplier: difficulty.speedMultiplier
+        * aircraft.scrollSpeedMultiplier * fastBossAdjustment,
+      scrollSpeed: difficulty.scrollSpeed * aircraft.scrollSpeedMultiplier * fastBossAdjustment,
     };
   }
 
