@@ -125,6 +125,42 @@ export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'defaul
   ctx.restore();
 }
 
+export function drawShipDeathEffect(ctx, effect, aircraftId = 'default', reducedMotion = false) {
+  if (!effect || !Number.isFinite(effect.durationSeconds) || effect.durationSeconds <= 0) return;
+  const progress = Math.max(0, Math.min(1, effect.elapsedSeconds / effect.durationSeconds));
+  const craft = AIRCRAFT_VISUALS[aircraftId] ?? AIRCRAFT_VISUALS.default;
+  const alpha = (1 - progress) * (reducedMotion ? 0.5 : 1);
+  if (alpha <= 0) return;
+
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = '#ffffff';
+  setGlow(ctx, craft.accent, reducedMotion ? 12 : 24 * (1 - progress));
+  ctx.beginPath();
+  ctx.arc(effect.x, effect.y, reducedMotion ? 9 : 5 + (1 - progress) * 15, 0, Math.PI * 2);
+  ctx.fill();
+  resetGlow(ctx);
+
+  if (!reducedMotion) {
+    const fragmentCount = 10;
+    for (let index = 0; index < fragmentCount; index += 1) {
+      const angle = index * Math.PI * 2 / fragmentCount + Math.PI / 10;
+      const distance = 8 + progress * 46;
+      const size = 2 + (index % 3) * 1.2;
+      const x = effect.x + Math.cos(angle) * distance;
+      const y = effect.y + Math.sin(angle) * distance;
+      ctx.fillStyle = index % 2 === 0 ? craft.outline : craft.accent;
+      ctx.beginPath();
+      ctx.moveTo(x + Math.cos(angle) * size * 2, y + Math.sin(angle) * size * 2);
+      ctx.lineTo(x + Math.cos(angle + 2.4) * size, y + Math.sin(angle + 2.4) * size);
+      ctx.lineTo(x + Math.cos(angle - 2.4) * size, y + Math.sin(angle - 2.4) * size);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+}
+
 export function drawShipExhaust(ctx, player, aircraftId = 'default', _elapsedSeconds = 0, flightTrail = []) {
   const craft = AIRCRAFT_VISUALS[aircraftId] ?? AIRCRAFT_VISUALS.default;
   if (!Array.isArray(flightTrail) || flightTrail.length < 2) return;
@@ -924,11 +960,17 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     drawLaser(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
     drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
     drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id, prefersReducedMotion);
-    drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
-    drawSpecialDashBurst(ctx, snapshot.player, VISUAL_THEME);
+    if (!snapshot.deathEffect) {
+      drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
+      drawSpecialDashBurst(ctx, snapshot.player, VISUAL_THEME);
+    }
     drawStageAtmosphere(ctx, stage.mode, elapsed);
-    drawShipExhaust(ctx, snapshot.player, snapshot.aircraft?.id, elapsed, snapshot.flightTrail);
-    drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
+    if (snapshot.deathEffect) {
+      drawShipDeathEffect(ctx, snapshot.deathEffect, snapshot.deathEffect.aircraftId ?? snapshot.aircraft?.id, prefersReducedMotion);
+    } else {
+      drawShipExhaust(ctx, snapshot.player, snapshot.aircraft?.id, elapsed, snapshot.flightTrail);
+      drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
+    }
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect);
     ctx.restore();
   }

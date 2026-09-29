@@ -1,16 +1,16 @@
 # Current Context
 
 ## Active Plan
-[BOSS Combat Clarity](./plans/2026-09-29-boss-combat-clarity.md)
+[Gameplay Refinements](./plans/2026-09-29-gameplay-refinements.md)
 
 ## Active Phase
-[P01 BOSS Readability](./phases/2026-09-29-boss-combat-clarity/P01-boss-readability/phase.md)
+[P01 Gameplay Feedback and Balance](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/phase.md)
 
 ## Active Task
-None — plan complete.
+[T02 VELOCITY Fast Boss Speed Cap](./phases/2026-09-29-gameplay-refinements/P01-gameplay-feedback/T02-velocity-boss-speed.md)
 
 ## Status
-- Plan complete; all three Tasks are committed and full validation passed.
+- T01 complete and committed; begin T02 VELOCITY fast-BOSS speed cap.
 
 ## Next Step (IMPORTANT)
-No active work remains.
+Read T02 fully and implement the VELOCITY fast-BOSS speed cap before proceeding to T03.

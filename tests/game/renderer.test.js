@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import {
-  createRenderer, drawBoss, drawDashTrail, drawObstacle, drawShip, drawShipExhaust,
+  createRenderer, drawBoss, drawDashTrail, drawObstacle, drawShip, drawShipDeathEffect, drawShipExhaust,
 } from '../../src/game/renderer.js';
 import { STAGE_VISUAL_THEMES, VISUAL_THEME } from '../../src/game/visual-theme.js';
 
@@ -147,6 +147,49 @@ describe('renderer', () => {
     expect(context.moveTo.mock.calls[0]).toEqual([100, 220]);
     expect(context.lineTo.mock.calls.at(-1)).toEqual([223, 270]);
     expect(player).toEqual({ x: 240, y: 270, width: 36, height: 24, isDashing: false });
+  });
+
+  it('draws a deterministic expanding ship-destruction effect and honors reduced motion', () => {
+    const context = createContext();
+    drawShipDeathEffect(context, {
+      x: 240, y: 270, elapsedSeconds: 0.25, durationSeconds: 0.5,
+    }, 'velocity');
+
+    expect(context.arc).toHaveBeenCalledWith(240, 270, 12.5, 0, Math.PI * 2);
+    expect(context.moveTo).toHaveBeenCalledTimes(10);
+    expect(context.lineTo).toHaveBeenCalledTimes(20);
+
+    const reducedContext = createContext();
+    drawShipDeathEffect(reducedContext, {
+      x: 240, y: 270, elapsedSeconds: 0.25, durationSeconds: 0.5,
+    }, 'velocity', true);
+    expect(reducedContext.arc).toHaveBeenCalledOnce();
+    expect(reducedContext.moveTo).not.toHaveBeenCalled();
+
+    const completedContext = createContext();
+    drawShipDeathEffect(completedContext, {
+      x: 240, y: 270, elapsedSeconds: 0.5, durationSeconds: 0.5,
+    });
+    expect(completedContext.arc).not.toHaveBeenCalled();
+  });
+
+  it('replaces the live ship and trail with the death effect in gameplay rendering', () => {
+    const canvas = document.createElement('canvas');
+    const context = createContext();
+    canvas.getContext = vi.fn(() => context);
+    const renderer = createRenderer(canvas);
+    renderer.render({
+      player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+      aircraft: { id: 'default' },
+      flightTrail: [{ x: 180, y: 260 }, { x: 220, y: 270 }],
+      deathEffect: { x: 240, y: 270, elapsedSeconds: 0.25, durationSeconds: 0.5, aircraftId: 'default' },
+      obstacles: [],
+      difficulty: {},
+    });
+
+    expect(context.drawImage).not.toHaveBeenCalled();
+    expect(context.arc).toHaveBeenCalledWith(240, 270, 12.5, 0, Math.PI * 2);
+    renderer.destroy();
   });
 
   it('renders special walls as a full-height dash-only barrier', () => {

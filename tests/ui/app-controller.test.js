@@ -251,6 +251,31 @@ describe('app controller product flow', () => {
     });
   });
 
+  it('waits for the engine death effect to finish before showing game over or submitting score', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+
+    harness.gameEngine.update
+      .mockImplementationOnce(() => {})
+      .mockImplementationOnce(() => {
+        harness.snapshot.state = 'game-over';
+        harness.snapshot.gameOverReason = 'obstacle';
+      });
+    harness.frames.shift()(100);
+
+    expect(harness.snapshot.state).toBe('playing');
+    expect(harness.root.textContent).not.toContain('寃뚯엫 ?ㅻ쾭');
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+
+    harness.frames.shift()(200);
+    await settle();
+    expect(harness.root.textContent).toContain('비행 종료');
+    expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledOnce();
+  });
+
   it('submits and queries leaderboard independently then displays rows in safe text cells', async () => {
     harness = makeHarness({ leaderboard: {
       submitBestScore: async (_user, { score, aircraftId }) => savedScoreResult(score, aircraftId),

@@ -16,6 +16,7 @@ import {
   NORMAL_SPAWN_INTERVAL_SECONDS,
   OBSTACLE_SPAWN_X,
   PAUSE_SCORE_PENALTY,
+  PLAYER_DEATH_EFFECT_SECONDS,
   SPECIAL_BREAK_DURATION_SECONDS,
   WARNING_START_SCORE,
   WARNING_MIN_SPECIALS,
@@ -92,6 +93,7 @@ export function createGameEngine(deps = {}) {
   let elapsedSeconds = 0;
   let lastUpdateMs = null;
   let gameOverReason = null;
+  let deathEffect = null;
   let obstacles = [];
   let nextObstacleId = 1;
   let spawnAccumulatorSeconds = 0;
@@ -337,6 +339,7 @@ export function createGameEngine(deps = {}) {
     scoreSession = { score: initialScore, progressionScore: initialScore, passedObstacleIds: new Set() };
     elapsedSeconds = 0;
     gameOverReason = null;
+    deathEffect = null;
     obstacles = [];
     nextObstacleId = 1;
     spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier;
@@ -561,6 +564,15 @@ export function createGameEngine(deps = {}) {
     lastUpdateMs = nowMs;
     if (deltaSeconds <= 0) return;
 
+    if (deathEffect) {
+      deathEffect.elapsedSeconds = Math.min(
+        deathEffect.durationSeconds,
+        deathEffect.elapsedSeconds + deltaSeconds,
+      );
+      if (deathEffect.elapsedSeconds >= deathEffect.durationSeconds) state = GAME_STATES.GAME_OVER;
+      return;
+    }
+
     if (challenge?.active) {
       updateChallenge(challenge, deltaSeconds);
       resolveChallenge();
@@ -586,6 +598,7 @@ export function createGameEngine(deps = {}) {
     }
     advanceDash(player, deltaSeconds);
     updateBossAttack(deltaSeconds);
+    if (deathEffect) return;
     if (bossEncounter?.hitEffect) {
       bossEncounter.hitEffect.remainingSeconds = Math.max(0, bossEncounter.hitEffect.remainingSeconds - deltaSeconds);
       if (bossEncounter.hitEffect.remainingSeconds === 0) bossEncounter.hitEffect = null;
@@ -611,6 +624,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function pause() {
+    if (deathEffect) return { score: getScore() };
     if (state !== GAME_STATES.PLAYING) {
       return { score: getScore() };
     }
@@ -622,13 +636,13 @@ export function createGameEngine(deps = {}) {
   }
 
   function lift() {
-    if (state !== GAME_STATES.PLAYING) return false;
+    if (state !== GAME_STATES.PLAYING || deathEffect) return false;
     applyLift(player, LIFT_VELOCITY * aircraft.liftMultiplier);
     return true;
   }
 
   function dash() {
-    if (state !== GAME_STATES.PLAYING) return false;
+    if (state !== GAME_STATES.PLAYING || deathEffect) return false;
     if (challenge?.active) return false;
     if (bossEncounter?.attack?.type === 'projectile'
       && isProjectileInReflectionWindow(bossEncounter.attack, player.x)
@@ -672,13 +686,17 @@ export function createGameEngine(deps = {}) {
   }
 
   function stop(reason = 'unknown') {
-    if (state === GAME_STATES.GAME_OVER) {
-      return;
-    }
-
+    if (state !== GAME_STATES.PLAYING || deathEffect) return;
     gameOverReason = reason;
     bossPreview = null;
-    state = GAME_STATES.GAME_OVER;
+    deathEffect = {
+      reason,
+      elapsedSeconds: 0,
+      durationSeconds: PLAYER_DEATH_EFFECT_SECONDS,
+      x: player.x,
+      y: player.y,
+      aircraftId: aircraft.id,
+    };
   }
 
   function getSnapshot() {
@@ -695,6 +713,7 @@ export function createGameEngine(deps = {}) {
       elapsedSeconds,
       backgroundScrollDistancePx,
       gameOverReason,
+      deathEffect: deathEffect ? { ...deathEffect } : null,
       aircraft: {
         id: aircraft.id,
         name: aircraft.name,

@@ -390,12 +390,50 @@ describe('game engine', () => {
     let snapshot;
     for (let frame = 0; frame < 50 && snapshot?.state !== GAME_STATES.GAME_OVER; frame += 1) snapshot = step();
 
-    expect(snapshot).toMatchObject({ state: GAME_STATES.GAME_OVER, gameOverReason: 'obstacle' });
+    expect(snapshot).toMatchObject({ state: GAME_STATES.GAME_OVER, gameOverReason: 'obstacle', deathEffect: expect.any(Object) });
     const copied = engine.getSnapshot();
     copied.player.y = 999;
     copied.obstacles[0].x = 999;
     expect(engine.getSnapshot().player.y).not.toBe(999);
     expect(engine.getSnapshot().obstacles[0].x).not.toBe(999);
+  });
+
+  it('freezes the run and rejects controls during the death effect before game over', () => {
+    const { engine, step } = createRuntimeEngine({ initialScore: 15 });
+    engine.start();
+    step(100);
+    engine.stop('obstacle');
+
+    const fatal = engine.getSnapshot();
+    expect(fatal).toMatchObject({
+      state: GAME_STATES.PLAYING,
+      score: 15,
+      gameOverReason: 'obstacle',
+      deathEffect: { reason: 'obstacle', elapsedSeconds: 0, durationSeconds: 0.5, aircraftId: 'default' },
+    });
+    expect(engine.lift()).toBe(false);
+    expect(engine.dash()).toBe(false);
+    expect(engine.pause()).toEqual({ score: 15 });
+    engine.stop('laser');
+    const copied = engine.getSnapshot();
+    copied.deathEffect.elapsedSeconds = 99;
+
+    for (let frame = 0; frame < 4; frame += 1) {
+      const snapshot = step(100);
+      expect(snapshot.state).toBe(GAME_STATES.PLAYING);
+      expect(snapshot.score).toBe(15);
+      expect(snapshot.elapsedSeconds).toBeCloseTo(0.1);
+      expect(snapshot.deathEffect.reason).toBe('obstacle');
+    }
+    expect(engine.getSnapshot().deathEffect.elapsedSeconds).toBeCloseTo(0.4);
+    expect(step(100)).toMatchObject({
+      state: GAME_STATES.GAME_OVER,
+      gameOverReason: 'obstacle',
+      score: 15,
+      deathEffect: { elapsedSeconds: 0.5 },
+    });
+    expect(engine.start()).toBeUndefined();
+    expect(engine.getSnapshot()).toMatchObject({ state: GAME_STATES.PLAYING, deathEffect: null, gameOverReason: null });
   });
 
   it('clamps a large frame delta to the maximum step', () => {
@@ -459,9 +497,12 @@ describe('game engine', () => {
     engine.update(1100);
 
     expect(engine.getSnapshot()).toMatchObject({
-      state: GAME_STATES.GAME_OVER,
+      state: GAME_STATES.PLAYING,
       gameOverReason: 'boundary',
+      deathEffect: { reason: 'boundary', elapsedSeconds: 0 },
     });
+    for (let frame = 0; frame < 5; frame += 1) engine.update(1200 + frame * 100);
+    expect(engine.getSnapshot().state).toBe(GAME_STATES.GAME_OVER);
   });
 
   it('resumes from pause without applying the paused time as a large delta', () => {
