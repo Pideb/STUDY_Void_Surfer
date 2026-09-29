@@ -1,6 +1,6 @@
 # Task: T03 Explain BOSS Clear Condition Before Launch
 
-## Status: pending
+## Status: done
 
 ## Goal
 Teach the actual BOSS clear condition and distinguish projectile damage from WASD challenges in the pre-flight controls screen.
@@ -48,6 +48,9 @@ Task: T03-boss-clear-tutorial
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed (`16` focused tests; `git diff --check`)
 - commit: pending
+
+## Learning Notes
+- Put rules that materially affect a first boss encounter in the pre-flight tutorial so players can learn them before combat, while retaining semantic list markup.

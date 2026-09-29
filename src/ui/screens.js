@@ -160,6 +160,9 @@ export function renderTutorialScreen(_model, handlers) {
     '클릭/터치: 위로 상승',
     'SPACE: 대시 (회피)',
     '특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다',
+    '보스 투사체를 정확한 타이밍에 SPACE 대시로 반사해 BOSS HP를 0으로 만들면 클리어합니다.',
+    'BOSS 1~4는 3회, 5번째부터는 5회 반사가 필요합니다.',
+    'WASD 챌린지는 별도 도전이며, 성공해도 BOSS에게 피해를 주지 않습니다.',
     'P/Esc 또는 일시정지 버튼: 일시정지 (-10점)',
   ]) {
     const item = document.createElement('li');

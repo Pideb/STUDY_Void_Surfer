@@ -10,7 +10,7 @@ Reduce BOSS entry speed spikes, preview the selected BOSS pattern before the enc
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | Tune BOSS pacing, telegraph projectiles accurately and clearly, and teach the clear rules. | [P01](../phases/2026-09-29-boss-combat-clarity/P01-boss-readability/phase.md) |
+| P01 | `done` | Tune BOSS pacing, telegraph projectiles accurately and clearly, and teach the clear rules. | [P01](../phases/2026-09-29-boss-combat-clarity/P01-boss-readability/phase.md) |
 
 ## Global Constraints
 - Slow/fast BOSS speed multipliers are `0.75` and `1.25`; shift alternates them every two elapsed seconds. Aircraft multipliers, including VELOCITY's `2x`, remain applied afterward.

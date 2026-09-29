@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { createApp } from '../../src/app/create-app.js';
 import { announce } from '../../src/ui/components.js';
 import { createGameHud } from '../../src/ui/game-hud.js';
-import { renderGameOverScreen, renderMenuScreen, renderPausedScreen } from '../../src/ui/screens.js';
+import { renderGameOverScreen, renderMenuScreen, renderPausedScreen, renderTutorialScreen } from '../../src/ui/screens.js';
 
 const styles = readFileSync(resolve(process.cwd(), 'src', 'styles.css'), 'utf8');
 
@@ -85,5 +85,13 @@ describe('accessibility and responsive UI contract', () => {
 
     expect(menu.querySelector('h1')?.textContent).toBe('VOID SURFER');
     expect(pause.textContent).toContain('이미 오른 속도는 내려가지 않습니다.');
+  });
+
+  it('keeps BOSS clear guidance in the semantic tutorial list', () => {
+    const tutorial = renderTutorialScreen({}, { start: vi.fn(), menu: vi.fn() });
+
+    expect(tutorial.querySelector('ul.tutorial-list')).not.toBeNull();
+    expect(tutorial.querySelectorAll('ul.tutorial-list > li')).toHaveLength(7);
+    expect(tutorial.querySelector('[role="alert"]')).toBeNull();
   });
 });
