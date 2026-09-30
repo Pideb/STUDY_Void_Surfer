@@ -66,6 +66,17 @@ export function advanceBossEncounter(encounter, event, value = 0) {
   return encounter;
 }
 
+export function resolveMissedBossProjectile(encounter, elapsedSeconds) {
+  const attack = encounter?.attack;
+  if (!attack || attack.type !== 'projectile' || attack.state !== 'missed' || attack.hitPlayer) {
+    return false;
+  }
+  advanceBossEncounter(encounter, 'projectile-resolved', elapsedSeconds);
+  encounter.attack = null;
+  encounter.awaitingNextWave = true;
+  return true;
+}
+
 export function shouldStartBossChallenge(encounter) {
   return Boolean(
     encounter

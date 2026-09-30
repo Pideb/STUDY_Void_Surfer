@@ -43,7 +43,12 @@ import { createObstacle, updateObstacle } from './obstacles.js';
 import { advanceScore } from './score.js';
 import { getAircraftDefinition, isAircraftUnlocked } from './aircraft.js';
 import { createStageShuffleBag, getStageDefinition } from './stages.js';
-import { advanceBossEncounter, createBossEncounter, shouldStartBossChallenge } from './boss.js';
+import {
+  advanceBossEncounter,
+  createBossEncounter,
+  resolveMissedBossProjectile,
+  shouldStartBossChallenge,
+} from './boss.js';
 import {
   createBossProjectile,
   createQuarterLaser,
@@ -480,9 +485,13 @@ export function createGameEngine(deps = {}) {
     if (!bossEncounter?.attack) return;
     const attack = bossEncounter.attack;
     if (attack.type === 'projectile') {
-      updateBossProjectile(attack, deltaSeconds);
+      updateBossProjectile(attack, deltaSeconds, player);
       if (attack.state === 'missed' && attack.hitPlayer) {
         stop('projectile');
+        return;
+      }
+      if (attack.state === 'missed') {
+        resolveMissedBossProjectile(bossEncounter, elapsedSeconds);
         return;
       }
       if (attack.state === 'returning') {

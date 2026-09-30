@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { GAME_STATES } from '../../src/game/game-state.js';
 import { constrainGapCenter, createGameEngine } from '../../src/game/game-engine.js';
+import { createBossEncounter, resolveMissedBossProjectile } from '../../src/game/boss.js';
 
 function createRuntimeEngine(overrides = {}) {
   let currentTime = 0;
@@ -251,6 +252,19 @@ describe('game engine', () => {
     expect(engine.setAircraft('velocity')).toBe(false);
     expect(engine.setAircraft('aegis')).toBe(false);
     expect(engine.setAircraft('default')).toBe('default');
+  });
+
+  it('resolves a boss projectile miss without reducing boss HP or stalling the next wave', () => {
+    const encounter = createBossEncounter(1);
+    encounter.attack = { type: 'projectile', state: 'missed', hitPlayer: false };
+
+    expect(resolveMissedBossProjectile(encounter, 12.5)).toBe(true);
+    expect(encounter.attack).toBeNull();
+    expect(encounter.awaitingNextWave).toBe(true);
+    expect(encounter.lastProjectileResolvedAt).toBe(12.5);
+    expect(encounter.normalWallsSinceProjectile).toBe(0);
+    expect(encounter.hp).toBe(encounter.maxHp);
+    expect(resolveMissedBossProjectile(encounter, 13)).toBe(false);
   });
 
   it('spawns the first obstacle then moves it left at the active scroll speed', () => {

@@ -7,6 +7,7 @@ import {
   BOSS_PROJECTILE_MAX_SPEED_MULTIPLIER,
   BOSS_PROJECTILE_MIN_SPEED_MULTIPLIER,
   BOSS_PROJECTILE_REFLECTION_WINDOW_SECONDS,
+  PLAYER_FRONT_HITBOX_TRIM,
   WORLD_HEIGHT,
 } from './constants.js';
 
@@ -72,13 +73,52 @@ export function getBossProjectilePoint(projectile, progress) {
 
 function updateFlyingProjectile(projectile, deltaSeconds) {
   const distance = Math.max(1, Math.abs(projectile.bossX - projectile.targetX));
-  projectile.x -= projectile.speed * deltaSeconds;
-  const progress = clamp((projectile.bossX - projectile.x) / distance, 0, 1);
-  Object.assign(projectile, getBossProjectilePoint(projectile, progress));
-  if (projectile.x <= projectile.targetX - projectile.speed * deltaSeconds) {
-    projectile.state = 'missed';
-    projectile.hitPlayer = true;
+  const previous = { x: projectile.x, y: projectile.y };
+  const nextX = projectile.x - projectile.speed * deltaSeconds;
+  const progress = clamp((projectile.bossX - nextX) / distance, 0, 1);
+  const point = getBossProjectilePoint(projectile, progress);
+  projectile.x = nextX;
+  projectile.y = point.y;
+  return previous;
+}
+
+export function getBossProjectileBodyBounds(projectile) {
+  if (!projectile) return null;
+  return {
+    left: projectile.x - 8,
+    right: projectile.x + 8,
+    top: projectile.y - 5.5,
+    bottom: projectile.y + 5.5,
+  };
+}
+
+export function intersectsBossProjectilePlayer(projectile, player) {
+  if (!projectile || !player) return false;
+  const projectileBounds = getBossProjectileBodyBounds(projectile);
+  const playerBounds = {
+    left: player.x - player.width / 2,
+    right: player.x + player.width / 2 - PLAYER_FRONT_HITBOX_TRIM,
+    top: player.y - player.height / 2,
+    bottom: player.y + player.height / 2,
+  };
+  return projectileBounds.right >= playerBounds.left
+    && projectileBounds.left <= playerBounds.right
+    && projectileBounds.bottom >= playerBounds.top
+    && projectileBounds.top <= playerBounds.bottom;
+}
+
+function sweptBossProjectileIntersectsPlayer(start, projectile, player) {
+  const distance = Math.hypot(projectile.x - start.x, projectile.y - start.y);
+  const samples = Math.max(1, Math.ceil(distance / 4));
+  for (let index = 0; index <= samples; index += 1) {
+    const ratio = index / samples;
+    const sample = {
+      x: start.x + (projectile.x - start.x) * ratio,
+      y: start.y + (projectile.y - start.y) * ratio,
+    };
+    if (intersectsBossProjectilePlayer(sample, player)) return true;
   }
+  return false;
 }
 
 function updateReturningProjectile(projectile, deltaSeconds) {
@@ -93,14 +133,26 @@ function updateReturningProjectile(projectile, deltaSeconds) {
   if (projectile.returnProgress >= 1) projectile.state = 'resolved';
 }
 
-export function updateBossProjectile(projectile, deltaSeconds) {
+export function updateBossProjectile(projectile, deltaSeconds, player = null) {
   if (!projectile || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) return projectile;
 
   if (projectile.state === 'charging') {
     projectile.chargeRemainingSeconds = Math.max(0, projectile.chargeRemainingSeconds - deltaSeconds);
     if (projectile.chargeRemainingSeconds === 0) projectile.state = 'flying';
   } else if (projectile.state === 'flying') {
-    updateFlyingProjectile(projectile, deltaSeconds);
+    const previousPosition = updateFlyingProjectile(projectile, deltaSeconds);
+    if (player && sweptBossProjectileIntersectsPlayer(previousPosition, projectile, player)) {
+      projectile.state = 'missed';
+      projectile.hitPlayer = true;
+    } else {
+      const playerLeft = player
+        ? player.x - player.width / 2
+        : projectile.targetX - 18;
+      if (projectile.x + 8 < playerLeft) {
+        projectile.state = 'missed';
+        projectile.hitPlayer = false;
+      }
+    }
   } else if (projectile.state === 'returning') {
     updateReturningProjectile(projectile, deltaSeconds);
   }

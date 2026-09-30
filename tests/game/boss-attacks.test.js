@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   createBossProjectile,
+  getBossProjectileBodyBounds,
   getBossProjectilePoint,
+  intersectsBossProjectilePlayer,
   isProjectileInReflectionWindow,
   reflectProjectile,
   updateBossProjectile,
@@ -28,7 +30,7 @@ describe('boss projectiles', () => {
       bossX: 840, bossY: 200, playerX: 240, playerY: 270, baseSpeed: 240, rng: () => values.shift() ?? 0.5,
     });
     updateBossProjectile(projectile, 0.6);
-    updateBossProjectile(projectile, 2.9);
+    updateBossProjectile(projectile, 2);
 
     expect(projectile.kind).toBe('parabolic');
     expect(projectile.telegraphPoints).toHaveLength(9);
@@ -38,6 +40,38 @@ describe('boss projectiles', () => {
     updateBossProjectile(projectile, 4);
     expect(projectile.state).toBe('resolved');
     expect(projectile.x).toBe(840);
+  });
+
+  it('uses a centered 16x11 projectile body and inclusive player-box overlap', () => {
+    const projectile = { x: 230, y: 200 };
+    const player = { x: 240, y: 200, width: 36, height: 24 };
+    expect(getBossProjectileBodyBounds(projectile)).toEqual({
+      left: 222, right: 238, top: 194.5, bottom: 205.5,
+    });
+    expect(intersectsBossProjectilePlayer(projectile, player)).toBe(true);
+    expect(intersectsBossProjectilePlayer({ x: 230, y: 182.5 }, player)).toBe(true);
+    expect(intersectsBossProjectilePlayer({ x: 230, y: 182.49 }, player)).toBe(false);
+  });
+
+  it('marks only an actual body overlap as a hit and resolves vertical near-misses', () => {
+    const makeProjectile = (bossY, targetY) => {
+      const projectile = createBossProjectile({
+        id: 'shot-collision', bossX: 840, bossY, playerX: 240, playerY: targetY,
+        baseSpeed: 600, rng: () => 0,
+      });
+      updateBossProjectile(projectile, 0.6);
+      return projectile;
+    };
+    const player = { x: 240, y: 200, width: 36, height: 24 };
+    const hit = makeProjectile(200, 200);
+    updateBossProjectile(hit, 1.5, player);
+    expect(hit.state).toBe('missed');
+    expect(hit.hitPlayer).toBe(true);
+
+    const miss = makeProjectile(400, 400);
+    updateBossProjectile(miss, 1.6, player);
+    expect(miss.state).toBe('missed');
+    expect(miss.hitPlayer).toBe(false);
   });
 
   it.each([
