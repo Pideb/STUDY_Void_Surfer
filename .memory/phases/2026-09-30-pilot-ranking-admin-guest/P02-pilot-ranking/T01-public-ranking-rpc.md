@@ -16,6 +16,7 @@ Let guests and signed-in users page through global ranking rows without granting
   - `supabase/migrations/YYYYMMDDNNNN_public_leaderboard_read.sql` :: new migration, public read-only RPC
   - `supabase/tests/leaderboard.sql` :: migration/RPC privilege and row-shape assertions; modify
   - `src/services/leaderboard-service.js` :: `fetchLeaderboardPage`; modify
+  - `src/services/leaderboard-types.js` :: `normalizeLeaderboardRows`; modify
   - `src/main.js` :: leaderboard service dependency adapter; modify
   - `tests/services/leaderboard-service.test.js` :: paging and guest query tests; modify
 
@@ -62,6 +63,7 @@ Task: T01-public-ranking-rpc
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed (service tests passed; SQL syntax and privilege contract reviewed)
+- Note: `supabase test db` could not run because Supabase CLI is not installed; DB privilege/row-shape assertions remain unexecuted.
 - commit: pending

@@ -1,6 +1,6 @@
 # Task: T02 Pilot Ranking Screen
 
-## Status: pending
+## Status: in_progress
 
 ## Goal
 Provide an all-pilots scrollable ranking view from the main menu and game-over result screen, incrementally loading rows while keeping the current user's or guest's own best score pinned below the list.

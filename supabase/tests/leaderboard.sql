@@ -1,6 +1,6 @@
 begin;
 
-select plan(26);
+select plan(37);
 
 select has_table('public', 'profiles', 'profiles table exists');
 select has_table('public', 'player_scores', 'player scores table exists');
@@ -11,6 +11,41 @@ select has_function('public', 'submit_score', array['integer', 'text'], 'legacy 
 select has_function('public', 'get_leaderboard', array['integer'], 'get_leaderboard RPC exists');
 select has_function('public', 'get_player_neighborhood', array['integer'], 'neighborhood RPC exists');
 select has_function('public', 'get_player_best_score', array[]::text[], 'account best-score RPC exists');
+select has_function('public', 'get_public_leaderboard', array['integer', 'integer'], 'public paged leaderboard RPC exists');
+select ok(
+  has_function_privilege('anon', 'public.get_public_leaderboard(integer, integer)', 'EXECUTE'),
+  'anonymous role can execute the read-only public ranking RPC'
+);
+select ok(
+  not has_function_privilege('anon', 'public.submit_score(integer, text, text)', 'EXECUTE'),
+  'anonymous role cannot submit aircraft-aware scores'
+);
+select ok(
+  not has_function_privilege('anon', 'public.get_player_best_score()', 'EXECUTE'),
+  'anonymous role cannot query account best-score RPC'
+);
+select ok(
+  not has_function_privilege('anon', 'public.get_player_neighborhood(integer)', 'EXECUTE'),
+  'anonymous role cannot query account neighborhood RPC'
+);
+select is(
+  (select count(*)::integer from information_schema.parameters
+   where specific_schema = 'public'
+     and specific_name like 'get_public_leaderboard_%'
+     and parameter_mode = 'OUT'),
+  5,
+  'public ranking exposes exactly five output fields'
+);
+select ok(
+  not exists (
+    select 1 from information_schema.parameters
+    where specific_schema = 'public'
+      and specific_name like 'get_public_leaderboard_%'
+      and parameter_mode = 'OUT'
+      and parameter_name in ('user_id', 'email')
+  ),
+  'public ranking output contains no account identifier or email'
+);
 
 select has_column('public', 'player_scores', 'aircraft_id', 'aircraft identity is stored with score');
 select col_not_null('public', 'player_scores', 'aircraft_id', 'aircraft ID is required');
@@ -86,6 +121,28 @@ select throws_ok(
 select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-000000000101', true);
 select is(public.get_player_best_score(), 20, 'one user cannot change the other account best score via the RPC');
 
+reset role;
+set local role anon;
+select is(
+  (select count(*)::integer from public.get_public_leaderboard(50, 0)),
+  2,
+  'anonymous role can read safe public ranking rows'
+);
+select is(
+  (select rank from public.get_public_leaderboard(1, 1)),
+  2::bigint,
+  'public ranking offset preserves deterministic global order'
+);
+select ok(
+  (select count(*) <= 50 from public.get_public_leaderboard(500, 0)),
+  'public ranking clamps oversized page requests to 50 rows'
+);
+select throws_ok(
+  $$select public.submit_score(1, 'Guest', 'default')$$,
+  '42501',
+  'permission denied for function submit_score',
+  'anonymous role cannot write scores'
+);
 reset role;
 select * from finish();
 rollback;

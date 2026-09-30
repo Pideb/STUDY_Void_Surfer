@@ -42,18 +42,18 @@ export function normalizeLeaderboardRows(rows, currentUserId = null) {
     const displayName = row.display_name ?? row.displayName;
     const achievedAt = row.achieved_at ?? row.achievedAt;
 
-    if (rank === null || bestScore === null || !userId || typeof displayName !== 'string' || !achievedAt) {
+    if (rank === null || bestScore === null || typeof displayName !== 'string' || !achievedAt) {
       continue;
     }
 
     normalized.push({
       rank,
-      userId: String(userId),
+      userId: userId ? String(userId) : null,
       displayName: displayName.trim(),
       bestScore,
       achievedAt: String(achievedAt),
       aircraftId: normalizeAircraftId(row.aircraft_id ?? row.aircraftId),
-      isCurrentUser: currentUserId !== null && String(userId) === String(currentUserId),
+      isCurrentUser: currentUserId !== null && userId !== undefined && String(userId) === String(currentUserId),
     });
   }
 

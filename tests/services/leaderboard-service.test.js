@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   fetchPlayerNeighborhood,
   fetchPlayerBestScore,
+  fetchLeaderboardPage,
   fetchTopScores,
   normalizeLeaderboardRows,
   submitBestScore,
@@ -201,6 +202,44 @@ describe('leaderboard queries', () => {
     expect(result).toEqual({ rows: [], error: null });
   });
 
+  it('loads a public leaderboard page without authentication or private user IDs', async () => {
+    const client = makeClient({
+      rpcImpl: vi.fn(async () => ({
+        data: [{
+          rank: 4,
+          display_name: 'Guest-visible pilot',
+          best_score: 57,
+          achieved_at: '2026-09-30T00:00:00.000Z',
+          aircraft_id: 'aegis',
+        }],
+        error: null,
+      })),
+    });
+    client.auth = undefined;
+
+    const result = await fetchLeaderboardPage(client, { limit: 20, offset: 30 });
+
+    expect(client.rpc).toHaveBeenCalledWith('get_public_leaderboard', { p_limit: 20, p_offset: 30 });
+    expect(result).toEqual({
+      rows: [{
+        rank: 4,
+        userId: null,
+        displayName: 'Guest-visible pilot',
+        bestScore: 57,
+        achievedAt: '2026-09-30T00:00:00.000Z',
+        aircraftId: 'aegis',
+        isCurrentUser: false,
+      }],
+      error: null,
+    });
+  });
+
+  it('clamps public leaderboard page size and offset to the RPC limits', async () => {
+    const client = makeClient();
+    await fetchLeaderboardPage(client, { limit: 500, offset: -10 });
+    expect(client.rpc).toHaveBeenCalledWith('get_public_leaderboard', { p_limit: 50, p_offset: 0 });
+  });
+
   it('loads a player neighborhood with the default radius and handles a single-row response', async () => {
     const client = makeClient({ rpcImpl: vi.fn(async () => ({ data: [dbRow()], error: null })) });
 
@@ -235,6 +274,24 @@ describe('leaderboard row normalization and error mapping', () => {
         isCurrentUser: true,
       },
     ]);
+  });
+
+  it('normalizes public rows without requiring private user identifiers', () => {
+    expect(normalizeLeaderboardRows([{
+      rank: 8,
+      display_name: 'Public pilot',
+      best_score: 19,
+      achieved_at: '2026-09-30T00:00:00.000Z',
+      aircraft_id: 'default',
+    }])).toEqual([{
+      rank: 8,
+      userId: null,
+      displayName: 'Public pilot',
+      bestScore: 19,
+      achievedAt: '2026-09-30T00:00:00.000Z',
+      aircraftId: 'default',
+      isCurrentUser: false,
+    }]);
   });
 
   it('defaults missing or unknown legacy aircraft IDs to the basic ship', () => {

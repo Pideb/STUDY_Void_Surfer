@@ -4,6 +4,7 @@ import { AIRCRAFT_CATALOG } from '../game/aircraft.js';
 
 const DEFAULT_TOP_LIMIT = 10;
 const MAX_TOP_LIMIT = 50;
+const MAX_OFFSET = 2_147_483_647;
 const DEFAULT_NEIGHBORHOOD_RADIUS = 2;
 const MAX_NEIGHBORHOOD_RADIUS = 10;
 
@@ -106,6 +107,22 @@ export async function fetchTopScores(client, limit = DEFAULT_TOP_LIMIT) {
 
     const currentUserId = await getCurrentUserId(client);
     return { rows: normalizeLeaderboardRows(data, currentUserId), error: null };
+  } catch (error) {
+    return { rows: [], error: mapLeaderboardError(error) };
+  }
+}
+
+export async function fetchLeaderboardPage(client, { limit = MAX_TOP_LIMIT, offset = 0 } = {}) {
+  const safeLimit = clampInteger(limit, MAX_TOP_LIMIT, 1, MAX_TOP_LIMIT);
+  const safeOffset = clampInteger(offset, 0, 0, MAX_OFFSET);
+
+  try {
+    const { data, error } = await client.rpc('get_public_leaderboard', {
+      p_limit: safeLimit,
+      p_offset: safeOffset,
+    });
+    if (error) return { rows: [], error: mapLeaderboardError(error) };
+    return { rows: normalizeLeaderboardRows(data), error: null };
   } catch (error) {
     return { rows: [], error: mapLeaderboardError(error) };
   }

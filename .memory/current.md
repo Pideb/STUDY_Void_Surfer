@@ -7,10 +7,10 @@
 [P02 Pilot Ranking](./phases/2026-09-30-pilot-ranking-admin-guest/P02-pilot-ranking/phase.md)
 
 ## Active Task
-[T01 Public Ranking RPC](./phases/2026-09-30-pilot-ranking-admin-guest/P02-pilot-ranking/T01-public-ranking-rpc.md)
+[T02 Pilot Ranking Screen](./phases/2026-09-30-pilot-ranking-admin-guest/P02-pilot-ranking/T02-pilot-ranking-screen.md)
 
 ## Status
-- P01 guest-mode tasks complete, validated, and committed; P02-T01 is active.
+- P02-T01 is complete and committed; P02-T02 is active. SQL integration assertions are pending Supabase CLI/DB availability.
 
 ## Next Step (IMPORTANT)
-Read the P02-T01 blueprint and add the anonymous-safe paged read-only leaderboard RPC and service contract without exposing account IDs or permitting guest writes.
+Read the P02-T02 blueprint and build Pilot Ranking navigation, incremental accessible paging, and a pinned account/guest personal record.
