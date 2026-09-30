@@ -9,7 +9,11 @@ Complete the confirmed boss-projectile collision correction, add scrollable glob
 | P01 | `done` | Guest-first startup, local guest score, and aircraft access | [P01](../phases/2026-09-30-pilot-ranking-admin-guest/P01-guest-mode/phase.md) |
 | P02 | `done` | Public read-only leaderboard pagination and Pilot Ranking UI | [P02](../phases/2026-09-30-pilot-ranking-admin-guest/P02-pilot-ranking/phase.md) |
 | P03 | `done` | Boss projectile collision correctness and admin test controls | [P03](../phases/2026-09-30-pilot-ranking-admin-guest/P03-boss-admin/phase.md) |
-| P04 | `in_progress` | Cross-flow regression and release validation | [P04](../phases/2026-09-30-pilot-ranking-admin-guest/P04-integration-qa/phase.md) |
+| P04 | `done` | Cross-flow regression and release validation | [P04](../phases/2026-09-30-pilot-ranking-admin-guest/P04-integration-qa/phase.md) |
+
+## Completion
+- All implementation and local validation tasks are complete.
+- The public leaderboard migration has been reviewed and documented but has not been applied to the hosted Supabase project. Apply it there before expecting guest ranking reads to work in production.
 
 ## Confirmed Scope
 - Use `.memory/decisions/2026-09-30-pilot-ranking-admin-tools.md` as the source of truth for all behavior and safety boundaries.

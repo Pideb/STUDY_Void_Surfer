@@ -1,5 +1,22 @@
 # VOID SURFER
 
+## Guest, ranking, and administrator test modes
+
+- Visitors can start immediately as `GUEST`. Guest best scores are stored only in that browser's local storage, are not submitted to the shared leaderboard, and do not transfer to an account after sign-in. Guests can use every aircraft.
+- The public Pilot Ranking is read-only and exposes display name, score, date, rank, and aircraft. Account score submission still requires signing in.
+- The administrator test controls appear only for the signed-in `gh.lee@dexconsulting.net` account. Administrator mode skips leaderboard submission; invincibility suppresses wall, laser, and projectile collision deaths, while screen boundaries and WASD challenge failures remain fatal.
+- These administrator controls are a client-side testing convenience, not a security feature. A modified browser can bypass score suppression; never use this toggle as server-side access control or as proof that submitted scores are trustworthy.
+
+## Apply the public ranking migration
+
+The migration file [`202609300001_public_leaderboard_read.sql`](./supabase/migrations/202609300001_public_leaderboard_read.sql) adds the safe, paged anonymous ranking RPC. It must be applied to the hosted Supabase project by the project operator, after the earlier leaderboard migrations:
+
+1. Open the project's Supabase Dashboard and go to **SQL Editor**.
+2. Copy the full contents of the migration file and run it once.
+3. Verify that `get_public_leaderboard(integer, integer)` is available and that an anonymous request can read ranking rows but cannot execute score-write or account-only RPCs.
+
+This repository change does not apply the migration remotely. The SQL assertions in `supabase/tests/leaderboard.sql` require a Supabase test database/CLI and are separate from running the migration in the hosted project.
+
 ## 다른 사람에게 공유하기
 
 배포된 Vercel 링크를 전달하면 됩니다. 플레이어는 저장소를 clone하거나

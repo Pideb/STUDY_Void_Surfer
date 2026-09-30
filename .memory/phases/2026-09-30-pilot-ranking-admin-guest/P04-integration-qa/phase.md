@@ -3,7 +3,7 @@
 ## Tasks
 | Task | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| T01 | `pending` | Verify guest/account/admin/ranking/boss flows and document deployment migration | [T01](./T01-cross-flow-qa.md) |
+| T01 | `done` | Verify guest/account/admin/ranking/boss flows and document deployment migration | [T01](./T01-cross-flow-qa.md) |
 
 ## Progress
-- done: 0/1 (active: T01)
+- done: 1/1 (active: none)

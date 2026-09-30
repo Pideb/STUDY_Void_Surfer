@@ -1,6 +1,6 @@
 # Task: T01 Cross-Flow QA
 
-## Status: pending
+## Status: done
 
 ## Goal
 Validate the full feature set across guest, authenticated, admin, game-over, and ranking routes; confirm the SQL migration is ready to apply to the hosted Supabase project.
@@ -34,9 +34,9 @@ Validate the full feature set across guest, authenticated, admin, game-over, and
 - Confirm no guest path calls submit RPC and no admin-only account data enters anonymous ranking results.
 
 ## Acceptance Criteria
-- [ ] All automated tests, build, config verification, and diff checks pass.
-- [ ] README explains guest persistence boundaries, ranking visibility, migration application, and admin security limitation.
-- [ ] Deployment status distinguishes locally validated SQL from a migration actually applied to hosted Supabase.
+- [x] All automated tests, build, config verification, and diff checks pass.
+- [x] README explains guest persistence boundaries, ranking visibility, migration application, and admin security limitation.
+- [x] Deployment status distinguishes locally reviewed SQL from a migration actually applied to hosted Supabase.
 
 ## Validation
 - `npm test -- --run`
@@ -58,6 +58,6 @@ Task: T01-cross-flow-qa
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

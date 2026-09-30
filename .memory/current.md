@@ -4,13 +4,13 @@
 [Pilot Ranking, Admin Tools, and Guest Mode](./plans/2026-09-30-pilot-ranking-admin-guest.md)
 
 ## Active Phase
-[P04 Integration QA](./phases/2026-09-30-pilot-ranking-admin-guest/P04-integration-qa/phase.md)
+None. All phases complete.
 
 ## Active Task
-[T01 Cross-Flow QA](./phases/2026-09-30-pilot-ranking-admin-guest/P04-integration-qa/T01-cross-flow-qa.md)
+None. Plan complete.
 
 ## Status
-- P03 complete and committed. P04-T01 is active; Supabase SQL assertions remain pending CLI/DB availability.
+- All plan tasks are complete and committed. Full application tests/build/config validation passed. Hosted Supabase migration application and database-level SQL assertions remain operator steps because Supabase CLI/test DB are unavailable here.
 
 ## Next Step (IMPORTANT)
-Run full regression/build/config checks, document guest/admin limits and hosted migration application steps, and finish the plan.
+No active task. Apply and verify the public-ranking migration in the hosted Supabase project when ready to publish.
