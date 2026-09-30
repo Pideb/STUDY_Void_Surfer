@@ -74,6 +74,24 @@ describe('product flow screens', () => {
     expect(signIn).toHaveBeenCalledOnce();
   });
 
+  it('renders an account-gated admin trigger and accessible independent switches', () => {
+    const screen = renderMenuScreen({
+      displayName: 'Pilot', signedIn: true, muted: false,
+      adminEligible: true, adminDialogOpen: true,
+      adminModeEnabled: true, invincibilityEnabled: false,
+    }, {
+      start: vi.fn(), toggleMute: vi.fn(), signIn: vi.fn(), signOut: vi.fn(),
+      openAdminSettings: vi.fn(), closeAdminSettings: vi.fn(),
+      toggleAdminMode: vi.fn(), toggleInvincibility: vi.fn(),
+    });
+
+    expect(screen.querySelector('[data-admin-settings-trigger]')?.textContent).toBe('관리자 설정');
+    const dialog = screen.querySelector('[role="dialog"][aria-modal="true"]');
+    expect(dialog?.getAttribute('aria-labelledby')).toBe('admin-settings-title');
+    expect(dialog.querySelector('[aria-label="관리자 모드"]')?.checked).toBe(true);
+    expect(dialog.querySelector('[aria-label="기체 무적"]')?.checked).toBe(false);
+  });
+
   it('shows hangar unlock states and only allows selecting unlocked aircraft', () => {
     const select = vi.fn();
     const screen = renderHangarScreen({

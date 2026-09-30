@@ -92,6 +92,7 @@ export function createGameEngine(deps = {}) {
   const stageRng = deps.stageRng ?? Math.random;
   let accountBestScore = Math.max(0, Number(deps.accountBestScore) || 0);
   let guestMode = Boolean(deps.guestMode);
+  let invincibilityEnabled = Boolean(deps.invincibilityEnabled);
   let aircraft = getAircraftDefinition(deps.aircraftId);
 
   let state = GAME_STATES.MENU;
@@ -487,8 +488,11 @@ export function createGameEngine(deps = {}) {
     if (attack.type === 'projectile') {
       updateBossProjectile(attack, deltaSeconds, player);
       if (attack.state === 'missed' && attack.hitPlayer) {
-        stop('projectile');
-        return;
+        if (!invincibilityEnabled) {
+          stop('projectile');
+          return;
+        }
+        attack.hitPlayer = false;
       }
       if (attack.state === 'missed') {
         resolveMissedBossProjectile(bossEncounter, elapsedSeconds);
@@ -511,7 +515,7 @@ export function createGameEngine(deps = {}) {
     }
 
     updateLaser(attack, deltaSeconds);
-    if (intersectsPlayerLaser(player, attack, WORLD_HEIGHT)) {
+    if (!invincibilityEnabled && intersectsPlayerLaser(player, attack, WORLD_HEIGHT)) {
       stop('laser');
       return;
     }
@@ -574,6 +578,11 @@ export function createGameEngine(deps = {}) {
       aircraft = getAircraftDefinition('default');
     }
     return guestMode;
+  }
+
+  function setInvincibilityEnabled(enabled) {
+    invincibilityEnabled = Boolean(enabled);
+    return invincibilityEnabled;
   }
 
   function update(nowMs) {
@@ -640,7 +649,7 @@ export function createGameEngine(deps = {}) {
       return;
     }
 
-    if (obstacles.some((obstacle) => intersectsPlayerObstacle(player, obstacle))) {
+    if (!invincibilityEnabled && obstacles.some((obstacle) => intersectsPlayerObstacle(player, obstacle))) {
       stop('obstacle');
       return;
     }
@@ -740,6 +749,7 @@ export function createGameEngine(deps = {}) {
       elapsedSeconds,
       backgroundScrollDistancePx,
       gameOverReason,
+      invincibilityEnabled,
       deathEffect: deathEffect ? { ...deathEffect } : null,
       aircraft: {
         id: aircraft.id,
@@ -795,6 +805,7 @@ export function createGameEngine(deps = {}) {
     setAircraft,
     setAccountBestScore,
     setGuestMode,
+    setInvincibilityEnabled,
     handleChallengeKey: handleChallengeInput,
     getSnapshot,
   };

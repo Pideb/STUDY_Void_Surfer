@@ -13,6 +13,31 @@ import {
   renderTutorialScreen,
 } from './screens.js';
 
+const ADMIN_EMAIL = 'gh.lee@dexconsulting.net';
+const ADMIN_SETTINGS_STORAGE_KEY = 'void-surfer:admin-settings:v1';
+
+function isDesignatedAdmin(user) {
+  return String(user?.email ?? '').trim().toLowerCase() === ADMIN_EMAIL;
+}
+
+function readAdminSettings(storage) {
+  try {
+    const raw = storage?.getItem(ADMIN_SETTINGS_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if (parsed?.version !== 1
+      || typeof parsed.adminModeEnabled !== 'boolean'
+      || typeof parsed.invincibilityEnabled !== 'boolean') {
+      return { adminModeEnabled: false, invincibilityEnabled: false };
+    }
+    return {
+      adminModeEnabled: parsed.adminModeEnabled,
+      invincibilityEnabled: parsed.invincibilityEnabled,
+    };
+  } catch {
+    return { adminModeEnabled: false, invincibilityEnabled: false };
+  }
+}
+
 function getDisplayName(user) {
   return user?.user_metadata?.full_name
     ?? user?.user_metadata?.name
@@ -69,7 +94,9 @@ export function createAppController(deps) {
     rankingError: null, rankingPersonalRecord: null, rankingPersonalLoading: false,
     rankingPersonalError: null, rankingReturnScreen: 'menu',
     submitState: 'idle',
+    adminModeEnabled: false, invincibilityEnabled: false, adminDialogOpen: false,
   };
+  const adminSettingsStorage = deps.adminSettingsStorage ?? globalThis.localStorage;
   let unsubscribeAuth = () => {};
   let pointerTarget = null;
   let handlePointerDown = null;
@@ -87,6 +114,7 @@ export function createAppController(deps) {
   let rankingObserver = null;
   let rankingRequestId = 0;
   let rankingPersonalRequestId = 0;
+  let adminTriggerElement = null;
 
   function paint() {
     rankingObserver?.disconnect();
@@ -120,6 +148,10 @@ export function createAppController(deps) {
         muted: state.muted,
         selectedAircraftId: state.selectedAircraftId,
         selectedAircraft: AIRCRAFT_CATALOG.find(({ id }) => id === state.selectedAircraftId)?.name ?? 'DEFAULT',
+        adminEligible: isDesignatedAdmin(state.user),
+        adminDialogOpen: state.adminDialogOpen,
+        adminModeEnabled: state.adminModeEnabled,
+        invincibilityEnabled: state.invincibilityEnabled,
       }, {
         start: () => dispatch({ type: 'START_GAME_FROM_MENU' }),
         hangar: () => dispatch({ type: 'OPEN_HANGAR' }),
@@ -127,7 +159,12 @@ export function createAppController(deps) {
         toggleMute: toggleMute,
         signIn: handleSignIn,
         signOut: handleSignOut,
+        openAdminSettings: openAdminSettings,
+        closeAdminSettings: closeAdminSettings,
+        toggleAdminMode: setAdminModeEnabled,
+        toggleInvincibility: setInvincibilityEnabled,
       }));
+      if (state.adminDialogOpen) root.querySelector('[role="dialog"] [aria-label="관리자 모드"]')?.focus();
       return;
     }
     if (state.screen === 'hangar') {
@@ -214,10 +251,68 @@ export function createAppController(deps) {
     if (message) announce(liveRegion, message);
   }
 
+  function applyAdminSettingsForUser(user) {
+    state.adminDialogOpen = false;
+    if (!isDesignatedAdmin(user)) {
+      state.adminModeEnabled = false;
+      state.invincibilityEnabled = false;
+      gameEngine.setInvincibilityEnabled?.(false);
+      return;
+    }
+    const settings = readAdminSettings(adminSettingsStorage);
+    state.adminModeEnabled = settings.adminModeEnabled;
+    state.invincibilityEnabled = settings.invincibilityEnabled;
+    gameEngine.setInvincibilityEnabled?.(state.invincibilityEnabled);
+  }
+
+  function persistAdminSettings() {
+    if (!isDesignatedAdmin(state.user)) return;
+    try {
+      adminSettingsStorage?.setItem(ADMIN_SETTINGS_STORAGE_KEY, JSON.stringify({
+        version: 1,
+        adminModeEnabled: state.adminModeEnabled,
+        invincibilityEnabled: state.invincibilityEnabled,
+      }));
+    } catch {
+      // Test controls remain usable for this session when browser storage is unavailable.
+    }
+  }
+
+  function openAdminSettings() {
+    if (!isDesignatedAdmin(state.user) || state.screen !== 'menu') return;
+    adminTriggerElement = root.querySelector('[data-admin-settings-trigger]');
+    state.adminDialogOpen = true;
+    paint();
+  }
+
+  function closeAdminSettings() {
+    if (!state.adminDialogOpen) return;
+    state.adminDialogOpen = false;
+    paint();
+    root.querySelector('[data-admin-settings-trigger]')?.focus();
+    adminTriggerElement = null;
+  }
+
+  function setAdminModeEnabled(enabled) {
+    if (!isDesignatedAdmin(state.user)) return;
+    state.adminModeEnabled = Boolean(enabled);
+    persistAdminSettings();
+    paint();
+  }
+
+  function setInvincibilityEnabled(enabled) {
+    if (!isDesignatedAdmin(state.user)) return;
+    state.invincibilityEnabled = Boolean(enabled);
+    gameEngine.setInvincibilityEnabled?.(state.invincibilityEnabled);
+    persistAdminSettings();
+    paint();
+  }
+
   async function refreshSession() {
     try {
       const user = await authService.getSessionUser();
       state.user = user;
+      applyAdminSettingsForUser(user);
       gameEngine.setGuestMode?.(!user);
       state.error = null;
       state.authActionError = null;
@@ -301,6 +396,7 @@ export function createAppController(deps) {
       return;
     }
     state.user = result.user;
+    applyAdminSettingsForUser(state.user);
     gameEngine.setGuestMode?.(false);
     state.authActionError = null;
     void loadAccountBestScore(result.user);
@@ -311,6 +407,14 @@ export function createAppController(deps) {
     try {
       await authService.signOut();
       state.user = null;
+      state.adminModeEnabled = false;
+      state.invincibilityEnabled = false;
+      state.adminDialogOpen = false;
+      gameEngine.setInvincibilityEnabled?.(false);
+      state.adminModeEnabled = false;
+      state.invincibilityEnabled = false;
+      state.adminDialogOpen = false;
+      gameEngine.setInvincibilityEnabled?.(false);
       gameEngine.setGuestMode?.(true);
       state.error = null;
       state.authActionError = null;
@@ -468,6 +572,7 @@ export function createAppController(deps) {
     state.snapshot = null;
     lastDifficultyMode = 'normal';
     gameEngine.setGuestMode?.(!state.user);
+    gameEngine.setInvincibilityEnabled?.(isDesignatedAdmin(state.user) && state.invincibilityEnabled);
     gameEngine.setAccountBestScore?.(state.accountBestScore);
     gameEngine.setAircraft?.(state.selectedAircraftId);
     gameEngine.start();
@@ -499,11 +604,16 @@ export function createAppController(deps) {
       }, deps.guestRecordStorage);
       if (savedRecord) state.guestBestRecord = savedRecord;
     }
-    const shouldSubmitScore = Boolean(submitScore && state.user);
+    const adminRun = Boolean(isDesignatedAdmin(state.user) && state.adminModeEnabled);
+    const shouldSubmitScore = Boolean(submitScore && state.user && !adminRun);
     state.leaderboard = {
       top: { loading: true }, neighborhood: { loading: true },
     };
     state.submitError = false;
+    if (adminRun) {
+      state.submitState = 'admin-skipped';
+      state.submitErrorMessage = '관리자 테스트 점수는 리더보드에 저장되지 않습니다.';
+    }
     if (shouldSubmitScore) {
       state.submitState = 'saving';
       state.submitErrorMessage = null;
@@ -760,6 +870,28 @@ export function createAppController(deps) {
   }
 
   function handleKeyDown(event) {
+    if (state.adminDialogOpen) {
+      const dialog = root.querySelector('[role="dialog"]');
+      const focusable = [...(dialog?.querySelectorAll('button, input, [tabindex]:not([tabindex="-1"])') ?? [])]
+        .filter((element) => !element.disabled);
+      if (event.code === 'Escape') {
+        event.preventDefault();
+        closeAdminSettings();
+        return;
+      }
+      if (event.key === 'Tab' && focusable.length) {
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+        return;
+      }
+    }
     if (event.target?.closest?.('button, input, select, textarea, a, [contenteditable="true"]')) return;
     if (state.screen === 'playing' && state.snapshot?.challenge?.active) {
       if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
@@ -796,6 +928,10 @@ export function createAppController(deps) {
         if (!user) {
           accountRequestId += 1;
           state.user = null;
+          state.adminModeEnabled = false;
+          state.invincibilityEnabled = false;
+          state.adminDialogOpen = false;
+          gameEngine.setInvincibilityEnabled?.(false);
           gameEngine.setGuestMode?.(true);
           stopLoop();
           audioManager.setMusicMode?.('none');
@@ -807,6 +943,7 @@ export function createAppController(deps) {
         } else {
           const changedUser = state.user?.id !== user.id;
           state.user = user;
+          if (changedUser) applyAdminSettingsForUser(user);
           gameEngine.setGuestMode?.(false);
           if (changedUser) {
             state.selectedAircraftId = 'default';

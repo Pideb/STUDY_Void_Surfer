@@ -34,6 +34,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
     setAircraft: vi.fn((id) => id),
     setAccountBestScore: vi.fn((score) => score),
     setGuestMode: vi.fn((enabled) => enabled),
+    setInvincibilityEnabled: vi.fn((enabled) => enabled),
     handleChallengeKey: vi.fn(() => true),
   };
   const authService = {
@@ -91,6 +92,7 @@ describe('app controller product flow', () => {
     vi.restoreAllMocks();
     harness = null;
     localStorage.removeItem(GUEST_RECORD_STORAGE_KEY);
+    localStorage.removeItem('void-surfer:admin-settings:v1');
   });
 
   it('shows the title menu as GUEST and keeps sign-in errors from blocking play', async () => {
@@ -130,6 +132,82 @@ describe('app controller product flow', () => {
     expect(harness.root.textContent).toContain('로그인');
     expect(document.querySelector('#live-region').textContent).toContain('로그아웃했습니다.');
     expect(harness.root.textContent).toContain('게임 시작');
+  });
+
+  it('gates persistent admin settings to the designated account and clears active settings on sign-out', async () => {
+    harness = makeHarness({ user: { id: 'admin-1', email: ' GH.LEE@DEXCONSULTING.NET ' } });
+    harness.controller.mount();
+    await settle();
+
+    const open = [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '관리자 설정');
+    expect(open).toBeTruthy();
+    open.click();
+    const dialog = harness.root.querySelector('[role="dialog"]');
+    expect(dialog).toBeTruthy();
+    const invincibility = dialog.querySelector('[aria-label="기체 무적"]');
+    invincibility.checked = true;
+    invincibility.dispatchEvent(new Event('change', { bubbles: true }));
+    expect(harness.gameEngine.setInvincibilityEnabled).toHaveBeenCalledWith(true);
+    expect(JSON.parse(localStorage.getItem('void-surfer:admin-settings:v1'))).toMatchObject({
+      version: 1, invincibilityEnabled: true, adminModeEnabled: false,
+    });
+
+    harness.root.querySelector('[role="dialog"] button').click();
+    expect(document.activeElement?.textContent).toBe('관리자 설정');
+    harness.root.querySelector('.account-actions button').click();
+    await settle();
+    expect(harness.root.querySelector('[data-admin-settings-trigger]')).toBeNull();
+    expect(harness.gameEngine.setInvincibilityEnabled).toHaveBeenLastCalledWith(false);
+    expect(localStorage.getItem('void-surfer:admin-settings:v1')).not.toBeNull();
+  });
+
+  it('skips leaderboard writes for admin-mode runs while retaining score and a neutral notice', async () => {
+    harness = makeHarness({ user: { id: 'admin-1', email: 'gh.lee@dexconsulting.net' } });
+    harness.controller.mount();
+    await settle();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '관리자 설정').click();
+    const toggle = harness.root.querySelector('[role="dialog"] [aria-label="관리자 모드"]');
+    toggle.checked = true;
+    toggle.dispatchEvent(new Event('change', { bubbles: true }));
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    harness.snapshot.score = 42;
+    harness.controller.dispatch('GAME_OVER');
+    await settle();
+
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+    expect(harness.root.textContent).toContain('42');
+    expect(harness.root.textContent).toContain('관리자 테스트 점수는 리더보드에 저장되지 않습니다.');
+    expect(harness.root.querySelector('.error-message')).toBeNull();
+  });
+
+  it('traps admin-dialog keyboard focus and closes on Escape', async () => {
+    harness = makeHarness({ user: { id: 'admin-1', email: 'gh.lee@dexconsulting.net' } });
+    harness.controller.mount();
+    await settle();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '관리자 설정').click();
+
+    const dialog = harness.root.querySelector('[role="dialog"]');
+    const first = dialog.querySelector('[aria-label="관리자 모드"]');
+    const last = dialog.querySelector('button');
+    last.focus();
+    globalThis.window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', code: 'Tab' }));
+    expect(document.activeElement).toBe(first);
+    globalThis.window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape' }));
+    expect(harness.root.querySelector('[role="dialog"]')).toBeNull();
+    expect(document.activeElement?.textContent).toBe('관리자 설정');
+  });
+
+  it('does not show admin controls to guest or other accounts', async () => {
+    for (const user of [null, pilot]) {
+      harness = makeHarness({ user });
+      harness.controller.mount();
+      await settle();
+      expect(harness.root.querySelector('[data-admin-settings-trigger]')).toBeNull();
+      harness.controller.destroy();
+      harness.root.remove();
+      harness = null;
+    }
   });
 
   it('keeps the title menu available when session lookup fails', async () => {

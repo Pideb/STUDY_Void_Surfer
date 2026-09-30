@@ -37,6 +37,45 @@ export function renderLoginScreen(model, handlers) {
   return panel;
 }
 
+export function renderAdminSettingsDialog(model, handlers) {
+  const dialog = document.createElement('section');
+  dialog.className = 'admin-settings-dialog';
+  dialog.setAttribute('role', 'dialog');
+  dialog.setAttribute('aria-modal', 'true');
+  dialog.setAttribute('aria-labelledby', 'admin-settings-title');
+
+  const heading = document.createElement('h2');
+  heading.id = 'admin-settings-title';
+  heading.textContent = '관리자 테스트 설정';
+  const disclaimer = createMessage('관리자 모드는 점수 저장을 건너뜁니다. 이 설정은 브라우저 안에서만 적용됩니다.');
+  const adminLabel = document.createElement('label');
+  const adminToggle = document.createElement('input');
+  adminToggle.type = 'checkbox';
+  adminToggle.checked = Boolean(model.adminModeEnabled);
+  adminToggle.setAttribute('role', 'switch');
+  adminToggle.setAttribute('aria-label', '관리자 모드');
+  adminToggle.addEventListener('change', () => handlers.toggleAdminMode?.(adminToggle.checked));
+  adminLabel.append(adminToggle, document.createTextNode(' 관리자 모드 (리더보드에 기록하지 않음)'));
+
+  const invincibleLabel = document.createElement('label');
+  const invincibleToggle = document.createElement('input');
+  invincibleToggle.type = 'checkbox';
+  invincibleToggle.checked = Boolean(model.invincibilityEnabled);
+  invincibleToggle.setAttribute('role', 'switch');
+  invincibleToggle.setAttribute('aria-label', '기체 무적');
+  invincibleToggle.addEventListener('change', () => handlers.toggleInvincibility?.(invincibleToggle.checked));
+  invincibleLabel.append(invincibleToggle, document.createTextNode(' 기체 무적 (화면 경계와 WASD 도전 실패는 유지)'));
+
+  dialog.append(
+    heading,
+    disclaimer,
+    adminLabel,
+    invincibleLabel,
+    createButton('닫기', handlers.close, { className: 'secondary-button' }),
+  );
+  return dialog;
+}
+
 export function renderMenuScreen(model, handlers) {
   const menu = document.createElement('section');
   menu.className = 'menu-overlay menu-screen';
@@ -114,7 +153,19 @@ export function renderMenuScreen(model, handlers) {
   );
   accountButton.disabled = Boolean(model.busy);
   accountActions.append(accountButton);
+  if (model.adminEligible) {
+    const adminTrigger = createButton('관리자 설정', handlers.openAdminSettings, { className: 'admin-settings-trigger' });
+    adminTrigger.dataset.adminSettingsTrigger = 'true';
+    menu.append(adminTrigger);
+  }
   menu.append(brand, aircraftPreview, actions, accountActions);
+  if (model.adminDialogOpen) {
+    menu.append(renderAdminSettingsDialog(model, {
+      close: handlers.closeAdminSettings,
+      toggleAdminMode: handlers.toggleAdminMode,
+      toggleInvincibility: handlers.toggleInvincibility,
+    }));
+  }
   return menu;
 }
 
@@ -237,6 +288,8 @@ export function renderGameOverScreen(model, handlers) {
     panel.append(createMessage('점수를 저장하는 중입니다.'));
   } else if (model.submitState === 'saved') {
     panel.append(createMessage('점수가 계정에 등록되었습니다.'));
+  } else if (model.submitState === 'admin-skipped') {
+    panel.append(createMessage(model.submitErrorMessage || '관리자 테스트 점수는 리더보드에 저장되지 않습니다.', 'screen-message'));
   } else if (model.submitError) {
     panel.append(createMessage(model.submitErrorMessage || '점수를 저장하지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message'));
   }

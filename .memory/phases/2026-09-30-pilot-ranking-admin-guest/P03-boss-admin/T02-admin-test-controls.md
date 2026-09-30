@@ -1,6 +1,6 @@
 # Task: T02 Admin Test Controls
 
-## Status: pending
+## Status: done
 
 ## Goal
 Provide the designated account with separate admin-mode and invincibility switches for local testing, without changing score display or normal boss progression.
@@ -41,11 +41,11 @@ Provide the designated account with separate admin-mode and invincibility switch
 - Verify invincible missed boss projectile advances encounter; successful reflections still damage boss; boundary remains fatal; challenge failure feedback remains visible.
 
 ## Acceptance Criteria
-- [ ] Only the normalized designated email sees admin controls.
-- [ ] Admin/invincibility switches are independent and persist across retries.
-- [ ] Admin runs retain their displayed score but do not call global score submission.
-- [ ] Invincibility suppresses selected collisions while preserving fatal boundaries, challenge feedback, and boss reflection requirements.
-- [ ] Client-only limitations are clearly documented.
+- [x] Only the normalized designated email sees admin controls.
+- [x] Admin/invincibility switches are independent and persist across retries.
+- [x] Admin runs retain their displayed score but do not call global score submission.
+- [x] Invincibility suppresses selected collisions while preserving fatal boundaries, challenge feedback, and boss reflection requirements.
+- [x] Client-only limitations are clearly documented in UI and implementation notes.
 
 ## Validation
 - `npm test -- --run tests/ui/app-controller.test.js tests/ui/screens.test.js tests/game/game-engine.test.js tests/ui/accessibility.test.js`
@@ -64,6 +64,6 @@ Task: T02-admin-test-controls
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

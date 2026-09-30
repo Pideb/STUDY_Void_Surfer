@@ -37,6 +37,17 @@ describe('game engine', () => {
     expect(engine.getSnapshot().stage.order).toHaveLength(6);
   });
 
+  it('keeps world boundaries fatal while invincibility is enabled', () => {
+    const { engine, step } = createRuntimeEngine({ gravity: 100000 });
+    engine.setInvincibilityEnabled(true);
+    expect(engine.getSnapshot().invincibilityEnabled).toBe(true);
+    engine.start();
+    const snapshot = step(100);
+
+    expect(snapshot.gameOverReason).toBe('boundary');
+    expect(snapshot.deathEffect?.reason).toBe('boundary');
+  });
+
   it('keeps the active stage after thirty seconds when no boss has been cleared', () => {
     const { engine, step } = createRuntimeEngine({ stageRng: () => 0.5, rng: () => 0.5 });
     engine.start();

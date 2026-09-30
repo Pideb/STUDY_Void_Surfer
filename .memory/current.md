@@ -4,13 +4,13 @@
 [Pilot Ranking, Admin Tools, and Guest Mode](./plans/2026-09-30-pilot-ranking-admin-guest.md)
 
 ## Active Phase
-[P03 Boss Combat and Admin Controls](./phases/2026-09-30-pilot-ranking-admin-guest/P03-boss-admin/phase.md)
+[P04 Integration QA](./phases/2026-09-30-pilot-ranking-admin-guest/P04-integration-qa/phase.md)
 
 ## Active Task
-[T02 Admin Test Controls](./phases/2026-09-30-pilot-ranking-admin-guest/P03-boss-admin/T02-admin-test-controls.md)
+[T01 Cross-Flow QA](./phases/2026-09-30-pilot-ranking-admin-guest/P04-integration-qa/T01-cross-flow-qa.md)
 
 ## Status
-- P03-T01 complete and committed. P03-T02 is active; Supabase SQL assertions remain pending CLI/DB availability.
+- P03 complete and committed. P04-T01 is active; Supabase SQL assertions remain pending CLI/DB availability.
 
 ## Next Step (IMPORTANT)
-Read the P03-T02 blueprint and implement account-gated admin mode and invincibility controls.
+Run full regression/build/config checks, document guest/admin limits and hosted migration application steps, and finish the plan.

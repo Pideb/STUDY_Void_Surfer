@@ -196,6 +196,55 @@ button:focus-visible {
   padding: clamp(0.75rem, 2.5vh, 1.25rem) clamp(1.25rem, 5vw, 4rem);
 }
 
+.admin-settings-trigger {
+  position: absolute;
+  top: clamp(0.75rem, 2vh, 1.25rem);
+  left: clamp(0.75rem, 2vw, 1.5rem);
+  z-index: 2;
+  padding: 0.45rem 0.7rem;
+  border-color: rgba(122, 220, 255, 0.42);
+  background: rgba(5, 16, 34, 0.72);
+  color: #bdefff;
+  font-size: 0.78rem;
+}
+
+.admin-settings-dialog {
+  position: fixed;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  width: min(28rem, calc(100vw - 2rem));
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(122, 220, 255, 0.72);
+  border-radius: 0.75rem;
+  background: rgba(4, 12, 28, 0.97);
+  box-shadow: 0 0 2rem rgba(22, 183, 231, 0.24);
+}
+
+.admin-settings-dialog h2,
+.admin-settings-dialog p {
+  margin: 0;
+}
+
+.admin-settings-dialog label {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  color: var(--color-text);
+  line-height: 1.45;
+}
+
+.admin-settings-dialog input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0.1rem 0 0;
+  accent-color: var(--color-neon-strong);
+}
+
 .menu-brand {
   grid-column: 2;
   grid-row: 1;
