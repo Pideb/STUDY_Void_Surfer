@@ -1,5 +1,6 @@
 import { createButton, createIconButton, createPanel } from './components.js';
-import { renderLeaderboardPanel } from './leaderboard-view.js';
+import { AIRCRAFT_CATALOG } from '../game/aircraft.js';
+import { renderLeaderboardPanel, renderPilotRankingTable } from './leaderboard-view.js';
 import { VISUAL_ASSET_MANIFEST } from '../game/visual-assets.js';
 
 function createMessage(text, className = 'screen-message') {
@@ -90,6 +91,7 @@ export function renderMenuScreen(model, handlers) {
   actions.append(
     createButton('게임 시작', handlers.start, { className: 'primary-button' }),
     createButton('기체 선택', handlers.hangar, { className: 'secondary-button' }),
+    createButton('파일럿 랭킹', handlers.ranking, { className: 'secondary-button' }),
     createIconButton({
       label: model.muted ? '소리 켜기' : '음소거',
       icon: model.muted ? 'volume-off' : 'volume-on',
@@ -226,6 +228,7 @@ export function renderGameOverScreen(model, handlers) {
   actions.className = 'screen-actions';
   actions.append(
     createButton('재시작', handlers.restart, { className: 'primary-button' }),
+    createButton('파일럿 랭킹', handlers.ranking, { className: 'secondary-button' }),
     createButton('메인 메뉴', handlers.menu, { className: 'secondary-button' }),
   );
   panel.append(actions);
@@ -239,4 +242,75 @@ export function renderGameOverScreen(model, handlers) {
   }
   panel.append(renderLeaderboardPanel(model.leaderboard, handlers.retryLeaderboard));
   return panel;
+}
+
+export function renderPilotRankingScreen(model = {}, handlers = {}) {
+  const screen = createPanel('파일럿 랭킹', 'pilot-ranking-screen');
+  const description = createMessage('전체 파일럿의 최고 기록을 순위별로 확인할 수 있습니다.');
+  screen.append(description);
+
+  const scrollRegion = document.createElement('div');
+  scrollRegion.className = 'pilot-ranking-table-scroll';
+  scrollRegion.tabIndex = 0;
+  scrollRegion.setAttribute('role', 'region');
+  scrollRegion.setAttribute('aria-label', '전체 파일럿 순위 표, 위아래로 스크롤 가능');
+  if (model.rows?.length) scrollRegion.append(renderPilotRankingTable(model.rows));
+
+  if (!model.rows?.length && model.loading) {
+    scrollRegion.append(createMessage('순위를 불러오는 중…'));
+    scrollRegion.setAttribute('aria-busy', 'true');
+  } else if (!model.rows?.length && model.error) {
+    scrollRegion.append(createMessage('순위를 불러오지 못했습니다.', 'screen-message error-message'));
+  } else if (!model.rows?.length) {
+    scrollRegion.append(createMessage('아직 등록된 파일럿 기록이 없습니다.'));
+  }
+
+  if (model.error && model.rows?.length) {
+    const error = createMessage('추가 순위를 불러오지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message');
+    error.setAttribute('role', 'status');
+    scrollRegion.append(error);
+  }
+  if (model.hasMore) {
+    const loadMore = createButton(
+      model.loading ? '불러오는 중…' : model.error ? '다시 시도' : '더 불러오기',
+      handlers.loadMore,
+      { className: 'secondary-button' },
+    );
+    loadMore.className = 'ranking-load-more secondary-button';
+    loadMore.disabled = Boolean(model.loading);
+    scrollRegion.append(loadMore);
+  } else if (model.rows?.length) {
+    scrollRegion.append(createMessage('모든 순위를 불러왔습니다.'));
+  }
+  screen.append(scrollRegion);
+
+  const personal = document.createElement('section');
+  personal.className = 'ranking-personal-record';
+  personal.setAttribute('aria-label', '내 최고 기록');
+  const personalHeading = document.createElement('h2');
+  personalHeading.textContent = '내 최고 기록';
+  personal.append(personalHeading);
+  if (model.personalLoading) {
+    personal.append(createMessage('개인 기록을 불러오는 중…'));
+  } else if (model.personalError) {
+    const error = createMessage('개인 기록을 불러오지 못했습니다.', 'screen-message error-message');
+    error.setAttribute('role', 'status');
+    personal.append(error);
+  } else if (model.personalRecord) {
+    const { rank, displayName, aircraftId, bestScore, guest } = model.personalRecord;
+    const aircraft = AIRCRAFT_CATALOG.find((craft) => craft.id === aircraftId)
+      ?? AIRCRAFT_CATALOG.find((craft) => craft.id === 'default');
+    const record = createMessage(
+      `${rank ? `${rank}위` : guest ? '전역 순위 없음' : '미등록'} · ${displayName} · ${aircraft.name} · ${bestScore}점`,
+    );
+    if (guest) {
+      const localOnly = createMessage('이 기록은 이 브라우저에만 저장됩니다.');
+      personal.append(record, localOnly);
+    } else {
+      personal.append(record);
+    }
+  }
+  screen.append(personal);
+  screen.append(createButton('돌아가기', handlers.back, { className: 'secondary-button' }));
+  return screen;
 }

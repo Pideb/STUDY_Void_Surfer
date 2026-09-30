@@ -1,6 +1,6 @@
 # Task: T01 Boss Projectile Collision
 
-## Status: pending
+## Status: in_progress
 
 ## Goal
 Make a boss projectile game over the player only when its visible body actually overlaps the player's existing collision box; a projectile that crosses the player X coordinate elsewhere is a miss.

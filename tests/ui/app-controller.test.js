@@ -45,6 +45,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
   const leaderboardService = {
     submitBestScore: vi.fn(leaderboard.submitBestScore ?? (async (_user, { score, aircraftId }) => savedScoreResult(score, aircraftId))),
     fetchTopScores: vi.fn(leaderboard.fetchTopScores ?? (async () => ({ rows: [], error: null }))),
+    fetchLeaderboardPage: vi.fn(leaderboard.fetchLeaderboardPage ?? (async () => ({ rows: [], error: null }))),
     fetchPlayerNeighborhood: vi.fn(leaderboard.fetchPlayerNeighborhood ?? (async () => ({ rows: [], error: null }))),
     fetchPlayerBestScore: vi.fn(leaderboard.fetchPlayerBestScore ?? (async () => ({ bestScore, error: null }))),
   };
@@ -192,6 +193,82 @@ describe('app controller product flow', () => {
     await settle();
     expect(readGuestRecord()).toMatchObject({ bestScore: 44, aircraftId: 'velocity' });
     expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+  });
+
+  it('loads ranking pages from the menu and pins the guest-local best below the table', async () => {
+    localStorage.setItem(GUEST_RECORD_STORAGE_KEY, JSON.stringify({
+      version: 1, bestScore: 28, aircraftId: 'aegis', achievedAt: '2026-09-29T00:00:00.000Z',
+    }));
+    const firstPage = Array.from({ length: 50 }, (_, index) => ({
+      rank: index + 1, displayName: `Pilot ${index + 1}`, aircraftId: 'default',
+      bestScore: 100 - index, userId: null, isCurrentUser: false,
+    }));
+    const secondPage = [{
+      rank: 51, displayName: 'Pilot 51', aircraftId: 'velocity', bestScore: 1,
+      userId: null, isCurrentUser: false,
+    }];
+    harness = makeHarness({ user: null, leaderboard: {
+      fetchLeaderboardPage: vi.fn(async ({ offset }) => ({
+        rows: offset === 0 ? firstPage : secondPage,
+        error: null,
+      })),
+    } });
+    harness.controller.mount();
+    await settle();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '파일럿 랭킹').click();
+    await settle();
+
+    expect(harness.leaderboardService.fetchLeaderboardPage).toHaveBeenCalledWith({ limit: 50, offset: 0 });
+    expect(harness.root.querySelectorAll('.pilot-ranking-table tbody tr')).toHaveLength(50);
+    expect(harness.root.querySelector('.ranking-personal-record').textContent)
+      .toContain('전역 순위 없음 · GUEST · AEGIS · 28점');
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+
+    harness.root.querySelector('.ranking-load-more').click();
+    await settle();
+    expect(harness.leaderboardService.fetchLeaderboardPage).toHaveBeenLastCalledWith({ limit: 50, offset: 50 });
+    expect(harness.root.querySelectorAll('.pilot-ranking-table tbody tr')).toHaveLength(51);
+    expect(harness.root.textContent).toContain('모든 순위를 불러왔습니다.');
+  });
+
+  it('pins the signed-in player record and returns to the game-over view', async () => {
+    harness = makeHarness({ leaderboard: {
+      fetchLeaderboardPage: async () => ({ rows: [], error: null }),
+      fetchPlayerNeighborhood: async () => ({ rows: [{
+        rank: 9, displayName: 'Pilot', aircraftId: 'velocity', bestScore: 73,
+        userId: 'pilot-1', isCurrentUser: true,
+      }], error: null }),
+    } });
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    harness.controller.dispatch('GAME_OVER');
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '파일럿 랭킹').click();
+    await settle();
+
+    expect(harness.root.querySelector('.ranking-personal-record').textContent)
+      .toContain('9위 · Pilot · VELOCITY · 73점');
+    harness.root.querySelector('.pilot-ranking-screen button:last-child').click();
+    expect(harness.root.querySelector('.game-over-screen')).not.toBeNull();
+  });
+
+  it('deduplicates page loads and ignores a ranking response after returning to the menu', async () => {
+    const pending = deferred();
+    harness = makeHarness({ user: null, leaderboard: {
+      fetchLeaderboardPage: vi.fn(() => pending.promise),
+    } });
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('OPEN_PILOT_RANKING');
+    harness.controller.dispatch('LOAD_MORE_RANKING');
+    expect(harness.leaderboardService.fetchLeaderboardPage).toHaveBeenCalledOnce();
+    harness.controller.dispatch('CLOSE_PILOT_RANKING');
+    pending.resolve({ rows: [{ rank: 1, displayName: 'Stale', aircraftId: 'default', bestScore: 1 }], error: null });
+    await settle();
+
+    expect(harness.root.querySelector('.menu-overlay')).not.toBeNull();
+    expect(harness.root.textContent).not.toContain('Stale');
   });
 
   it('routes menu through tutorial, immediate restart, and menu back through tutorial', async () => {

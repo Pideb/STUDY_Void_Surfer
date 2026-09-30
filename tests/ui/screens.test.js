@@ -30,6 +30,7 @@ describe('product flow screens', () => {
     expect(labels).not.toContain('조작법');
     expect(labels).toContain('게임 시작');
     expect(labels).toContain('기체 선택');
+    expect(labels).toContain('파일럿 랭킹');
     expect(labels).toContain('로그아웃');
   });
 
@@ -164,6 +165,7 @@ describe('product flow screens', () => {
     expect(screen.textContent).toContain('최종 점수 17');
     expect(screen.textContent).toContain('재시작');
     expect(screen.textContent).toContain('메인 메뉴');
+    expect(screen.textContent).toContain('파일럿 랭킹');
     expect(screen.querySelector('script')).toBeNull();
     expect(screen.querySelector('[aria-current="true"]')).not.toBeNull();
   });

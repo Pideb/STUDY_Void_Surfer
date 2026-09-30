@@ -1,6 +1,6 @@
 # Task: T02 Pilot Ranking Screen
 
-## Status: in_progress
+## Status: done
 
 ## Goal
 Provide an all-pilots scrollable ranking view from the main menu and game-over result screen, incrementally loading rows while keeping the current user's or guest's own best score pinned below the list.
@@ -16,6 +16,7 @@ Provide an all-pilots scrollable ranking view from the main menu and game-over r
   - `src/ui/app-controller.js` :: state, `paint`, `dispatch`, menu/game-over handlers, ranking page loader; modify
   - `src/ui/screens.js` :: `renderMenuScreen`, `renderGameOverScreen`, new `renderPilotRankingScreen`; modify
   - `src/ui/leaderboard-view.js` :: ranking table renderer or new full-page renderer; modify
+  - `src/styles.css` :: scrollable ranking layout and pinned-record styling; modify
   - `src/main.js` :: page service adapter from T01; read-only dependency
   - `tests/ui/app-controller.test.js` :: navigation, paging, account/guest pinned record; modify
 
@@ -59,6 +60,6 @@ Task: T02-pilot-ranking-screen
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

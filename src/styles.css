@@ -435,6 +435,69 @@ button:focus-visible {
   background: rgba(85, 246, 229, 0.09);
 }
 
+.pilot-ranking-screen {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  width: min(94%, 760px);
+  max-height: min(92%, 900px);
+  gap: 0.75rem;
+}
+
+.pilot-ranking-screen > h1 { margin-bottom: 0; }
+.pilot-ranking-screen > .screen-message { margin: 0; }
+
+.pilot-ranking-table-scroll {
+  min-height: 8rem;
+  max-height: min(54vh, 34rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(139, 166, 191, 0.25);
+  border-radius: 0.7rem;
+  background: rgba(8, 20, 45, 0.76);
+}
+
+.pilot-ranking-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.pilot-ranking-table th,
+.pilot-ranking-table td {
+  padding: 0.58rem 0.7rem;
+  border-bottom: 1px solid rgba(139, 166, 191, 0.16);
+  overflow-wrap: anywhere;
+}
+
+.pilot-ranking-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--color-muted);
+  background: #08142d;
+}
+
+.ranking-load-more {
+  display: flex;
+  width: fit-content;
+  margin: 0.7rem auto;
+}
+
+.ranking-personal-record {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid rgba(85, 246, 229, 0.32);
+  border-radius: 0.7rem;
+  background: rgba(85, 246, 229, 0.08);
+}
+
+.ranking-personal-record h2 {
+  margin: 0 0 0.35rem;
+  color: var(--color-neon-strong);
+  font-size: 0.95rem;
+}
+
+.ranking-personal-record p { margin: 0.25rem 0; }
+
 .game-hud {
   position: absolute;
   inset: 0;
