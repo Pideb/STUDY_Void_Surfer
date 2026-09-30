@@ -1,16 +1,16 @@
 # Current Context
 
 ## Active Plan
-[Gameplay Final Tweaks](./plans/2026-09-29-gameplay-final-tweaks.md)
+[Pilot Ranking, Admin Tools, and Guest Mode](./plans/2026-09-30-pilot-ranking-admin-guest.md)
 
 ## Active Phase
-[P01 Gameplay and Viewport](./phases/2026-09-29-gameplay-final-tweaks/P01-gameplay-and-viewport/phase.md)
+[P01 Guest Mode](./phases/2026-09-30-pilot-ranking-admin-guest/P01-guest-mode/phase.md)
 
 ## Active Task
-None — the plan is complete.
+[T02 Guest Record and Aircraft Access](./phases/2026-09-30-pilot-ranking-admin-guest/P01-guest-mode/T02-guest-record-and-aircraft.md)
 
 ## Status
-- All three tasks completed, validated, and committed.
+- T01 complete, validated, and committed; T02 is active.
 
 ## Next Step (IMPORTANT)
-No remaining tasks. `npm test -- --run`, `npm run build`, and `git diff --check` pass.
+Read the T02 blueprint and add browser-local guest best-score persistence plus guest aircraft access, keeping guest scores separate from authenticated leaderboard submissions.

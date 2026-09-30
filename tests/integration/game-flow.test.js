@@ -67,10 +67,25 @@ describe('authenticated game flow', () => {
     harness = null;
   });
 
-  it('runs login → tutorial → play → warning/boss → game-over with mocked services', async () => {
+  it('runs as a guest from title → tutorial → play → warning/boss → game-over', async () => {
+    const authService = {
+      getSessionUser: vi.fn(async () => null), subscribeToAuth: vi.fn(() => vi.fn()),
+      signInWithMicrosoft: vi.fn(), signOut: vi.fn(),
+    };
     harness = createFlowHarness();
+    harness.controller.destroy();
+    harness.controller = createAppController({
+      authService,
+      leaderboardService: harness.leaderboardService,
+      gameEngine: harness.gameEngine,
+      root: harness.root,
+      canvas: harness.canvas,
+      renderer: { render: vi.fn(), destroy: vi.fn() },
+      audioManager: harness.audioManager,
+    });
     harness.controller.mount();
     await flush();
+    expect(harness.root.textContent).toContain('GUEST');
     expect(harness.root.textContent).toContain('게임 시작');
 
     clickByLabel(harness.root, '게임 시작');
@@ -93,8 +108,6 @@ describe('authenticated game flow', () => {
     expect(harness.root.textContent).toContain('재시작');
     expect(harness.root.textContent).toContain('메인 메뉴');
     await flush();
-    expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledWith(pilot, {
-      score: 20, displayName: 'Pilot', aircraftId: 'default',
-    });
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
   });
 });

@@ -6,8 +6,8 @@ import { createGameHud } from '../../src/ui/game-hud.js';
 
 describe('product flow screens', () => {
   it('uses a transparent menu overlay with a bold pilot greeting and separated logout', () => {
-    const screen = renderMenuScreen({ displayName: 'Pilot', muted: false }, {
-      start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
+    const screen = renderMenuScreen({ displayName: 'Pilot', signedIn: true, muted: false }, {
+      start: vi.fn(), toggleMute: vi.fn(), signIn: vi.fn(), signOut: vi.fn(),
     });
 
     expect(screen.classList.contains('screen-panel')).toBe(false);
@@ -35,7 +35,7 @@ describe('product flow screens', () => {
 
   it('shows readable title text if the menu logo image fails to load', () => {
     const screen = renderMenuScreen({ displayName: 'Pilot', muted: false }, {
-      start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
+      start: vi.fn(), toggleMute: vi.fn(), signIn: vi.fn(), signOut: vi.fn(),
     });
     const wordmark = screen.querySelector('h1.menu-wordmark');
     const image = wordmark.querySelector('.menu-wordmark-image');
@@ -48,7 +48,7 @@ describe('product flow screens', () => {
 
   it('shows the selected aircraft as decorative, accessible title-screen artwork', () => {
     const screen = renderMenuScreen({ displayName: 'Pilot', muted: false, selectedAircraft: 'VELOCITY', selectedAircraftId: 'velocity' }, {
-      start: vi.fn(), toggleMute: vi.fn(), signOut: vi.fn(),
+      start: vi.fn(), toggleMute: vi.fn(), signIn: vi.fn(), signOut: vi.fn(),
     });
     const preview = screen.querySelector('.menu-aircraft-preview');
 
@@ -57,6 +57,20 @@ describe('product flow screens', () => {
     expect(preview.querySelector('img').getAttribute('src')).toContain('/assets/game/aircraft/velocity.png');
     expect(preview.querySelector('img').getAttribute('alt')).toBe('');
     expect(preview.querySelector('.menu-aircraft-exhaust')).not.toBeNull();
+  });
+
+  it('shows GUEST login action and an accessible recoverable authentication error', () => {
+    const signIn = vi.fn();
+    const screen = renderMenuScreen({
+      displayName: 'GUEST', signedIn: false, authError: '로그인 연결을 확인해 주세요.', muted: false,
+    }, { start: vi.fn(), toggleMute: vi.fn(), signIn, signOut: vi.fn() });
+
+    expect(screen.querySelector('.menu-greeting strong').textContent).toBe('GUEST');
+    expect([...screen.querySelectorAll('.account-actions button')].map((button) => button.textContent))
+      .toEqual(['로그인']);
+    expect(screen.querySelector('[role="alert"]')?.textContent).toBe('로그인 연결을 확인해 주세요.');
+    screen.querySelector('.account-actions button').click();
+    expect(signIn).toHaveBeenCalledOnce();
   });
 
   it('shows hangar unlock states and only allows selecting unlocked aircraft', () => {

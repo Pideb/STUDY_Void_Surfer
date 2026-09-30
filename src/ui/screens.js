@@ -100,7 +100,18 @@ export function renderMenuScreen(model, handlers) {
 
   const accountActions = document.createElement('div');
   accountActions.className = 'account-actions';
-  accountActions.append(createButton('로그아웃', handlers.signOut, { className: 'text-button' }));
+  if (model.authError) {
+    const error = createMessage(model.authError, 'screen-message error-message');
+    error.setAttribute('role', 'alert');
+    accountActions.append(error);
+  }
+  const accountButton = createButton(
+    model.busy ? '로그인 중…' : model.signedIn === false ? '로그인' : '로그아웃',
+    model.signedIn === false ? handlers.signIn : handlers.signOut,
+    { className: 'text-button' },
+  );
+  accountButton.disabled = Boolean(model.busy);
+  accountActions.append(accountButton);
   menu.append(brand, aircraftPreview, actions, accountActions);
   return menu;
 }

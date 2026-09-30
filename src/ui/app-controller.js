@@ -58,7 +58,7 @@ export function createAppController(deps) {
   }
 
   const state = {
-    screen: 'loading', user: null, error: null, connectionError: false, busy: false,
+    screen: 'menu', user: null, error: null, authActionError: null, connectionError: false, busy: false,
     muted: Boolean(audioManager.isMuted?.()), snapshot: null, leaderboard: null,
     submitError: false, submitErrorMessage: null, gameOverRequest: 0, selectedAircraftId: 'default',
     accountBestScore: 0, accountBestScoreLoading: false, accountBestScoreError: false,
@@ -104,13 +104,16 @@ export function createAppController(deps) {
       audioManager.setMusicMode?.('menu');
       audioManager.setMusicScene?.(null);
       root.replaceChildren(renderMenuScreen({
-        displayName: getDisplayName(state.user), muted: state.muted,
+        displayName: state.user ? getDisplayName(state.user) : 'GUEST',
+        signedIn: Boolean(state.user), authError: state.authActionError, busy: state.busy,
+        muted: state.muted,
         selectedAircraftId: state.selectedAircraftId,
         selectedAircraft: AIRCRAFT_CATALOG.find(({ id }) => id === state.selectedAircraftId)?.name ?? 'DEFAULT',
       }, {
         start: () => dispatch({ type: 'START_GAME_FROM_MENU' }),
         hangar: () => dispatch({ type: 'OPEN_HANGAR' }),
         toggleMute: toggleMute,
+        signIn: handleSignIn,
         signOut: handleSignOut,
       }));
       return;
@@ -181,27 +184,31 @@ export function createAppController(deps) {
   }
 
   async function refreshSession() {
-    state.screen = 'loading';
-    paint();
     try {
       const user = await authService.getSessionUser();
       state.user = user;
       state.error = null;
+      state.authActionError = null;
       state.connectionError = false;
       if (user) void loadAccountBestScore(user);
       else {
+        accountRequestId += 1;
         state.accountBestScore = 0;
+        state.accountBestScoreLoading = false;
         state.accountBestScoreError = false;
-        state.selectedAircraftId = 'default';
       }
-      setScreen(user ? 'menu' : 'login');
+      setScreen('menu');
     } catch (error) {
       state.user = null;
-      state.error = getAuthErrorMessage(error);
+      accountRequestId += 1;
+      state.accountBestScore = 0;
+      state.accountBestScoreLoading = false;
+      state.accountBestScoreError = false;
+      state.authActionError = getAuthErrorMessage(error);
       state.connectionError = error?.code === 'CONFIG_MISSING'
         || error?.code === 'CONFIG_INVALID'
         || error?.code === 'NETWORK_ERROR';
-      setScreen('login');
+      setScreen('menu', state.authActionError);
     }
   }
 
@@ -242,20 +249,26 @@ export function createAppController(deps) {
   }
 
   async function handleSignIn() {
-    if (state.busy) return;
+    if (state.busy || state.user) return;
     state.busy = true;
-    state.error = null;
+    state.authActionError = null;
     paint();
-    const result = await authService.signInWithMicrosoft();
+    let result;
+    try {
+      result = await authService.signInWithMicrosoft();
+    } catch (error) {
+      result = { error };
+    }
     state.busy = false;
     if (result?.error || !result?.user) {
-      state.error = getAuthErrorMessage(result?.error);
+      state.authActionError = getAuthErrorMessage(result?.error);
       state.connectionError = result?.error?.code === 'CONFIG_MISSING'
         || result?.error?.code === 'CONFIG_INVALID';
-      setScreen('login');
+      setScreen('menu', state.authActionError);
       return;
     }
     state.user = result.user;
+    state.authActionError = null;
     void loadAccountBestScore(result.user);
     setScreen('menu', 'Microsoft 계정에 로그인했습니다.');
   }
@@ -265,16 +278,16 @@ export function createAppController(deps) {
       await authService.signOut();
       state.user = null;
       state.error = null;
+      state.authActionError = null;
       accountRequestId += 1;
       state.accountBestScore = 0;
       state.accountBestScoreLoading = false;
       state.accountBestScoreError = false;
-      state.selectedAircraftId = 'default';
       audioManager.setMusicMode?.('none');
-      setScreen('login', '로그아웃했습니다.');
+      setScreen('menu', '로그아웃했습니다.');
     } catch (error) {
-      state.error = getAuthErrorMessage(error);
-      setScreen('menu');
+      state.authActionError = getAuthErrorMessage(error);
+      setScreen('menu', state.authActionError);
     }
   }
 
@@ -417,11 +430,6 @@ export function createAppController(deps) {
   }
 
   function beginPlaying() {
-    if (!state.user) {
-      state.error = '게임을 시작하려면 Microsoft 계정으로 로그인해 주세요.';
-      setScreen('login');
-      return;
-    }
     state.snapshot = null;
     lastDifficultyMode = 'normal';
     gameEngine.setAccountBestScore?.(state.accountBestScore);
@@ -447,18 +455,19 @@ export function createAppController(deps) {
     const score = state.snapshot?.finalScore ?? state.snapshot?.score ?? 0;
     const displayName = getDisplayName(state.user);
     const aircraftId = state.snapshot?.aircraft?.id ?? 'default';
+    const shouldSubmitScore = Boolean(submitScore && state.user);
     state.leaderboard = {
       top: { loading: true }, neighborhood: { loading: true },
     };
     state.submitError = false;
-    if (submitScore) {
+    if (shouldSubmitScore) {
       state.submitState = 'saving';
       state.submitErrorMessage = null;
     }
     paint();
 
     let submitResult = null;
-    if (submitScore) {
+    if (shouldSubmitScore) {
       try {
         submitResult = await leaderboardService.submitBestScore(state.user, { score, displayName, aircraftId });
       } catch (error) {
@@ -485,7 +494,7 @@ export function createAppController(deps) {
         leaderboardService.fetchPlayerNeighborhood(),
       ]);
       if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
-      state.submitError = submitScore
+      state.submitError = shouldSubmitScore
         ? !isValidScoreSubmission(submitResult, score, state.user?.id)
         : state.submitState === 'error';
       state.leaderboard = {
@@ -509,7 +518,7 @@ export function createAppController(deps) {
     switch (type) {
       case 'START_GAME_FROM_MENU':
       case 'SHOW_TUTORIAL':
-        if (state.user && state.screen === 'menu') setScreen('tutorial');
+        if (state.screen === 'menu') setScreen('tutorial');
         break;
       case 'OPEN_HANGAR':
         if (state.screen === 'menu' && state.user) {
@@ -532,16 +541,13 @@ export function createAppController(deps) {
         if (state.screen === 'game-over') beginPlaying();
         break;
       case 'RETURN_TO_MENU':
-        if (!state.user) setScreen('login');
-        else {
-          stopLoop();
-          lastDifficultyMode = 'normal';
-          lastAttackId = null;
-          lastAttackPhase = null;
-          previousBoss = null;
-          previousChallengeActive = false;
-          setScreen('menu');
-        }
+        stopLoop();
+        lastDifficultyMode = 'normal';
+        lastAttackId = null;
+        lastAttackPhase = null;
+        previousBoss = null;
+        previousChallengeActive = false;
+        setScreen('menu');
         break;
       case 'PAUSE':
         if (state.screen === 'playing') {
@@ -594,6 +600,7 @@ export function createAppController(deps) {
   function mount() {
     if (mounted) return;
     mounted = true;
+    paint();
     pointerTarget = deps.canvas ?? root.querySelector('canvas');
     handlePointerDown = (event) => {
       if (state.screen !== 'playing') return;
@@ -609,7 +616,11 @@ export function createAppController(deps) {
           state.user = null;
           stopLoop();
           audioManager.setMusicMode?.('none');
-          setScreen('login');
+          state.accountBestScore = 0;
+          state.accountBestScoreLoading = false;
+          state.accountBestScoreError = false;
+          state.authActionError = null;
+          setScreen('menu');
         } else {
           const changedUser = state.user?.id !== user.id;
           state.user = user;
@@ -617,12 +628,13 @@ export function createAppController(deps) {
             state.selectedAircraftId = 'default';
             void loadAccountBestScore(user);
           }
-          if (state.screen === 'login' || state.screen === 'loading') setScreen('menu');
+          if (state.screen === 'login' || state.screen === 'loading' || state.screen === 'menu') setScreen('menu');
         }
       });
     } catch (error) {
-      state.error = getAuthErrorMessage(error);
+      state.authActionError = getAuthErrorMessage(error);
       state.connectionError = true;
+      setScreen('menu', state.authActionError);
     }
     void refreshSession();
   }

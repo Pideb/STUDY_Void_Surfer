@@ -89,15 +89,69 @@ describe('app controller product flow', () => {
     harness = null;
   });
 
-  it('keeps the game behind the Microsoft login gate and shows connection errors', async () => {
+  it('shows the title menu as GUEST and keeps sign-in errors from blocking play', async () => {
     harness = makeHarness({ user: null });
     harness.controller.mount();
     await settle();
 
-    expect(harness.root.textContent).toContain('Microsoft 계정으로 로그인');
-    expect(harness.root.textContent).not.toContain('게임 시작');
+    expect(harness.root.textContent).toContain('GUEST');
+    expect(harness.root.textContent).toContain('게임 시작');
+    expect(harness.root.textContent).toContain('로그인');
+    expect(harness.root.textContent).not.toContain('Microsoft 계정으로 로그인하고 최고 기록을 안전하게 보존하세요.');
+    expect(harness.authService.signInWithMicrosoft).not.toHaveBeenCalled();
+
+    harness.authService.signInWithMicrosoft.mockResolvedValueOnce({
+      user: null, error: Object.assign(new Error('offline'), { code: 'NETWORK_ERROR' }),
+    });
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '로그인').click();
+    await settle();
+    expect(harness.root.textContent).toContain('GUEST');
+    expect(harness.root.querySelector('[role="alert"]')).not.toBeNull();
+
     harness.controller.dispatch({ type: 'START_GAME_FROM_MENU' });
-    expect(harness.gameEngine.start).not.toHaveBeenCalled();
+    expect(harness.root.textContent).toContain('출격 전 안내');
+    harness.controller.dispatch('START_PLAYING');
+    expect(harness.gameEngine.start).toHaveBeenCalledOnce();
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+  });
+
+  it('signs out back to the guest title menu without starting a login gate', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '로그아웃').click();
+    await settle();
+
+    expect(harness.root.textContent).toContain('GUEST');
+    expect(harness.root.textContent).toContain('로그인');
+    expect(document.querySelector('#live-region').textContent).toContain('로그아웃했습니다.');
+    expect(harness.root.textContent).toContain('게임 시작');
+  });
+
+  it('keeps the title menu available when session lookup fails', async () => {
+    harness = makeHarness({ user: null });
+    harness.authService.getSessionUser.mockRejectedValueOnce(
+      Object.assign(new Error('offline'), { code: 'NETWORK_ERROR' }),
+    );
+    harness.controller.mount();
+    await settle();
+
+    expect(harness.root.textContent).toContain('GUEST');
+    expect(harness.root.textContent).toContain('게임 시작');
+    expect(harness.root.querySelector('[role="alert"]')).not.toBeNull();
+  });
+
+  it('signs in from the guest menu and returns to the account menu', async () => {
+    harness = makeHarness({ user: null });
+    harness.controller.mount();
+    await settle();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '로그인').click();
+    await settle();
+
+    expect(harness.root.querySelector('.menu-greeting strong').textContent).toBe('Pilot');
+    expect([...harness.root.querySelectorAll('.account-actions button')].map((button) => button.textContent))
+      .toEqual(['로그아웃']);
+    expect(harness.authService.signInWithMicrosoft).toHaveBeenCalledOnce();
   });
 
   it('routes menu through tutorial, immediate restart, and menu back through tutorial', async () => {
@@ -127,12 +181,12 @@ describe('app controller product flow', () => {
     harness.controller.mount();
     await settle();
 
-    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(1);
+    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(2);
     harness.controller.dispatch('SHOW_TUTORIAL');
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
 
     expect(harness.gameEngine.start).not.toHaveBeenCalled();
-    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(2);
+    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(3);
     expect(harness.root.textContent).toContain('게임 시작');
   });
 
