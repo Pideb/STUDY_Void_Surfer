@@ -1,6 +1,6 @@
 # Task: T02 Guest Record and Aircraft Access
 
-## Status: pending
+## Status: done
 
 ## Goal
 Keep guest best score on the current browser, never submit it to the account leaderboard, and allow guest players to select every aircraft regardless of account unlock thresholds.
@@ -67,6 +67,6 @@ Task: T02-guest-record-and-aircraft
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

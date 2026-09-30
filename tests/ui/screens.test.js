@@ -98,6 +98,21 @@ describe('product flow screens', () => {
     expect(select).toHaveBeenCalledWith('aegis');
   });
 
+  it('labels the guest-local best record distinctly and can render every guest aircraft unlocked', () => {
+    const screen = renderHangarScreen({
+      bestScore: 27,
+      recordLabel: '게스트 최고 기록',
+      aircraft: [
+        { id: 'default', name: 'NOVA', unlocked: true },
+        { id: 'aegis', name: 'AEGIS', unlocked: true },
+        { id: 'velocity', name: 'VELOCITY', unlocked: true },
+      ],
+    }, { select: vi.fn(), back: vi.fn() });
+
+    expect(screen.querySelector('.hangar-best-score').textContent).toBe('게스트 최고 기록 27점');
+    expect([...screen.querySelectorAll('.aircraft-option')].every((button) => !button.disabled)).toBe(true);
+  });
+
   it('shows an explicit account-score loading state before unlock decisions settle', () => {
     const screen = renderHangarScreen({
       loading: true,

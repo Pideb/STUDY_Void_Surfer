@@ -86,6 +86,7 @@ export function createGameEngine(deps = {}) {
   const rng = deps.rng ?? Math.random;
   const stageRng = deps.stageRng ?? Math.random;
   let accountBestScore = Math.max(0, Number(deps.accountBestScore) || 0);
+  let guestMode = Boolean(deps.guestMode);
   let aircraft = getAircraftDefinition(deps.aircraftId);
 
   let state = GAME_STATES.MENU;
@@ -542,7 +543,7 @@ export function createGameEngine(deps = {}) {
       return accountBestScore;
     }
     accountBestScore = Math.max(0, Number(bestScore) || 0);
-    if (!isAircraftUnlocked(aircraft.id, accountBestScore)) {
+    if (!guestMode && !isAircraftUnlocked(aircraft.id, accountBestScore)) {
       aircraft = getAircraftDefinition('default');
     }
     return accountBestScore;
@@ -553,9 +554,17 @@ export function createGameEngine(deps = {}) {
       return false;
     }
     const definition = getAircraftDefinition(id);
-    if (!isAircraftUnlocked(definition.id, accountBestScore)) return false;
+    if (!guestMode && !isAircraftUnlocked(definition.id, accountBestScore)) return false;
     aircraft = definition;
     return aircraft.id;
+  }
+
+  function setGuestMode(enabled) {
+    guestMode = Boolean(enabled);
+    if (!guestMode && !isAircraftUnlocked(aircraft.id, accountBestScore)) {
+      aircraft = getAircraftDefinition('default');
+    }
+    return guestMode;
   }
 
   function update(nowMs) {
@@ -776,6 +785,7 @@ export function createGameEngine(deps = {}) {
     stop,
     setAircraft,
     setAccountBestScore,
+    setGuestMode,
     handleChallengeKey: handleChallengeInput,
     getSnapshot,
   };

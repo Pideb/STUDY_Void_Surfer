@@ -241,6 +241,18 @@ describe('game engine', () => {
     expect(engine.setAircraft('default')).toBe(false);
   });
 
+  it('allows every catalog aircraft in guest mode but restores account unlock rules on sign-in', () => {
+    const engine = createGameEngine({ now: () => 1000, accountBestScore: 0 });
+    engine.setGuestMode(true);
+    expect(engine.setAircraft('aegis')).toBe('aegis');
+    expect(engine.setAircraft('velocity')).toBe('velocity');
+
+    engine.setGuestMode(false);
+    expect(engine.setAircraft('velocity')).toBe(false);
+    expect(engine.setAircraft('aegis')).toBe(false);
+    expect(engine.setAircraft('default')).toBe('default');
+  });
+
   it('spawns the first obstacle then moves it left at the active scroll speed', () => {
     const { engine, step } = createRuntimeEngine();
     engine.start();

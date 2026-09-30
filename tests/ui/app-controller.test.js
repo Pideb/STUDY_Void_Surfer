@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAppController } from '../../src/ui/app-controller.js';
+import { GUEST_RECORD_STORAGE_KEY, readGuestRecord } from '../../src/services/guest-record-service.js';
 
 const pilot = { id: 'pilot-1', email: 'pilot@example.com', user_metadata: { name: 'Pilot' } };
 
@@ -32,6 +33,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
     getSnapshot: vi.fn(() => ({ ...snapshot, player: { ...snapshot.player } })),
     setAircraft: vi.fn((id) => id),
     setAccountBestScore: vi.fn((score) => score),
+    setGuestMode: vi.fn((enabled) => enabled),
     handleChallengeKey: vi.fn(() => true),
   };
   const authService = {
@@ -87,6 +89,7 @@ describe('app controller product flow', () => {
     harness?.root.remove();
     vi.restoreAllMocks();
     harness = null;
+    localStorage.removeItem(GUEST_RECORD_STORAGE_KEY);
   });
 
   it('shows the title menu as GUEST and keeps sign-in errors from blocking play', async () => {
@@ -152,6 +155,43 @@ describe('app controller product flow', () => {
     expect([...harness.root.querySelectorAll('.account-actions button')].map((button) => button.textContent))
       .toEqual(['로그아웃']);
     expect(harness.authService.signInWithMicrosoft).toHaveBeenCalledOnce();
+  });
+
+  it('lets guests select all aircraft and labels their hangar score as browser-local', async () => {
+    harness = makeHarness({ user: null });
+    harness.controller.mount();
+    await settle();
+    expect(harness.gameEngine.setGuestMode).toHaveBeenCalledWith(true);
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '기체 선택').click();
+
+    expect(harness.root.querySelector('.hangar-best-score').textContent).toBe('게스트 최고 기록 0점');
+    const aircraftButtons = [...harness.root.querySelectorAll('.aircraft-option')];
+    expect(aircraftButtons).toHaveLength(3);
+    expect(aircraftButtons.every((button) => !button.disabled)).toBe(true);
+    aircraftButtons.find((button) => button.getAttribute('aria-label').startsWith('VELOCITY')).click();
+    expect(harness.root.querySelector('.aircraft-option.is-selected')?.getAttribute('aria-label')).toContain('VELOCITY');
+  });
+
+  it('stores a guest final best locally and never transfers it after sign-in', async () => {
+    harness = makeHarness({ user: null });
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    Object.assign(harness.snapshot, {
+      state: 'playing', score: 29, finalScore: 44, aircraft: { id: 'velocity' },
+    });
+    harness.controller.dispatch('GAME_OVER');
+    await settle();
+
+    expect(readGuestRecord()).toMatchObject({ bestScore: 44, aircraftId: 'velocity' });
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '로그인').click();
+    await settle();
+    expect(readGuestRecord()).toMatchObject({ bestScore: 44, aircraftId: 'velocity' });
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
   });
 
   it('routes menu through tutorial, immediate restart, and menu back through tutorial', async () => {

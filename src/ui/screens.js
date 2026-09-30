@@ -116,7 +116,7 @@ export function renderMenuScreen(model, handlers) {
   return menu;
 }
 
-export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'default', bestScore = 0, loading = false, error = false } = {}, handlers = {}) {
+export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'default', bestScore = 0, recordLabel = '계정 최고 기록', loading = false, error = false } = {}, handlers = {}) {
   const screen = document.createElement('section');
   screen.className = 'hangar-screen';
   screen.setAttribute('aria-labelledby', 'hangar-title');
@@ -126,8 +126,8 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
   const score = document.createElement('p');
   score.className = 'hangar-best-score';
   score.textContent = loading && !error && bestScore === 0
-    ? '계정 최고 기록 불러오는 중…'
-    : `계정 최고 기록 ${bestScore}점`;
+    ? `${recordLabel} 불러오는 중…`
+    : `${recordLabel} ${bestScore}점`;
   score.setAttribute('aria-live', 'polite');
   screen.append(heading, score);
   if (error) {

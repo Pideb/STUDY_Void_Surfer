@@ -1,6 +1,6 @@
 # Task: T01 Public Ranking RPC
 
-## Status: pending
+## Status: in_progress
 
 ## Goal
 Let guests and signed-in users page through global ranking rows without granting anonymous users any write access or exposing account identifiers.

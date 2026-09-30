@@ -4,13 +4,13 @@
 [Pilot Ranking, Admin Tools, and Guest Mode](./plans/2026-09-30-pilot-ranking-admin-guest.md)
 
 ## Active Phase
-[P01 Guest Mode](./phases/2026-09-30-pilot-ranking-admin-guest/P01-guest-mode/phase.md)
+[P02 Pilot Ranking](./phases/2026-09-30-pilot-ranking-admin-guest/P02-pilot-ranking/phase.md)
 
 ## Active Task
-[T02 Guest Record and Aircraft Access](./phases/2026-09-30-pilot-ranking-admin-guest/P01-guest-mode/T02-guest-record-and-aircraft.md)
+[T01 Public Ranking RPC](./phases/2026-09-30-pilot-ranking-admin-guest/P02-pilot-ranking/T01-public-ranking-rpc.md)
 
 ## Status
-- T01 complete, validated, and committed; T02 is active.
+- P01 guest-mode tasks complete, validated, and committed; P02-T01 is active.
 
 ## Next Step (IMPORTANT)
-Read the T02 blueprint and add browser-local guest best-score persistence plus guest aircraft access, keeping guest scores separate from authenticated leaderboard submissions.
+Read the P02-T01 blueprint and add the anonymous-safe paged read-only leaderboard RPC and service contract without exposing account IDs or permitting guest writes.

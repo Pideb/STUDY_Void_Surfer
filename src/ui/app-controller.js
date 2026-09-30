@@ -1,4 +1,5 @@
 import { getAuthErrorMessage } from '../services/auth-errors.js';
+import { readGuestRecord, writeGuestRecord } from '../services/guest-record-service.js';
 import { AIRCRAFT_CATALOG, getUnlockedAircraftIds } from '../game/aircraft.js';
 import { announce } from './components.js';
 import { createGameHud } from './game-hud.js';
@@ -31,11 +32,11 @@ function isValidScoreSubmission(result, submittedScore, expectedUserId) {
     && AIRCRAFT_CATALOG.some(({ id }) => id === record.aircraftId);
 }
 
-function getHangarAircraft(bestScore) {
+function getHangarAircraft(bestScore, guest = false) {
   const unlocked = new Set(getUnlockedAircraftIds(bestScore));
   return AIRCRAFT_CATALOG.map((craft) => ({
     ...craft,
-    unlocked: unlocked.has(craft.id),
+    unlocked: guest || unlocked.has(craft.id),
     description: craft.id === 'velocity'
       ? '최고 속도로 돌파하는 고속 기체'
       : craft.id === 'aegis' ? '무겁지만 정밀한 조작이 가능한 기체' : '균형 잡힌 기본 기체',
@@ -62,6 +63,7 @@ export function createAppController(deps) {
     muted: Boolean(audioManager.isMuted?.()), snapshot: null, leaderboard: null,
     submitError: false, submitErrorMessage: null, gameOverRequest: 0, selectedAircraftId: 'default',
     accountBestScore: 0, accountBestScoreLoading: false, accountBestScoreError: false,
+    guestBestRecord: readGuestRecord(deps.guestRecordStorage),
     submitState: 'idle',
   };
   let unsubscribeAuth = () => {};
@@ -120,11 +122,12 @@ export function createAppController(deps) {
     }
     if (state.screen === 'hangar') {
       root.replaceChildren(renderHangarScreen({
-        aircraft: getHangarAircraft(state.accountBestScore),
+        aircraft: getHangarAircraft(state.user ? state.accountBestScore : state.guestBestRecord.bestScore, !state.user),
         selectedAircraftId: state.selectedAircraftId,
-        bestScore: state.accountBestScore,
-        loading: state.accountBestScoreLoading,
-        error: state.accountBestScoreError,
+        bestScore: state.user ? state.accountBestScore : state.guestBestRecord.bestScore,
+        recordLabel: state.user ? '계정 최고 기록' : '게스트 최고 기록',
+        loading: Boolean(state.user) && state.accountBestScoreLoading,
+        error: Boolean(state.user) && state.accountBestScoreError,
       }, {
         select: (aircraftId) => dispatch({ type: 'SELECT_AIRCRAFT', aircraftId }),
         back: () => dispatch({ type: 'RETURN_TO_MENU' }),
@@ -187,6 +190,7 @@ export function createAppController(deps) {
     try {
       const user = await authService.getSessionUser();
       state.user = user;
+      gameEngine.setGuestMode?.(!user);
       state.error = null;
       state.authActionError = null;
       state.connectionError = false;
@@ -200,6 +204,7 @@ export function createAppController(deps) {
       setScreen('menu');
     } catch (error) {
       state.user = null;
+      gameEngine.setGuestMode?.(true);
       accountRequestId += 1;
       state.accountBestScore = 0;
       state.accountBestScoreLoading = false;
@@ -268,6 +273,7 @@ export function createAppController(deps) {
       return;
     }
     state.user = result.user;
+    gameEngine.setGuestMode?.(false);
     state.authActionError = null;
     void loadAccountBestScore(result.user);
     setScreen('menu', 'Microsoft 계정에 로그인했습니다.');
@@ -277,6 +283,7 @@ export function createAppController(deps) {
     try {
       await authService.signOut();
       state.user = null;
+      gameEngine.setGuestMode?.(true);
       state.error = null;
       state.authActionError = null;
       accountRequestId += 1;
@@ -432,6 +439,7 @@ export function createAppController(deps) {
   function beginPlaying() {
     state.snapshot = null;
     lastDifficultyMode = 'normal';
+    gameEngine.setGuestMode?.(!state.user);
     gameEngine.setAccountBestScore?.(state.accountBestScore);
     gameEngine.setAircraft?.(state.selectedAircraftId);
     gameEngine.start();
@@ -455,6 +463,14 @@ export function createAppController(deps) {
     const score = state.snapshot?.finalScore ?? state.snapshot?.score ?? 0;
     const displayName = getDisplayName(state.user);
     const aircraftId = state.snapshot?.aircraft?.id ?? 'default';
+    if (!state.user) {
+      const savedRecord = writeGuestRecord({
+        bestScore: score,
+        aircraftId,
+        achievedAt: new Date().toISOString(),
+      }, deps.guestRecordStorage);
+      if (savedRecord) state.guestBestRecord = savedRecord;
+    }
     const shouldSubmitScore = Boolean(submitScore && state.user);
     state.leaderboard = {
       top: { loading: true }, neighborhood: { loading: true },
@@ -521,14 +537,14 @@ export function createAppController(deps) {
         if (state.screen === 'menu') setScreen('tutorial');
         break;
       case 'OPEN_HANGAR':
-        if (state.screen === 'menu' && state.user) {
-          void loadAccountBestScore(state.user);
+        if (state.screen === 'menu') {
+          if (state.user) void loadAccountBestScore(state.user);
           setScreen('hangar');
         }
         break;
       case 'SELECT_AIRCRAFT':
         if (state.screen === 'hangar'
-          && getUnlockedAircraftIds(state.accountBestScore).includes(event.aircraftId)) {
+          && (!state.user || getUnlockedAircraftIds(state.accountBestScore).includes(event.aircraftId))) {
           state.selectedAircraftId = event.aircraftId;
           paint();
           announce(liveRegion, `${AIRCRAFT_CATALOG.find(({ id }) => id === event.aircraftId)?.name ?? '기체'} 선택됨.`);
@@ -614,6 +630,7 @@ export function createAppController(deps) {
         if (!user) {
           accountRequestId += 1;
           state.user = null;
+          gameEngine.setGuestMode?.(true);
           stopLoop();
           audioManager.setMusicMode?.('none');
           state.accountBestScore = 0;
@@ -624,6 +641,7 @@ export function createAppController(deps) {
         } else {
           const changedUser = state.user?.id !== user.id;
           state.user = user;
+          gameEngine.setGuestMode?.(false);
           if (changedUser) {
             state.selectedAircraftId = 'default';
             void loadAccountBestScore(user);
