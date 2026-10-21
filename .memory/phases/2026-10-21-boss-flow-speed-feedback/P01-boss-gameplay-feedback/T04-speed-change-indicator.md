@@ -1,6 +1,6 @@
 # Task: T04 Speed Change Indicator
 
-## Status: pending
+## Status: done
 
 ## Goal
 Show a clear, short top-of-screen indicator while the engine is accelerating or decelerating, so players can anticipate the selected one-second speed transition.
@@ -62,6 +62,6 @@ Task: T04-speed-change-indicator
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

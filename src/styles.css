@@ -582,6 +582,21 @@ button:focus-visible {
   margin: 0;
 }
 
+.speed-change-indicator {
+  flex: 1;
+  margin: 0.55rem 0 0;
+  color: var(--color-neon-strong);
+  font-size: clamp(0.72rem, 2.6vw, 1rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-shadow: 0 0 12px currentColor;
+}
+
+.speed-change-indicator.is-accelerating { color: #55f6e5; }
+.speed-change-indicator.is-decelerating { color: #ffd166; }
+.speed-change-indicator[hidden] { display: none; }
+
 .warning-banner {
   align-self: center;
   margin: auto 0;

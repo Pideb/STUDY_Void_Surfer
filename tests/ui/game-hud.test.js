@@ -71,4 +71,24 @@ describe('game HUD', () => {
     expect(banner.getAttribute('aria-live')).toBe('assertive');
     expect(banner.classList.contains('is-boss-preview')).toBe(true);
   });
+
+  it('shows acceleration and deceleration cues only during active speed transitions', () => {
+    const hud = makeHud();
+    hud.update({ score: 10, speedChange: { direction: 'up', remainingSeconds: 0.8 } });
+    const indicator = hud.element.querySelector('.speed-change-indicator');
+    expect(indicator.hidden).toBe(false);
+    expect(indicator.textContent).toBe('>> 가속');
+    expect(indicator.getAttribute('role')).toBe('status');
+
+    hud.update({ score: 10, speedChange: { direction: 'down', remainingSeconds: 0.5 } });
+    expect(indicator.hidden).toBe(false);
+    expect(indicator.textContent).toBe('<< 감속');
+
+    hud.update({ score: 10, speedChange: null });
+    expect(indicator.hidden).toBe(true);
+    expect(indicator.textContent).toBe('');
+
+    hud.update({ score: 10, speedChange: { direction: 'unknown', remainingSeconds: 0.5 } });
+    expect(indicator.hidden).toBe(true);
+  });
 });

@@ -30,7 +30,14 @@ export function createGameHud(model, handlers) {
   status.setAttribute('role', 'status');
   status.setAttribute('aria-live', 'polite');
   status.setAttribute('aria-atomic', 'true');
-  topBar.append(score, status, actions);
+  const speedIndicator = document.createElement('p');
+  speedIndicator.className = 'speed-change-indicator';
+  speedIndicator.setAttribute('role', 'status');
+  speedIndicator.setAttribute('aria-live', 'polite');
+  speedIndicator.setAttribute('aria-atomic', 'true');
+  speedIndicator.hidden = true;
+  let speedDirection = null;
+  topBar.append(score, status, speedIndicator, actions);
 
   const bossHealth = document.createElement('section');
   bossHealth.className = 'boss-health';
@@ -120,6 +127,21 @@ export function createGameHud(model, handlers) {
     }
     status.textContent = combatMessage;
     status.hidden = !combatMessage;
+
+    const nextSpeedDirection = [
+      'up', 'down',
+    ].includes(snapshot.speedChange?.direction)
+      && Number.isFinite(snapshot.speedChange.remainingSeconds)
+      && snapshot.speedChange.remainingSeconds > 0
+      ? snapshot.speedChange.direction
+      : null;
+    if (nextSpeedDirection !== speedDirection) {
+      speedDirection = nextSpeedDirection;
+      speedIndicator.textContent = speedDirection === 'up' ? '>> 가속' : speedDirection === 'down' ? '<< 감속' : '';
+      speedIndicator.classList.toggle('is-accelerating', speedDirection === 'up');
+      speedIndicator.classList.toggle('is-decelerating', speedDirection === 'down');
+    }
+    speedIndicator.hidden = speedDirection === null;
 
     const challenge = snapshot.challenge;
     challengeOverlay.hidden = !challenge?.active;
