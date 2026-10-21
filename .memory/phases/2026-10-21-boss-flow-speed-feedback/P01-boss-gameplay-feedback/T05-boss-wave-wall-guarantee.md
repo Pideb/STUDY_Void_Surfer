@@ -1,6 +1,6 @@
 # Task: T05 Boss Wave Wall Guarantee
 
-## Status: pending
+## Status: done
 
 ## Goal
 Prevent boss progression from deadlocking by guaranteeing every seven-wall boss wave contains at least the two normal walls required before the next projectile, while still guaranteeing the configured minimum of three special walls.
@@ -60,6 +60,6 @@ Task: T05-boss-wave-wall-guarantee
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

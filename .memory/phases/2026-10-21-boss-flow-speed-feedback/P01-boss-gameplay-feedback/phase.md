@@ -7,7 +7,7 @@
 | T02 | `done ✅` | Slow moving-gap oscillation while preserving its amplitude and collision rules | [T02](./T02-moving-gap-cadence.md) |
 | T03 | `done ✅` | Lock boss base speed at entry and smoothly interpolate speed target changes | [T03](./T03-boss-speed-transition.md) |
 | T04 | `done ✅` | Show accessible acceleration/deceleration feedback at the top of the game HUD | [T04](./T04-speed-change-indicator.md) |
-| T05 | `in_progress 🔵` | Guarantee each boss wave has enough normal walls to unlock its next projectile | [T05](./T05-boss-wave-wall-guarantee.md) |
+| T05 | `done ✅` | Guarantee each boss wave has enough normal walls to unlock its next projectile | [T05](./T05-boss-wave-wall-guarantee.md) |
 
 ## Progress
-- done: 4/5 (active: T05)
+- done: 5/5 (complete)

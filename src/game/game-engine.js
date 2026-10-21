@@ -302,9 +302,17 @@ export function createGameEngine(deps = {}) {
   function spawnObstacle(difficulty) {
     const session = warningSession;
     const remainingSlots = session ? session.targetCount - session.spawnedCount : 0;
-    const remainingSpecials = session ? session.requiredSpecials - session.specialObstacleIds.size : 0;
+    const remainingSpecials = session
+      ? Math.max(0, session.requiredSpecials - session.specialSpawnedCount)
+      : 0;
+    const spawnedNormalCount = session ? session.spawnedCount - session.specialSpawnedCount : 0;
+    const remainingNormals = session?.isBoss
+      ? Math.max(0, BOSS_PROJECTILE_NORMAL_WALL_COOLDOWN - spawnedNormalCount)
+      : 0;
+    const forceNormal = Boolean(session?.isBoss && remainingSlots <= remainingNormals);
     const forceSpecial = Boolean(session && remainingSlots <= remainingSpecials);
-    const kind = forceSpecial || shouldSpawnSpecial(rng, difficulty) ? 'special' : 'normal';
+    const kind = forceNormal ? 'normal'
+      : forceSpecial || shouldSpawnSpecial(rng, difficulty) ? 'special' : 'normal';
     const movingGap = kind === 'normal' && shouldSpawnMovingGap(rng, difficulty);
     const gapMotionCycleSeconds = movingGap
       ? (difficulty.isWarning || difficulty.isBoss

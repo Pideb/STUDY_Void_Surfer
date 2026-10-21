@@ -438,7 +438,7 @@ describe('game engine', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 100,
       initialCompletedWarningCount: 5,
-      rng: () => 0.5,
+      rng: () => 0.4,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
@@ -487,6 +487,26 @@ describe('game engine', () => {
     expect(finalSnapshot.warning).not.toBeNull();
     expect(finalSnapshot.challenge?.active).toBe(false);
     expect(finalSnapshot.boss?.wallSpawningPaused).toBe(false);
+  });
+
+  it('guarantees two normal walls per boss wave even when every random roll prefers special', () => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 100,
+      initialCompletedWarningCount: 5,
+      rng: () => 0.4,
+    });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    let snapshot = engine.getSnapshot();
+
+    for (let frame = 0; frame < 160
+      && (!snapshot.warning || snapshot.warning.spawnedCount < snapshot.warning.targetCount); frame += 1) {
+      snapshot = step(100);
+    }
+
+    expect(snapshot.warning).toMatchObject({ index: 6, spawnedCount: 7, targetCount: 7 });
+    expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);
+    expect(snapshot.warning.spawnedCount - snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);
   });
 
   it('starts normal dashes early and grants targeted immunity only near a special wall', () => {
