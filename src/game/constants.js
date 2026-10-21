@@ -10,6 +10,7 @@ export const PLAYER_FRONT_HITBOX_TRIM = 3;
 export const GRAVITY = 900;
 export const LIFT_VELOCITY = 360;
 export const MAX_FRAME_DELTA_SECONDS = 0.1;
+export const SPEED_TRANSITION_SECONDS = 1;
 export const PAUSE_SCORE_PENALTY = 10;
 
 export const BASE_SCROLL_SPEED = 240;

@@ -18,6 +18,7 @@ import {
   PAUSE_SCORE_PENALTY,
   PLAYER_DEATH_EFFECT_SECONDS,
   SPECIAL_BREAK_DURATION_SECONDS,
+  SPEED_TRANSITION_SECONDS,
   WARNING_START_SCORE,
   WARNING_MIN_SPECIALS,
   WARNING_MOVING_GAP_CYCLE_SECONDS,
@@ -34,6 +35,7 @@ import { intersectsPlayerLaser, isProjectileReflectionSuccess } from './collisio
 import {
   chooseBossPattern,
   chooseWarningScoreStep,
+  getBaseSpeed,
   getBossSpeedMultiplier,
   getDifficulty,
   shouldSpawnMovingGap,
@@ -122,12 +124,14 @@ export function createGameEngine(deps = {}) {
   let challenge = null;
   let feedbackEffect = null;
   let nextAttackId = 1;
+  let currentScrollSpeed = null;
+  let speedTransition = null;
 
   function getScore() {
     return scoreSession.score;
   }
 
-  function getCurrentDifficulty() {
+  function getTargetDifficulty() {
     if (!warningSession) {
       const warningThreshold = bossPreview ? Number.MAX_SAFE_INTEGER : nextWarningScore;
       const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, warningThreshold, scoreSession.progressionScore);
@@ -142,22 +146,78 @@ export function createGameEngine(deps = {}) {
       warningSession.bossPattern, nextWarningScore, scoreSession.progressionScore,
     );
     const speedMultiplier = warningSession.isBoss
-      ? getBossSpeedMultiplier(warningSession.bossPattern, elapsedSeconds)
+      ? getBossSpeedMultiplier(
+        warningSession.bossPattern,
+        Math.max(0, elapsedSeconds - (bossEncounter?.bossStartElapsedSeconds ?? elapsedSeconds)),
+      )
       : 1;
+    const baseSpeed = warningSession.isBoss
+      ? bossEncounter?.baseScrollSpeed ?? base.baseSpeed
+      : base.baseSpeed;
 
     return applyAircraftDifficulty({
       ...base,
+      baseSpeed,
       warningIndex: warningSession.index,
       isWarning: true,
       isBoss: warningSession.isBoss,
       bossPattern: warningSession.bossPattern,
       speedMultiplier,
-      scrollSpeed: base.baseSpeed * speedMultiplier,
+      scrollSpeed: baseSpeed * speedMultiplier,
       gapHeight: base.gapHeight,
       specialChance: base.specialChance,
       movingGapChance: base.movingGapChance,
       timingWindowSeconds: base.timingWindowSeconds,
     });
+  }
+
+  function syncSpeedTransition(targetSpeed) {
+    if (!Number.isFinite(targetSpeed) || targetSpeed <= 0) return;
+    if (currentScrollSpeed === null || !Number.isFinite(currentScrollSpeed)) {
+      currentScrollSpeed = targetSpeed;
+      speedTransition = null;
+      return;
+    }
+
+    if (speedTransition && Math.abs(speedTransition.targetSpeed - targetSpeed) < 0.001) return;
+    if (!speedTransition && Math.abs(currentScrollSpeed - targetSpeed) < 0.001) return;
+
+    speedTransition = {
+      fromSpeed: currentScrollSpeed,
+      targetSpeed,
+      elapsedSeconds: 0,
+      durationSeconds: SPEED_TRANSITION_SECONDS,
+      direction: targetSpeed > currentScrollSpeed ? 'up' : 'down',
+    };
+  }
+
+  function advanceSpeedTransition(deltaSeconds) {
+    const target = getTargetDifficulty().scrollSpeed;
+    syncSpeedTransition(target);
+    if (!speedTransition) return;
+
+    speedTransition.elapsedSeconds = Math.min(
+      speedTransition.durationSeconds,
+      speedTransition.elapsedSeconds + deltaSeconds,
+    );
+    const progress = speedTransition.elapsedSeconds / speedTransition.durationSeconds;
+    currentScrollSpeed = speedTransition.fromSpeed
+      + (speedTransition.targetSpeed - speedTransition.fromSpeed) * progress;
+    if (speedTransition.elapsedSeconds >= speedTransition.durationSeconds - 1e-9) {
+      currentScrollSpeed = speedTransition.targetSpeed;
+      speedTransition = null;
+    }
+  }
+
+  function getCurrentDifficulty() {
+    const target = getTargetDifficulty();
+    syncSpeedTransition(target.scrollSpeed);
+    return {
+      ...target,
+      targetScrollSpeed: target.scrollSpeed,
+      scrollSpeed: currentScrollSpeed,
+      effectiveSpeedMultiplier: target.baseSpeed > 0 ? currentScrollSpeed / target.baseSpeed : target.effectiveSpeedMultiplier,
+    };
   }
 
   function applyAircraftDifficulty(difficulty) {
@@ -223,6 +283,10 @@ export function createGameEngine(deps = {}) {
     bossEncounter = isBoss
       ? createBossEncounter(Math.max(1, Math.floor(warningIndex / 2)), rng)
       : null;
+    if (bossEncounter) {
+      bossEncounter.baseScrollSpeed = getBaseSpeed(scoreSession.progressionScore);
+      bossEncounter.bossStartElapsedSeconds = elapsedSeconds;
+    }
   }
 
   function updateBossPreview(deltaSeconds) {
@@ -376,9 +440,12 @@ export function createGameEngine(deps = {}) {
     challenge = null;
     feedbackEffect = null;
     nextAttackId = 1;
+    currentScrollSpeed = null;
+    speedTransition = null;
     lastUpdateMs = now();
     state = GAME_STATES.PLAYING;
     startWarningIfNeeded();
+    getCurrentDifficulty();
   }
 
   function getStageState() {
@@ -621,6 +688,7 @@ export function createGameEngine(deps = {}) {
     updatePlayer(player, deltaSeconds, gravity * aircraft.gravityMultiplier);
     elapsedSeconds += deltaSeconds;
     updateBossPreview(deltaSeconds);
+    advanceSpeedTransition(deltaSeconds);
     let difficulty = getCurrentDifficulty();
     updateFlightTrail(deltaSeconds, difficulty.scrollSpeed);
     backgroundScrollDistancePx += difficulty.scrollSpeed * deltaSeconds * 0.25;
@@ -740,6 +808,7 @@ export function createGameEngine(deps = {}) {
 
   function getSnapshot() {
     const stageState = getStageState();
+    const difficulty = getCurrentDifficulty();
     return {
       state,
       score: getScore(),
@@ -780,12 +849,16 @@ export function createGameEngine(deps = {}) {
           ? { ...bossEncounter.reflectedProjectile }
           : null,
       } : null,
+      speedChange: speedTransition ? {
+        direction: speedTransition.direction,
+        remainingSeconds: Math.max(0, speedTransition.durationSeconds - speedTransition.elapsedSeconds),
+      } : null,
       challenge: challenge ? { ...challenge, sequence: [...challenge.sequence] } : null,
       feedbackEffect: feedbackEffect ? { ...feedbackEffect } : null,
       player: { ...player },
       flightTrail: flightTrail.map((point) => ({ ...point })),
       obstacles: obstacles.map((obstacle) => ({ ...obstacle, breakEffect: obstacle.breakEffect ? { ...obstacle.breakEffect } : null })),
-      difficulty: { ...getCurrentDifficulty() },
+      difficulty: { ...difficulty },
       warning: warningSession ? {
         index: warningSession.index,
         spawnedCount: warningSession.spawnedCount,

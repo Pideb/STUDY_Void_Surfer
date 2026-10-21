@@ -1,6 +1,6 @@
 # Task: T03 Boss Speed Transition
 
-## Status: pending
+## Status: done
 
 ## Goal
 Keep each boss's base scroll-speed target fixed from encounter entry, preserve deliberate shift-pattern alternation, and interpolate any scroll-speed target change over one second.
@@ -71,6 +71,6 @@ Task: T03-boss-speed-transition
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
