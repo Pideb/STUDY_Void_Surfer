@@ -573,6 +573,9 @@ export function createGameEngine(deps = {}) {
   }
 
   function setGuestMode(enabled) {
+    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED) {
+      return guestMode;
+    }
     guestMode = Boolean(enabled);
     if (!guestMode && !isAircraftUnlocked(aircraft.id, accountBestScore)) {
       aircraft = getAircraftDefinition('default');

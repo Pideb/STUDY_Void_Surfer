@@ -265,6 +265,34 @@ describe('game engine', () => {
     expect(engine.setAircraft('default')).toBe('default');
   });
 
+  it('freezes guest mode and selected aircraft through play and pause', () => {
+    const { engine } = createRuntimeEngine({ accountBestScore: 0 });
+    engine.setGuestMode(true);
+    expect(engine.setAircraft('velocity')).toBe('velocity');
+    engine.start();
+
+    expect(engine.setGuestMode(false)).toBe(true);
+    expect(engine.setAircraft('default')).toBe(false);
+    expect(engine.getSnapshot()).toMatchObject({ aircraft: { id: 'velocity' } });
+
+    engine.pause();
+    expect(engine.setGuestMode(false)).toBe(true);
+    expect(engine.getSnapshot()).toMatchObject({ state: GAME_STATES.PAUSED, aircraft: { id: 'velocity' } });
+  });
+
+  it('freezes account mode and aircraft through play and pause', () => {
+    const { engine } = createRuntimeEngine({ accountBestScore: 100 });
+    expect(engine.setAircraft('velocity')).toBe('velocity');
+    engine.start();
+
+    expect(engine.setGuestMode(true)).toBe(false);
+    expect(engine.getSnapshot()).toMatchObject({ aircraft: { id: 'velocity' } });
+
+    engine.pause();
+    expect(engine.setGuestMode(true)).toBe(false);
+    expect(engine.getSnapshot()).toMatchObject({ state: GAME_STATES.PAUSED, aircraft: { id: 'velocity' } });
+  });
+
   it('resolves a boss projectile miss without reducing boss HP or stalling the next wave', () => {
     const encounter = createBossEncounter(1);
     encounter.attack = { type: 'projectile', state: 'missed', hitPlayer: false };
