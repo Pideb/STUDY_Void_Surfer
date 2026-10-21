@@ -1,16 +1,16 @@
 # Current Context
 
 ## Active Plan
-[Aircraft Run Lock](./plans/2026-10-21-aircraft-run-lock.md)
+[Boss Flow and Speed Feedback](./plans/2026-10-21-boss-flow-speed-feedback.md)
 
 ## Active Phase
-None. All phases complete.
+[P01 Boss Gameplay Feedback](./phases/2026-10-21-boss-flow-speed-feedback/P01-boss-gameplay-feedback/phase.md)
 
 ## Active Task
-None. Plan complete.
+[T02 Moving Gap Cadence](./phases/2026-10-21-boss-flow-speed-feedback/P01-boss-gameplay-feedback/T02-moving-gap-cadence.md)
 
 ## Status
-- Fixed: authentication/session mode changes are deferred during PLAYING/PAUSED; 68 engine/controller tests pass.
+- T01 completed: challenge keys now work with a focused button; repeated boss waves pass both challenge success and timeout integration tests.
 
 ## Next Step (IMPORTANT)
-No active task. The aircraft and guest/account mode are synchronized at the next run start.
+Read T02 and set normal/WARNING moving-gap periods to the confirmed slower cadence.

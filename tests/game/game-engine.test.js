@@ -386,6 +386,64 @@ describe('game engine', () => {
     expect(completedSegmentSnapshot ?? initial).toBeDefined();
   });
 
+  it.each([
+    ['challenge success', true],
+    ['challenge timeout', false],
+  ])('keeps repeated boss attacks and wall waves progressing after %s', (_label, completeChallenge) => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 100,
+      initialCompletedWarningCount: 5,
+      rng: () => 0.5,
+    });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    const attackIds = new Set();
+    let wallWaves = 0;
+    let previousSpawnedCount = engine.getSnapshot().warning?.spawnedCount ?? 0;
+    let challengeStarted = false;
+    let challengeResolved = false;
+    let previousChallengeResult = null;
+
+    for (let frame = 0; frame < 18000 && (!challengeResolved || wallWaves < 3); frame += 1) {
+      const before = engine.getSnapshot();
+      const attack = before.boss?.attack;
+      if (attack?.type === 'projectile') {
+        attackIds.add(attack.id);
+        if (attack.state === 'flying'
+          && Math.abs(attack.x - before.player.x) <= attack.speed * attack.reflectionWindowSeconds
+          && Math.abs(attack.y - before.player.y) <= before.player.height / 2 + 30) {
+          engine.dash();
+        }
+      }
+
+      if (before.challenge?.active) {
+        challengeStarted = true;
+        if (completeChallenge) engine.handleChallengeKey(before.challenge.sequence[before.challenge.cursor]);
+      }
+
+      const snapshot = step(20);
+      if (snapshot.challenge && !snapshot.challenge.active
+        && snapshot.challenge.result !== 'pending') {
+        challengeResolved = true;
+        previousChallengeResult = snapshot.challenge.result;
+      }
+      if (previousSpawnedCount === snapshot.warning?.targetCount && snapshot.warning?.spawnedCount === 0) {
+        wallWaves += 1;
+      }
+      previousSpawnedCount = snapshot.warning?.spawnedCount ?? 0;
+    }
+
+    const finalSnapshot = engine.getSnapshot();
+    expect(challengeStarted).toBe(true);
+    expect(challengeResolved).toBe(true);
+    expect(previousChallengeResult).toBe(completeChallenge ? 'success' : 'failure');
+    expect(attackIds.size).toBeGreaterThanOrEqual(3);
+    expect(wallWaves).toBeGreaterThanOrEqual(3);
+    expect(finalSnapshot.warning).not.toBeNull();
+    expect(finalSnapshot.challenge?.active).toBe(false);
+    expect(finalSnapshot.boss?.wallSpawningPaused).toBe(false);
+  });
+
   it('starts normal dashes early and grants targeted immunity only near a special wall', () => {
     const { engine, step } = createRuntimeEngine();
     engine.start();

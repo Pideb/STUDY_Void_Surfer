@@ -465,7 +465,7 @@ describe('app controller product flow', () => {
     expect(harness.root.textContent).not.toContain('湲곕낯 湲곗껜留??ъ슜');
   });
 
-  it('routes only WASD to an active challenge and suppresses flight/pause inputs', async () => {
+  it('routes challenge keys with a focused button and preserves editable controls', async () => {
     harness = makeHarness();
     harness.snapshot.challenge = { active: true, sequence: ['KeyW'], cursor: 0 };
     harness.controller.mount();
@@ -476,8 +476,15 @@ describe('app controller product flow', () => {
     const space = new KeyboardEvent('keydown', { code: 'Space', bubbles: true, cancelable: true });
     globalThis.window.dispatchEvent(space);
     globalThis.window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape', bubbles: true }));
+    const focusedButton = document.createElement('button');
+    document.body.append(focusedButton);
+    focusedButton.focus();
     const wasd = new KeyboardEvent('keydown', { code: 'KeyW', bubbles: true, cancelable: true });
-    globalThis.window.dispatchEvent(wasd);
+    focusedButton.dispatchEvent(wasd);
+    const input = document.createElement('input');
+    document.body.append(input);
+    input.focus();
+    input.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyA', bubbles: true, cancelable: true }));
 
     harness.canvas.dispatchEvent(new Event('pointerdown', { bubbles: true, cancelable: true }));
     expect(harness.gameEngine.handleChallengeKey).toHaveBeenCalledOnce();
@@ -485,6 +492,8 @@ describe('app controller product flow', () => {
     expect(harness.gameEngine.dash).not.toHaveBeenCalled();
     expect(harness.gameEngine.lift).not.toHaveBeenCalled();
     expect(harness.gameEngine.pause).not.toHaveBeenCalled();
+    focusedButton.remove();
+    input.remove();
   });
 
   it('paints game-over score and actions before leaderboard promises settle', async () => {

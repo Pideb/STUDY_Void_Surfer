@@ -892,7 +892,7 @@ export function createAppController(deps) {
         return;
       }
     }
-    if (event.target?.closest?.('button, input, select, textarea, a, [contenteditable="true"]')) return;
+    if (event.target?.closest?.('input, select, textarea, [contenteditable="true"]')) return;
     if (state.screen === 'playing' && state.snapshot?.challenge?.active) {
       if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
         event.preventDefault();
@@ -902,6 +902,7 @@ export function createAppController(deps) {
       }
       return;
     }
+    if (event.target?.closest?.('button, a')) return;
     if (event.code === 'Space' && state.screen === 'playing') {
       event.preventDefault();
       triggerDash();
