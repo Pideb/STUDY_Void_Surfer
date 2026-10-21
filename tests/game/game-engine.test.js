@@ -489,11 +489,11 @@ describe('game engine', () => {
     expect(snapshot.obstacles[0]).toMatchObject({
       kind: 'normal',
       movingGap: true,
-      gapMotionCycleSeconds: 2.4,
+      gapMotionCycleSeconds: 4.8,
     });
   });
 
-  it('uses the faster moving-gap cycle for warning spawns', () => {
+  it('uses the slower moving-gap cycle for warning spawns', () => {
     let randomCall = 0;
     const { engine, step } = createRuntimeEngine({
       initialScore: 50,
@@ -509,7 +509,7 @@ describe('game engine', () => {
     expect(warningMovingWall).toMatchObject({
       kind: 'normal',
       movingGap: true,
-      gapMotionCycleSeconds: 1.6,
+      gapMotionCycleSeconds: 3.2,
     });
   });
 

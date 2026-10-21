@@ -1,6 +1,6 @@
 # Task: T02 Moving Gap Cadence
 
-## Status: pending
+## Status: done
 
 ## Goal
 Slow vertical gap oscillation to 4.8 seconds in normal play and 3.2 seconds in WARNING/BOSS without changing the existing movement amplitude or collision geometry.
@@ -58,6 +58,6 @@ Task: T02-moving-gap-cadence
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

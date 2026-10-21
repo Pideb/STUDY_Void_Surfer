@@ -7,10 +7,11 @@
 [P01 Boss Gameplay Feedback](./phases/2026-10-21-boss-flow-speed-feedback/P01-boss-gameplay-feedback/phase.md)
 
 ## Active Task
-[T02 Moving Gap Cadence](./phases/2026-10-21-boss-flow-speed-feedback/P01-boss-gameplay-feedback/T02-moving-gap-cadence.md)
+[T03 Boss Speed Transition](./phases/2026-10-21-boss-flow-speed-feedback/P01-boss-gameplay-feedback/T03-boss-speed-transition.md)
 
 ## Status
-- T01 completed: challenge keys now work with a focused button; repeated boss waves pass both challenge success and timeout integration tests.
+- T01 completed: focused-button WASD routing and boss wave integration tests passed.
+- T02 completed: moving-gap cadence is 4.8s normal and 3.2s WARNING/BOSS; 43 related tests pass.
 
 ## Next Step (IMPORTANT)
-Read T02 and set normal/WARNING moving-gap periods to the confirmed slower cadence.
+Read T03 and implement boss-entry speed locking and one-second speed interpolation.
