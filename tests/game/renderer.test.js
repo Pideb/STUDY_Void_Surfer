@@ -35,6 +35,56 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('keeps the darker background and mood layers behind foreground sprites in all six stages', () => {
+    for (const stageId of Object.keys(STAGE_VISUAL_THEMES)) {
+      for (const mode of ['normal', 'warning', 'boss']) {
+        const canvas = document.createElement('canvas');
+        const context = createContext();
+        const operations = [];
+        context.fillRect.mockImplementation((...rect) => {
+          operations.push({ type: 'fill', color: context.fillStyle, rect });
+        });
+        context.drawImage.mockImplementation((image) => {
+          operations.push({ type: 'image', name: image.name, alpha: context.globalAlpha, glow: context.shadowColor });
+        });
+        canvas.getContext = () => context;
+        const image = (name) => ({ name, width: 1600, height: 900 });
+        const assets = new Map([
+          [`stages.${stageId}.background`, image('background')],
+          [`stages.${stageId}.bossBackground`, image('background')],
+          [`stages.${stageId}.boss`, image('boss')],
+          ['aircraft.default', image('ship')],
+        ]);
+        const renderer = createRenderer(canvas, { visualAssets: { get: (key) => assets.get(key) ?? null } });
+        renderer.render({
+          stage: { id: stageId, mode, elapsedSeconds: 1 },
+          difficulty: { isBoss: mode === 'boss', isWarning: mode !== 'normal' },
+          boss: mode === 'boss' ? { hp: 3, maxHp: 3 } : null,
+          aircraft: { id: 'default' },
+          player: { x: 240, y: 270, velocityY: 0, width: 36, height: 24 },
+          obstacles: [],
+        });
+        const darkening = operations.findIndex((operation) => operation.color === 'rgba(2, 6, 18, 0.34)');
+        const shipIndex = operations.findIndex((operation) => operation.name === 'ship');
+        expect(darkening).toBeGreaterThan(-1);
+        expect(darkening).toBeLessThan(shipIndex);
+        expect(operations[shipIndex]).toMatchObject({ alpha: 1, glow: '#55f6e5' });
+        const firstActor = operations.findIndex((operation) => ['ship', 'boss'].includes(operation.name));
+        expect(operations.every((operation, index) => operation.type !== 'fill'
+          || operation.rect.join(',') !== `0,0,${WORLD_WIDTH},${WORLD_HEIGHT}` || index < firstActor)).toBe(true);
+        if (mode === 'boss') {
+          const bossIndex = operations.findIndex((operation) => operation.name === 'boss');
+          const atmosphereIndex = operations.findIndex((operation) => operation.color === 'rgba(0, 0, 0, 0.2)');
+          expect(atmosphereIndex).toBeGreaterThan(darkening);
+          expect(atmosphereIndex).toBeLessThan(bossIndex);
+          expect(operations[bossIndex].alpha).toBe(1);
+        }
+        expect(context.strokeRect).not.toHaveBeenCalled();
+        renderer.destroy();
+      }
+    }
+  });
+
   it('animates six distinct boss idle signatures and freezes them for reduced motion', () => {
     const stageIds = [
       'crystal-gates', 'industrial-void', 'signal-monoliths',

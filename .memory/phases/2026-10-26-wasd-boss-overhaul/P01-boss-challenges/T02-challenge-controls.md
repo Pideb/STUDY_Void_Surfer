@@ -50,7 +50,7 @@ Task: T02-challenge-controls
 ## Progress
 - [x] 구현 완료
 - [x] 검증 통과 — 4 files / 52 tests; production build; diff whitespace check.
-- commit: pending
+- commit: `323c045`
 
 ## Implementation Notes
 - The mobile integration test drives the real engine to its first challenge, sends all touch clicks without waiting for animation frames, and verifies cursor, successful damage, no world input and one success sound.

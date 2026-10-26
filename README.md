@@ -4,7 +4,7 @@
 
 - Visitors can start immediately as `GUEST`. Guest best scores are stored only in that browser's local storage, are not submitted to the shared leaderboard, and do not transfer to an account after sign-in. Guests can use every aircraft.
 - The public Pilot Ranking is read-only and exposes display name, score, date, rank, and aircraft. Account score submission still requires signing in.
-- The administrator test controls appear only for the signed-in `gh.lee@dexconsulting.net` account. Administrator mode skips leaderboard submission; invincibility suppresses wall, laser, and projectile collision deaths, while screen boundaries and WASD challenge failures remain fatal.
+- The administrator test controls appear only for the signed-in `gh.lee@dexconsulting.net` account. Administrator mode skips leaderboard submission; invincibility suppresses wall and laser collision deaths, while screen boundaries remain fatal and failed WASD challenges still apply the ink/glitch visibility penalty.
 - These administrator controls are a client-side testing convenience, not a security feature. A modified browser can bypass score suppression; never use this toggle as server-side access control or as proof that submitted scores are trustworthy.
 
 ## Apply the public ranking migration
@@ -51,8 +51,11 @@ npm run verify:config
 
 - 클릭/터치로 상승하고, Space로 대시합니다. P 또는 Escape로 일시정지하며 한 번에 10점을 잃습니다.
 - 기본 기체는 항상 사용 가능하고, 최고 점수 50점에서 AEGIS, 100점에서 VELOCITY가 해금됩니다. 해금은 계정 최고 점수에 연결되어 다른 기기에서도 유지됩니다.
-- 스테이지는 CRYSTAL GATES, INDUSTRIAL VOID, SIGNAL MONOLITHS, GRAVITY WELL, ABYSSAL BEAST, SOLAR FORGE 여섯 테마가 약 30초마다 무작위 순환합니다.
-- WARNING은 20점부터 시작해 구간을 끝낼 때마다 10~15점 뒤 다시 나타납니다. 5번째, 10번째 등 매 다섯 번째 WARNING은 BOSS입니다. 보스 #3부터 WASD 챌린지, 보스 #5부터 5 체력과 레이저 공격이 추가됩니다.
+- 스테이지는 CRYSTAL GATES, INDUSTRIAL VOID, SIGNAL MONOLITHS, GRAVITY WELL, ABYSSAL BEAST, SOLAR FORGE 여섯 테마를 무작위 순서로 사용합니다. 보스 클리어 후 벽을 2개 더 통과하면 다음 스테이지로 자연스럽게 넘어갑니다.
+- WARNING은 20점부터 시작해 구간을 끝낼 때마다 10~15점 뒤 다시 나타나며, 일반 WARNING과 BOSS가 한 번씩 번갈아 등장합니다.
+- 모든 보스는 벽 웨이브 사이의 WASD 챌린지를 3회 성공하면 클리어합니다. 키보드 또는 모바일 터치 버튼으로 5초 안에 순서대로 입력합니다. 첫 보스는 3~4키이며 이후 보스마다 키 수가 늘어 최대 8키까지 등장합니다. 실패하면 0.75초 먹물/노이즈 페널티를 받은 뒤 다음 웨이브에서 다시 도전합니다.
+- 보스전 중 벽 통과와 챌린지에는 점수가 붙지 않고, 클리어 시 10점을 받습니다. 이 10점은 속도용 진행 점수에도 반영됩니다. 진행 점수 10점마다 기본 속도가 10%씩 증가하고, 모든 가속·감속은 2초에 걸쳐 완만하게 전환됩니다. 일시정지 감점으로 속도가 내려가지는 않습니다.
+- 첫 보스 클리어 후부터 일반벽의 움직이는 구멍(50% 확률)과 두 번째 보스부터의 레이저(25% 선택 확률)가 해금됩니다. 레이저 다음 공격은 반드시 WASD 챌린지이며 클리어에 필요한 성공 횟수를 대체하지 않습니다.
 - 리더보드 연결에 실패해도 현재 점수와 재시작/메뉴 버튼은 사용할 수 있습니다. 기체 최고 점수 조회가 실패하면 기본 기체로 안전하게 진행합니다.
 
 배포 URL을 받은 플레이어는 저장소 clone, Docker, Supabase 설정이 필요 없습니다. Entra 조직 계정으로 로그인하면 됩니다. Supabase migration, Entra redirect URI, Vercel 변수는 위 운영 가이드에서 배포 담당자만 설정합니다.

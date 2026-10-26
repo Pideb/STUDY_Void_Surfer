@@ -43,7 +43,10 @@ export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'defaul
     const scale = Math.min(player.width / image.width, player.height / image.height);
     const width = image.width * scale * 1.8;
     const height = image.height * scale * 1.8;
+    ctx.globalAlpha = 1;
+    setGlow(ctx, craft.outline, 8);
     ctx.drawImage(image, -width / 2, -height / 2, width, height);
+    resetGlow(ctx);
     if (dashIntensity > 0) {
       ctx.globalAlpha = 0.55 + dashIntensity * 0.4;
       setGlow(ctx, theme.dash.outline, 12 + dashIntensity * 8);
@@ -482,7 +485,7 @@ function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = f
     ctx.drawImage(background, nextX, -offsetY, width, height);
     ctx.restore();
   }
-  ctx.fillStyle = 'rgba(2, 6, 18, 0.24)';
+  ctx.fillStyle = 'rgba(2, 6, 18, 0.34)';
   ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 }
 
@@ -534,6 +537,10 @@ function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, vis
     }
     ctx.stroke();
   }
+  ctx.restore();
+  ctx.save();
+  ctx.fillStyle = 'rgba(2, 6, 18, 0.1)';
+  ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
   ctx.restore();
 }
 
@@ -726,7 +733,7 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
   drawBossIdleAccents(ctx, theme.bossStyle, x, y, idleTime, theme, reducedMotion);
   const image = getStageAsset(visualAssets, stageId, 'boss');
   if (image) {
-    ctx.globalAlpha = 0.95;
+    ctx.globalAlpha = 1;
     setGlow(ctx, theme.boss, 22);
     ctx.drawImage(image, x - 96, y - 64, 192, 128);
     resetGlow(ctx);
@@ -972,6 +979,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     const backgroundScroll = snapshot.backgroundScrollDistancePx ?? elapsed * (snapshot.difficulty?.scrollSpeed ?? 240) * 0.25;
     const scrollSpeed = snapshot.difficulty?.scrollSpeed ?? 240;
     drawBackgroundTransition(ctx, stage, elapsed, visualAssets, reducedMotion, backgroundScroll, scrollSpeed);
+    drawStageAtmosphere(ctx, stage.mode, elapsed);
 
     for (const obstacle of snapshot.obstacles ?? []) {
       const stageObstacle = obstacle.stageId ? obstacle : { ...obstacle, stageId: stage.id };
@@ -989,7 +997,6 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
       drawSpecialDashBurst(ctx, snapshot.player, VISUAL_THEME);
     }
-    drawStageAtmosphere(ctx, stage.mode, elapsed);
     if (snapshot.deathEffect) {
       drawShipDeathEffect(ctx, snapshot.deathEffect, snapshot.deathEffect.aircraftId ?? snapshot.aircraft?.id, prefersReducedMotion);
     } else {
