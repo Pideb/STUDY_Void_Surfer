@@ -62,9 +62,9 @@ describe('difficulty', () => {
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.SHIFT, 4)).toBe(0.75);
   });
 
-  it('unlocks moving normal-wall gaps at score fifty', () => {
-    expect(getDifficulty(49, 0, 4).movingGapChance).toBe(0);
-    const difficulty = getDifficulty(50, 0, 4);
+  it('unlocks moving gaps after the first boss clear instead of at score fifty', () => {
+    expect(getDifficulty(100, 0, 0).movingGapChance).toBe(0);
+    const difficulty = getDifficulty(40, 0, 2, Math.random, null, 50, 40, true);
 
     expect(difficulty.movingGapChance).toBe(0.5);
     expect(shouldSpawnMovingGap(() => 0.49, difficulty)).toBe(true);

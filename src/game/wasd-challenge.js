@@ -1,3 +1,5 @@
+import { BOSS_CHALLENGE_TIME_LIMIT_SECONDS } from './constants.js';
+
 const CHALLENGE_KEYS = Object.freeze(['KeyW', 'KeyA', 'KeyS', 'KeyD']);
 
 function roll(rng) {
@@ -5,10 +7,10 @@ function roll(rng) {
 }
 
 function getDifficulty(bossNumber) {
-  const safeNumber = Math.max(3, Math.trunc(Number(bossNumber) || 3));
+  const safeNumber = Math.max(1, Math.trunc(Number(bossNumber) || 1));
   return {
-    maxKeys: Math.min(8, 4 + safeNumber - 3),
-    timeLimitSeconds: Math.max(2.3, 5 - (safeNumber - 3) * 0.45),
+    maxKeys: Math.min(8, 4 + safeNumber - 1),
+    timeLimitSeconds: BOSS_CHALLENGE_TIME_LIMIT_SECONDS,
   };
 }
 
@@ -38,6 +40,7 @@ export function createChallenge({ bossNumber, rng = Math.random } = {}) {
     timeLimitSeconds,
     maxKeys,
     result: 'pending',
+    resolved: false,
   };
 }
 

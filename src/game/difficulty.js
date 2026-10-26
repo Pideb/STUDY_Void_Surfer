@@ -1,6 +1,6 @@
 import {
   BASE_GAP_HEIGHT, BASE_SCROLL_SPEED, BOSS_FAST_MULTIPLIER, BOSS_PATTERNS, BOSS_SLOW_MULTIPLIER,
-  MOVING_GAP_CHANCE, MOVING_GAP_UNLOCK_SCORE, NORMAL_SPECIAL_CHANCE, NORMAL_TIMING_WINDOW_SECONDS,
+  MOVING_GAP_CHANCE, NORMAL_SPECIAL_CHANCE, NORMAL_TIMING_WINDOW_SECONDS,
   SPECIAL_UNLOCK_SCORE, SPEED_STEP_MULTIPLIER, SPEED_STEP_SCORE_POINTS, WARNING_GAP_MULTIPLIER,
   WARNING_SCORE_STEP_MAX, WARNING_SCORE_STEP_MIN, WARNING_SPECIAL_CHANCE, WARNING_START_SCORE,
   WARNING_TIMING_WINDOW_SECONDS,
@@ -26,7 +26,7 @@ export function getBossSpeedMultiplier(pattern, elapsedSeconds = 0) {
   if (pattern === BOSS_PATTERNS.FAST) return BOSS_FAST_MULTIPLIER;
   return Math.floor(normalizeElapsed(elapsedSeconds) / 2) % 2 === 0 ? BOSS_SLOW_MULTIPLIER : BOSS_FAST_MULTIPLIER;
 }
-export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score) {
+export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score, firstBossCleared = false) {
   const safeScore = normalizeScore(score);
   const activeWarningIndex = normalizeWarningCount(warningCount) + 1;
   const warningThreshold = normalizeScore(nextWarningScore);
@@ -41,7 +41,7 @@ export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.ra
     scrollSpeed: getBaseSpeed(progressionScore) * speedMultiplier,
     gapHeight: warningMode ? BASE_GAP_HEIGHT * WARNING_GAP_MULTIPLIER : BASE_GAP_HEIGHT,
     specialChance: safeScore >= SPECIAL_UNLOCK_SCORE ? (warningMode ? WARNING_SPECIAL_CHANCE : NORMAL_SPECIAL_CHANCE) : 0,
-    movingGapChance: safeScore >= MOVING_GAP_UNLOCK_SCORE ? MOVING_GAP_CHANCE : 0,
+    movingGapChance: firstBossCleared ? MOVING_GAP_CHANCE : 0,
     timingWindowSeconds: warningMode ? WARNING_TIMING_WINDOW_SECONDS : NORMAL_TIMING_WINDOW_SECONDS,
     nextWarningScore: warningThreshold,
   };

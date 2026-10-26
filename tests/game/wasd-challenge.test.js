@@ -8,15 +8,28 @@ import {
 } from '../../src/game/wasd-challenge.js';
 
 describe('WASD boss challenge', () => {
-  it('starts at four keys and reaches eight keys with a 2.3 second floor', () => {
-    const early = createChallenge({ bossNumber: 3, rng: () => 0 });
+  it('starts with three to four keys and grows to eight with a fixed five seconds', () => {
+    const early = createChallenge({ bossNumber: 1, rng: () => 0 });
     const late = createChallenge({ bossNumber: 9, rng: () => 0.99 });
 
     expect(early).toMatchObject({ maxKeys: 4, timeLimitSeconds: 5 });
     expect(early.sequence.length).toBeGreaterThanOrEqual(3);
-    expect(late).toMatchObject({ maxKeys: 8, timeLimitSeconds: 2.3 });
+    expect(late).toMatchObject({ maxKeys: 8, timeLimitSeconds: 5 });
     expect(late.sequence).toHaveLength(8);
     expect(late.sequence.every((key) => CHALLENGE_KEYS.includes(key))).toBe(true);
+  });
+
+  it('increases the key ceiling per boss and never repeats a key four times', () => {
+    for (let bossNumber = 1; bossNumber <= 10; bossNumber += 1) {
+      const maximum = Math.min(8, bossNumber + 3);
+      const short = createChallenge({ bossNumber, rng: () => 0 });
+      const long = createChallenge({ bossNumber, rng: () => 0.99 });
+      expect(short.sequence).toHaveLength(Math.max(3, maximum - 2));
+      expect(long.sequence).toHaveLength(maximum);
+      expect(long.remainingSeconds).toBe(5);
+      expect(long.sequence.some((key, index, keys) => index >= 3
+        && keys.slice(index - 3, index + 1).every((value) => value === key))).toBe(false);
+    }
   });
 
   it('accepts the sequence, rejects a wrong key, and times out deterministically', () => {

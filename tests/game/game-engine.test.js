@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { GAME_STATES } from '../../src/game/game-state.js';
 import { constrainGapCenter, createGameEngine } from '../../src/game/game-engine.js';
-import { createBossEncounter, resolveMissedBossProjectile } from '../../src/game/boss.js';
 import { getBaseSpeed } from '../../src/game/difficulty.js';
 
 function createRuntimeEngine(overrides = {}) {
@@ -96,11 +95,9 @@ describe('game engine', () => {
 
     for (let frame = 0; frame < 7000 && (!changedAfterSecondWall || !newArtSpawned); frame += 1) {
       const before = engine.getSnapshot();
-      const attack = before.boss?.attack;
-      if (attack?.type === 'projectile' && attack.state === 'flying'
-        && Math.abs(attack.x - before.player.x) <= attack.speed * attack.reflectionWindowSeconds
-        && Math.abs(attack.y - before.player.y) <= before.player.height / 2 + 30) {
-        engine.dash();
+      expect(before.boss?.attack?.type).not.toBe('projectile');
+      if (before.challenge?.active) {
+        for (const code of before.challenge.sequence.slice(before.challenge.cursor)) engine.handleChallengeKey(code);
       }
 
       const specialWall = before.obstacles
@@ -114,11 +111,12 @@ describe('game engine', () => {
       const snapshot = step(10);
       if (before.boss && !snapshot.boss) {
         bossCleared = true;
-        const newlyPassedWalls = snapshot.obstacles.filter((obstacle) => obstacle.passed
-          && before.obstacles.some((previous) => previous.id === obstacle.id && !previous.passed)).length;
-        expect(snapshot.score - before.score).toBe(newlyPassedWalls + 10);
-        expect(snapshot.progressionScore - before.progressionScore).toBe(newlyPassedWalls);
+        expect(snapshot.score - before.score).toBe(10);
+        expect(snapshot.progressionScore - before.progressionScore).toBe(10);
         expect(snapshot.difficulty.baseSpeed).toBeCloseTo(getBaseSpeed(snapshot.progressionScore));
+        expect(snapshot.difficulty.baseSpeed / before.difficulty.baseSpeed).toBeCloseTo(1.1);
+        expect(snapshot.speedChange).not.toBeNull();
+        expect(snapshot.difficulty.movingGapChance).toBe(0.5);
         expect(snapshot.specialTimingGuideActive).toBe(false);
         expect(snapshot.stage.id).toBe(initial.stage.id);
         previousScore = snapshot.score;
@@ -157,6 +155,9 @@ describe('game engine', () => {
     expect(changedAfterSecondWall).toBe(true);
     expect(oldArtRemainedAtChange).toBe(true);
     expect(newArtSpawned).toBe(true);
+    engine.start();
+    expect(engine.getSnapshot().difficulty.movingGapChance).toBe(0);
+    expect(engine.getSnapshot().specialTimingGuideActive).toBe(true);
   });
 
   it('uses the boss atmosphere variant while a boss warning is active', () => {
@@ -252,7 +253,7 @@ describe('game engine', () => {
     expect(shift.snapshot.difficulty.targetScrollSpeed / shift.snapshot.difficulty.baseSpeed).toBeCloseTo(2.2);
   });
 
-  it('locks boss base speed at entry while score progression continues', () => {
+  it('keeps boss speed and both scores fixed while boss walls and failed challenges continue', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60,
       initialCompletedWarningCount: 1,
@@ -261,11 +262,17 @@ describe('game engine', () => {
     engine.setInvincibilityEnabled(true);
     engine.start();
     let snapshot = engine.getSnapshot();
-    for (let frame = 0; frame < 1800 && snapshot.progressionScore < 70; frame += 1) {
+    const passedBossWalls = new Set();
+    for (let frame = 0; frame < 500; frame += 1) {
       snapshot = step(100);
+      for (const wall of snapshot.obstacles) {
+        if (wall.passed && wall.warningIndex === 2) passedBossWalls.add(wall.id);
+      }
     }
 
-    expect(snapshot.progressionScore).toBeGreaterThanOrEqual(70);
+    expect(passedBossWalls.size).toBeGreaterThan(10);
+    expect(snapshot.score).toBe(60);
+    expect(snapshot.progressionScore).toBe(60);
     const entryBaseSpeed = getBaseSpeed(60);
     expect(snapshot.boss?.baseScrollSpeed).toBeCloseTo(entryBaseSpeed);
     expect(snapshot.difficulty.baseSpeed).toBeCloseTo(entryBaseSpeed);
@@ -400,19 +407,6 @@ describe('game engine', () => {
     expect(engine.getSnapshot()).toMatchObject({ state: GAME_STATES.PAUSED, aircraft: { id: 'velocity' } });
   });
 
-  it('resolves a boss projectile miss without reducing boss HP or stalling the next wave', () => {
-    const encounter = createBossEncounter(1);
-    encounter.attack = { type: 'projectile', state: 'missed', hitPlayer: false };
-
-    expect(resolveMissedBossProjectile(encounter, 12.5)).toBe(true);
-    expect(encounter.attack).toBeNull();
-    expect(encounter.awaitingNextWave).toBe(true);
-    expect(encounter.lastProjectileResolvedAt).toBe(12.5);
-    expect(encounter.normalWallsSinceProjectile).toBe(0);
-    expect(encounter.hp).toBe(encounter.maxHp);
-    expect(resolveMissedBossProjectile(encounter, 13)).toBe(false);
-  });
-
   it('spawns the first obstacle then moves it left at the active scroll speed', () => {
     const { engine, step } = createRuntimeEngine();
     engine.start();
@@ -494,61 +488,111 @@ describe('game engine', () => {
   });
 
   it.each([
-    ['challenge success', true],
-    ['challenge timeout', false],
-  ])('keeps repeated boss attacks and wall waves progressing after %s', (_label, completeChallenge) => {
+    ['wrong key', true],
+    ['timeout', false],
+  ])('retries after a challenge %s without granting damage or score', (_label, enterWrongKey) => {
     const { engine, step } = createRuntimeEngine({
-      initialScore: 100,
-      initialCompletedWarningCount: 5,
+      initialScore: 60,
+      initialCompletedWarningCount: 1,
       rng: () => 0.4,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
-    const attackIds = new Set();
-    let wallWaves = 0;
-    let previousSpawnedCount = engine.getSnapshot().warning?.spawnedCount ?? 0;
-    let challengeStarted = false;
-    let challengeResolved = false;
-    let previousChallengeResult = null;
+    let snapshot = engine.getSnapshot();
+    for (let frame = 0; frame < 1000 && !snapshot.challenge?.active; frame += 1) snapshot = step(100);
+    expect(snapshot.challenge?.active).toBe(true);
+    expect(snapshot.warning.remainingSpecials).toBe(0);
+    expect(snapshot.boss.attack).toBeNull();
+    const frozen = snapshot;
+    snapshot = step(100);
+    expect(snapshot.elapsedSeconds).toBe(frozen.elapsedSeconds);
+    expect(snapshot.backgroundScrollDistancePx).toBe(frozen.backgroundScrollDistancePx);
+    expect(snapshot.player).toEqual(frozen.player);
+    expect(snapshot.obstacles).toEqual(frozen.obstacles);
+    expect(snapshot.challenge.remainingSeconds).toBeLessThan(frozen.challenge.remainingSeconds);
+    expect(engine.dash()).toBe(false);
+    expect(engine.lift()).toBe(false);
 
-    for (let frame = 0; frame < 18000 && (!challengeResolved || wallWaves < 3); frame += 1) {
-      const before = engine.getSnapshot();
-      const attack = before.boss?.attack;
-      if (attack?.type === 'projectile') {
-        attackIds.add(attack.id);
-        if (attack.state === 'flying'
-          && Math.abs(attack.x - before.player.x) <= attack.speed * attack.reflectionWindowSeconds
-          && Math.abs(attack.y - before.player.y) <= before.player.height / 2 + 30) {
-          engine.dash();
+    if (enterWrongKey) {
+      const wrong = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].find((key) => key !== snapshot.challenge.sequence[0]);
+      engine.handleChallengeKey(wrong);
+      snapshot = engine.getSnapshot();
+    } else {
+      for (let frame = 0; frame < 50 && snapshot.challenge.active; frame += 1) snapshot = step(100);
+    }
+    expect(snapshot.challenge).toMatchObject({ active: false, result: 'failure', resolved: true });
+    expect(snapshot.boss).toMatchObject({ hp: 3, challengeCount: 1, successfulChallenges: 0, wallSpawningPaused: false });
+    expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(0.75);
+    expect(snapshot.score).toBe(60);
+    expect(snapshot.progressionScore).toBe(60);
+    for (let frame = 0; frame < 1000 && !snapshot.challenge.active; frame += 1) snapshot = step(100);
+    expect(snapshot.challenge.active).toBe(true);
+    for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
+    expect(engine.getSnapshot().boss).toMatchObject({ hp: 2, challengeCount: 2, successfulChallenges: 1 });
+    expect(engine.handleChallengeKey('KeyW')).toBe(false);
+    step(100);
+    expect(engine.getSnapshot().boss.successfulChallenges).toBe(1);
+  });
+
+  it('clears a late boss with exactly three challenges and awards its only ten points once', () => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 120, initialCompletedWarningCount: 9, rng: () => 0.5,
+    });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    let successes = 0;
+    let enteredBoss = false;
+    let entryScore;
+    let snapshot = engine.getSnapshot();
+    for (let frame = 0; frame < 2000; frame += 1) {
+      if (snapshot.boss) {
+        enteredBoss = true;
+        entryScore ??= snapshot.score;
+        expect(snapshot.boss.attack?.type).not.toBe('projectile');
+        expect(snapshot.score).toBe(entryScore);
+        expect(snapshot.progressionScore).toBe(entryScore);
+        if (snapshot.challenge?.active) {
+          expect(snapshot.challenge.timeLimitSeconds).toBe(5);
+          expect(snapshot.challenge.sequence.length).toBeGreaterThanOrEqual(6);
+          for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
+          successes += 1;
         }
       }
-
-      if (before.challenge?.active) {
-        challengeStarted = true;
-        if (completeChallenge) engine.handleChallengeKey(before.challenge.sequence[before.challenge.cursor]);
-      }
-
-      const snapshot = step(20);
-      if (snapshot.challenge && !snapshot.challenge.active
-        && snapshot.challenge.result !== 'pending') {
-        challengeResolved = true;
-        previousChallengeResult = snapshot.challenge.result;
-      }
-      if (previousSpawnedCount === snapshot.warning?.targetCount && snapshot.warning?.spawnedCount === 0) {
-        wallWaves += 1;
-      }
-      previousSpawnedCount = snapshot.warning?.spawnedCount ?? 0;
+      snapshot = step(100);
+      if (enteredBoss && !snapshot.boss) break;
     }
+    expect(enteredBoss).toBe(true);
+    expect(successes).toBe(3);
+    expect(snapshot.boss).toBeNull();
+    expect(snapshot.score).toBe(entryScore + 10);
+    expect(snapshot.progressionScore).toBe(entryScore + 10);
+    snapshot = step(100);
+    expect(snapshot.score).toBe(entryScore + 10);
+    expect(snapshot.progressionScore).toBe(entryScore + 10);
+  });
 
-    const finalSnapshot = engine.getSnapshot();
-    expect(challengeStarted).toBe(true);
-    expect(challengeResolved).toBe(true);
-    expect(previousChallengeResult).toBe(completeChallenge ? 'success' : 'failure');
-    expect(attackIds.size).toBeGreaterThanOrEqual(3);
-    expect(wallWaves).toBeGreaterThanOrEqual(3);
-    expect(finalSnapshot.warning).not.toBeNull();
-    expect(finalSnapshot.challenge?.active).toBe(false);
-    expect(finalSnapshot.boss?.wallSpawningPaused).toBe(false);
+  it('unlocks lasers at boss two and guarantees a challenge after a laser', () => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 60, initialCompletedWarningCount: 3, rng: () => 0,
+    });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    const lasers = new Set();
+    let snapshot = engine.getSnapshot();
+    for (let frame = 0; frame < 1000 && !snapshot.challenge?.active; frame += 1) {
+      snapshot = step(100);
+      const attack = snapshot.boss?.attack;
+      if (attack) {
+        expect(attack.type).toBe('laser');
+        expect(snapshot.challenge?.active).not.toBe(true);
+        lasers.add(attack.id);
+      }
+    }
+    expect(lasers.size).toBe(1);
+    expect(snapshot.boss.number).toBe(2);
+    expect(snapshot.challenge?.active).toBe(true);
+    expect(snapshot.boss.successfulChallenges).toBe(0);
+    expect(snapshot.warning.remainingSpecials).toBe(0);
   });
 
   it('guarantees two normal walls per boss wave even when every random roll prefers special', () => {
@@ -602,10 +646,10 @@ describe('game engine', () => {
     });
   });
 
-  it('spawns a moving normal wall at score fifty and uses the regular cycle', () => {
+  it('spawns a moving normal wall after the first boss clear and uses the regular cycle', () => {
     const values = [0.9, 0, 0.5, 0.25, 0.5];
     const { engine, step } = createRuntimeEngine({
-      initialScore: 50,
+      initialScore: 35,
       initialCompletedWarningCount: 4,
       rng: () => values.shift() ?? 0.5,
     });
@@ -624,6 +668,7 @@ describe('game engine', () => {
     let randomCall = 0;
     const { engine, step } = createRuntimeEngine({
       initialScore: 50,
+      initialCompletedWarningCount: 2,
       rng: () => {
         const values = [0.9, 0.1, 0.5, 0.5];
         return values[randomCall++ % values.length];
@@ -631,13 +676,21 @@ describe('game engine', () => {
     });
     engine.start();
     const snapshot = step(100);
-    const warningMovingWall = snapshot.obstacles.find((obstacle) => obstacle.warningIndex === 1);
+    const warningMovingWall = snapshot.obstacles.find((obstacle) => obstacle.warningIndex === 3);
 
     expect(warningMovingWall).toMatchObject({
       kind: 'normal',
       movingGap: true,
       gapMotionCycleSeconds: 3.2,
     });
+  });
+
+  it('keeps moving gaps locked before the first boss clear even at high scores', () => {
+    const { engine, step } = createRuntimeEngine({ initialScore: 100, rng: () => 0.9 });
+    engine.start();
+    const snapshot = step(100);
+    expect(snapshot.difficulty.movingGapChance).toBe(0);
+    expect(snapshot.obstacles.every((wall) => !wall.movingGap)).toBe(true);
   });
 
   it('previews a cached boss pattern for 1.5 seconds while normal play continues', () => {

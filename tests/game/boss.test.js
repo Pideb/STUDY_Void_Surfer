@@ -3,33 +3,42 @@ import {
   advanceBossEncounter,
   createBossEncounter,
   getBossHealth,
-  shouldStartBossChallenge,
 } from '../../src/game/boss.js';
 
 describe('boss encounter', () => {
-  it('uses three HP through boss four and five HP from boss five', () => {
+  it('requires three challenge successes for both early and late bosses', () => {
     expect(getBossHealth(1)).toBe(3);
     expect(getBossHealth(4)).toBe(3);
-    expect(getBossHealth(5)).toBe(5);
+    expect(getBossHealth(5)).toBe(3);
+    expect(createBossEncounter(20)).toMatchObject({ hp: 3, requiredChallenges: 3, successfulChallenges: 0 });
   });
 
-  it('tracks reflected damage, normal-wall cooldown, and challenge thresholds', () => {
-    const encounter = createBossEncounter(3, () => 0);
+  it('damages the boss only on challenge successes and counts failed attempts', () => {
+    const encounter = createBossEncounter(1);
 
-    expect(encounter).toMatchObject({ hp: 3, maxHp: 3, targetChallengeCount: 1, nextChallengeReflection: 1 });
+    advanceBossEncounter(encounter, 'challenge-failure');
+    expect(encounter).toMatchObject({ hp: 3, challengeCount: 1, successfulChallenges: 0 });
+    advanceBossEncounter(encounter, 'challenge-success');
+    expect(encounter).toMatchObject({ hp: 2, challengeCount: 2, successfulChallenges: 1 });
+    advanceBossEncounter(encounter, 'challenge-success');
+    advanceBossEncounter(encounter, 'challenge-success');
+    expect(encounter).toMatchObject({ hp: 0, successfulChallenges: 3 });
+    advanceBossEncounter(encounter, 'boss-cleared');
+    advanceBossEncounter(encounter, 'challenge-failure');
+    expect(encounter).toMatchObject({ cleared: true, challengeCount: 4 });
+  });
+
+  it('tracks wall and attack cooldowns independently of score or reflections', () => {
+    const encounter = createBossEncounter(2);
     advanceBossEncounter(encounter, 'normal-wall-passed');
     advanceBossEncounter(encounter, 'normal-wall-passed');
-    expect(encounter.normalWallsSinceProjectile).toBe(2);
+    expect(encounter.normalWallsSinceAttack).toBe(2);
+    advanceBossEncounter(encounter, 'special-resolved', 7);
+    advanceBossEncounter(encounter, 'attack-resolved', 8);
+    expect(encounter).toMatchObject({ normalWallsSinceAttack: 0, lastSpecialResolvedAt: 7, lastAttackResolvedAt: 8 });
     advanceBossEncounter(encounter, 'projectile-reflected');
-    expect(encounter.hp).toBe(2);
-    expect(shouldStartBossChallenge(encounter)).toBe(true);
-    advanceBossEncounter(encounter, 'challenge-complete');
-    expect(encounter.challengeCount).toBe(1);
-    expect(shouldStartBossChallenge(encounter)).toBe(false);
-  });
-
-  it('supports a 70 percent second challenge chance from boss seven onward', () => {
-    expect(createBossEncounter(7, () => 0.1).targetChallengeCount).toBe(2);
-    expect(createBossEncounter(7, () => 0.9).targetChallengeCount).toBe(1);
+    expect(encounter.hp).toBe(3);
+    expect(encounter).not.toHaveProperty('nextChallengeReflection');
+    expect(encounter).not.toHaveProperty('reflectedCount');
   });
 });

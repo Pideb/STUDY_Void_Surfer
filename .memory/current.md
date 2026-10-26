@@ -1,17 +1,17 @@
 # Current Context
 
 ## Active Plan
-[Boss Bonus and Speed Smoothing](./plans/2026-10-26-boss-bonus-speed-smoothing.md)
+[WASD Boss Overhaul](./plans/2026-10-26-wasd-boss-overhaul.md)
 
 ## Active Phase
-None. All phases complete.
+[P01 Boss Challenges](./phases/2026-10-26-wasd-boss-overhaul/P01-boss-challenges/phase.md)
 
 ## Active Task
-None. Plan complete.
+[T01 WASD Boss Loop](./phases/2026-10-26-wasd-boss-overhaul/P01-boss-challenges/T01-boss-loop.md)
 
 ## Status
-- T01 complete (`47d1858`): boss bonuses affect displayed/final scores only; speed progression counts passed walls; all speed changes ease over two seconds.
-- Related 59 tests, production build, and diff whitespace checks passed.
+- Decisions confirmed: three WASD successes per boss, five seconds, touch buttons; boss walls give no points, boss clear gives score+progression10.
+- T01 ready. Then T02 input/UI and T03 readability.
 
 ## Next Step (IMPORTANT)
-No active task. Ready for playtest feedback on the two-second acceleration/deceleration feel.
+Read T01 and implement the boss challenge loop, scoring, difficulty, and earlier content unlocks.
