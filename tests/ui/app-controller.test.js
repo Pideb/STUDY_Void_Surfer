@@ -481,6 +481,7 @@ describe('app controller product flow', () => {
     focusedButton.focus();
     const wasd = new KeyboardEvent('keydown', { code: 'KeyW', bubbles: true, cancelable: true });
     focusedButton.dispatchEvent(wasd);
+    focusedButton.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyW', repeat: true, bubbles: true, cancelable: true }));
     const input = document.createElement('input');
     document.body.append(input);
     input.focus();

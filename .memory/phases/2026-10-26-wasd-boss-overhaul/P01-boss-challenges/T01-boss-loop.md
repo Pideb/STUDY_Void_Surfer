@@ -62,7 +62,7 @@ Task: T01-boss-loop
 ## Progress
 - [x] 구현 완료
 - [x] 검증 통과 — 5 test files / 63 tests; production build; diff whitespace check.
-- commit: pending
+- commit: `9be1675`
 
 ## Implementation Notes
 - Boss preview remains normal play, so at high speeds an existing wall can score before the preview ends. Score-freeze checks begin at actual encounter entry.

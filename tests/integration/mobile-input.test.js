@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createAppController } from '../../src/ui/app-controller.js';
+import { createGameEngine } from '../../src/game/game-engine.js';
 
 function flush() {
   return Promise.resolve().then(() => Promise.resolve());
@@ -71,5 +72,75 @@ describe('mobile and keyboard controls', () => {
     [...root.querySelectorAll('button')].find((button) => button.textContent === '계속하기').click();
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape', bubbles: true, cancelable: true }));
     expect(engine.pause).toHaveBeenCalledTimes(2);
+  });
+
+  it('completes a real boss challenge with successive touch clicks without frame delays or world inputs', async () => {
+    root = document.createElement('div');
+    canvas = document.createElement('canvas');
+    document.body.append(canvas, root);
+    let currentTime = 0;
+    const frames = [];
+    engine = createGameEngine({
+      now: () => currentTime, gravity: 0, initialScore: 60,
+      initialCompletedWarningCount: 1, rng: () => 0.5,
+    });
+    audioManager = { isMuted: () => false, unlock() {}, setMuted() {}, play: vi.fn(), destroy() {} };
+    controller = createAppController({
+      root, canvas, gameEngine: engine,
+      authService: { getSessionUser: async () => null, subscribeToAuth: () => vi.fn() },
+      leaderboardService: {},
+      renderer: { render() {}, renderMenuBackground() {}, destroy() {} }, audioManager,
+    });
+    vi.spyOn(globalThis, 'requestAnimationFrame').mockImplementation((callback) => {
+      frames.push(callback);
+      return frames.length;
+    });
+    vi.spyOn(globalThis, 'cancelAnimationFrame').mockImplementation(() => {});
+    controller.mount();
+    await flush();
+    controller.dispatch('START_GAME_FROM_MENU');
+    controller.dispatch('START_PLAYING');
+    engine.setInvincibilityEnabled(true);
+    for (let frame = 0; frame < 1000 && !engine.getSnapshot().challenge?.active; frame += 1) {
+      currentTime += 100;
+      frames.shift()(currentTime);
+    }
+
+    const before = engine.getSnapshot();
+    expect(before.challenge?.active).toBe(true);
+    const input = vi.spyOn(engine, 'handleChallengeKey');
+    const lift = vi.spyOn(engine, 'lift');
+    const dash = vi.spyOn(engine, 'dash');
+    const controls = root.querySelector('.challenge-touch-controls');
+    const buttons = [...controls.querySelectorAll('button')];
+    expect(controls.hidden).toBe(false);
+
+    controller.dispatch('PAUSE');
+    expect(engine.getSnapshot().state).toBe('playing');
+    expect(root.querySelector('.wasd-challenge-overlay')).not.toBeNull();
+    for (const [index, code] of before.challenge.sequence.entries()) {
+      const button = controls.querySelector(`[data-code="${code}"]`);
+      button.dispatchEvent(new Event('pointerdown', { bubbles: true, cancelable: true }));
+      button.click();
+      expect(input).toHaveBeenCalledTimes(index + 1);
+      expect(engine.getSnapshot().challenge.cursor).toBe(index + 1);
+      expect([...controls.querySelectorAll('button')]).toEqual(buttons);
+    }
+
+    const after = engine.getSnapshot();
+    expect(after.boss).toMatchObject({ hp: 2, successfulChallenges: 1 });
+    expect(after.player).toEqual(before.player);
+    expect(after.elapsedSeconds).toBe(before.elapsedSeconds);
+    expect(controls.hidden).toBe(true);
+    expect(buttons.every((button) => button.disabled)).toBe(true);
+    buttons[0].click();
+    expect(input).toHaveBeenCalledTimes(before.challenge.sequence.length);
+    expect(lift).not.toHaveBeenCalled();
+    expect(dash).not.toHaveBeenCalled();
+    expect(root.querySelector('.boss-health-text').textContent).toBe('1 / 3');
+    expect(audioManager.play.mock.calls.filter(([event]) => event === 'challengeSuccess')).toHaveLength(1);
+    currentTime += 100;
+    frames.shift()(currentTime);
+    expect(audioManager.play.mock.calls.filter(([event]) => event === 'challengeSuccess')).toHaveLength(1);
   });
 });

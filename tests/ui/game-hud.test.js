@@ -14,20 +14,21 @@ describe('game HUD', () => {
       score: 75,
       stage: { name: 'SOLAR FORGE' },
       aircraft: { name: 'VELOCITY' },
-      boss: { hp: 3, maxHp: 5 },
+      boss: { hp: 2, maxHp: 3, successfulChallenges: 1, requiredChallenges: 3 },
     });
-    const gauge = hud.element.querySelector('[role="progressbar"][aria-label="보스 체력"]');
+    const gauge = hud.element.querySelector('[role="progressbar"][aria-label="보스 챌린지 성공 횟수"]');
     expect(hud.element.querySelector('.hud-identity')).toBeNull();
     expect(hud.element.textContent).not.toContain('SOLAR FORGE');
     expect(hud.element.textContent).not.toContain('VELOCITY');
     expect(hud.element.textContent).toContain('점수 75');
-    expect(gauge.getAttribute('aria-valuenow')).toBe('3');
-    expect(gauge.getAttribute('aria-valuemax')).toBe('5');
-    expect(gauge.querySelectorAll('.boss-health-segment')).toHaveLength(5);
-    expect(gauge.querySelectorAll('.is-active')).toHaveLength(3);
+    expect(gauge.getAttribute('aria-valuenow')).toBe('1');
+    expect(gauge.getAttribute('aria-valuemax')).toBe('3');
+    expect(gauge.getAttribute('aria-valuetext')).toBe('1/3회 성공');
+    expect(gauge.querySelectorAll('.boss-health-segment')).toHaveLength(3);
+    expect(gauge.querySelectorAll('.is-active')).toHaveLength(1);
   });
 
-  it('shows attack cues and the WASD sequence without introducing gameplay controls', () => {
+  it('shows laser cues and the WASD sequence and hides controls after the challenge', () => {
     const hud = makeHud();
     hud.update({
       score: 42,
@@ -49,11 +50,16 @@ describe('game HUD', () => {
     expect(hud.element.querySelector('.challenge-timer').getAttribute('aria-valuetext')).toBe('3.1초 남음');
     expect(hud.element.querySelector('.challenge-failure-effect').classList.contains('is-glitch')).toBe(true);
     expect(hud.element.querySelector('.mobile-space-button')).not.toBeNull();
+    expect(hud.element.querySelector('.mobile-space-button').hidden).toBe(true);
+    expect(hud.element.querySelector('.challenge-touch-controls').hidden).toBe(false);
+    expect([...hud.element.querySelectorAll('.challenge-key-button')].every((button) => !button.disabled)).toBe(true);
 
     hud.update({ score: 42, boss: null, challenge: null, feedbackEffect: null });
     expect(hud.element.querySelector('.boss-health').hidden).toBe(true);
     expect(hud.element.querySelector('.wasd-challenge-overlay').hidden).toBe(true);
     expect(hud.element.querySelector('.challenge-failure-effect').hidden).toBe(true);
+    expect(hud.element.querySelector('.challenge-touch-controls').hidden).toBe(true);
+    expect([...hud.element.querySelectorAll('.challenge-key-button')].every((button) => button.disabled)).toBe(true);
   });
 
   it('announces the selected BOSS pattern during the pre-entry preview', () => {

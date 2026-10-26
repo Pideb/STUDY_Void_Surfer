@@ -161,7 +161,10 @@ describe('product flow screens', () => {
     expect(tutorial.textContent).toContain('SPACE: 대시 (회피)');
     expect(tutorial.textContent).not.toContain('SPACE: 언제든 대시 잔상이 남습니다');
     expect(tutorial.textContent).toContain('특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다');
-    expect(tutorial.textContent).toContain('보스 투사체를 정확한 타이밍에 SPACE 대시로 반사해 BOSS HP를 0으로 만들면 클리어합니다.');
+    expect(tutorial.textContent).toContain('WASD 챌린지 3회 성공으로 클리어');
+    expect(tutorial.textContent).toContain('5초 안에 키보드 또는 터치 버튼');
+    expect(tutorial.textContent).toContain('보스전 중에는 점수가 오르지 않으며 클리어 시 10점');
+    expect(tutorial.textContent).not.toContain('보스 투사체');
     expect(tutorial.textContent).not.toContain('BOSS 1~4는 3회, 5번째부터는 5회 반사가 필요합니다.');
     expect(tutorial.textContent).not.toContain('WASD 챌린지는 별도 도전이며, 성공해도 BOSS에게 피해를 주지 않습니다.');
     expect(tutorial.textContent).toContain('출격 전 안내');

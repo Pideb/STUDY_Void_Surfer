@@ -236,7 +236,7 @@ export function renderTutorialScreen(_model, handlers) {
     '클릭/터치: 위로 상승',
     'SPACE: 대시 (회피)',
     '특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다',
-    '보스 투사체를 정확한 타이밍에 SPACE 대시로 반사해 BOSS HP를 0으로 만들면 클리어합니다.',
+    '보스전은 WASD 챌린지 3회 성공으로 클리어합니다. 5초 안에 키보드 또는 터치 버튼으로 순서대로 입력하세요. 보스전 중에는 점수가 오르지 않으며 클리어 시 10점을 얻습니다.',
     'P/Esc 또는 일시정지 버튼: 일시정지 (-10점)',
   ]) {
     const item = document.createElement('li');

@@ -1,6 +1,6 @@
 # Task: T02 Challenge Controls and Guidance
 
-## Status: pending
+## Status: done
 
 ## Goal
 모바일 가로 화면에서도 WASD 챌린지를 해결하고, 안내와 보스 진행 표시가 새로운 클리어 조건과 일치한다.
@@ -29,9 +29,9 @@
 - Tests verify button->controller->engine key and next cursor, exactly one key per click, inactive guard, no lift/dash/pause, keyboard repeat suppression, success/failure cues once, controls disabled/hidden outside challenge, gauge3 success counts and no obsolete tutorial.
 
 ## Acceptance Criteria
-- [ ] PC and touch both route valid single inputs and cannot interact with world during challenge.
-- [ ] Challenge controls support landscape width>700px via capability media query and disappear when inactive.
-- [ ] New boss clear guide/gauge and existing HUD/audio paths validated.
+- [x] PC and touch both route valid single inputs and cannot interact with world during challenge.
+- [x] Challenge controls support landscape width>700px via capability media query and disappear when inactive.
+- [x] New boss clear guide/gauge and existing HUD/audio paths validated.
 
 ## Validation
 - `npm test -- --run tests/ui/game-hud.test.js tests/ui/app-controller.test.js tests/ui/screens.test.js tests/integration/mobile-input.test.js`
@@ -48,6 +48,11 @@ Task: T02-challenge-controls
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
+- [x] 구현 완료
+- [x] 검증 통과 — 4 files / 52 tests; production build; diff whitespace check.
 - commit: pending
+
+## Implementation Notes
+- The mobile integration test drives the real engine to its first challenge, sends all touch clicks without waiting for animation frames, and verifies cursor, successful damage, no world input and one success sound.
+- Existing pause could switch the controller to paused while the engine refused pausing an active challenge. Disabled its button and guarded the dispatch as part of keeping challenge inputs consistent.
+- Touch capability media queries are width-independent. Actual landscape device layout still needs visual playtesting.

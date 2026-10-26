@@ -44,13 +44,13 @@ export function createGameHud(model, handlers) {
   bossHealth.hidden = true;
   const bossLabel = document.createElement('span');
   bossLabel.className = 'boss-health-label';
-  bossLabel.textContent = 'BOSS HP';
+  bossLabel.textContent = 'WASD 성공';
   const bossText = document.createElement('span');
   bossText.className = 'boss-health-text';
   const bossGauge = document.createElement('div');
   bossGauge.className = 'boss-health-gauge';
   bossGauge.setAttribute('role', 'progressbar');
-  bossGauge.setAttribute('aria-label', '보스 체력');
+  bossGauge.setAttribute('aria-label', '보스 챌린지 성공 횟수');
   bossGauge.setAttribute('aria-valuemin', '0');
   bossHealth.append(bossLabel, bossGauge, bossText);
 
@@ -75,7 +75,21 @@ export function createGameHud(model, handlers) {
   challengeStatus.setAttribute('role', 'status');
   challengeStatus.setAttribute('aria-live', 'polite');
   challengeStatus.setAttribute('aria-atomic', 'true');
-  challengeOverlay.append(challengeTitle, challengeSequence, challengeTimer, challengeTimeText, challengeStatus);
+  const challengeControls = document.createElement('div');
+  challengeControls.className = 'challenge-touch-controls';
+  challengeControls.hidden = true;
+  challengeControls.setAttribute('role', 'group');
+  challengeControls.setAttribute('aria-label', 'WASD 터치 입력');
+  const challengeButtons = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].map((code) => {
+    const button = createButton(code.slice(-1), () => handlers.challengeKey?.(code), {
+      className: 'challenge-key-button', ariaLabel: `${code.slice(-1)} 입력`,
+    });
+    button.dataset.code = code;
+    button.disabled = true;
+    challengeControls.append(button);
+    return button;
+  });
+  challengeOverlay.append(challengeTitle, challengeSequence, challengeTimer, challengeTimeText, challengeControls, challengeStatus);
   const failureEffect = document.createElement('div');
   failureEffect.className = 'challenge-failure-effect';
   failureEffect.hidden = true;
@@ -97,31 +111,28 @@ export function createGameHud(model, handlers) {
     const boss = snapshot.boss;
     bossHealth.hidden = !boss;
     if (boss) {
-      const maxHp = Math.max(1, Math.trunc(Number(boss.maxHp) || 1));
-      const hp = Math.max(0, Math.min(maxHp, Math.trunc(Number(boss.hp) || 0)));
-      bossGauge.setAttribute('aria-valuemax', String(maxHp));
-      bossGauge.setAttribute('aria-valuenow', String(hp));
-      bossGauge.setAttribute('aria-valuetext', `${hp}/${maxHp}`);
-      bossText.textContent = `${hp} / ${maxHp}`;
-      if (bossGauge.dataset.maxHp !== String(maxHp)) {
-        bossGauge.replaceChildren(...Array.from({ length: maxHp }, () => {
+      const required = Math.max(1, Math.trunc(Number(boss.requiredChallenges ?? boss.maxHp) || 3));
+      const completed = Math.max(0, Math.min(required,
+        Math.trunc(Number(boss.successfulChallenges ?? (required - (boss.hp ?? required))) || 0)));
+      bossGauge.setAttribute('aria-valuemax', String(required));
+      bossGauge.setAttribute('aria-valuenow', String(completed));
+      bossGauge.setAttribute('aria-valuetext', `${completed}/${required}회 성공`);
+      bossText.textContent = `${completed} / ${required}`;
+      if (bossGauge.dataset.required !== String(required)) {
+        bossGauge.replaceChildren(...Array.from({ length: required }, () => {
           const segment = document.createElement('span');
           segment.className = 'boss-health-segment';
           segment.setAttribute('aria-hidden', 'true');
           return segment;
         }));
-        bossGauge.dataset.maxHp = String(maxHp);
+        bossGauge.dataset.required = String(required);
       }
-      [...bossGauge.children].forEach((segment, index) => segment.classList.toggle('is-active', index < hp));
+      [...bossGauge.children].forEach((segment, index) => segment.classList.toggle('is-active', index < completed));
     }
 
     const attack = boss?.attack;
     let combatMessage = '';
-    if (attack?.type === 'projectile') {
-      combatMessage = attack.state === 'charging' ? '투사체 조준 중 · 예고 궤적 확인'
-        : attack.state === 'returning' ? '반사 성공 · 보스에게 되돌아가는 중'
-          : '투사체 접근 중 · 타이밍 대시로 반사';
-    } else if (attack?.type === 'laser') {
+    if (attack?.type === 'laser') {
       if (attack.kind === 'quarter') combatMessage = `레이저 안전 구역: ${attack.safeZone + 1}번 구역`;
       else combatMessage = attack.telegraphRemainingSeconds > 0 ? '레이저 조준 중 · 세로 위치 확인' : '레이저 발사 중';
     }
@@ -145,6 +156,10 @@ export function createGameHud(model, handlers) {
 
     const challenge = snapshot.challenge;
     challengeOverlay.hidden = !challenge?.active;
+    challengeControls.hidden = !challenge?.active;
+    challengeButtons.forEach((button) => { button.disabled = !challenge?.active; });
+    mobileSpace.hidden = Boolean(challenge?.active);
+    pauseButton.disabled = Boolean(challenge?.active);
     if (challenge?.active) {
       const sequence = challenge.sequence ?? [];
       const cursor = Math.max(0, Math.trunc(Number(challenge.cursor) || 0));

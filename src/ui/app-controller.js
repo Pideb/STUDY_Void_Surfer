@@ -240,6 +240,7 @@ export function createAppController(deps) {
       pause: () => dispatch({ type: 'PAUSE' }),
       toggleMute,
       space: triggerDash,
+      challengeKey: submitChallengeKey,
     });
     root.replaceChildren(gameHud.element);
     gameHud.update(state.snapshot ?? { score: 0 });
@@ -445,10 +446,19 @@ export function createAppController(deps) {
   }
 
   function triggerDash() {
-    if (state.screen !== 'playing') return;
+    if (state.screen !== 'playing' || state.snapshot?.challenge?.active) return;
     if (gameEngine.dash?.()) {
       audioManager.play('dash');
     }
+  }
+
+  function submitChallengeKey(code) {
+    if (state.screen !== 'playing' || !['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(code)) return;
+    if (!gameEngine.getSnapshot().challenge?.active) return;
+    gameEngine.handleChallengeKey?.(code);
+    state.snapshot = gameEngine.getSnapshot();
+    gameHud?.update(state.snapshot);
+    syncCombatAudio(state.snapshot);
   }
 
   function getDifficultyMode(snapshot) {
@@ -842,7 +852,7 @@ export function createAppController(deps) {
         setScreen('menu');
         break;
       case 'PAUSE':
-        if (state.screen === 'playing') {
+        if (state.screen === 'playing' && !state.snapshot?.challenge?.active) {
           state.snapshot = gameEngine.pause();
           audioManager.pauseMusic?.();
           audioManager.play('pause');
@@ -896,7 +906,7 @@ export function createAppController(deps) {
     if (state.screen === 'playing' && state.snapshot?.challenge?.active) {
       if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
         event.preventDefault();
-        gameEngine.handleChallengeKey?.(event.code);
+        if (!event.repeat) submitChallengeKey(event.code);
       } else if (event.code === 'Space') {
         event.preventDefault();
       }
