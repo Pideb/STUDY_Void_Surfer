@@ -201,8 +201,9 @@ export function createGameEngine(deps = {}) {
       speedTransition.elapsedSeconds + deltaSeconds,
     );
     const progress = speedTransition.elapsedSeconds / speedTransition.durationSeconds;
+    const easedProgress = progress * progress * (3 - 2 * progress);
     currentScrollSpeed = speedTransition.fromSpeed
-      + (speedTransition.targetSpeed - speedTransition.fromSpeed) * progress;
+      + (speedTransition.targetSpeed - speedTransition.fromSpeed) * easedProgress;
     if (speedTransition.elapsedSeconds >= speedTransition.durationSeconds - 1e-9) {
       currentScrollSpeed = speedTransition.targetSpeed;
       speedTransition = null;
@@ -610,7 +611,6 @@ export function createGameEngine(deps = {}) {
     advanceBossEncounter(bossEncounter, 'boss-cleared');
     if (bossEncounter.number === 1) firstBossCleared = true;
     scoreSession.score += 10;
-    scoreSession.progressionScore += 10;
     completedWarningCount += 1;
     nextWarningScore = getScore() + chooseWarningScoreStep(rng);
     wallsUntilStageAdvance = 2;

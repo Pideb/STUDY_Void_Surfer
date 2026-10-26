@@ -114,6 +114,11 @@ describe('game engine', () => {
       const snapshot = step(10);
       if (before.boss && !snapshot.boss) {
         bossCleared = true;
+        const newlyPassedWalls = snapshot.obstacles.filter((obstacle) => obstacle.passed
+          && before.obstacles.some((previous) => previous.id === obstacle.id && !previous.passed)).length;
+        expect(snapshot.score - before.score).toBe(newlyPassedWalls + 10);
+        expect(snapshot.progressionScore - before.progressionScore).toBe(newlyPassedWalls);
+        expect(snapshot.difficulty.baseSpeed).toBeCloseTo(getBaseSpeed(snapshot.progressionScore));
         expect(snapshot.specialTimingGuideActive).toBe(false);
         expect(snapshot.stage.id).toBe(initial.stage.id);
         previousScore = snapshot.score;
@@ -267,7 +272,7 @@ describe('game engine', () => {
     expect(snapshot.difficulty.targetScrollSpeed).toBeCloseTo(entryBaseSpeed * 1.25);
   });
 
-  it('smooths score-step speed changes over one second without a jump', () => {
+  it('eases score-step acceleration over two seconds with gentle starts and stops', () => {
     const { engine, step } = createRuntimeEngine({ initialScore: 9, rng: () => 0.5 });
     engine.setInvincibilityEnabled(true);
     engine.start();
@@ -278,15 +283,72 @@ describe('game engine', () => {
     }
     expect(snapshot.progressionScore).toBeGreaterThanOrEqual(10);
     expect(snapshot.difficulty.targetScrollSpeed).toBeCloseTo(264);
-    expect(snapshot.difficulty.scrollSpeed).toBeLessThan(snapshot.difficulty.targetScrollSpeed);
+    expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(240);
     expect(snapshot.speedChange).toMatchObject({ direction: 'up' });
 
-    for (let frame = 0; frame < 5; frame += 1) snapshot = step(100);
-    expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(252);
-    expect(snapshot.speedChange).toMatchObject({ direction: 'up', remainingSeconds: 0.5 });
-    for (let frame = 0; frame < 5; frame += 1) snapshot = step(100);
+    const speeds = [snapshot.difficulty.scrollSpeed];
+    for (let quarter = 0; quarter < 4; quarter += 1) {
+      for (let frame = 0; frame < 5; frame += 1) snapshot = step(100);
+      speeds.push(snapshot.difficulty.scrollSpeed);
+      if (quarter === 1) {
+        expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(252);
+        expect(snapshot.speedChange).toMatchObject({ direction: 'up', remainingSeconds: 1 });
+      }
+    }
+    expect(speeds.every((speed, index) => index === 0 || speed > speeds[index - 1])).toBe(true);
+    expect(speeds[1] - speeds[0]).toBeLessThan(speeds[2] - speeds[1]);
+    expect(speeds[4] - speeds[3]).toBeLessThan(speeds[3] - speeds[2]);
     expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(264);
     expect(snapshot.speedChange).toBeNull();
+  });
+
+  it.each([
+    { pattern: 'slow', rngValue: 0, direction: 'down', multiplier: 0.75 },
+    { pattern: 'fast', rngValue: 0.4, direction: 'up', multiplier: 1.25 },
+  ])('eases $pattern boss entry without an abrupt speed change', ({ rngValue, direction, multiplier }) => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 60, initialCompletedWarningCount: 1, rng: () => rngValue,
+    });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    let snapshot = engine.getSnapshot();
+    const baseSpeed = snapshot.difficulty.scrollSpeed;
+    for (let frame = 0; frame < 30 && !snapshot.boss; frame += 1) snapshot = step(100);
+    expect(snapshot.boss).not.toBeNull();
+    const targetSpeed = baseSpeed * multiplier;
+    const fullChange = Math.abs(targetSpeed - baseSpeed);
+    expect(snapshot.speedChange?.direction).toBe(direction);
+    expect(Math.abs(snapshot.difficulty.scrollSpeed - baseSpeed)).toBeLessThan(fullChange * 0.02);
+
+    for (let frame = 0; frame < 5; frame += 1) snapshot = step(100);
+    expect(snapshot.speedChange?.direction).toBe(direction);
+    expect(snapshot.difficulty.scrollSpeed).toBeGreaterThan(Math.min(baseSpeed, targetSpeed));
+    expect(snapshot.difficulty.scrollSpeed).toBeLessThan(Math.max(baseSpeed, targetSpeed));
+    for (let frame = 0; frame < 14; frame += 1) snapshot = step(100);
+    expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(targetSpeed);
+    expect(snapshot.speedChange).toBeNull();
+  });
+
+  it('retargets shifting boss speed from the current speed without snapping', () => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 60, initialCompletedWarningCount: 1, rng: () => 0.8,
+    });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    let snapshot = engine.getSnapshot();
+    for (let frame = 0; frame < 30 && !snapshot.boss; frame += 1) snapshot = step(100);
+    expect(snapshot.boss).not.toBeNull();
+    let before;
+    for (let frame = 0; frame < 30 && snapshot.difficulty.speedMultiplier !== 1.25; frame += 1) {
+      before = snapshot;
+      snapshot = step(100);
+    }
+
+    expect(snapshot.difficulty.speedMultiplier).toBe(1.25);
+    expect(snapshot.speedChange?.direction).toBe('up');
+    expect(Math.abs(snapshot.difficulty.scrollSpeed - before.difficulty.scrollSpeed))
+      .toBeLessThan(before.difficulty.baseSpeed * 0.01);
+    expect(snapshot.difficulty.scrollSpeed).toBeLessThan(snapshot.difficulty.targetScrollSpeed);
   });
 
   it('rejects locked aircraft and changing aircraft during an active run', () => {
