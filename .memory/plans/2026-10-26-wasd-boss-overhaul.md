@@ -9,4 +9,8 @@
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | 보스 루프, 모바일 입력 및 시인성 | [P01](../phases/2026-10-26-wasd-boss-overhaul/P01-boss-challenges/phase.md) |
+| P01 | `done` | 보스 루프, 모바일 입력 및 시인성 | [P01](../phases/2026-10-26-wasd-boss-overhaul/P01-boss-challenges/phase.md) |
+
+## Status
+- Complete. T01 `9be1675`, T02 `323c045`, T03 `f96da12`.
+- All 254 tests and production build passed. Real-device layout and subjective contrast await playtest feedback.

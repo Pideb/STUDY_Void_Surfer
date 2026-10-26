@@ -44,7 +44,7 @@ Task: T03-gameplay-contrast
 ## Progress
 - [x] 구현 완료
 - [x] 검증 통과 — all 30 files / 254 tests; production build; diff whitespace check.
-- commit: pending
+- commit: `f96da12`
 
 ## Validation Notes
 - Layer-order checks cover normal/WARNING/BOSS for all six stage assets. Existing idle animation, reduced motion, stage ownership and background transition tests pass.
