@@ -4,13 +4,14 @@
 [Boss Bonus and Speed Smoothing](./plans/2026-10-26-boss-bonus-speed-smoothing.md)
 
 ## Active Phase
-[P01 Speed Progression](./phases/2026-10-26-boss-bonus-speed-smoothing/P01-speed-progression/phase.md)
+None. All phases complete.
 
 ## Active Task
-[T01 Boss Bonus and Speed Smoothing](./phases/2026-10-26-boss-bonus-speed-smoothing/P01-speed-progression/T01-bonus-and-smoothing.md)
+None. Plan complete.
 
 ## Status
-- T01 ready: remove boss bonuses from speed progression and ease transitions over two seconds.
+- T01 complete (`47d1858`): boss bonuses affect displayed/final scores only; speed progression counts passed walls; all speed changes ease over two seconds.
+- Related 59 tests, production build, and diff whitespace checks passed.
 
 ## Next Step (IMPORTANT)
-Read T01 and implement the score separation, eased transition, and engine regression checks.
+No active task. Ready for playtest feedback on the two-second acceleration/deceleration feel.

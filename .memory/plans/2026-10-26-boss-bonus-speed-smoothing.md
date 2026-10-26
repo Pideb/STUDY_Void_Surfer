@@ -9,4 +9,7 @@
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | `in_progress` | 보너스 분리 및 속도 전환 검증 | [P01](../phases/2026-10-26-boss-bonus-speed-smoothing/P01-speed-progression/phase.md) |
+| P01 | `done` | 보너스 분리 및 속도 전환 검증 | [P01](../phases/2026-10-26-boss-bonus-speed-smoothing/P01-speed-progression/phase.md) |
+
+## Status
+- Complete. T01 validated (59 tests, production build) and committed as `47d1858`.

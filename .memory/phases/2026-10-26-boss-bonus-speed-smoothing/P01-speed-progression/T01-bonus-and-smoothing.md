@@ -60,7 +60,7 @@ Task: T01-bonus-and-smoothing
 ## Progress
 - [x] 구현 완료
 - [x] 검증 통과 — 관련 4파일 59개 테스트, 프로덕션 빌드, diff 공백 검사 통과.
-- commit: pending
+- commit: `47d1858`
 
 ## Validation Notes
 - 변경 전 보스 보너스·2초 곡선·저속/고속/변속 경계 검증 5개가 실패함을 확인한 뒤 수정 후 통과했다.
