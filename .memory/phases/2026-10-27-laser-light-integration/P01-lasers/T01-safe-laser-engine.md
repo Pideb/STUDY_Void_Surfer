@@ -57,4 +57,4 @@ Task: T01-safe-laser-engine
 - [x] Implementation complete
 - [x] Validation passed
 - Validation: 60 tests across 3 files and production build passed. Twenty seeded boss encounters cleared without stalls.
-- commit: see task commit
+- commit: `0bf9579`

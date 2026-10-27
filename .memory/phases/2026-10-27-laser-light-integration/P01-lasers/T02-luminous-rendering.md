@@ -52,4 +52,4 @@ Task: T02-luminous-rendering
 - [x] Validation passed
 - Validation: all 30 files / 265 tests, production build and whitespace checks passed.
 - Visual reference: user-approved standalone v2 preview; runtime geometry verified by Canvas tests. No claim of a fresh browser playtest.
-- commit: see task commit
+- commit: `0515da0`
