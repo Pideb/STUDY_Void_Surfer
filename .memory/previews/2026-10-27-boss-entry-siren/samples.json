@@ -1,0 +1,131 @@
+[
+  {
+    "id": "01-sweep",
+    "title": "01 · 상승·하강 사이렌",
+    "recommended": true,
+    "description": "우웅— 우웅— 우웅— · 음이 올라갔다 내려오는 아케이드 경고음",
+    "character": "sweep",
+    "file": "01-sweep.wav",
+    "contextFile": "01-sweep-with-bgm.wav",
+    "durationSeconds": 1.5,
+    "pulses": 3,
+    "pulseStarts": [
+      0,
+      0.46,
+      0.92
+    ],
+    "burstDurationSeconds": 0.4,
+    "sampleRate": 24000,
+    "channels": 2,
+    "levels": {
+      "peak": 0.336717328593101,
+      "rms": 0.23000000000000004
+    },
+    "contextDurationSeconds": 8,
+    "contextLevels": {
+      "peak": 0.8199999999999998,
+      "rms": 0.1705002659649567
+    },
+    "contextSequence": {
+      "normal": [
+        0,
+        3
+      ],
+      "warning": [
+        3,
+        4.5
+      ],
+      "boss": [
+        4.5,
+        8
+      ]
+    },
+    "status": "preview-awaiting-listening-approval"
+  },
+  {
+    "id": "02-two-tone",
+    "title": "02 · 교대 경보",
+    "recommended": false,
+    "description": "삐뽀— 삐뽀— 삐뽀— · 두 음이 번갈아 울리는 선명한 경보",
+    "character": "two-tone",
+    "file": "02-two-tone.wav",
+    "contextFile": "02-two-tone-with-bgm.wav",
+    "durationSeconds": 1.5,
+    "pulses": 3,
+    "pulseStarts": [
+      0,
+      0.46,
+      0.92
+    ],
+    "burstDurationSeconds": 0.4,
+    "sampleRate": 24000,
+    "channels": 2,
+    "levels": {
+      "peak": 0.3366201928766055,
+      "rms": 0.23
+    },
+    "contextDurationSeconds": 8,
+    "contextLevels": {
+      "peak": 0.8199999999999998,
+      "rms": 0.17023010913405331
+    },
+    "contextSequence": {
+      "normal": [
+        0,
+        3
+      ],
+      "warning": [
+        3,
+        4.5
+      ],
+      "boss": [
+        4.5,
+        8
+      ]
+    },
+    "status": "preview-awaiting-listening-approval"
+  },
+  {
+    "id": "03-low-alert",
+    "title": "03 · 저음 비상 경보",
+    "recommended": false,
+    "description": "워엉— 워엉— 워엉— · 낮은 울림이 겹치는 묵직한 우주선 경보",
+    "character": "low-alert",
+    "file": "03-low-alert.wav",
+    "contextFile": "03-low-alert-with-bgm.wav",
+    "durationSeconds": 1.5,
+    "pulses": 3,
+    "pulseStarts": [
+      0,
+      0.46,
+      0.92
+    ],
+    "burstDurationSeconds": 0.4,
+    "sampleRate": 24000,
+    "channels": 2,
+    "levels": {
+      "peak": 0.49338732069881547,
+      "rms": 0.23
+    },
+    "contextDurationSeconds": 8,
+    "contextLevels": {
+      "peak": 0.8199999999999998,
+      "rms": 0.1705851214118226
+    },
+    "contextSequence": {
+      "normal": [
+        0,
+        3
+      ],
+      "warning": [
+        3,
+        4.5
+      ],
+      "boss": [
+        4.5,
+        8
+      ]
+    },
+    "status": "preview-awaiting-listening-approval"
+  }
+]

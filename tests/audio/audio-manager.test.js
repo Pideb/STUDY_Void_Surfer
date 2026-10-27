@@ -43,6 +43,67 @@ afterEach(() => {
 });
 
 describe('audio manager', () => {
+  it('plays decoded scene loops through the shared mute path and retains position across pause', async () => {
+    vi.useFakeTimers();
+    class DecodedContext extends MockAudioContext {
+      constructor() {
+        super();
+        this.decodeAudioData = vi.fn(async () => ({ duration: 10 }));
+      }
+    }
+    const fetcher = vi.fn(async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(8) }));
+    const manager = createAudioManager(DecodedContext, { fetcher });
+    manager.setMusicScene('solar-forge');
+    manager.setMusicMode('gameplay');
+    await manager.unlock();
+    for (let index = 0; index < 15; index += 1) await Promise.resolve();
+    const ctx = MockAudioContext.instances[0];
+    expect(fetcher.mock.calls.map(([url]) => url)).toContain('/assets/audio/boss/solar-forge.wav');
+    expect(ctx.createBufferSource.mock.results[0].value.loop).toBe(true);
+    const voices = ctx.createOscillator.mock.calls.length;
+    vi.advanceTimersByTime(1500);
+    expect(ctx.createOscillator).toHaveBeenCalledTimes(voices);
+    ctx.currentTime = 2;
+    manager.pauseMusic();
+    ctx.currentTime = 9;
+    manager.resumeMusic();
+    expect(ctx.createBufferSource.mock.results.at(-1).value.start).toHaveBeenCalledWith(9, 2);
+    manager.setMuted(true);
+    expect(ctx.createGain.mock.results[0].value.gain.setTargetAtTime).toHaveBeenLastCalledWith(0, 9, 0.01);
+    manager.setMusicMode('boss');
+    expect(ctx.createBufferSource.mock.results.at(-1).value.loop).toBe(true);
+    manager.destroy();
+  });
+
+  it('ducks once for the selected siren, preserves it on pause and cancels/restores on entry or menu', async () => {
+    const manager = createAudioManager(MockAudioContext);
+    await manager.unlock();
+    const ctx = MockAudioContext.instances[0];
+    manager.setMusicDucked(true);
+    manager.play('bossEntry', { id: 'preview-1' });
+    manager.play('bossEntry', { id: 'preview-1' });
+    expect(ctx.createBufferSource).toHaveBeenCalledOnce();
+    const first = ctx.createBufferSource.mock.results[0].value;
+    manager.pauseMusic();
+    expect(first.stop).toHaveBeenCalled();
+    ctx.currentTime = 4;
+    manager.resumeMusic();
+    expect(ctx.createBufferSource.mock.results[1].value.start).toHaveBeenCalledWith(4, 0);
+    manager.play('lift');
+    expect(ctx.createGain.mock.results[1].value.gain.setTargetAtTime).toHaveBeenLastCalledWith(0.028, 0, 0.04);
+    manager.setMusicMode('menu');
+    expect(ctx.createBufferSource.mock.results[1].value.stop).toHaveBeenCalled();
+    expect(ctx.createGain.mock.results[1].value.gain.setTargetAtTime).toHaveBeenLastCalledWith(0.14, 4, 0.01);
+    manager.resetRun();
+    manager.setMusicDucked(true);
+    manager.play('bossEntry', { id: 'preview-1' });
+    expect(ctx.createBufferSource).toHaveBeenCalledTimes(3);
+    manager.setMuted(true);
+    manager.play('bossEntry', { id: 'muted' });
+    expect(ctx.createBufferSource).toHaveBeenCalledTimes(3);
+    manager.destroy();
+  });
+
   it('records music selection without creating or resuming AudioContext before unlock', () => {
     const manager = createAudioManager(MockAudioContext);
 

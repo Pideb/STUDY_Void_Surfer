@@ -1,6 +1,6 @@
 # Task: T04 Twelve loop tracks, siren and playback lifecycle
 
-## Status: pending
+## Status: done
 
 ## Goal
 Twelve loop tracks, siren and playback lifecycle; apply the approved combat/audio review with deterministic state and regression coverage.
@@ -21,9 +21,9 @@ User approved all previews and requested autonomous continuation. Existing laser
 - `tests/audio/`: buffers/URLs/loop periods and late-load races, pause/resume offsets, same selection, crossfade cleanup, mute and cue cancellation/repeated runs. Extend `tests/ui/app-controller.test.js` for preview?siren?boss BGM timing and cancellation. Full test/build; README updated for new gameplay/audio rules.
 
 ## Acceptance Criteria
-- [ ] All behaviors and fields described above implemented.
-- [ ] Focused regressions pass; no stale async state, paused clocks or collision/render mismatch.
-- [ ] Production build and whitespace checks pass.
+- [x] All behaviors and fields described above implemented.
+- [x] Focused regressions pass; no stale async state, paused clocks or collision/render mismatch.
+- [x] Production build and whitespace checks pass.
 
 ## Validation
 - `npm test -- --run`
@@ -40,6 +40,10 @@ Task: T04-stage-audio
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: all 32 files / 283 tests, production build, whitespace checks, and production-preview HTTP checks passed for all 13 audio URLs.
+- Loop assets total about 22 MB, loaded by scene (gameplay+boss) and cached; JavaScript gzip97.47kB.
+- Preview WAV hashes remain exact; loop tails wrap and a 5ms bridge smooths sample-rounded boundaries.
+- No fresh subjective browser listening claim; the user approved all source previews.
+- commit: see task commit

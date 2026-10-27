@@ -1,3 +1,6 @@
+import { createStageMusicPlayer } from './stage-music-player.js';
+import { createBossEntryBuffer } from './boss-entry-siren.js';
+
 const SOUND_CONFIG = Object.freeze({
   lift: [{ frequency: 420, duration: 0.08, type: 'triangle', volume: 0.65 }],
   dash: [{ frequency: 680, duration: 0.14, type: 'sawtooth', volume: 0.8 }],
@@ -62,7 +65,7 @@ const SCENE_SETTINGS = Object.freeze({
 });
 
 export const AUDIO_EVENTS = Object.freeze([
-  'bossCharge', 'projectileReflect', 'bossHit', 'laserTelegraph',
+  'bossEntry', 'bossCharge', 'projectileReflect', 'bossHit', 'laserTelegraph',
   'challengeSuccess', 'challengeFailureInk', 'challengeFailureGlitch',
 ]);
 
@@ -87,6 +90,8 @@ function createNoopManager() {
     isMuted() { return muted; },
     setMusicMode() {},
     setMusicScene() {},
+    setMusicDucked() {},
+    resetRun() {},
     pauseMusic() {},
     resumeMusic() {},
     play() {},
@@ -94,10 +99,19 @@ function createNoopManager() {
   };
 }
 
-export function createAudioManager(AudioContextCtor = globalThis.AudioContext ?? globalThis.webkitAudioContext) {
+export function createAudioManager(AudioContextCtor = globalThis.AudioContext ?? globalThis.webkitAudioContext, { fetcher = globalThis.fetch } = {}) {
   let context = null;
   let masterGain = null;
   let musicGain = null;
+  let proceduralGain = null;
+  let stageMusicPlayer = null;
+  let musicSceneId = 'crystal-gates';
+  let musicDucked = false;
+  let entryBuffer = null;
+  let entryVoice = null;
+  let entryOffset = 0;
+  let entryPaused = false;
+  let destroyed = false;
   let musicTimer = null;
   let musicMode = 'none';
   let musicStep = 0;
@@ -116,18 +130,31 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
 
   function ensureGraph() {
     if (!context?.createGain || !context.destination) return false;
-    masterGain ??= context.createGain();
-    musicGain ??= context.createGain();
-    connect(musicGain, masterGain);
-    connect(masterGain, context.destination);
+    if (!masterGain) {
+      masterGain = context.createGain();
+      musicGain = context.createGain();
+      proceduralGain = context.createGain();
+      connect(proceduralGain, musicGain);
+      connect(musicGain, masterGain);
+      connect(masterGain, context.destination);
+      setGainValue(proceduralGain, 1, context.currentTime ?? 0);
+      setGainValue(musicGain, musicDucked ? 0.028 : 0.14, context.currentTime ?? 0);
+      stageMusicPlayer = createStageMusicPlayer(context, {
+        destination: musicGain, fetcher,
+        onPlaying(playing) {
+          setGainValue(proceduralGain, playing ? 0 : 1, context.currentTime ?? 0, 0.06);
+          if (playing) { stopMusicScheduler(); stopMusicVoices(); }
+          else scheduleMusic();
+        },
+      });
+    }
     setGainValue(masterGain, muted ? 0 : 0.7, context.currentTime ?? 0);
-    setGainValue(musicGain, 0.14, context.currentTime ?? 0);
 
     for (const mode of Object.keys(MUSIC_MODES)) {
       if (musicModeGains.has(mode)) continue;
       const gain = context.createGain();
       setGainValue(gain, 0, context.currentTime ?? 0);
-      connect(gain, musicGain);
+      connect(gain, proceduralGain);
       musicModeGains.set(mode, gain);
     }
     return true;
@@ -234,19 +261,51 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
 
   function scheduleMusic() {
     const mode = MUSIC_MODES[musicMode];
-    if (!mode || !context || !ensureGraph() || musicPaused || musicTimer !== null) return;
+    if (!mode || !context || !ensureGraph() || musicPaused || musicTimer !== null || stageMusicPlayer?.isPlaying()) return;
     crossfadeMusicMode(musicMode);
     playMusicStep();
     musicTimer = globalThis.setInterval(playMusicStep, mode.intervalMs);
+  }
+
+  function cancelEntry({ retainOffset = false } = {}) {
+    const voice = entryVoice;
+    entryVoice = null;
+    entryPaused = retainOffset && Boolean(voice);
+    if (voice) {
+      if (retainOffset) entryOffset = Math.min(1.5, voice.offset + context.currentTime - voice.startedAt);
+      try { voice.source.stop(); } catch { /* Already ended. */ }
+      voice.source.disconnect?.();
+    }
+    if (!retainOffset) entryOffset = 0;
+  }
+
+  function playEntry() {
+    if (!context?.createBufferSource || !context?.createBuffer || musicPaused || entryOffset >= 1.5) return;
+    entryBuffer ??= createBossEntryBuffer(context);
+    const source = context.createBufferSource();
+    source.buffer = entryBuffer;
+    source.connect(masterGain);
+    const voice = { source, offset: entryOffset, startedAt: context.currentTime ?? 0 };
+    entryPaused = false;
+    entryVoice = voice;
+    source.onended = () => {
+      source.disconnect?.();
+      if (entryVoice === voice) { entryVoice = null; entryOffset = 0; }
+    };
+    source.start(context.currentTime ?? 0, voice.offset);
   }
 
   if (!AudioContextCtor) return createNoopManager();
 
   return {
     async unlock() {
+      if (destroyed) return;
       context ??= new AudioContextCtor();
       ensureGraph();
       if (typeof context.resume === 'function' && context.state !== 'running') await context.resume();
+      if (destroyed) return;
+      stageMusicPlayer?.preloadScene(musicSceneId);
+      stageMusicPlayer?.select(musicSceneId, musicMode);
       scheduleMusic();
     },
     setMuted(value) {
@@ -262,27 +321,61 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
       musicMode = nextMode;
       musicStep = 0;
       if (nextMode === 'none') {
+        cancelEntry();
+        musicDucked = false;
+        setGainValue(musicGain, 0.14, context?.currentTime ?? 0);
+        stageMusicPlayer?.stop();
         stopMusicVoices();
         crossfadeMusicMode('none');
         return;
       }
+      if (nextMode !== 'gameplay') {
+        cancelEntry();
+        musicDucked = false;
+        setGainValue(musicGain, 0.14, context?.currentTime ?? 0);
+      }
+      stageMusicPlayer?.select(musicSceneId, nextMode);
+      stageMusicPlayer?.resume();
       scheduleMusic();
     },
     setMusicScene(sceneId) {
-      const nextSemitones = SCENE_SETTINGS[sceneId]?.semitones ?? 0;
-      if (nextSemitones === targetSemitones) return;
-      targetSemitones = nextSemitones;
-      sceneStepsRemaining = SCENE_CROSSFADE_STEPS;
+      const sceneChanged = musicSceneId !== sceneId;
+      musicSceneId = SCENE_SETTINGS[sceneId] ? sceneId : 'crystal-gates';
+      const nextSemitones = SCENE_SETTINGS[musicSceneId].semitones;
+      if (nextSemitones !== targetSemitones) {
+        targetSemitones = nextSemitones;
+        sceneStepsRemaining = SCENE_CROSSFADE_STEPS;
+      }
+      if (sceneChanged) {
+        stageMusicPlayer?.preloadScene(musicSceneId);
+        stageMusicPlayer?.select(musicSceneId, musicMode);
+      }
+    },
+    setMusicDucked(value) {
+      musicDucked = Boolean(value);
+      setGainValue(musicGain, musicDucked ? 0.028 : 0.14, context?.currentTime ?? 0, 0.04);
+      if (!musicDucked) cancelEntry();
+    },
+    resetRun() {
+      cancelEntry();
+      playedEventIds.clear();
+      musicDucked = false; musicPaused = false; musicMode = 'none';
+      setGainValue(musicGain, 0.14, context?.currentTime ?? 0);
+      stopMusicScheduler(); stopMusicVoices(); stageMusicPlayer?.stop();
     },
     pauseMusic() {
       if (musicPaused) return;
       musicPaused = true;
+      stageMusicPlayer?.pause();
+      cancelEntry({ retainOffset: true });
       stopMusicScheduler();
       stopMusicVoices();
     },
     resumeMusic() {
       if (!musicPaused) return;
       musicPaused = false;
+      stageMusicPlayer?.resume();
+      if (musicDucked && entryPaused) playEntry();
       scheduleMusic();
     },
     play(event, metadata = {}) {
@@ -293,23 +386,29 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
         return;
       }
       const config = SOUND_CONFIG[event];
-      if (!config) return;
+      if (!config && event !== 'bossEntry') return;
+      if (event === 'bossEntry' && musicPaused) return;
       if (metadata.id !== undefined && metadata.id !== null) {
         const key = `${event}:${metadata.id}`;
         if (playedEventIds.has(key)) return;
         playedEventIds.add(key);
         if (playedEventIds.size > DEDUPE_LIMIT) playedEventIds.delete(playedEventIds.values().next().value);
       }
+      if (event === 'bossEntry') { cancelEntry(); playEntry(); return; }
       for (const tone of config) {
         if (tone.noise) playNoiseBurst(tone);
         playTone(tone, masterGain, { offset: tone.offset ?? 0 });
       }
     },
     destroy() {
+      destroyed = true;
+      cancelEntry();
+      stageMusicPlayer?.destroy();
       stopMusicScheduler();
       stopMusicVoices();
       for (const gain of musicModeGains.values()) gain?.disconnect?.();
       musicModeGains.clear();
+      proceduralGain?.disconnect?.();
       masterGain?.disconnect?.();
       musicGain?.disconnect?.();
       context?.close?.();

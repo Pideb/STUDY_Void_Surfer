@@ -1,7 +1,7 @@
 # Decisions: Combat Visual and Audio Polish
 
 - Date: 2026-10-27
-- Status: Interview in progress — laser v2 approved and integrated separately; remaining wall/dash/music previews pending.
+- Status: Confirmed and implemented. All requested previews approved; combat/audio plan completed.
 
 ## Requested Changes
 1. Show `BOSS HP`, starting at 3 and decreasing once per successful WASD challenge. The engine already exposes hp/maxHp; the current HUD displays successfulChallenges instead.
@@ -13,7 +13,7 @@
 7. Compose separate BGM for six stage backgrounds, deliver playable samples, and obtain approval before integrating.
 8. Deliver several clearly visible SPACE-dash effect previews and obtain approval; current long exhaust trail masks dash feedback.
 
-## Code Inspection
+## Code Inspection Before Integration (historical)
 - `src/game/boss-attacks.js`: both `createSingleLaser` (random Y, 18px body) and `createQuarterLaser` (one safe quarter) exist. Telegraph 0.7s, active 1s.
 - `src/game/game-engine.js::scheduleBossAttack`: lasers unlock from boss2; choose single/quarter with 50% random selection when a laser attack is selected.
 - `src/game/renderer.js::drawLaser`: horizontal asset drawn across the field at once, no right-to-left leading front. Quarter danger zones use alpha0.24 coverage with thin beam image in each zone. Visual/collision timing must remain consistent when adding travel.
@@ -41,11 +41,11 @@
 - v2 keeps the cyan/white palette, random single-line height, right-to-left motion and 2-second quarter warning. Replaces filled beam rectangles/edge rails with additive blurred round rays, layered luminous filaments, drifting highlights and soft leading bloom. Adjacent dangerous quarters share the glow; only the safe lane is excluded. Safety markers use horizontal boundaries rather than a boxed grid.
 - User approved v2 and requested integration on 2026-10-27. The actual renderer now uses the same layered light routines. Other wall/dash/music previews remain pending.
 
-## Pending Review Queue
+## Review Status
 - Hybrid wall approved; implementation baseline: after first boss clear, replace 50% of special choices without changing total special probability.
 - SPACE dash effect: option 1 shock ring approved; implementation pending.
 - All twelve music directions and boss-entry siren option 1 approved.
-- Any unresolved transition/fairness details after reviewing the current code and preview feedback.
+- All requested visuals, normal/boss music and entrance cue approved. No pending preview selection remains.
 
 ## Resumed Review: 2026-10-27
 - User requests continuing the unfinished items; laser v2 integration is already complete (`0bf9579`, `0515da0`), not a pending replacement.
@@ -102,7 +102,7 @@
 - User selected option 1: adopt all six boss directions. Additional request: an arcade-style repeated boss-entry siren, referencing the tension of Mega Man boss warnings; create original listening examples and obtain approval, then continue the unfinished gameplay/audio work.
 - Existing audio evidence: `warning` currently plays two short square tones; `boss` is a short low tone played after entering boss mode. No repeated siren is attached to the pre-entry `bossPreview` yet. Preview duration is already 1.5 seconds (`BOSS_PATTERN_PREVIEW_SECONDS`). Prepare three original three-pulse variants that fit this interval instead of extending gameplay timing for the sample.
 
-## Boss Entry Siren Sample Set 01 — Awaiting Listening Approval
+## Boss Entry Siren Sample Set 01 — Approved
 - Source: `.memory/previews/2026-10-27-boss-entry-siren/compose-samples.mjs`; preview `.memory/previews/2026-10-27-boss-entry-siren/preview.html`.
 - Three original arcade-style warning designs; no external recording or original game audio sampled. Each is 1.5s with three 0.4s bursts starting at 0, .46 and .92 seconds, matching the existing pre-boss preview interval.
 - Option 1 (recommended), `01-sweep.wav`: rising/falling 260–770Hz sweep with a restrained harmonic edge; classic urgent arcade character.

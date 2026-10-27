@@ -1,0 +1,556 @@
+[
+  {
+    "id": "crystal-gates",
+    "title": "Prism Overdrive",
+    "bpm": 136,
+    "color": "#8bd7ff",
+    "description": "맑은 벨을 유지하면서 빠른 아르페지오와 강한 드럼을 겹친 전투 버전",
+    "character": "bright",
+    "lead": "bell",
+    "chords": [
+      [
+        50,
+        57,
+        61,
+        66
+      ],
+      [
+        47,
+        54,
+        57,
+        61
+      ],
+      [
+        43,
+        50,
+        54,
+        57
+      ],
+      [
+        45,
+        52,
+        57,
+        59
+      ]
+    ],
+    "melody": [
+      [
+        78,
+        81,
+        85,
+        83,
+        81,
+        78,
+        76,
+        78
+      ],
+      [
+        78,
+        73,
+        76,
+        78,
+        81,
+        78,
+        76,
+        73
+      ],
+      [
+        74,
+        78,
+        81,
+        85,
+        83,
+        81,
+        78,
+        74
+      ],
+      [
+        76,
+        81,
+        83,
+        85,
+        88,
+        85,
+        83,
+        81
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Prism Drift",
+    "parentBpm": 112,
+    "parentFile": "../2026-10-27-stage-bgm/crystal-gates.wav",
+    "durationSeconds": 22.0765,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 1084,
+    "peak": 0.84,
+    "rms": 0.14821370086896976,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "crystal-gates.wav",
+    "status": "approved-direction-pending-integration",
+    "parentDurationSeconds": 18.042875
+  },
+  {
+    "id": "industrial-void",
+    "title": "Assembly Lockdown",
+    "bpm": 144,
+    "color": "#ffad58",
+    "description": "기계적인 저음 리프와 금속음을 유지하고, 끊어 치는 베이스와 연타를 강화",
+    "character": "machine",
+    "lead": "pulse",
+    "chords": [
+      [
+        40,
+        47,
+        50
+      ],
+      [
+        40,
+        47,
+        52
+      ],
+      [
+        36,
+        43,
+        47
+      ],
+      [
+        38,
+        45,
+        48
+      ]
+    ],
+    "melody": [
+      [
+        64,
+        null,
+        67,
+        64,
+        null,
+        62,
+        64,
+        null
+      ],
+      [
+        64,
+        67,
+        null,
+        71,
+        67,
+        null,
+        64,
+        null
+      ],
+      [
+        60,
+        null,
+        67,
+        63,
+        null,
+        60,
+        58,
+        null
+      ],
+      [
+        62,
+        65,
+        null,
+        69,
+        65,
+        62,
+        null,
+        59
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Cold Assembly",
+    "parentBpm": 120,
+    "parentFile": "../2026-10-27-stage-bgm/industrial-void.wav",
+    "durationSeconds": 20.9,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 784,
+    "peak": 0.8334167046364972,
+    "rms": 0.15,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "industrial-void.wav",
+    "status": "approved-direction-pending-integration",
+    "parentDurationSeconds": 16.9
+  },
+  {
+    "id": "signal-monoliths",
+    "title": "Protocol Breach",
+    "bpm": 150,
+    "color": "#df70ff",
+    "description": "신호 같은 선율에 촘촘한 펄스와 주고받는 응답 선율을 더한 전투 버전",
+    "character": "signal",
+    "lead": "pulse",
+    "chords": [
+      [
+        48,
+        55,
+        58,
+        62
+      ],
+      [
+        53,
+        60,
+        63,
+        67
+      ],
+      [
+        46,
+        53,
+        57,
+        60
+      ],
+      [
+        43,
+        50,
+        55,
+        62
+      ]
+    ],
+    "melody": [
+      [
+        72,
+        79,
+        74,
+        82,
+        79,
+        74,
+        77,
+        79
+      ],
+      [
+        75,
+        79,
+        84,
+        82,
+        79,
+        75,
+        74,
+        72
+      ],
+      [
+        74,
+        77,
+        81,
+        84,
+        81,
+        77,
+        74,
+        69
+      ],
+      [
+        74,
+        79,
+        86,
+        84,
+        82,
+        79,
+        77,
+        74
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Echo Protocol",
+    "parentBpm": 126,
+    "parentFile": "../2026-10-27-stage-bgm/signal-monoliths.wav",
+    "durationSeconds": 20.100041666666666,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 1084,
+    "peak": 0.84,
+    "rms": 0.14719640486789104,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "signal-monoliths.wav",
+    "status": "approved-direction-pending-integration",
+    "parentDurationSeconds": 16.138125
+  },
+  {
+    "id": "gravity-well",
+    "title": "Horizon Collapse",
+    "bpm": 116,
+    "color": "#b992ff",
+    "description": "어두운 드론과 하강 음형 위로 다가오는 저음 맥동과 날카로운 타격음을 추가",
+    "character": "gravity",
+    "lead": "soft",
+    "chords": [
+      [
+        37,
+        44,
+        51,
+        56
+      ],
+      [
+        33,
+        40,
+        47,
+        52
+      ],
+      [
+        30,
+        37,
+        44,
+        49
+      ],
+      [
+        32,
+        39,
+        47,
+        54
+      ]
+    ],
+    "melody": [
+      [
+        80,
+        null,
+        75,
+        null,
+        73,
+        null,
+        68,
+        null
+      ],
+      [
+        76,
+        null,
+        73,
+        71,
+        null,
+        68,
+        null,
+        64
+      ],
+      [
+        73,
+        null,
+        68,
+        null,
+        66,
+        null,
+        61,
+        null
+      ],
+      [
+        75,
+        71,
+        null,
+        68,
+        null,
+        66,
+        63,
+        null
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Event Horizon",
+    "parentBpm": 92,
+    "parentFile": "../2026-10-27-stage-bgm/gravity-well.wav",
+    "durationSeconds": 25.727625,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 844,
+    "peak": 0.84,
+    "rms": 0.14707471582012877,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "gravity-well.wav",
+    "status": "approved-direction-pending-integration",
+    "parentDurationSeconds": 21.769583333333333
+  },
+  {
+    "id": "abyssal-beast",
+    "title": "Abyss Awakening",
+    "bpm": 128,
+    "color": "#62f1ee",
+    "description": "물결 같은 음색과 선율을 남기고, 깊은 박동과 빠른 구절로 긴박감을 강화",
+    "character": "abyss",
+    "lead": "water",
+    "chords": [
+      [
+        38,
+        45,
+        53,
+        57
+      ],
+      [
+        34,
+        41,
+        48,
+        53
+      ],
+      [
+        31,
+        38,
+        45,
+        50
+      ],
+      [
+        33,
+        40,
+        48,
+        55
+      ]
+    ],
+    "melody": [
+      [
+        74,
+        77,
+        null,
+        81,
+        79,
+        null,
+        77,
+        72
+      ],
+      [
+        77,
+        null,
+        74,
+        72,
+        69,
+        null,
+        65,
+        69
+      ],
+      [
+        70,
+        74,
+        null,
+        77,
+        76,
+        null,
+        74,
+        69
+      ],
+      [
+        72,
+        76,
+        79,
+        null,
+        81,
+        79,
+        null,
+        76
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Bioluminescence",
+    "parentBpm": 104,
+    "parentFile": "../2026-10-27-stage-bgm/abyssal-beast.wav",
+    "durationSeconds": 23.4,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 871,
+    "peak": 0.817110821786868,
+    "rms": 0.15,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "abyssal-beast.wav",
+    "status": "approved-direction-pending-integration",
+    "parentDurationSeconds": 19.361541666666668
+  },
+  {
+    "id": "solar-forge",
+    "title": "Helios Meltdown",
+    "bpm": 158,
+    "color": "#ffb24f",
+    "description": "밝은 전자 브라스를 유지하고 질주하는 베이스와 연속 드럼 필인으로 열기를 강화",
+    "character": "solar",
+    "lead": "brass",
+    "chords": [
+      [
+        45,
+        52,
+        57,
+        60
+      ],
+      [
+        41,
+        48,
+        53,
+        57
+      ],
+      [
+        48,
+        55,
+        60,
+        64
+      ],
+      [
+        43,
+        50,
+        55,
+        59
+      ]
+    ],
+    "melody": [
+      [
+        76,
+        76,
+        81,
+        79,
+        76,
+        72,
+        74,
+        76
+      ],
+      [
+        77,
+        81,
+        84,
+        81,
+        77,
+        76,
+        72,
+        69
+      ],
+      [
+        79,
+        79,
+        84,
+        83,
+        79,
+        76,
+        79,
+        81
+      ],
+      [
+        83,
+        81,
+        79,
+        76,
+        74,
+        79,
+        83,
+        86
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Helios Run",
+    "parentBpm": 138,
+    "parentFile": "../2026-10-27-stage-bgm/solar-forge.wav",
+    "durationSeconds": 19.127875,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 910,
+    "peak": 0.84,
+    "rms": 0.144503011440361,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "solar-forge.wav",
+    "status": "approved-direction-pending-integration",
+    "parentDurationSeconds": 14.813083333333333
+  }
+]

@@ -137,7 +137,7 @@ describe('mobile and keyboard controls', () => {
     expect(input).toHaveBeenCalledTimes(before.challenge.sequence.length);
     expect(lift).not.toHaveBeenCalled();
     expect(dash).not.toHaveBeenCalled();
-    expect(root.querySelector('.boss-health-text').textContent).toBe('1 / 3');
+    expect(root.querySelector('.boss-health-text').textContent).toBe('2 / 3');
     expect(audioManager.play.mock.calls.filter(([event]) => event === 'challengeSuccess')).toHaveLength(1);
     currentTime += 100;
     frames.shift()(currentTime);

@@ -1,0 +1,514 @@
+[
+  {
+    "id": "crystal-gates",
+    "title": "Prism Drift",
+    "bpm": 112,
+    "color": "#8bd7ff",
+    "description": "맑은 벨과 넓게 퍼지는 패드, 가볍게 달리는 비트",
+    "character": "bright",
+    "lead": "bell",
+    "chords": [
+      [
+        50,
+        57,
+        61,
+        66
+      ],
+      [
+        47,
+        54,
+        57,
+        61
+      ],
+      [
+        43,
+        50,
+        54,
+        57
+      ],
+      [
+        45,
+        52,
+        57,
+        59
+      ]
+    ],
+    "melody": [
+      [
+        78,
+        81,
+        85,
+        83,
+        81,
+        78,
+        76,
+        78
+      ],
+      [
+        78,
+        73,
+        76,
+        78,
+        81,
+        78,
+        76,
+        73
+      ],
+      [
+        74,
+        78,
+        81,
+        85,
+        83,
+        81,
+        78,
+        74
+      ],
+      [
+        76,
+        81,
+        83,
+        85,
+        88,
+        85,
+        83,
+        81
+      ]
+    ],
+    "durationSeconds": 18.042875,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 424,
+    "peak": 0.84,
+    "rms": 0.13790118342371446,
+    "file": "crystal-gates.wav",
+    "status": "approved-direction-pending-integration"
+  },
+  {
+    "id": "industrial-void",
+    "title": "Cold Assembly",
+    "bpm": 120,
+    "color": "#ffad58",
+    "description": "낮게 끊기는 베이스와 금속 타격음, 묵직한 기계 리듬",
+    "character": "machine",
+    "lead": "pulse",
+    "chords": [
+      [
+        40,
+        47,
+        50
+      ],
+      [
+        40,
+        47,
+        52
+      ],
+      [
+        36,
+        43,
+        47
+      ],
+      [
+        38,
+        45,
+        48
+      ]
+    ],
+    "melody": [
+      [
+        64,
+        null,
+        67,
+        64,
+        null,
+        62,
+        64,
+        null
+      ],
+      [
+        64,
+        67,
+        null,
+        71,
+        67,
+        null,
+        64,
+        null
+      ],
+      [
+        60,
+        null,
+        67,
+        63,
+        null,
+        60,
+        58,
+        null
+      ],
+      [
+        62,
+        65,
+        null,
+        69,
+        65,
+        62,
+        null,
+        59
+      ]
+    ],
+    "durationSeconds": 16.9,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 258,
+    "peak": 0.8197086264625904,
+    "rms": 0.14,
+    "file": "industrial-void.wav",
+    "status": "approved-direction-pending-integration"
+  },
+  {
+    "id": "signal-monoliths",
+    "title": "Echo Protocol",
+    "bpm": 126,
+    "color": "#df70ff",
+    "description": "짧은 신스 신호가 교차하는 아르페지오와 선명한 전자 비트",
+    "character": "signal",
+    "lead": "pulse",
+    "chords": [
+      [
+        48,
+        55,
+        58,
+        62
+      ],
+      [
+        53,
+        60,
+        63,
+        67
+      ],
+      [
+        46,
+        53,
+        57,
+        60
+      ],
+      [
+        43,
+        50,
+        55,
+        62
+      ]
+    ],
+    "melody": [
+      [
+        72,
+        79,
+        74,
+        82,
+        79,
+        74,
+        77,
+        79
+      ],
+      [
+        75,
+        79,
+        84,
+        82,
+        79,
+        75,
+        74,
+        72
+      ],
+      [
+        74,
+        77,
+        81,
+        84,
+        81,
+        77,
+        74,
+        69
+      ],
+      [
+        74,
+        79,
+        86,
+        84,
+        82,
+        79,
+        77,
+        74
+      ]
+    ],
+    "durationSeconds": 16.138125,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 424,
+    "peak": 0.8399999999999999,
+    "rms": 0.13350279233417145,
+    "file": "signal-monoliths.wav",
+    "status": "approved-direction-pending-integration"
+  },
+  {
+    "id": "gravity-well",
+    "title": "Event Horizon",
+    "bpm": 92,
+    "color": "#b992ff",
+    "description": "공간감 있는 낮은 드론과 하강하는 음형, 느리고 긴장감 있는 박자",
+    "character": "gravity",
+    "lead": "soft",
+    "chords": [
+      [
+        37,
+        44,
+        51,
+        56
+      ],
+      [
+        33,
+        40,
+        47,
+        52
+      ],
+      [
+        30,
+        37,
+        44,
+        49
+      ],
+      [
+        32,
+        39,
+        47,
+        54
+      ]
+    ],
+    "melody": [
+      [
+        80,
+        null,
+        75,
+        null,
+        73,
+        null,
+        68,
+        null
+      ],
+      [
+        76,
+        null,
+        73,
+        71,
+        null,
+        68,
+        null,
+        64
+      ],
+      [
+        73,
+        null,
+        68,
+        null,
+        66,
+        null,
+        61,
+        null
+      ],
+      [
+        75,
+        71,
+        null,
+        68,
+        null,
+        66,
+        63,
+        null
+      ]
+    ],
+    "durationSeconds": 21.769583333333333,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 208,
+    "peak": 0.8400000000000001,
+    "rms": 0.11528220728442869,
+    "file": "gravity-well.wav",
+    "status": "approved-direction-pending-integration"
+  },
+  {
+    "id": "abyssal-beast",
+    "title": "Bioluminescence",
+    "bpm": 104,
+    "color": "#62f1ee",
+    "description": "물결처럼 흔들리는 음색과 둥근 베이스, 신비롭고 어두운 분위기",
+    "character": "abyss",
+    "lead": "water",
+    "chords": [
+      [
+        38,
+        45,
+        53,
+        57
+      ],
+      [
+        34,
+        41,
+        48,
+        53
+      ],
+      [
+        31,
+        38,
+        45,
+        50
+      ],
+      [
+        33,
+        40,
+        48,
+        55
+      ]
+    ],
+    "melody": [
+      [
+        74,
+        77,
+        null,
+        81,
+        79,
+        null,
+        77,
+        72
+      ],
+      [
+        77,
+        null,
+        74,
+        72,
+        69,
+        null,
+        65,
+        69
+      ],
+      [
+        70,
+        74,
+        null,
+        77,
+        76,
+        null,
+        74,
+        69
+      ],
+      [
+        72,
+        76,
+        79,
+        null,
+        81,
+        79,
+        null,
+        76
+      ]
+    ],
+    "durationSeconds": 19.361541666666668,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 232,
+    "peak": 0.7454401724052057,
+    "rms": 0.14,
+    "file": "abyssal-beast.wav",
+    "status": "approved-direction-pending-integration"
+  },
+  {
+    "id": "solar-forge",
+    "title": "Helios Run",
+    "bpm": 138,
+    "color": "#ffb24f",
+    "description": "빠른 드럼과 전자 브라스, 앞으로 밀어붙이는 밝고 강한 추진감",
+    "character": "solar",
+    "lead": "brass",
+    "chords": [
+      [
+        45,
+        52,
+        57,
+        60
+      ],
+      [
+        41,
+        48,
+        53,
+        57
+      ],
+      [
+        48,
+        55,
+        60,
+        64
+      ],
+      [
+        43,
+        50,
+        55,
+        59
+      ]
+    ],
+    "melody": [
+      [
+        76,
+        76,
+        81,
+        79,
+        76,
+        72,
+        74,
+        76
+      ],
+      [
+        77,
+        81,
+        84,
+        81,
+        77,
+        76,
+        72,
+        69
+      ],
+      [
+        79,
+        79,
+        84,
+        83,
+        79,
+        76,
+        79,
+        81
+      ],
+      [
+        83,
+        81,
+        79,
+        76,
+        74,
+        79,
+        83,
+        86
+      ]
+    ],
+    "durationSeconds": 14.813083333333333,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 340,
+    "peak": 0.8399999999999999,
+    "rms": 0.13950148673507215,
+    "file": "solar-forge.wav",
+    "status": "approved-direction-pending-integration"
+  }
+]

@@ -57,6 +57,8 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
     setMuted: vi.fn(),
     setMusicMode: vi.fn(),
     setMusicScene: vi.fn(),
+    setMusicDucked: vi.fn(),
+    resetRun: vi.fn(),
     pauseMusic: vi.fn(),
     resumeMusic: vi.fn(),
     play: vi.fn(),
@@ -663,8 +665,40 @@ describe('app controller product flow', () => {
 
     harness.snapshot.difficulty = { isWarning: true, isBoss: true };
     harness.frames.shift()(48);
-    expect(harness.audioManager.play).toHaveBeenCalledWith('boss');
-    expect(document.querySelector('#live-region').textContent).toContain('BOSS WARNING');
+    expect(harness.audioManager.play).not.toHaveBeenCalledWith('boss');
+    expect(document.querySelector('#live-region').textContent).toContain('BOSS');
+  });
+
+  it('plays one siren during preview, starts boss music with entrance and resets cues for a new run', async () => {
+    harness = makeHarness();
+    harness.controller.mount();
+    await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');
+    harness.controller.dispatch('START_PLAYING');
+    expect(harness.audioManager.resetRun).toHaveBeenCalledOnce();
+    harness.snapshot.bossPreview = { warningIndex: 2, pattern: 'slow', remainingSeconds: 1.5 };
+    harness.frames.shift()(16);
+    harness.frames.shift()(32);
+    expect(harness.audioManager.play.mock.calls.filter(([name]) => name === 'bossEntry')).toHaveLength(1);
+    expect(harness.audioManager.setMusicDucked).toHaveBeenLastCalledWith(true);
+    expect(harness.audioManager.setMusicMode).not.toHaveBeenCalledWith('boss');
+    const firstId = harness.audioManager.play.mock.calls.find(([name]) => name === 'bossEntry')[1].id;
+    harness.snapshot.bossPreview = null;
+    harness.snapshot.difficulty = { isBoss: true, isWarning: true };
+    harness.snapshot.boss = { hp: 3, maxHp: 3, entranceRemainingSeconds: 1 };
+    harness.frames.shift()(48);
+    expect(harness.renderer.render.mock.calls.at(-1)[0].boss.entranceRemainingSeconds).toBe(1);
+    expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('boss');
+    expect(harness.audioManager.setMusicDucked).toHaveBeenLastCalledWith(false);
+    expect(harness.audioManager.play).not.toHaveBeenCalledWith('boss');
+    harness.controller.dispatch('GAME_OVER');
+    harness.snapshot.boss = null;
+    harness.snapshot.difficulty = {};
+    harness.snapshot.bossPreview = { warningIndex: 2, pattern: 'slow', remainingSeconds: 1.5 };
+    harness.controller.dispatch('RESTART_IMMEDIATE');
+    const entries = harness.audioManager.play.mock.calls.filter(([name]) => name === 'bossEntry');
+    expect(entries).toHaveLength(2);
+    expect(entries[1][1].id).not.toBe(firstId);
   });
 
   it('synchronizes menu, gameplay, warning, boss, pause, and game-over music transitions', async () => {

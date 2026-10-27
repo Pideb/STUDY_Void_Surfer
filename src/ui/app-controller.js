@@ -111,6 +111,8 @@ export function createAppController(deps) {
   let previousBoss = null;
   let challengeRunId = 0;
   let previousChallengeActive = false;
+  let lastBossPreviewId = null;
+  let audioRunId = 0;
   let rankingObserver = null;
   let rankingRequestId = 0;
   let rankingPersonalRequestId = 0;
@@ -477,15 +479,20 @@ export function createAppController(deps) {
       audioManager.play('warning');
       announce(liveRegion, 'WARNING 구간이 시작되었습니다. 특수 벽 대시 타이밍에 주의하세요.');
     } else if (nextMode === 'boss') {
-      audioManager.play('boss');
       audioManager.setMusicMode?.('boss');
-      announce(liveRegion, 'BOSS WARNING. 속도 변화와 특수 벽에 주의하세요.');
+      announce(liveRegion, 'BOSS 구간이 시작되었습니다. 속도 변화와 특수 벽에 주의하세요.');
     } else if (previousMode === 'boss') {
       audioManager.setMusicMode?.('gameplay');
     }
   }
 
   function syncCombatAudio(snapshot) {
+    const previewId = snapshot?.bossPreview?.warningIndex ?? null;
+    if (previewId !== lastBossPreviewId) {
+      lastBossPreviewId = previewId;
+      audioManager.setMusicDucked?.(previewId !== null);
+      if (previewId !== null) audioManager.play('bossEntry', { id: `${audioRunId}:${previewId}` });
+    }
     const stageId = snapshot?.stage?.id ?? null;
     if (stageId !== lastStageId) {
       lastStageId = stageId;
@@ -581,15 +588,19 @@ export function createAppController(deps) {
   function beginPlaying() {
     state.snapshot = null;
     lastDifficultyMode = 'normal';
+    audioRunId += 1;
+    lastBossPreviewId = null;
+    audioManager.resetRun?.();
     gameEngine.setGuestMode?.(!state.user);
     gameEngine.setInvincibilityEnabled?.(isDesignatedAdmin(state.user) && state.invincibilityEnabled);
     gameEngine.setAccountBestScore?.(state.accountBestScore);
     gameEngine.setAircraft?.(state.selectedAircraftId);
     gameEngine.start();
+    state.snapshot = gameEngine.getSnapshot();
+    lastStageId = state.snapshot?.stage?.id ?? null;
+    if (lastStageId) audioManager.setMusicScene?.(lastStageId);
     audioManager.setMusicMode?.('gameplay');
     Promise.resolve(audioManager.unlock?.()).catch(() => {});
-    state.snapshot = gameEngine.getSnapshot();
-    lastStageId = null;
     lastAttackId = null;
     lastAttackPhase = null;
     previousBoss = null;

@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VOID SURFER · 스테이지 BGM 시안</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, "Malgun Gothic", sans-serif; color: #eef4ff; background: #080d16; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 40px 24px 64px; line-height: 1.6; }
+    main { max-width: 1140px; margin: auto; }
+    a { color: #a7d9ff; }
+    .skip { position: absolute; top: -80px; }
+    .skip:focus { top: 8px; }
+    header { max-width: 820px; margin-bottom: 24px; }
+    .eyebrow { color: #a7b5c9; font-size: 12px; letter-spacing: .16em; font-weight: 700; }
+    h1 { margin: 8px 0 12px; font-size: clamp(28px, 5vw, 46px); line-height: 1.2; letter-spacing: -.04em; }
+    header p { color: #aebbd0; margin: 0; }
+    .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    button { background: #e1efff; color: #0a192c; padding: 10px 18px; border: 1px solid transparent; border-radius: 8px; font: inherit; font-weight: 650; cursor: pointer; }
+    button.secondary { color: #dde8f8; background: #162031; border-color: #2b394e; }
+    button:hover { filter: brightness(1.1); }
+    button:focus-visible, a:focus-visible { outline: 3px solid #8ad8ff; outline-offset: 4px; }
+    #play-status { color: #afc9df; font-size: 14px; min-height: 24px; }
+    .tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    article { min-width: 0; border: 1px solid #273247; border-radius: 12px; overflow: hidden; background: #111a29; }
+    article.is-playing { border-color: #aacbff; }
+    .art { position: relative; height: 160px; background: #0b1322; overflow: hidden; }
+    .art img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.66); }
+    .number { position: absolute; top: 12px; left: 16px; color: #fff; font-size: 16px; font-weight: 700; }
+    .stage { position: absolute; bottom: 14px; left: 16px; color: #fff; font-size: 18px; font-weight: 750; letter-spacing: .04em; text-shadow: 0 2px 6px #000; }
+    .content { padding: 18px 20px 20px; }
+    h2 { font-size: 23px; margin: 0 0 5px; line-height: 1.3; }
+    .metadata { margin: 0 0 10px; color: #97acc7; font-size: 12px; letter-spacing: .03em; }
+    .description { margin: 0 0 16px; font-size: 14px; color: #c0ccdc; min-height: 45px; }
+    audio { display: block; width: 100%; height: 40px; }
+    .download { display: inline-block; margin-top: 12px; font-size: 12px; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    footer { color: #93a4bc; font-size: 13px; margin-top: 28px; }
+    @media (max-width: 640px) { body { padding: 24px 16px 40px; } .tracks { grid-template-columns: 1fr; } .description { min-height: 0; } }
+    @media print { button, audio { display: none; } article { break-inside: avoid; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#tracks">음악 목록으로 이동</a>
+  <main>
+    <header>
+      <div class="eyebrow">VOID SURFER / SOUND STUDY 01</div>
+      <h1>여섯 지역, 여섯 가지 비행감</h1>
+      <p>스테이지별로 새로 작곡한 신스 BGM 시안입니다. 각 곡은 약 15~22초이며, 아래 재생 버튼으로 직접 들어볼 수 있습니다. 아직 게임에 적용되지 않았습니다.</p>
+    </header>
+    <section aria-label="재생 도구">
+      <div class="toolbar">
+        <button id="play-all" type="button">6곡 이어 듣기</button>
+        <button id="stop-all" class="secondary" type="button">전체 정지</button>
+        <span id="play-status" role="status" aria-live="polite">듣고 싶은 곡의 ▶ 버튼을 눌러주세요.</span>
+      </div>
+    </section>
+    <section id="tracks" class="tracks" aria-label="스테이지 BGM 샘플"></section>
+    <footer>볼륨은 처음에 55%로 설정됩니다. 한 곡을 재생하면 다른 곡은 일시정지됩니다. WAV 파일을 내려받아 별도 플레이어에서도 들을 수 있습니다.</footer>
+  </main>
+  <script>
+    const samples = [
+  {
+    "id": "crystal-gates",
+    "title": "Prism Drift",
+    "bpm": 112,
+    "color": "#8bd7ff",
+    "description": "맑은 벨과 넓게 퍼지는 패드, 가볍게 달리는 비트",
+    "character": "bright",
+    "lead": "bell",
+    "chords": [
+      [
+        50,
+        57,
+        61,
+        66
+      ],
+      [
+        47,
+        54,
+        57,
+        61
+      ],
+      [
+        43,
+        50,
+        54,
+        57
+      ],
+      [
+        45,
+        52,
+        57,
+        59
+      ]
+    ],
+    "melody": [
+      [
+        78,
+        81,
+        85,
+        83,
+        81,
+        78,
+        76,
+        78
+      ],
+      [
+        78,
+        73,
+        76,
+        78,
+        81,
+        78,
+        76,
+        73
+      ],
+      [
+        74,
+        78,
+        81,
+        85,
+        83,
+        81,
+        78,
+        74
+      ],
+      [
+        76,
+        81,
+        83,
+        85,
+        88,
+        85,
+        83,
+        81
+      ]
+    ],
+    "durationSeconds": 18.042875,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 424,
+    "peak": 0.84,
+    "rms": 0.13790118342371446,
+    "file": "crystal-gates.wav",
+    "status": "preview-awaiting-listening-approval"
+  },
+  {
+    "id": "industrial-void",
+    "title": "Cold Assembly",
+    "bpm": 120,
+    "color": "#ffad58",
+    "description": "낮게 끊기는 베이스와 금속 타격음, 묵직한 기계 리듬",
+    "character": "machine",
+    "lead": "pulse",
+    "chords": [
+      [
+        40,
+        47,
+        50
+      ],
+      [
+        40,
+        47,
+        52
+      ],
+      [
+        36,
+        43,
+        47
+      ],
+      [
+        38,
+        45,
+        48
+      ]
+    ],
+    "melody": [
+      [
+        64,
+        null,
+        67,
+        64,
+        null,
+        62,
+        64,
+        null
+      ],
+      [
+        64,
+        67,
+        null,
+        71,
+        67,
+        null,
+        64,
+        null
+      ],
+      [
+        60,
+        null,
+        67,
+        63,
+        null,
+        60,
+        58,
+        null
+      ],
+      [
+        62,
+        65,
+        null,
+        69,
+        65,
+        62,
+        null,
+        59
+      ]
+    ],
+    "durationSeconds": 16.9,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 258,
+    "peak": 0.8197086264625904,
+    "rms": 0.14,
+    "file": "industrial-void.wav",
+    "status": "preview-awaiting-listening-approval"
+  },
+  {
+    "id": "signal-monoliths",
+    "title": "Echo Protocol",
+    "bpm": 126,
+    "color": "#df70ff",
+    "description": "짧은 신스 신호가 교차하는 아르페지오와 선명한 전자 비트",
+    "character": "signal",
+    "lead": "pulse",
+    "chords": [
+      [
+        48,
+        55,
+        58,
+        62
+      ],
+      [
+        53,
+        60,
+        63,
+        67
+      ],
+      [
+        46,
+        53,
+        57,
+        60
+      ],
+      [
+        43,
+        50,
+        55,
+        62
+      ]
+    ],
+    "melody": [
+      [
+        72,
+        79,
+        74,
+        82,
+        79,
+        74,
+        77,
+        79
+      ],
+      [
+        75,
+        79,
+        84,
+        82,
+        79,
+        75,
+        74,
+        72
+      ],
+      [
+        74,
+        77,
+        81,
+        84,
+        81,
+        77,
+        74,
+        69
+      ],
+      [
+        74,
+        79,
+        86,
+        84,
+        82,
+        79,
+        77,
+        74
+      ]
+    ],
+    "durationSeconds": 16.138125,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 424,
+    "peak": 0.8399999999999999,
+    "rms": 0.13350279233417145,
+    "file": "signal-monoliths.wav",
+    "status": "preview-awaiting-listening-approval"
+  },
+  {
+    "id": "gravity-well",
+    "title": "Event Horizon",
+    "bpm": 92,
+    "color": "#b992ff",
+    "description": "공간감 있는 낮은 드론과 하강하는 음형, 느리고 긴장감 있는 박자",
+    "character": "gravity",
+    "lead": "soft",
+    "chords": [
+      [
+        37,
+        44,
+        51,
+        56
+      ],
+      [
+        33,
+        40,
+        47,
+        52
+      ],
+      [
+        30,
+        37,
+        44,
+        49
+      ],
+      [
+        32,
+        39,
+        47,
+        54
+      ]
+    ],
+    "melody": [
+      [
+        80,
+        null,
+        75,
+        null,
+        73,
+        null,
+        68,
+        null
+      ],
+      [
+        76,
+        null,
+        73,
+        71,
+        null,
+        68,
+        null,
+        64
+      ],
+      [
+        73,
+        null,
+        68,
+        null,
+        66,
+        null,
+        61,
+        null
+      ],
+      [
+        75,
+        71,
+        null,
+        68,
+        null,
+        66,
+        63,
+        null
+      ]
+    ],
+    "durationSeconds": 21.769583333333333,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 208,
+    "peak": 0.8400000000000001,
+    "rms": 0.11528220728442869,
+    "file": "gravity-well.wav",
+    "status": "preview-awaiting-listening-approval"
+  },
+  {
+    "id": "abyssal-beast",
+    "title": "Bioluminescence",
+    "bpm": 104,
+    "color": "#62f1ee",
+    "description": "물결처럼 흔들리는 음색과 둥근 베이스, 신비롭고 어두운 분위기",
+    "character": "abyss",
+    "lead": "water",
+    "chords": [
+      [
+        38,
+        45,
+        53,
+        57
+      ],
+      [
+        34,
+        41,
+        48,
+        53
+      ],
+      [
+        31,
+        38,
+        45,
+        50
+      ],
+      [
+        33,
+        40,
+        48,
+        55
+      ]
+    ],
+    "melody": [
+      [
+        74,
+        77,
+        null,
+        81,
+        79,
+        null,
+        77,
+        72
+      ],
+      [
+        77,
+        null,
+        74,
+        72,
+        69,
+        null,
+        65,
+        69
+      ],
+      [
+        70,
+        74,
+        null,
+        77,
+        76,
+        null,
+        74,
+        69
+      ],
+      [
+        72,
+        76,
+        79,
+        null,
+        81,
+        79,
+        null,
+        76
+      ]
+    ],
+    "durationSeconds": 19.361541666666668,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 232,
+    "peak": 0.7454401724052057,
+    "rms": 0.14,
+    "file": "abyssal-beast.wav",
+    "status": "preview-awaiting-listening-approval"
+  },
+  {
+    "id": "solar-forge",
+    "title": "Helios Run",
+    "bpm": 138,
+    "color": "#ffb24f",
+    "description": "빠른 드럼과 전자 브라스, 앞으로 밀어붙이는 밝고 강한 추진감",
+    "character": "solar",
+    "lead": "brass",
+    "chords": [
+      [
+        45,
+        52,
+        57,
+        60
+      ],
+      [
+        41,
+        48,
+        53,
+        57
+      ],
+      [
+        48,
+        55,
+        60,
+        64
+      ],
+      [
+        43,
+        50,
+        55,
+        59
+      ]
+    ],
+    "melody": [
+      [
+        76,
+        76,
+        81,
+        79,
+        76,
+        72,
+        74,
+        76
+      ],
+      [
+        77,
+        81,
+        84,
+        81,
+        77,
+        76,
+        72,
+        69
+      ],
+      [
+        79,
+        79,
+        84,
+        83,
+        79,
+        76,
+        79,
+        81
+      ],
+      [
+        83,
+        81,
+        79,
+        76,
+        74,
+        79,
+        83,
+        86
+      ]
+    ],
+    "durationSeconds": 14.813083333333333,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 340,
+    "peak": 0.8399999999999999,
+    "rms": 0.13950148673507215,
+    "file": "solar-forge.wav",
+    "status": "preview-awaiting-listening-approval"
+  }
+];
+    const grid = document.querySelector('#tracks');
+    const status = document.querySelector('#play-status');
+    let playlist = false;
+    const players = samples.map((sample, index) => {
+      const article = document.createElement('article');
+      article.innerHTML = `<div class="art"><img alt="" src="../../../public/assets/game/stages/${sample.id}/background.png"><span class="number">0${index + 1}</span><span class="stage">${sample.id.replaceAll('-', ' ').toUpperCase()}</span></div><div class="content"><h2>${sample.title}</h2><p class="metadata">${sample.bpm} BPM · ${sample.durationSeconds.toFixed(1)}초 · 오리지널 신스</p><p class="description">${sample.description}</p><audio controls preload="metadata" aria-label="${sample.title} BGM 시안" src="${sample.file}">오디오 재생을 지원하는 브라우저에서 열어주세요.</audio><a class="download" href="${sample.file}" download>WAV 다운로드</a></div>`;
+      const audio = article.querySelector('audio');
+      audio.volume = 0.55;
+      audio.addEventListener('play', () => {
+        players.forEach((other) => { if (other !== audio) other.pause(); });
+        article.classList.add('is-playing');
+        status.textContent = `${playlist ? '이어 듣기 · ' : ''}0${index + 1} ${sample.title}`;
+      });
+      audio.addEventListener('pause', () => article.classList.remove('is-playing'));
+      audio.addEventListener('ended', () => {
+        article.classList.remove('is-playing');
+        if (playlist && index + 1 < players.length) start(index + 1);
+        else { playlist = false; status.textContent = '재생이 끝났습니다. 의견은 대화창에 남겨주세요.'; }
+      });
+      audio.addEventListener('error', () => {
+        playlist = false;
+        status.textContent = '오디오를 불러오지 못했습니다. preview.html과 WAV 파일이 같은 폴더에 있는지 확인해주세요.';
+      });
+      grid.append(article);
+      return audio;
+    });
+    async function start(index) {
+      const audio = players[index];
+      audio.currentTime = 0;
+      try { await audio.play(); }
+      catch { playlist = false; status.textContent = '재생 버튼을 직접 눌러주세요. 브라우저가 자동 재생을 제한할 수 있습니다.'; }
+    }
+    document.querySelector('#play-all').addEventListener('click', () => { playlist = true; start(0); });
+    document.querySelector('#stop-all').addEventListener('click', () => {
+      playlist = false;
+      players.forEach((audio) => { audio.pause(); audio.currentTime = 0; });
+      status.textContent = '전체 정지';
+    });
+  </script>
+</body>
+</html>

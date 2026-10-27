@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VOID SURFER · 일반곡과 보스곡 비교</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, "Malgun Gothic", sans-serif; color: #eef4ff; background: #080d16; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 40px 24px 64px; line-height: 1.6; }
+    main { max-width: 1140px; margin: auto; }
+    a { color: #a7d9ff; }
+    .skip { position: absolute; top: -80px; }
+    .skip:focus { top: 8px; }
+    header { max-width: 820px; margin-bottom: 24px; }
+    .eyebrow { color: #a7b5c9; font-size: 12px; letter-spacing: .16em; font-weight: 700; }
+    h1 { margin: 8px 0 12px; font-size: clamp(28px, 5vw, 46px); line-height: 1.2; letter-spacing: -.04em; }
+    header p { color: #aebbd0; margin: 0; }
+    .toolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 24px 0; }
+    button { background: #e1efff; color: #0a192c; padding: 10px 18px; border: 1px solid transparent; border-radius: 8px; font: inherit; font-weight: 650; cursor: pointer; }
+    button.secondary { color: #dde8f8; background: #162031; border-color: #2b394e; }
+    button:hover { filter: brightness(1.1); }
+    button:focus-visible, a:focus-visible { outline: 3px solid #8ad8ff; outline-offset: 4px; }
+    #play-status { color: #afc9df; font-size: 14px; min-height: 24px; }
+    .tracks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+    article { min-width: 0; border: 1px solid #273247; border-radius: 12px; overflow: hidden; background: #111a29; }
+    article.is-playing { border-color: #aacbff; }
+    .art { position: relative; height: 160px; background: #0b1322; overflow: hidden; }
+    .art img { width: 100%; height: 100%; object-fit: cover; filter: brightness(.66); }
+    .number { position: absolute; top: 12px; left: 16px; color: #fff; font-size: 16px; font-weight: 700; }
+    .stage { position: absolute; bottom: 14px; left: 16px; color: #fff; font-size: 18px; font-weight: 750; letter-spacing: .04em; text-shadow: 0 2px 6px #000; }
+    .content { padding: 18px 20px 20px; }
+    h2 { font-size: 23px; margin: 0 0 5px; line-height: 1.3; }
+    .metadata { margin: 0 0 10px; color: #97acc7; font-size: 12px; letter-spacing: .03em; }
+    .description { margin: 0 0 16px; font-size: 14px; color: #c0ccdc; min-height: 45px; }
+    audio { display: block; width: 100%; height: 40px; }
+    .download { display: inline-block; margin-top: 12px; font-size: 12px; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    footer { color: #93a4bc; font-size: 13px; margin-top: 28px; }
+    @media (max-width: 640px) { body { padding: 24px 16px 40px; } .tracks { grid-template-columns: 1fr; } .description { min-height: 0; } }
+    @media print { button, audio { display: none; } article { break-inside: avoid; } }
+  
+    .listen-row { margin-top: 14px; padding-top: 12px; border-top: 1px solid #2a3649; }
+    .listen-title { display: flex; gap: 8px; justify-content: space-between; flex-wrap: wrap; margin: 0 0 8px; }
+    .listen-title span { color: #a2b5cd; font-size: 12px; }
+    .listen-title strong { color: #e8f3ff; font-size: 13px; }
+    .listen-row.boss .listen-title strong { color: #ffbd86; }
+    .listen-row.is-current { border-top-color: #a7d9ff; }
+    .download { margin-top: 5px; }
+    .description { min-height: 66px; }
+    @media (max-width: 640px) { .description { min-height: 0; } }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#tracks">음악 목록으로 이동</a>
+  <main>
+    <header>
+      <div class="eyebrow">VOID SURFER / SOUND STUDY 02</div>
+      <h1>같은 지역, 전투가 시작될 때</h1>
+      <p>확정한 일반곡의 선율과 음색을 유지하면서 보스곡을 새로 편곡했습니다. 각 보스곡은 약 19~26초의 시안입니다. 일반곡과 비교해 들어보세요. 아직 게임에는 연결되지 않았습니다.</p>
+    </header>
+    <section aria-label="재생 도구">
+      <div class="toolbar">
+        <button id="play-bosses" type="button">보스곡 6곡 이어 듣기</button>
+        <button id="play-pairs" class="secondary" type="button">일반 → 보스 비교 듣기</button>
+        <button id="stop-all" class="secondary" type="button">전체 정지</button>
+      </div>
+      <p id="play-status" role="status" aria-live="polite">원하는 곡의 ▶ 버튼을 눌러주세요.</p>
+    </section>
+    <section id="tracks" class="tracks" aria-label="일반곡과 보스곡 비교"></section>
+    <footer>기본 볼륨은 55%입니다. 다른 곡을 재생하면 앞의 곡은 멈춥니다. 보스곡은 원곡의 화성과 주요 선율을 유지하고, 드럼과 베이스의 밀도를 높였습니다.</footer>
+  </main>
+  <script>
+    const samples = [
+  {
+    "id": "crystal-gates",
+    "title": "Prism Overdrive",
+    "bpm": 136,
+    "color": "#8bd7ff",
+    "description": "맑은 벨을 유지하면서 빠른 아르페지오와 강한 드럼을 겹친 전투 버전",
+    "character": "bright",
+    "lead": "bell",
+    "chords": [
+      [
+        50,
+        57,
+        61,
+        66
+      ],
+      [
+        47,
+        54,
+        57,
+        61
+      ],
+      [
+        43,
+        50,
+        54,
+        57
+      ],
+      [
+        45,
+        52,
+        57,
+        59
+      ]
+    ],
+    "melody": [
+      [
+        78,
+        81,
+        85,
+        83,
+        81,
+        78,
+        76,
+        78
+      ],
+      [
+        78,
+        73,
+        76,
+        78,
+        81,
+        78,
+        76,
+        73
+      ],
+      [
+        74,
+        78,
+        81,
+        85,
+        83,
+        81,
+        78,
+        74
+      ],
+      [
+        76,
+        81,
+        83,
+        85,
+        88,
+        85,
+        83,
+        81
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Prism Drift",
+    "parentBpm": 112,
+    "parentFile": "../2026-10-27-stage-bgm/crystal-gates.wav",
+    "durationSeconds": 22.0765,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 1084,
+    "peak": 0.84,
+    "rms": 0.14821370086896976,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "crystal-gates.wav",
+    "status": "preview-awaiting-listening-approval",
+    "parentDurationSeconds": 18.042875
+  },
+  {
+    "id": "industrial-void",
+    "title": "Assembly Lockdown",
+    "bpm": 144,
+    "color": "#ffad58",
+    "description": "기계적인 저음 리프와 금속음을 유지하고, 끊어 치는 베이스와 연타를 강화",
+    "character": "machine",
+    "lead": "pulse",
+    "chords": [
+      [
+        40,
+        47,
+        50
+      ],
+      [
+        40,
+        47,
+        52
+      ],
+      [
+        36,
+        43,
+        47
+      ],
+      [
+        38,
+        45,
+        48
+      ]
+    ],
+    "melody": [
+      [
+        64,
+        null,
+        67,
+        64,
+        null,
+        62,
+        64,
+        null
+      ],
+      [
+        64,
+        67,
+        null,
+        71,
+        67,
+        null,
+        64,
+        null
+      ],
+      [
+        60,
+        null,
+        67,
+        63,
+        null,
+        60,
+        58,
+        null
+      ],
+      [
+        62,
+        65,
+        null,
+        69,
+        65,
+        62,
+        null,
+        59
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Cold Assembly",
+    "parentBpm": 120,
+    "parentFile": "../2026-10-27-stage-bgm/industrial-void.wav",
+    "durationSeconds": 20.9,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 784,
+    "peak": 0.8334167046364972,
+    "rms": 0.15,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "industrial-void.wav",
+    "status": "preview-awaiting-listening-approval",
+    "parentDurationSeconds": 16.9
+  },
+  {
+    "id": "signal-monoliths",
+    "title": "Protocol Breach",
+    "bpm": 150,
+    "color": "#df70ff",
+    "description": "신호 같은 선율에 촘촘한 펄스와 주고받는 응답 선율을 더한 전투 버전",
+    "character": "signal",
+    "lead": "pulse",
+    "chords": [
+      [
+        48,
+        55,
+        58,
+        62
+      ],
+      [
+        53,
+        60,
+        63,
+        67
+      ],
+      [
+        46,
+        53,
+        57,
+        60
+      ],
+      [
+        43,
+        50,
+        55,
+        62
+      ]
+    ],
+    "melody": [
+      [
+        72,
+        79,
+        74,
+        82,
+        79,
+        74,
+        77,
+        79
+      ],
+      [
+        75,
+        79,
+        84,
+        82,
+        79,
+        75,
+        74,
+        72
+      ],
+      [
+        74,
+        77,
+        81,
+        84,
+        81,
+        77,
+        74,
+        69
+      ],
+      [
+        74,
+        79,
+        86,
+        84,
+        82,
+        79,
+        77,
+        74
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Echo Protocol",
+    "parentBpm": 126,
+    "parentFile": "../2026-10-27-stage-bgm/signal-monoliths.wav",
+    "durationSeconds": 20.100041666666666,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 1084,
+    "peak": 0.84,
+    "rms": 0.14719640486789104,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "signal-monoliths.wav",
+    "status": "preview-awaiting-listening-approval",
+    "parentDurationSeconds": 16.138125
+  },
+  {
+    "id": "gravity-well",
+    "title": "Horizon Collapse",
+    "bpm": 116,
+    "color": "#b992ff",
+    "description": "어두운 드론과 하강 음형 위로 다가오는 저음 맥동과 날카로운 타격음을 추가",
+    "character": "gravity",
+    "lead": "soft",
+    "chords": [
+      [
+        37,
+        44,
+        51,
+        56
+      ],
+      [
+        33,
+        40,
+        47,
+        52
+      ],
+      [
+        30,
+        37,
+        44,
+        49
+      ],
+      [
+        32,
+        39,
+        47,
+        54
+      ]
+    ],
+    "melody": [
+      [
+        80,
+        null,
+        75,
+        null,
+        73,
+        null,
+        68,
+        null
+      ],
+      [
+        76,
+        null,
+        73,
+        71,
+        null,
+        68,
+        null,
+        64
+      ],
+      [
+        73,
+        null,
+        68,
+        null,
+        66,
+        null,
+        61,
+        null
+      ],
+      [
+        75,
+        71,
+        null,
+        68,
+        null,
+        66,
+        63,
+        null
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Event Horizon",
+    "parentBpm": 92,
+    "parentFile": "../2026-10-27-stage-bgm/gravity-well.wav",
+    "durationSeconds": 25.727625,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 844,
+    "peak": 0.84,
+    "rms": 0.14707471582012877,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "gravity-well.wav",
+    "status": "preview-awaiting-listening-approval",
+    "parentDurationSeconds": 21.769583333333333
+  },
+  {
+    "id": "abyssal-beast",
+    "title": "Abyss Awakening",
+    "bpm": 128,
+    "color": "#62f1ee",
+    "description": "물결 같은 음색과 선율을 남기고, 깊은 박동과 빠른 구절로 긴박감을 강화",
+    "character": "abyss",
+    "lead": "water",
+    "chords": [
+      [
+        38,
+        45,
+        53,
+        57
+      ],
+      [
+        34,
+        41,
+        48,
+        53
+      ],
+      [
+        31,
+        38,
+        45,
+        50
+      ],
+      [
+        33,
+        40,
+        48,
+        55
+      ]
+    ],
+    "melody": [
+      [
+        74,
+        77,
+        null,
+        81,
+        79,
+        null,
+        77,
+        72
+      ],
+      [
+        77,
+        null,
+        74,
+        72,
+        69,
+        null,
+        65,
+        69
+      ],
+      [
+        70,
+        74,
+        null,
+        77,
+        76,
+        null,
+        74,
+        69
+      ],
+      [
+        72,
+        76,
+        79,
+        null,
+        81,
+        79,
+        null,
+        76
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Bioluminescence",
+    "parentBpm": 104,
+    "parentFile": "../2026-10-27-stage-bgm/abyssal-beast.wav",
+    "durationSeconds": 23.4,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 871,
+    "peak": 0.817110821786868,
+    "rms": 0.15,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "abyssal-beast.wav",
+    "status": "preview-awaiting-listening-approval",
+    "parentDurationSeconds": 19.361541666666668
+  },
+  {
+    "id": "solar-forge",
+    "title": "Helios Meltdown",
+    "bpm": 158,
+    "color": "#ffb24f",
+    "description": "밝은 전자 브라스를 유지하고 질주하는 베이스와 연속 드럼 필인으로 열기를 강화",
+    "character": "solar",
+    "lead": "brass",
+    "chords": [
+      [
+        45,
+        52,
+        57,
+        60
+      ],
+      [
+        41,
+        48,
+        53,
+        57
+      ],
+      [
+        48,
+        55,
+        60,
+        64
+      ],
+      [
+        43,
+        50,
+        55,
+        59
+      ]
+    ],
+    "melody": [
+      [
+        76,
+        76,
+        81,
+        79,
+        76,
+        72,
+        74,
+        76
+      ],
+      [
+        77,
+        81,
+        84,
+        81,
+        77,
+        76,
+        72,
+        69
+      ],
+      [
+        79,
+        79,
+        84,
+        83,
+        79,
+        76,
+        79,
+        81
+      ],
+      [
+        83,
+        81,
+        79,
+        76,
+        74,
+        79,
+        83,
+        86
+      ]
+    ],
+    "boss": true,
+    "parentTitle": "Helios Run",
+    "parentBpm": 138,
+    "parentFile": "../2026-10-27-stage-bgm/solar-forge.wav",
+    "durationSeconds": 19.127875,
+    "sampleRate": 24000,
+    "channels": 2,
+    "bitsPerSample": 16,
+    "eventCount": 910,
+    "peak": 0.84,
+    "rms": 0.144503011440361,
+    "arrangement": "boss",
+    "bars": 12,
+    "file": "solar-forge.wav",
+    "status": "preview-awaiting-listening-approval",
+    "parentDurationSeconds": 14.813083333333333
+  }
+];
+    const grid = document.querySelector('#tracks');
+    const status = document.querySelector('#play-status');
+    const players = [];
+    let queue = [];
+    let queueIndex = -1;
+    let scheduledPlayer = null;
+
+    function cancelQueue() { queue = []; queueIndex = -1; scheduledPlayer = null; }
+
+    samples.forEach((sample, index) => {
+      const article = document.createElement('article');
+      article.innerHTML = '<div class="art"><img alt="" src="../../../public/assets/game/stages/' + sample.id + '/boss-background.png"><span class="number">0' + (index + 1) + '</span><span class="stage">' + sample.id.replaceAll('-', ' ').toUpperCase() + '</span></div><div class="content"><h2>' + sample.title + '</h2><p class="description">' + sample.description + '</p></div>';
+      const content = article.querySelector('.content');
+      [
+        { kind: 'normal', label: '일반곡 · 확정', title: sample.parentTitle, bpm: sample.parentBpm, duration: sample.parentDurationSeconds, file: sample.parentFile },
+        { kind: 'boss', label: '보스곡 · 시안', title: sample.title, bpm: sample.bpm, duration: sample.durationSeconds, file: sample.file },
+      ].forEach((entry) => {
+        const row = document.createElement('div');
+        row.className = 'listen-row ' + entry.kind;
+        row.innerHTML = '<p class="listen-title"><strong>' + entry.label + '</strong><span>' + entry.bpm + ' BPM · ' + entry.duration.toFixed(1) + '초</span></p><audio controls preload="metadata" src="' + entry.file + '" aria-label="' + entry.title + ' ' + entry.label + '"></audio><a class="download" href="' + entry.file + '" download>WAV 다운로드</a>';
+        const audio = row.querySelector('audio');
+        audio.volume = 0.55;
+        audio.dataset.kind = entry.kind;
+        audio.dataset.stage = sample.id;
+        const player = { audio, row, article, entry, index };
+        players.push(player);
+        audio.addEventListener('play', () => {
+          if (scheduledPlayer === player) scheduledPlayer = null;
+          else cancelQueue();
+          players.forEach((other) => { if (other !== player) other.audio.pause(); });
+          row.classList.add('is-current');
+          article.classList.add('is-playing');
+          status.textContent = '0' + (index + 1) + ' ' + entry.title + ' · ' + entry.label;
+        });
+        audio.addEventListener('pause', () => {
+          row.classList.remove('is-current'); article.classList.remove('is-playing');
+        });
+        audio.addEventListener('ended', () => {
+          row.classList.remove('is-current'); article.classList.remove('is-playing');
+          if (queue[queueIndex] === player && queueIndex + 1 < queue.length) {
+            queueIndex += 1; start(queue[queueIndex]);
+          } else { cancelQueue(); status.textContent = '재생이 끝났습니다. 의견은 대화창에 남겨주세요.'; }
+        });
+        audio.addEventListener('error', () => {
+          cancelQueue(); status.textContent = '음악 파일을 불러오지 못했습니다. 미리보기 폴더의 WAV 파일을 확인해주세요.';
+        });
+        content.append(row);
+      });
+      grid.append(article);
+    });
+
+    async function start(player) {
+      scheduledPlayer = player;
+      player.audio.currentTime = 0;
+      try { await player.audio.play(); }
+      catch { cancelQueue(); status.textContent = '곡의 재생 버튼을 직접 눌러주세요. 브라우저가 자동 재생을 제한할 수 있습니다.'; }
+    }
+    function playlist(list) {
+      queue = list; queueIndex = 0; start(queue[0]);
+    }
+    document.querySelector('#play-bosses').addEventListener('click', () => playlist(players.filter((player) => player.entry.kind === 'boss')));
+    document.querySelector('#play-pairs').addEventListener('click', () => playlist([...players]));
+    document.querySelector('#stop-all').addEventListener('click', () => {
+      cancelQueue();
+      players.forEach((player) => { player.audio.pause(); player.audio.currentTime = 0; });
+      status.textContent = '전체 정지';
+    });
+  </script>
+</body>
+</html>
