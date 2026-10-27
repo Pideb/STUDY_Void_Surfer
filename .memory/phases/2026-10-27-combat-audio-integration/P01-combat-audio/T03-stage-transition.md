@@ -38,4 +38,4 @@ Task: T03-stage-transition
 - [x] Implementation complete
 - [x] Validation passed
 - Validation: 86 focused tests/build passed; default and Velocity transitions suspend spawns and resume once.
-- commit: see task commit
+- commit: `03fb7a2`

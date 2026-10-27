@@ -44,4 +44,4 @@ Task: T01-presentation-entry
 - [x] Implementation complete
 - [x] Validation passed
 - Validation: 86 focused tests, production build and whitespace checks passed.
-- commit: see task commit
+- commit: `96707d4`

@@ -25,7 +25,7 @@ const html = `${head}<body>
     <header>
       <div class="eyebrow">VOID SURFER / SOUND STUDY 02</div>
       <h1>같은 지역, 전투가 시작될 때</h1>
-      <p>확정한 일반곡의 선율과 음색을 유지하면서 보스곡을 새로 편곡했습니다. 각 보스곡은 약 19~26초의 시안입니다. 일반곡과 비교해 들어보세요. 아직 게임에는 연결되지 않았습니다.</p>
+      <p>확정한 일반곡의 선율과 음색을 유지하면서 보스곡을 새로 편곡했습니다. 각 보스곡은 약 19~26초의 승인된 비교 시안입니다. 게임에는 같은 편곡의 반복 재생 버전이 적용되었습니다.</p>
     </header>
     <section aria-label="재생 도구">
       <div class="toolbar">

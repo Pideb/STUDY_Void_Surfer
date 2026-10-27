@@ -9,7 +9,10 @@ Apply approved HP countdown, hybrid wall, visible shock-ring dash, smooth backgr
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | in_progress | Engine/render/audio changes with regression coverage | [P01](../phases/2026-10-27-combat-audio-integration/P01-combat-audio/phase.md) |
+| P01 | done | Engine/render/audio changes with regression coverage | [P01](../phases/2026-10-27-combat-audio-integration/P01-combat-audio/phase.md) |
 
 ## Task Rationale
 Four independent validated commits: presentation/entry state, hybrid geometry, background travel/spawn lifecycle, then audio assets and playback lifecycle. Each keeps a runnable game. Preserve approved preview files and account/database configuration.
+
+## Result
+Complete. All four tasks implemented, verified and committed. Approved preview audio is archived; production loops use the same scores with wrapped tails and a 5ms boundary bridge. Guest/auth/leaderboard configuration was not modified.

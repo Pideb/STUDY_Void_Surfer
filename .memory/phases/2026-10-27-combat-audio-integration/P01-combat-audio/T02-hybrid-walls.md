@@ -40,4 +40,4 @@ Task: T02-hybrid-walls
 - [x] Validation passed
 - Validation: 104 focused tests and build passed, including 20 seeded boss clears.
 - `barrierBreakY:number|null` retains local break geometry after its transient effect.
-- commit: see task commit
+- commit: `2ff2f14`

@@ -4,13 +4,18 @@
 [Combat and Audio Integration](./plans/2026-10-27-combat-audio-integration.md)
 
 ## Active Phase
-[P01 Combat and Audio](./phases/2026-10-27-combat-audio-integration/P01-combat-audio/phase.md)
+None. All phases complete.
 
 ## Active Task
-[T04 Stage Audio](./phases/2026-10-27-combat-audio-integration/P01-combat-audio/T04-stage-audio.md)
+None. Plan complete.
 
 ## Status
-All requested previews and siren option1 approved. Boss arrival together with music added. T01 complete (86 focused tests/build passed); T02 complete (104 focused tests/build passed); T03 complete (86 focused tests/build passed); T04 active; user authorized continuing through final task.
+- T01 done (`96707d4`): HP countdown, shock-ring dash and right-edge boss entrance.
+- T02 done (`2ff2f14`): hybrid gap/dash walls and collision/render integration.
+- T03 done (`03fb7a2`): wall-speed background reveal with spawn suspension and bounded resume.
+- T04 done (`59cd9fd`): twelve loop tracks, approved siren and playback lifecycle.
+- Final validation: all 32 files / 283 tests, production build, whitespace checks and production HTTP delivery of all 13 audio assets passed.
+- Approved review sources preserved in .memory/previews; production audio rebuild: `node scripts/build-game-audio.mjs`.
 
 ## Next Step (IMPORTANT)
-Read T04, implement/validate/commit, then advance sequentially through T04. Preserve approved preview files and existing laser safety.
+No active task. Ready for playtesting via `npm run dev`: siren then boss music/entrance, HP3-to0, post-first-clear hybrid walls, shock-ring dash, and background transition with no new walls until complete.

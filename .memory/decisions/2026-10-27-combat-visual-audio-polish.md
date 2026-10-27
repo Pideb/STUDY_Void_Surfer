@@ -126,3 +126,12 @@
 - Baseline: 1.0s smooth entrance from beyond the entire sprite to normal x=842; update in simulation time, pause correctly. Hold new boss-wall spawns and attacks until settled; existing in-flight walls keep moving. Preserve each boss idle motion after entrance.
 - Hybrid baseline: unlock after first clear, choose for half of existing special-wall rolls, preserve total chance and boss minimum counts. Static opening for this combined type; normal solids remain lethal while the targeted inner barrier can be dashed. Existing stage art and timing windows retained. These numeric baselines are implementation judgments consistent with earlier post-first-boss unlock rules, not additional user selections.
 - All remaining work is authorized. Execute plan `2026-10-27-combat-audio-integration` through completion with per-task verification and commits.
+
+## Integration Result
+- Complete: `2026-10-27-combat-audio-integration`, all four tasks done.
+- T01 `96707d4`: HP countdown, all-dash shock ring, 1s right-edge boss entrance after siren preview; no new waves/attacks until settled.
+- T02 `2ff2f14`: post-first-boss hybrid walls with centered24px barrier and normal solid collision; same overall special-wall probability.
+- T03 `03fb7a2`: right-to-left feathered boundary at wall speed, retained texture parallax and old-wall art; new spawns paused until complete, bounded resume.
+- T04 `59cd9fd`: twelve approved score loops and matching three-pulse siren; per-scene preload, crossfade, paused offsets, shared mute path and stale-load cancellation. Preview cues are once per run/entry, stage-specific boss music begins with entrance.
+- Verification: all 32 files / 283 tests, production build, whitespace checks and HTTP delivery for all 13 audio assets passed. Automated audio/Canvas checks are not a claim of a fresh subjective listening/manual playtest.
+- No pending preview choice or implementation task remains in this plan. Ready for the user's next playtest.

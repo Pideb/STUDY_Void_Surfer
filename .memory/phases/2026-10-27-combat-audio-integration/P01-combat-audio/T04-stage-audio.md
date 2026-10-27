@@ -46,4 +46,4 @@ Task: T04-stage-audio
 - Loop assets total about 22 MB, loaded by scene (gameplay+boss) and cached; JavaScript gzip97.47kB.
 - Preview WAV hashes remain exact; loop tails wrap and a 5ms bridge smooths sample-rounded boundaries.
 - No fresh subjective browser listening claim; the user approved all source previews.
-- commit: see task commit
+- commit: `59cd9fd`
