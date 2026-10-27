@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { isLaserPathSafe } from '../../src/game/boss-attacks.js';
 import { GAME_STATES } from '../../src/game/game-state.js';
 import { constrainGapCenter, createGameEngine } from '../../src/game/game-engine.js';
 import { getBaseSpeed } from '../../src/game/difficulty.js';
@@ -578,6 +579,7 @@ describe('game engine', () => {
     engine.setInvincibilityEnabled(true);
     engine.start();
     const lasers = new Set();
+    let concurrent = false;
     let snapshot = engine.getSnapshot();
     for (let frame = 0; frame < 1000 && !snapshot.challenge?.active; frame += 1) {
       snapshot = step(100);
@@ -586,13 +588,58 @@ describe('game engine', () => {
         expect(attack.type).toBe('laser');
         expect(snapshot.challenge?.active).not.toBe(true);
         lasers.add(attack.id);
+        if (snapshot.obstacles.some((wall) => wall.kind === 'normal' && !wall.passed)) concurrent = true;
+        for (const wall of snapshot.obstacles.filter((wall) => wall.kind === 'normal')) {
+          expect(isLaserPathSafe(attack.y, wall)).toBe(true);
+        }
       }
     }
     expect(lasers.size).toBe(1);
+    expect(concurrent).toBe(true);
     expect(snapshot.boss.number).toBe(2);
     expect(snapshot.challenge?.active).toBe(true);
     expect(snapshot.boss.successfulChallenges).toBe(0);
     expect(snapshot.warning.remainingSpecials).toBe(0);
+  });
+
+  it('keeps quarter warnings, firing and fade wall-free across seeded boss waves', () => {
+    let quarterFrames = 0;
+    let singleFrames = 0;
+    let clearedBosses = 0;
+    for (let seed = 1; seed <= 20; seed += 1) {
+      let value = seed;
+      const rng = () => { value = (Math.imul(1664525, value) + 1013904223) >>> 0; return value / 4294967296; };
+      const { engine, step } = createRuntimeEngine({
+        initialScore: 60, initialCompletedWarningCount: 3, rng,
+      });
+      engine.setInvincibilityEnabled(true);
+      engine.start();
+      let snapshot = engine.getSnapshot();
+      let enteredBoss = false;
+      for (let frame = 0; frame < 1800; frame += 1) {
+        snapshot = step();
+        if (snapshot.boss) enteredBoss = true;
+        if (snapshot.boss?.attack?.kind === 'quarter') {
+          quarterFrames += 1;
+          expect(snapshot.obstacles).toHaveLength(0);
+          expect(snapshot.boss.wallSpawningPaused).toBe(true);
+          expect(snapshot.boss.attack.telegraphDurationSeconds).toBe(2);
+        } else if (snapshot.boss?.attack?.kind === 'single') {
+          singleFrames += 1;
+          expect(snapshot.boss.wallSpawningPaused).toBe(false);
+          for (const wall of snapshot.obstacles.filter((item) => item.kind === 'normal')) {
+            expect(isLaserPathSafe(snapshot.boss.attack.y, wall)).toBe(true);
+          }
+        }
+        if (snapshot.challenge?.active) {
+          for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
+        }
+        if (enteredBoss && !snapshot.boss) { clearedBosses += 1; break; }
+      }
+    }
+    expect(quarterFrames).toBeGreaterThan(0);
+    expect(singleFrames).toBeGreaterThan(0);
+    expect(clearedBosses).toBe(20);
   });
 
   it('guarantees two normal walls per boss wave even when every random roll prefers special', () => {

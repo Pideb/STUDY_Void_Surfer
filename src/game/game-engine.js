@@ -275,6 +275,7 @@ export function createGameEngine(deps = {}) {
       specialObstacleIds: new Set(),
       specialSpawnedCount: 0,
       waveComplete: false,
+      laserPlan: undefined,
     };
     bossEncounter = isBoss
       ? createBossEncounter(Math.max(1, Math.floor(warningIndex / 2)))
@@ -369,6 +370,7 @@ export function createGameEngine(deps = {}) {
     warningSession.spawnedCount = 0;
     warningSession.specialSpawnedCount = 0;
     warningSession.waveComplete = false;
+    warningSession.laserPlan = undefined;
     spawnAccumulatorSeconds = 0;
     bossEncounter.awaitingNextWave = false;
   }
@@ -508,40 +510,51 @@ export function createGameEngine(deps = {}) {
     }
   }
 
-  function getBossWallContext() {
-    const activeWall = obstacles
-      .filter((obstacle) => !obstacle.passed && obstacle.x >= player.x)
-      .sort((left, right) => left.x - right.x)[0];
-    return {
-      gapCenter: activeWall?.gapCenter ?? WORLD_HEIGHT / 2,
-      gapHeight: activeWall?.gapHeight ?? 180,
-    };
-  }
-
   function scheduleBossAttack() {
     if (!bossEncounter || !warningSession?.isBoss || bossEncounter.attack || challenge?.active) return;
-    if (!warningSession.waveComplete) return;
+    // Wait until this wave is fully generated, so no future wall can invalidate the chosen Y.
+    if (warningSession.spawnedCount < warningSession.targetCount) return;
+    if (warningSession.laserPlan === undefined) {
+      warningSession.laserPlan = bossEncounter.number >= BOSS_LASER_UNLOCK_NUMBER
+        && !bossEncounter.lastAttackWasLaser && safeRandom(rng) < 0.25
+        ? (safeRandom(rng) < 0.5 ? 'single' : 'quarter') : null;
+    }
     if (warningSession.specialObstacleIds.size > 0) return;
-    if (bossEncounter.normalWallsSinceAttack < BOSS_ATTACK_NORMAL_WALL_COOLDOWN) return;
     if (bossEncounter.lastSpecialResolvedAt !== null
       && elapsedSeconds - bossEncounter.lastSpecialResolvedAt < BOSS_RESPONSE_COOLDOWN_SECONDS) return;
     if (bossEncounter.lastAttackResolvedAt !== null
       && elapsedSeconds - bossEncounter.lastAttackResolvedAt < BOSS_RESPONSE_COOLDOWN_SECONDS) return;
 
-    const stageDefinition = getStageState().definition;
-    const attackId = `boss-attack-${nextAttackId++}`;
-    if (bossEncounter.number >= BOSS_LASER_UNLOCK_NUMBER
-      && !bossEncounter.lastAttackWasLaser && safeRandom(rng) < 0.25) {
-      const context = getBossWallContext();
-      const laser = safeRandom(rng) < 0.5
-        ? createSingleLaser({ ...context, rng, styleKey: stageDefinition.laserStyle })
-        : createQuarterLaser({ rng, styleKey: stageDefinition.laserStyle });
-      bossEncounter.attack = { id: attackId, type: 'laser', ...laser };
+    const styleKey = getStageState().definition.laserStyle;
+    if (warningSession.laserPlan === 'single' && !warningSession.waveComplete) {
+      const normalWalls = obstacles.filter((wall) => wall.kind === 'normal');
+      if (normalWalls.some((wall) => !wall.passed && wall.x > player.x)) {
+        const laser = createSingleLaser({ gaps: normalWalls, playerHeight: player.height, rng, styleKey });
+        if (laser) {
+          bossEncounter.attack = { id: `boss-attack-${nextAttackId++}`, type: 'laser', ...laser };
+          bossEncounter.lastAttackWasLaser = true;
+          warningSession.laserPlan = null;
+        }
+      }
+      return;
+    }
+    if (!warningSession.waveComplete) return;
+    if (bossEncounter.normalWallsSinceAttack < BOSS_ATTACK_NORMAL_WALL_COOLDOWN) return;
+    if (warningSession.laserPlan === 'quarter') {
+      // Passed walls remain behind the player until they leave the actual screen.
+      if (obstacles.length > 0) return;
+      bossEncounter.attack = {
+        id: `boss-attack-${nextAttackId++}`, type: 'laser',
+        ...createQuarterLaser({ rng, styleKey }),
+      };
       bossEncounter.lastAttackWasLaser = true;
       bossEncounter.wallSpawningPaused = true;
+      warningSession.laserPlan = null;
       return;
     }
 
+    // A single shot without a safe opportunity must never delay the required WASD challenge.
+    warningSession.laserPlan = null;
     challenge = createChallenge({ bossNumber: bossEncounter.number, rng });
     bossEncounter.lastAttackWasLaser = false;
     bossEncounter.wallSpawningPaused = true;
@@ -555,11 +568,18 @@ export function createGameEngine(deps = {}) {
       stop('laser');
       return;
     }
-    if (attack.telegraphRemainingSeconds === 0 && attack.activeRemainingSeconds === 0) {
+    if (attack.telegraphRemainingSeconds === 0 && attack.activeRemainingSeconds === 0
+      && attack.fadeRemainingSeconds === 0) {
       bossEncounter.attack = null;
       bossEncounter.wallSpawningPaused = false;
-      advanceBossEncounter(bossEncounter, 'attack-resolved', elapsedSeconds + BOSS_LASER_FOLLOW_UP_SECONDS);
-      bossEncounter.awaitingNextWave = true;
+      const cooldownStart = elapsedSeconds + BOSS_LASER_FOLLOW_UP_SECONDS;
+      if (attack.kind === 'quarter') {
+        advanceBossEncounter(bossEncounter, 'attack-resolved', cooldownStart);
+        bossEncounter.awaitingNextWave = true;
+      } else {
+        // Keep the current wave and its passed-wall count; the laser did not replace it.
+        bossEncounter.lastAttackResolvedAt = cooldownStart;
+      }
     }
   }
 

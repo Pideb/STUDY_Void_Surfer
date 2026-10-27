@@ -1,5 +1,8 @@
 import {
   BOSS_LASER_ACTIVE_SECONDS,
+  BOSS_LASER_FADE_SECONDS,
+  BOSS_LASER_SWEEP_SECONDS,
+  BOSS_QUARTER_LASER_TELEGRAPH_SECONDS,
   BOSS_LASER_TELEGRAPH_SECONDS,
   BOSS_LASER_THICKNESS,
   BOSS_PROJECTILE_CHARGE_SECONDS,
@@ -9,6 +12,7 @@ import {
   BOSS_PROJECTILE_REFLECTION_WINDOW_SECONDS,
   PLAYER_FRONT_HITBOX_TRIM,
   WORLD_HEIGHT,
+  WORLD_WIDTH,
 } from './constants.js';
 
 function roll(rng) {
@@ -175,61 +179,101 @@ export function reflectProjectile(projectile, playerX, playerY) {
   return true;
 }
 
-export function isLaserPathSafe(laserY, { gapCenter, gapHeight, playerHeight = 24, thickness = BOSS_LASER_THICKNESS } = {}) {
-  if (![laserY, gapCenter, gapHeight].every(Number.isFinite)) return false;
-  const gapTop = gapCenter - gapHeight / 2;
-  const gapBottom = gapCenter + gapHeight / 2;
-  const occupiedTop = laserY - thickness / 2 - playerHeight / 2;
-  const occupiedBottom = laserY + thickness / 2 + playerHeight / 2;
-  return occupiedTop > gapTop || occupiedBottom < gapBottom;
+// Protect the entire moving opening, not just its position on the warning frame.
+function getProtectedGap(gap, worldHeight, margin) {
+  if (![gap.gapCenter, gap.gapHeight].every(Number.isFinite) || gap.gapHeight <= 0) return null;
+  const halfGap = gap.gapHeight / 2;
+  const center = Number.isFinite(gap.baseGapCenter) ? gap.baseGapCenter : gap.gapCenter;
+  const amplitude = gap.movingGap ? Math.max(0, gap.gapMotionAmplitude || 0) : 0;
+  const minimum = clamp(center - amplitude, halfGap, worldHeight - halfGap);
+  const maximum = clamp(center + amplitude, halfGap, worldHeight - halfGap);
+  return { top: minimum - halfGap - margin, bottom: maximum + halfGap + margin };
+}
+
+export function isLaserPathSafe(laserY, {
+  gapCenter, gapHeight, playerHeight = 24, thickness = BOSS_LASER_THICKNESS,
+} = {}) {
+  if (![laserY, gapCenter, gapHeight].every(Number.isFinite) || gapHeight <= 0) return false;
+  const margin = thickness / 2 + playerHeight / 2;
+  return laserY < gapCenter - gapHeight / 2 - margin
+    || laserY > gapCenter + gapHeight / 2 + margin;
 }
 
 export function findSafeLaserY({
-  gapCenter,
-  gapHeight,
-  worldHeight = WORLD_HEIGHT,
-  rng = Math.random,
-  playerHeight = 24,
-  thickness = BOSS_LASER_THICKNESS,
+  gaps, gapCenter, gapHeight, worldHeight = WORLD_HEIGHT, rng = Math.random,
+  playerHeight = 24, thickness = BOSS_LASER_THICKNESS,
 } = {}) {
-  for (let attempt = 0; attempt < 24; attempt += 1) {
-    const y = thickness / 2 + roll(rng) * (worldHeight - thickness);
-    if (isLaserPathSafe(y, { gapCenter, gapHeight, playerHeight, thickness })) return y;
+  const margin = thickness / 2 + playerHeight / 2 + 1; // Keep strict clearance at interval edges.
+  const sourceGaps = gaps ?? [{ gapCenter, gapHeight }];
+  const protectedGaps = sourceGaps.map((gap) => getProtectedGap(gap, worldHeight, margin));
+  if (protectedGaps.some((gap) => !gap)) return null;
+  protectedGaps.sort((left, right) => left.top - right.top);
+  const intervals = [];
+  let start = thickness / 2;
+  const end = worldHeight - thickness / 2;
+  for (const gap of protectedGaps) {
+    if (gap.top > start) intervals.push([start, Math.min(end, gap.top)]);
+    start = Math.max(start, gap.bottom);
+    if (start >= end) break;
   }
-  return clamp(gapCenter, thickness / 2, worldHeight - thickness / 2);
+  if (start < end) intervals.push([start, end]);
+  const total = intervals.reduce((sum, [low, high]) => sum + Math.max(0, high - low), 0);
+  if (total <= 0) return null;
+  let sample = roll(rng) * total;
+  for (const [low, high] of intervals) {
+    if (sample <= high - low) return low + sample;
+    sample -= high - low;
+  }
+  return null;
 }
 
-export function createSingleLaser({ gapCenter, gapHeight, rng = Math.random, styleKey = 'default' } = {}) {
+function laserClock(telegraphDurationSeconds) {
   return {
-    kind: 'single',
-    y: findSafeLaserY({ gapCenter, gapHeight, rng }),
-    safeZone: null,
-    telegraphRemainingSeconds: BOSS_LASER_TELEGRAPH_SECONDS,
+    telegraphDurationSeconds,
+    telegraphRemainingSeconds: telegraphDurationSeconds,
     activeRemainingSeconds: BOSS_LASER_ACTIVE_SECONDS,
-    thickness: BOSS_LASER_THICKNESS,
-    styleKey,
+    activeElapsedSeconds: 0,
+    elapsedSeconds: 0,
+    fadeRemainingSeconds: BOSS_LASER_FADE_SECONDS,
+  };
+}
+
+export function createSingleLaser({ rng = Math.random, styleKey = 'default', ...geometry } = {}) {
+  const y = findSafeLaserY({ ...geometry, rng });
+  if (y === null) return null;
+  return {
+    kind: 'single', y, safeZone: null,
+    ...laserClock(BOSS_LASER_TELEGRAPH_SECONDS),
+    thickness: BOSS_LASER_THICKNESS, styleKey,
   };
 }
 
 export function createQuarterLaser({ rng = Math.random, worldHeight = WORLD_HEIGHT, styleKey = 'default' } = {}) {
   return {
-    kind: 'quarter',
-    y: null,
-    safeZone: Math.floor(roll(rng) * 4),
-    zoneHeight: worldHeight / 4,
-    telegraphRemainingSeconds: BOSS_LASER_TELEGRAPH_SECONDS,
-    activeRemainingSeconds: BOSS_LASER_ACTIVE_SECONDS,
-    thickness: BOSS_LASER_THICKNESS,
-    styleKey,
+    kind: 'quarter', y: null,
+    safeZone: Math.floor(roll(rng) * 4), zoneHeight: worldHeight / 4,
+    ...laserClock(BOSS_QUARTER_LASER_TELEGRAPH_SECONDS),
+    thickness: BOSS_LASER_THICKNESS, styleKey,
   };
+}
+
+export function getLaserFrontX(laser, worldWidth = WORLD_WIDTH) {
+  if (laser.telegraphRemainingSeconds > 0) return worldWidth;
+  // Old snapshots without a sweep clock represent an already fully fired beam.
+  if (!Number.isFinite(laser.activeElapsedSeconds)) return 0;
+  return worldWidth * (1 - clamp(laser.activeElapsedSeconds / BOSS_LASER_SWEEP_SECONDS, 0, 1));
 }
 
 export function updateLaser(laser, deltaSeconds) {
   if (!laser || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) return laser;
-  if (laser.telegraphRemainingSeconds > 0) {
-    laser.telegraphRemainingSeconds = Math.max(0, laser.telegraphRemainingSeconds - deltaSeconds);
-  } else {
-    laser.activeRemainingSeconds = Math.max(0, laser.activeRemainingSeconds - deltaSeconds);
+  laser.elapsedSeconds = (laser.elapsedSeconds ?? 0) + deltaSeconds;
+  let remaining = deltaSeconds;
+  for (const field of ['telegraphRemainingSeconds', 'activeRemainingSeconds', 'fadeRemainingSeconds']) {
+    const consumed = Math.min(remaining, laser[field] ?? 0);
+    laser[field] = Math.max(0, (laser[field] ?? 0) - consumed);
+    if (laser[field] < 1e-9) laser[field] = 0;
+    if (field === 'activeRemainingSeconds') laser.activeElapsedSeconds = (laser.activeElapsedSeconds ?? 0) + consumed;
+    remaining = Math.max(0, remaining - consumed);
   }
   return laser;
 }

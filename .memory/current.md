@@ -1,20 +1,17 @@
 # Current Context
 
 ## Active Plan
-[WASD Boss Overhaul](./plans/2026-10-26-wasd-boss-overhaul.md)
+[Laser Light Integration](./plans/2026-10-27-laser-light-integration.md)
 
 ## Active Phase
-None. All phases complete.
+[P01 Lasers](./phases/2026-10-27-laser-light-integration/P01-lasers/phase.md)
 
 ## Active Task
-None. Plan complete.
+[T01 Safe Laser Engine](./phases/2026-10-27-laser-light-integration/P01-lasers/T01-safe-laser-engine.md)
 
 ## Status
-- Decisions confirmed: three WASD successes per boss, five seconds, touch buttons; boss walls give no points, boss clear gives score+progression10.
-- T01 done (`9be1675`): 63 related tests and production build passed.
-- T02 done (`323c045`): 52 UI/input tests and production build passed.
-- T03 done (`f96da12`): background darkening and foreground visibility; README gameplay rules synchronized.
-- Final validation: all 30 files / 254 tests, production build, and whitespace checks passed.
+- Approved v2 laser appearance and concurrent/wall-free scheduling recorded.
+- T01 in progress; T02 pending. User authorized implementation through completion.
 
 ## Next Step (IMPORTANT)
-No active task. Ready for playtest feedback on the three-success WASD boss loop, touch layout, and gameplay contrast.
+Implement T01 geometry, clocks, collision and scheduling, validate and commit; continue T02 rendering.

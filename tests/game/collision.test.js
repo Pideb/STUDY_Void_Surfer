@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createSingleLaser, createQuarterLaser, updateLaser } from '../../src/game/boss-attacks.js';
 import { createPlayer } from '../../src/game/player.js';
 import { createObstacle } from '../../src/game/obstacles.js';
 import {
@@ -77,6 +78,31 @@ describe('collision', () => {
     expect(isProjectileReflectionSuccess({ player, projectile })).toBe(true);
     expect(intersectsPlayerLaser({ ...player, y: 70 }, laser)).toBe(true);
     expect(intersectsPlayerLaser({ ...player, y: 340 }, laser)).toBe(false);
+  });
+
+  it('damages only after the shared light front reaches the trimmed hull, never during warning or fade', () => {
+    const player = createPlayer();
+    const laser = createSingleLaser({ gapCenter: 70, gapHeight: 100, rng: () => 0.2 });
+    laser.y = player.y;
+    expect(intersectsPlayerLaser(player, laser)).toBe(false);
+    updateLaser(laser, 0.7 + 0.29);
+    expect(intersectsPlayerLaser(player, laser)).toBe(false);
+    updateLaser(laser, 0.01);
+    expect(intersectsPlayerLaser(player, laser)).toBe(true);
+    updateLaser(laser, 0.7);
+    expect(laser.fadeRemainingSeconds).toBeGreaterThan(0);
+    expect(intersectsPlayerLaser(player, laser)).toBe(false);
+  });
+
+  it('keeps the whole hull inside the safe quarter and applies the same moving front', () => {
+    const laser = createQuarterLaser({ rng: () => 0.5 });
+    const player = { ...createPlayer(), y: 340 };
+    updateLaser(laser, 2.2);
+    expect(intersectsPlayerLaser({ ...player, y: 100 }, laser)).toBe(false);
+    updateLaser(laser, 0.2);
+    expect(intersectsPlayerLaser(player, laser)).toBe(false);
+    expect(intersectsPlayerLaser({ ...player, y: 275 }, laser)).toBe(true);
+    expect(intersectsPlayerLaser({ ...player, y: 100 }, laser)).toBe(true);
   });
 
   it('accepts the pre-arrival timing boundary and rejects early or passed walls', () => {

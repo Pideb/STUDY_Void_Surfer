@@ -4,6 +4,7 @@ import {
   PLAYER_FRONT_HITBOX_TRIM,
   WORLD_HEIGHT,
 } from './constants.js';
+import { getLaserFrontX } from './boss-attacks.js';
 
 function getPlayerBounds(player) {
   return {
@@ -64,10 +65,13 @@ export function intersectsPlayerLaser(player, laser, worldHeight = WORLD_HEIGHT)
     return false;
   }
 
+  const bounds = getPlayerBounds(player);
+  if (bounds.right < getLaserFrontX(laser)) return false;
+
   if (laser.kind === 'quarter') {
     const zoneHeight = laser.zoneHeight || worldHeight / 4;
-    const playerZone = Math.min(3, Math.max(0, Math.floor(player.y / zoneHeight)));
-    return playerZone !== laser.safeZone;
+    const safeTop = laser.safeZone * zoneHeight;
+    return bounds.top < safeTop || bounds.bottom > safeTop + zoneHeight;
   }
 
   const thickness = laser.thickness || BOSS_LASER_THICKNESS;
