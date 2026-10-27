@@ -512,6 +512,7 @@ export function createGameEngine(deps = {}) {
 
   function scheduleBossAttack() {
     if (!bossEncounter || !warningSession?.isBoss || bossEncounter.attack || challenge?.active) return;
+    if (bossEncounter.entranceRemainingSeconds > 0) return;
     // Wait until this wave is fully generated, so no future wall can invalidate the chosen Y.
     if (warningSession.spawnedCount < warningSession.targetCount) return;
     if (warningSession.laserPlan === undefined) {
@@ -675,13 +676,18 @@ export function createGameEngine(deps = {}) {
 
     updatePlayer(player, deltaSeconds, gravity * aircraft.gravityMultiplier);
     elapsedSeconds += deltaSeconds;
+    const previousBossEncounter = bossEncounter;
     updateBossPreview(deltaSeconds);
+    if (bossEncounter && bossEncounter === previousBossEncounter) {
+      bossEncounter.entranceRemainingSeconds = Math.max(0, bossEncounter.entranceRemainingSeconds - deltaSeconds);
+    }
     advanceSpeedTransition(deltaSeconds);
     let difficulty = getCurrentDifficulty();
     updateFlightTrail(deltaSeconds, difficulty.scrollSpeed);
     backgroundScrollDistancePx += difficulty.scrollSpeed * deltaSeconds * 0.25;
     updateStage(deltaSeconds, difficulty.scrollSpeed);
-    if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
+    if (bossEncounter?.entranceRemainingSeconds > 0) spawnAccumulatorSeconds = 0;
+    else if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
 
     for (const obstacle of obstacles) {

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import {
-  createRenderer, drawBoss, drawDashTrail, drawObstacle, drawShip, drawShipDeathEffect, drawShipExhaust,
+  createRenderer, drawBoss, drawDashShockRing, drawDashTrail, drawObstacle, drawShip, drawShipDeathEffect, drawShipExhaust,
 } from '../../src/game/renderer.js';
 import { drawLaser } from '../../src/game/laser-renderer.js';
 import { createSingleLaser, createQuarterLaser, getLaserFrontX, updateLaser } from '../../src/game/boss-attacks.js';
@@ -313,7 +313,7 @@ describe('renderer', () => {
     expect(context.lineTo.mock.calls.length).toBeGreaterThanOrEqual(8);
   });
 
-  it('draws a trail for any dash and a ring only for successful special dashes', () => {
+  it('draws both a trail and a hull shock ring for normal and special dashes', () => {
     const canvas = document.createElement('canvas');
     const normalContext = createContext();
     canvas.getContext = vi.fn(() => normalContext);
@@ -337,11 +337,42 @@ describe('renderer', () => {
       obstacles: [], difficulty: {},
     });
 
-    expect(normalContext.stroke).toHaveBeenCalledTimes(14);
-    expect(specialContext.stroke.mock.calls.length).toBeGreaterThan(normalContext.stroke.mock.calls.length);
-    expect(specialContext.arc.mock.calls.length).toBeGreaterThan(normalContext.arc.mock.calls.length);
+    expect(normalContext.stroke.mock.calls.length).toBeGreaterThan(14);
+    expect(specialContext.stroke.mock.calls.length).toBe(normalContext.stroke.mock.calls.length);
+    expect(specialContext.arc.mock.calls.length).toBe(normalContext.arc.mock.calls.length);
     normalRenderer.destroy();
     specialRenderer.destroy();
+  });
+
+  it('shows a brief hull-centered shock ring on every dash and restores Canvas state', () => {
+    for (const dashKind of ['normal', 'special']) {
+      const context = createContext();
+      const player = { x: 240, y: 270, width: 36, height: 24, isDashing: true, dashKind, dashRemainingSeconds: 0.6 };
+      drawDashShockRing(context, player);
+      expect(context.translate).toHaveBeenCalledWith(240, 270);
+      expect(context.arc).toHaveBeenCalledTimes(4);
+      expect(context.strokeRect).not.toHaveBeenCalled();
+      expect(context.save.mock.calls.length).toBe(context.restore.mock.calls.length);
+      context.arc.mockClear();
+      drawDashShockRing(context, { ...player, dashRemainingSeconds: 0.2 });
+      expect(context.arc).not.toHaveBeenCalled();
+    }
+  });
+
+  it('brings the whole boss sprite in from outside the right edge to its idle anchor', () => {
+    const context = createContext();
+    const image = { width: 192, height: 128 };
+    const positions = [];
+    for (const remaining of [1, 0.5, 0]) {
+      context.drawImage.mockClear();
+      drawBoss(context, { isBoss: true }, STAGE_VISUAL_THEMES['crystal-gates'],
+        { entranceDurationSeconds: 1, entranceRemainingSeconds: remaining }, 0, { get: () => image }, 'crystal-gates');
+      positions.push(context.drawImage.mock.calls[0][1]);
+    }
+    expect(positions[0]).toBeGreaterThan(WORLD_WIDTH);
+    expect(positions[1]).toBeLessThan(positions[0]);
+    expect(positions[1]).toBeGreaterThan(positions[2]);
+    expect(positions[2]).toBe(842 - 96);
   });
 
   it('renders exactly four thin acceleration lines for a dash without a filled trail', () => {
@@ -464,7 +495,7 @@ describe('renderer', () => {
       challenge: { active: true, sequence: ['KeyW', 'KeyA', 'KeyD'], cursor: 1 },
     });
     expect(context.fillText).toHaveBeenCalledWith('W', expect.any(Number), 258);
-    expect(context.fillText).toHaveBeenCalledWith('BOSS: SIGNAL', 840, 392);
+    expect(context.fillText).toHaveBeenCalledWith('BOSS: SIGNAL', expect.any(Number), 392);
     expect(context.arc.mock.calls.map((call) => call[2])).toContain(4);
     expect(context.arc.mock.calls.map((call) => call[2])).toContain(2);
     renderer.destroy();

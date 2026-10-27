@@ -48,6 +48,7 @@ export const PLAYER_DEATH_EFFECT_SECONDS = 0.5;
 export const BOSS_SLOW_MULTIPLIER = 0.75;
 export const BOSS_FAST_MULTIPLIER = 1.25;
 export const BOSS_PATTERN_PREVIEW_SECONDS = 1.5;
+export const BOSS_ENTRANCE_SECONDS = 1;
 
 export const BOSS_PATTERNS = Object.freeze({
   SLOW: 'slow',

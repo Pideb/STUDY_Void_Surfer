@@ -1,19 +1,16 @@
 # Current Context
 
 ## Active Plan
-[Laser Light Integration](./plans/2026-10-27-laser-light-integration.md)
+[Combat and Audio Integration](./plans/2026-10-27-combat-audio-integration.md)
 
 ## Active Phase
-None. All phases complete.
+[P01 Combat and Audio](./phases/2026-10-27-combat-audio-integration/P01-combat-audio/phase.md)
 
 ## Active Task
-None. Plan complete.
+[T01 Presentation and Entry](./phases/2026-10-27-combat-audio-integration/P01-combat-audio/T01-presentation-entry.md)
 
 ## Status
-- T01 done (`0bf9579`): safe concurrent single lasers, wall-free quarter lasers, shared front collision.
-- T02 done (`0515da0`): approved v2 light integrated into gameplay and previews preserved.
-- Final validation: all 30 files / 265 tests, production build and whitespace checks passed.
-- Twenty seeded boss encounters cleared without attack-loop stalls. Single warnings .7s; quarter warnings 2s; sweep .4s; active 1s; harmless fade .15s.
+All requested previews and siren option1 approved. Boss arrival together with music added. T01 active; user authorized continuing through final task.
 
 ## Next Step (IMPORTANT)
-Ready for gameplay feedback using `npm run dev`. Separate combat/audio-polish decisions retain pending HP label, hybrid-wall preview, stage transitions, dash variants and six stage BGM samples. Do not treat the laser integration as completion of that broader queue.
+Read T01, implement/validate/commit, then advance sequentially through T04. Preserve approved preview files and existing laser safety.

@@ -16,16 +16,22 @@ describe('game HUD', () => {
       aircraft: { name: 'VELOCITY' },
       boss: { hp: 2, maxHp: 3, successfulChallenges: 1, requiredChallenges: 3 },
     });
-    const gauge = hud.element.querySelector('[role="progressbar"][aria-label="보스 챌린지 성공 횟수"]');
+    const gauge = hud.element.querySelector('[role="progressbar"][aria-label="보스 체력"]');
     expect(hud.element.querySelector('.hud-identity')).toBeNull();
     expect(hud.element.textContent).not.toContain('SOLAR FORGE');
     expect(hud.element.textContent).not.toContain('VELOCITY');
     expect(hud.element.textContent).toContain('점수 75');
-    expect(gauge.getAttribute('aria-valuenow')).toBe('1');
+    expect(gauge.getAttribute('aria-valuenow')).toBe('2');
     expect(gauge.getAttribute('aria-valuemax')).toBe('3');
-    expect(gauge.getAttribute('aria-valuetext')).toBe('1/3회 성공');
+    expect(gauge.getAttribute('aria-valuetext')).toBe('보스 체력 2/3');
     expect(gauge.querySelectorAll('.boss-health-segment')).toHaveLength(3);
-    expect(gauge.querySelectorAll('.is-active')).toHaveLength(1);
+    expect(gauge.querySelectorAll('.is-active')).toHaveLength(2);
+    expect(hud.element.querySelector('.boss-health-label').textContent).toBe('BOSS HP');
+    for (const hp of [3, 2, 1, 0]) {
+      hud.update({ boss: { hp, maxHp: 3 } });
+      expect(gauge.getAttribute('aria-valuenow')).toBe(String(hp));
+      expect(gauge.querySelectorAll('.is-active')).toHaveLength(hp);
+    }
   });
 
   it('shows laser cues and the WASD sequence and hides controls after the challenge', () => {

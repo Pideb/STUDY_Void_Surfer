@@ -44,13 +44,13 @@ export function createGameHud(model, handlers) {
   bossHealth.hidden = true;
   const bossLabel = document.createElement('span');
   bossLabel.className = 'boss-health-label';
-  bossLabel.textContent = 'WASD 성공';
+  bossLabel.textContent = 'BOSS HP';
   const bossText = document.createElement('span');
   bossText.className = 'boss-health-text';
   const bossGauge = document.createElement('div');
   bossGauge.className = 'boss-health-gauge';
   bossGauge.setAttribute('role', 'progressbar');
-  bossGauge.setAttribute('aria-label', '보스 챌린지 성공 횟수');
+  bossGauge.setAttribute('aria-label', '보스 체력');
   bossGauge.setAttribute('aria-valuemin', '0');
   bossHealth.append(bossLabel, bossGauge, bossText);
 
@@ -111,13 +111,12 @@ export function createGameHud(model, handlers) {
     const boss = snapshot.boss;
     bossHealth.hidden = !boss;
     if (boss) {
-      const required = Math.max(1, Math.trunc(Number(boss.requiredChallenges ?? boss.maxHp) || 3));
-      const completed = Math.max(0, Math.min(required,
-        Math.trunc(Number(boss.successfulChallenges ?? (required - (boss.hp ?? required))) || 0)));
+      const required = Math.max(1, Math.trunc(Number(boss.maxHp) || 3));
+      const remaining = Math.max(0, Math.min(required, Math.trunc(Number(boss.hp ?? required) || 0)));
       bossGauge.setAttribute('aria-valuemax', String(required));
-      bossGauge.setAttribute('aria-valuenow', String(completed));
-      bossGauge.setAttribute('aria-valuetext', `${completed}/${required}회 성공`);
-      bossText.textContent = `${completed} / ${required}`;
+      bossGauge.setAttribute('aria-valuenow', String(remaining));
+      bossGauge.setAttribute('aria-valuetext', `보스 체력 ${remaining}/${required}`);
+      bossText.textContent = `${remaining} / ${required}`;
       if (bossGauge.dataset.required !== String(required)) {
         bossGauge.replaceChildren(...Array.from({ length: required }, () => {
           const segment = document.createElement('span');
@@ -127,7 +126,7 @@ export function createGameHud(model, handlers) {
         }));
         bossGauge.dataset.required = String(required);
       }
-      [...bossGauge.children].forEach((segment, index) => segment.classList.toggle('is-active', index < completed));
+      [...bossGauge.children].forEach((segment, index) => segment.classList.toggle('is-active', index < remaining));
     }
 
     const attack = boss?.attack;

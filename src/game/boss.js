@@ -1,4 +1,4 @@
-import { BOSS_REQUIRED_CHALLENGES } from './constants.js';
+import { BOSS_ENTRANCE_SECONDS, BOSS_REQUIRED_CHALLENGES } from './constants.js';
 
 export function getBossHealth() {
   return BOSS_REQUIRED_CHALLENGES;
@@ -12,6 +12,8 @@ export function createBossEncounter(number) {
     number: safeNumber,
     hp: maxHp,
     maxHp,
+    entranceDurationSeconds: BOSS_ENTRANCE_SECONDS,
+    entranceRemainingSeconds: BOSS_ENTRANCE_SECONDS,
     successfulChallenges: 0,
     requiredChallenges: maxHp,
     attack: null,

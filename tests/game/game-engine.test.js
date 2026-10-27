@@ -770,6 +770,29 @@ describe('game engine', () => {
     expect(activated.difficulty).toMatchObject({ isWarning: true, isBoss: true, bossPattern: 'fast' });
   });
 
+  it('holds new boss walls during entrance and freezes that clock while paused', () => {
+    const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 1 });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    let snapshot = engine.getSnapshot();
+    while (!snapshot.boss) snapshot = step();
+    expect(snapshot.boss.entranceRemainingSeconds).toBe(1);
+    expect(snapshot.warning.spawnedCount).toBe(0);
+    snapshot = step();
+    const clock = snapshot.boss.entranceRemainingSeconds;
+    engine.pause();
+    for (let frame = 0; frame < 5; frame += 1) snapshot = step();
+    expect(snapshot.boss.entranceRemainingSeconds).toBe(clock);
+    engine.resume();
+    while (snapshot.boss.entranceRemainingSeconds > 0) {
+      expect(snapshot.warning.spawnedCount).toBe(0);
+      expect(snapshot.boss.attack).toBeNull();
+      snapshot = step();
+    }
+    for (let frame = 0; frame < 16; frame += 1) snapshot = step();
+    expect(snapshot.warning.spawnedCount).toBeGreaterThan(0);
+  });
+
   it('limits generated gap shifts by 70% of the next gap height and clamps to world bounds', () => {
     expect(constrainGapCenter(450, 135, 270)).toBeCloseTo(364.5);
     expect(constrainGapCenter(90, 135, 270)).toBeCloseTo(175.5);

@@ -218,31 +218,35 @@ export function drawDashTrail(ctx, player, theme = VISUAL_THEME) {
   ctx.restore();
 }
 
-function drawSpecialDashBurst(ctx, player, theme) {
-  if (!player?.isDashing || player.dashKind !== 'special') return;
-
-  const progress = 1 - getDashIntensity(player);
-  const radius = player.width * (1 + progress * 2.4);
+export function drawDashShockRing(ctx, player, theme = VISUAL_THEME) {
+  if (!player?.isDashing) return;
+  const elapsed = DASH_DURATION_SECONDS * (1 - getDashIntensity(player));
+  if (elapsed >= 0.24) return;
+  const progress = elapsed / 0.24;
+  const radius = player.width * (0.65 + progress * 0.9);
   ctx.save();
-  ctx.globalAlpha = Math.max(0, 0.8 - progress * 0.7);
+  ctx.translate(player.x, player.y);
+  ctx.scale(0.65, 1);
+  ctx.globalAlpha = (1 - progress) * 0.95;
   setGlow(ctx, theme.dashBurst, 20);
-  ctx.strokeStyle = theme.dashBurst;
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, radius, 0, Math.PI * 2);
-  ctx.stroke();
-  ctx.globalAlpha *= 0.55;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.arc(player.x, player.y, radius * 1.45, 0, Math.PI * 2);
-  ctx.stroke();
-  for (let index = 0; index < 6; index += 1) {
-    const angle = index * Math.PI / 3 + progress;
+  for (const [color, width] of [[theme.dashBurst, 4], ['#f4ffff', 1.8]]) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
     ctx.beginPath();
-    ctx.moveTo(player.x + Math.cos(angle) * radius, player.y + Math.sin(angle) * radius);
-    ctx.lineTo(player.x + Math.cos(angle) * (radius + 16), player.y + Math.sin(angle) * (radius + 16));
+    ctx.arc(0, 0, radius, 0.15, 2.9);
+    ctx.arc(0, 0, radius, 3.3, 6.05);
     ctx.stroke();
   }
+  ctx.strokeStyle = '#efffff';
+  ctx.lineWidth = 1.4;
+  for (let index = 0; index < 8; index += 1) {
+    const angle = index * Math.PI / 4 + 0.2;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(angle) * (radius + 3), Math.sin(angle) * (radius + 3));
+    ctx.lineTo(Math.cos(angle) * (radius + 9 + progress * 8), Math.sin(angle) * (radius + 9 + progress * 8));
+    ctx.stroke();
+  }
+  resetGlow(ctx);
   ctx.restore();
 }
 
@@ -729,7 +733,11 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
     ? Math.max(0, Math.min(1, boss.hitEffect.remainingSeconds / (boss.hitEffect.durationSeconds || 1)))
     : 0;
   const idleTime = reducedMotion ? 0 : elapsedSeconds;
-  const x = 842 + Math.sin(idleTime * 1.4) * 4 + hitProgress * 12;
+  const entryProgress = boss?.entranceDurationSeconds
+    ? Math.max(0, Math.min(1, 1 - (boss.entranceRemainingSeconds ?? 0) / boss.entranceDurationSeconds)) : 1;
+  const eased = entryProgress * entryProgress * (3 - 2 * entryProgress);
+  const x = (WORLD_WIDTH + 200) + (842 - WORLD_WIDTH - 200) * eased
+    + (Math.sin(idleTime * 1.4) * 4 + hitProgress * 12) * eased;
   const y = WORLD_HEIGHT / 2 + Math.sin(idleTime * 1.1) * 18;
   drawBossIdleAccents(ctx, theme.bossStyle, x, y, idleTime, theme, reducedMotion);
   const image = getStageAsset(visualAssets, stageId, 'boss');
@@ -786,7 +794,7 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
 
   ctx.font = '700 18px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(`BOSS: ${(difficulty.bossPattern ?? 'shift').toUpperCase()}`, 840, WORLD_HEIGHT / 2 + 122);
+  ctx.fillText(`BOSS: ${(difficulty.bossPattern ?? 'shift').toUpperCase()}`, x - 2, WORLD_HEIGHT / 2 + 122);
   ctx.restore();
 }
 
@@ -946,7 +954,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id, prefersReducedMotion);
     if (!snapshot.deathEffect) {
       drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
-      drawSpecialDashBurst(ctx, snapshot.player, VISUAL_THEME);
+      drawDashShockRing(ctx, snapshot.player, VISUAL_THEME);
     }
     if (snapshot.deathEffect) {
       drawShipDeathEffect(ctx, snapshot.deathEffect, snapshot.deathEffect.aircraftId ?? snapshot.aircraft?.id, prefersReducedMotion);
