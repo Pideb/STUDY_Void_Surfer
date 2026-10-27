@@ -469,6 +469,7 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
 }
 
 function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = false, scrollDistancePx = 0, scrollSpeed = 240) {
+  const sceneAlpha = ctx.globalAlpha ?? 1;
   const scale = 1.12;
   const width = WORLD_WIDTH * scale;
   const height = WORLD_HEIGHT * scale;
@@ -493,7 +494,7 @@ function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = f
       ctx.beginPath();
       ctx.rect(stripX, 0, stripWidth, WORLD_HEIGHT);
       ctx.clip();
-      ctx.globalAlpha = (index + 1) / strips;
+      ctx.globalAlpha = sceneAlpha * (index + 1) / strips;
       ctx.drawImage(background, nextX, -offsetY, width, height);
       ctx.restore();
     }
@@ -591,29 +592,30 @@ function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = nul
     return;
   }
   const progress = Math.max(0, Math.min(1, transition.progress ?? 1));
-  const travelledPixels = Math.max(0, Math.min(WORLD_WIDTH, Number(transition.travelledPixels) || progress * WORLD_WIDTH));
-  const crossfadeProgress = Math.min(1, travelledPixels / Math.max(1, scrollSpeed * 0.15));
-  const scenes = prefersReducedMotion
-    ? [
-      { key: transition.fromKey, x: 0, alpha: 1 - crossfadeProgress },
-      { key: transition.toKey, x: 0, alpha: crossfadeProgress },
-    ]
-    : [
-      { key: transition.fromKey, x: travelledPixels === 0 ? 0 : -travelledPixels, alpha: 1 },
-      { key: transition.toKey, x: WORLD_WIDTH - travelledPixels, alpha: 1 },
-    ];
-
-  for (const { key, x, alpha } of scenes) {
+  const travelled = Math.max(0, Math.min(WORLD_WIDTH, transition.travelledPixels ?? progress * WORLD_WIDTH));
+  function scene(key, left = 0, width = WORLD_WIDTH, alpha = 1) {
+    if (width <= 0 || alpha <= 0) return;
     ctx.save();
-    ctx.beginPath();
-    ctx.rect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    ctx.clip();
+    ctx.beginPath(); ctx.rect(left, 0, width, WORLD_HEIGHT); ctx.clip();
     ctx.globalAlpha = alpha;
-    ctx.translate(x, 0);
-    drawStageBackground(ctx, backgroundKeyToId(key), elapsedSeconds,
-      String(key).endsWith('-boss'), visualAssets, prefersReducedMotion, scrollDistancePx, scrollSpeed);
+    drawStageBackground(ctx, backgroundKeyToId(key), elapsedSeconds, String(key).endsWith('-boss'),
+      visualAssets, prefersReducedMotion, scrollDistancePx, scrollSpeed);
     ctx.restore();
   }
+  scene(transition.fromKey);
+  if (prefersReducedMotion) {
+    scene(transition.toKey, 0, WORLD_WIDTH, progress);
+    return;
+  }
+  // Only the reveal boundary travels at wall speed; texture retains its subtle parallax.
+  const edge = WORLD_WIDTH - travelled;
+  const feather = Math.min(48, travelled, WORLD_WIDTH - travelled);
+  if (feather > 0) {
+    for (let index = 0; index < 8; index += 1) {
+      scene(transition.toKey, edge + feather * index / 8, feather / 8 + 0.5, (index + 1) / 8);
+    }
+  }
+  scene(transition.toKey, edge + feather, WORLD_WIDTH - edge - feather);
 }
 
 function drawStageAtmosphere(ctx, mode, elapsedSeconds = 0) {

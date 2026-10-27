@@ -671,9 +671,9 @@ describe('renderer', () => {
     renderer.destroy();
   });
 
-  it('pushes Crystal Gates scenes from right to left at explicit travel distances', () => {
-    for (const [progress, travelledPixels, outgoingX, incomingX] of [
-      [0, 0, 0, 960], [0.25, 240, -240, 720], [0.5, 480, -480, 480], [1, 960, -960, 0],
+  it('reveals the next scene from the right without adding a second texture translation', () => {
+    for (const [progress, travelledPixels] of [
+      [0, 0], [0.25, 240], [0.5, 480], [1, 960],
     ]) {
       const canvas = document.createElement('canvas');
       const context = createContext();
@@ -698,12 +698,20 @@ describe('renderer', () => {
         },
       });
 
-      expect(context.translate.mock.calls.slice(0, 2)).toEqual([[outgoingX, 0], [incomingX, 0]]);
+      expect(context.translate.mock.calls.filter(([, y]) => y === 0)).toEqual([]);
+      if (travelledPixels > 0 && travelledPixels < WORLD_WIDTH) {
+        const edge = WORLD_WIDTH - travelledPixels;
+        expect(context.rect).toHaveBeenCalledWith(edge, 0, 6.5, WORLD_HEIGHT);
+        expect(context.rect).toHaveBeenCalledWith(edge + 48, 0, travelledPixels - 48, WORLD_HEIGHT);
+      }
+      const names = context.drawImage.mock.calls.map(([image]) => image.name);
+      expect(names[0]).toBe('boss');
+      expect(names.includes('normal')).toBe(progress > 0);
       renderer.destroy();
     }
   });
 
-  it('uses a brief crossfade rather than a spatial slide for reduced motion', () => {
+  it('crossfades across the full stage-transition progress for reduced motion', () => {
     const canvas = document.createElement('canvas');
     const context = createContext();
     canvas.getContext = vi.fn(() => context);
@@ -734,9 +742,9 @@ describe('renderer', () => {
       { name: 'boss', x: -57.60000000000002, y: -32.400000000000034 },
       { name: 'normal', x: -57.60000000000002, y: -32.400000000000034 },
     ]);
-    expect(sceneDraws[0].alpha).toBeCloseTo(1 - (0.02 * WORLD_WIDTH) / 36);
-    expect(sceneDraws[1].alpha).toBeCloseTo((0.02 * WORLD_WIDTH) / 36);
-    expect(context.translate.mock.calls.slice(0, 2)).toEqual([[0, 0], [0, 0]]);
+    expect(sceneDraws[0].alpha).toBe(1);
+    expect(sceneDraws[1].alpha).toBeCloseTo(0.02);
+    expect(context.translate.mock.calls.filter(([, y]) => y === 0)).toEqual([]);
     renderer.destroy();
   });
 });

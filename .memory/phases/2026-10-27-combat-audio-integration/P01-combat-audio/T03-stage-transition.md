@@ -1,6 +1,6 @@
 # Task: T03 Wall-speed scene boundary and spawn suspension
 
-## Status: pending
+## Status: done
 
 ## Goal
 Wall-speed scene boundary and spawn suspension; apply the approved combat/audio review with deterministic state and regression coverage.
@@ -16,9 +16,9 @@ User approved all previews and requested autonomous continuation. Existing laser
 - `tests/game/renderer.test.js`: new right/old left clipping geometry at0/.5/1, no translated scene motion; reduced-motion respects complete progress.
 
 ## Acceptance Criteria
-- [ ] All behaviors and fields described above implemented.
-- [ ] Focused regressions pass; no stale async state, paused clocks or collision/render mismatch.
-- [ ] Production build and whitespace checks pass.
+- [x] All behaviors and fields described above implemented.
+- [x] Focused regressions pass; no stale async state, paused clocks or collision/render mismatch.
+- [x] Production build and whitespace checks pass.
 
 ## Validation
 - `npm test -- --run tests/game/game-engine.test.js tests/game/renderer.test.js`
@@ -35,6 +35,7 @@ Task: T03-stage-transition
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: 86 focused tests/build passed; default and Velocity transitions suspend spawns and resume once.
+- commit: see task commit

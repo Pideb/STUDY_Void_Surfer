@@ -246,7 +246,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function startWarningIfNeeded() {
-    if (warningSession || bossPreview) return;
+    if (warningSession || bossPreview || stageTransition || wallsUntilStageAdvance > 0) return;
 
     const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared);
     if (!candidate.isWarning) return;
@@ -686,8 +686,17 @@ export function createGameEngine(deps = {}) {
     let difficulty = getCurrentDifficulty();
     updateFlightTrail(deltaSeconds, difficulty.scrollSpeed);
     backgroundScrollDistancePx += difficulty.scrollSpeed * deltaSeconds * 0.25;
+    const wasTransitioning = Boolean(stageTransition);
     updateStage(deltaSeconds, difficulty.scrollSpeed);
-    if (bossEncounter?.entranceRemainingSeconds > 0) spawnAccumulatorSeconds = 0;
+    if (wasTransitioning && !stageTransition) {
+      startWarningIfNeeded();
+      const interval = (warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
+        * aircraft.spawnIntervalMultiplier;
+      spawnAccumulatorSeconds = Math.max(0, interval - deltaSeconds);
+    }
+    difficulty = getCurrentDifficulty();
+    if (stageTransition) spawnAccumulatorSeconds = 0;
+    else if (bossEncounter?.entranceRemainingSeconds > 0) spawnAccumulatorSeconds = 0;
     else if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
 

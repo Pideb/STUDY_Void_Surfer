@@ -61,6 +61,47 @@ describe('game engine', () => {
     expect(snapshot.stage.transition).toBeNull();
   });
 
+  it.each(['default', 'velocity'])('suspends new walls throughout a wall-speed transition and resumes without a burst (%s)', (aircraftId) => {
+    const { engine, step } = createRuntimeEngine({
+      initialScore: 60, initialCompletedWarningCount: 1, rng: () => 0.5,
+      aircraftId, guestMode: true,
+    });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    let snapshot = engine.getSnapshot();
+    let transitionIds = null;
+    let previous = null;
+    let transitionFrames = 0;
+    let resumed = false;
+    for (let frame = 0; frame < 1800; frame += 1) {
+      if (snapshot.challenge?.active) {
+        for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
+      }
+      previous = snapshot;
+      snapshot = step();
+      if (snapshot.stage.transition) {
+        if (!transitionIds) transitionIds = new Map(snapshot.obstacles.map((wall) => [wall.id, wall.stageId]));
+        transitionFrames += 1;
+        for (const wall of snapshot.obstacles) expect(transitionIds.get(wall.id)).toBe(wall.stageId);
+        expect(snapshot.bossPreview).toBeNull();
+        if (previous.stage.transition) {
+          expect(snapshot.stage.transition.travelledPixels - previous.stage.transition.travelledPixels)
+            .toBeCloseTo(snapshot.difficulty.scrollSpeed * 0.1);
+        }
+      } else if (previous.stage.transition) {
+        expect(snapshot.obstacles.filter((wall) => !transitionIds.has(wall.id))).toHaveLength(1);
+        const count = snapshot.obstacles.length;
+        expect(step().obstacles.length).toBeLessThanOrEqual(count);
+        resumed = true;
+        break;
+      }
+    }
+    expect(transitionFrames).toBeGreaterThan(1);
+    expect(resumed).toBe(true);
+    engine.start();
+    expect(engine.getSnapshot().stage.transition).toBeNull();
+  });
+
   it('integrates background travel at one quarter of current wall speed', () => {
     const { engine, step } = createRuntimeEngine({ rng: () => 0.5 });
     engine.start();
