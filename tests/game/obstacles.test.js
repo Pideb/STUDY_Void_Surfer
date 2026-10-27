@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createObstacle, updateObstacle } from '../../src/game/obstacles.js';
+import { createObstacle, getDashBarrierBounds, isDashObstacle, updateObstacle } from '../../src/game/obstacles.js';
 
 describe('obstacles', () => {
   it('creates a normal obstacle with a clamped gap', () => {
@@ -39,6 +39,16 @@ describe('obstacles', () => {
     expect(obstacle.width).toBe(24);
     expect(obstacle.movingGap).toBe(false);
     expect(obstacle.warningIndex).toBe(5);
+  });
+
+  it('keeps the hybrid barrier centered inside an ordinary stationary gap wall', () => {
+    const wall = createObstacle({ id: 'hybrid', kind: 'hybrid', x: 400, gapCenter: 270, gapHeight: 180, movingGap: true, showTimingGuide: true });
+    expect(wall).toMatchObject({ kind: 'hybrid', width: 72, movingGap: false, barrierBroken: false, showTimingGuide: true });
+    expect(isDashObstacle(wall)).toBe(true);
+    expect(getDashBarrierBounds(wall)).toEqual({ x: 424, width: 24 });
+    updateObstacle(wall, 0.5, 240, 10);
+    expect(getDashBarrierBounds(wall)).toEqual({ x: 304, width: 24 });
+    expect(wall.gapCenter).toBe(270);
   });
 
   it('moves left according to speed and delta', () => {

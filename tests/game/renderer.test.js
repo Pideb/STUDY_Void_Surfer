@@ -313,6 +313,20 @@ describe('renderer', () => {
     expect(context.lineTo.mock.calls.length).toBeGreaterThanOrEqual(8);
   });
 
+  it('clips the hybrid special blade to the ordinary opening and keeps the local break', () => {
+    const context = createContext();
+    const wall = { kind: 'hybrid', x: 500, width: 72, gapCenter: 270, gapHeight: 180, barrierBroken: false };
+    drawObstacle(context, wall);
+    expect(context.fillRect).toHaveBeenCalledWith(500, 0, 72, 180);
+    expect(context.fillRect).toHaveBeenCalledWith(500, 360, 72, 180);
+    expect(context.rect).toHaveBeenCalledWith(0, 180, WORLD_WIDTH, 180);
+    expect(context.fillRect).toHaveBeenCalledWith(524, 0, 24, WORLD_HEIGHT);
+    context.fillRect.mockClear();
+    drawObstacle(context, { ...wall, barrierBroken: true, barrierBreakY: 270 });
+    expect(context.fillRect).not.toHaveBeenCalledWith(524, 0, 24, WORLD_HEIGHT);
+    expect(context.save.mock.calls.length).toBe(context.restore.mock.calls.length);
+  });
+
   it('draws both a trail and a hull shock ring for normal and special dashes', () => {
     const canvas = document.createElement('canvas');
     const normalContext = createContext();

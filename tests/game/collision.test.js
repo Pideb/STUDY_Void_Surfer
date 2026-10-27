@@ -47,6 +47,23 @@ describe('collision', () => {
     expect(intersectsPlayerObstacle(player, specialWall)).toBe(true);
   });
 
+  it('keeps hybrid upper/lower solids lethal while dashing only through the inner barrier', () => {
+    const player = createPlayer();
+    const wall = makeObstacle({ x: 220, kind: 'hybrid' });
+    expect(intersectsPlayerObstacle(player, wall)).toBe(true);
+    startDash(player, 0.6, wall.id, 'special');
+    expect(intersectsPlayerObstacle(player, wall)).toBe(false);
+    expect(intersectsPlayerObstacle({ ...player, y: 80 }, wall)).toBe(true);
+    expect(intersectsPlayerObstacle({ ...player, y: 460 }, wall)).toBe(true);
+    expect(intersectsPlayerObstacle(player, { ...wall, id: 'another' })).toBe(true);
+    advanceDash(player, 0.6);
+    wall.barrierBroken = true;
+    expect(intersectsPlayerObstacle(player, wall)).toBe(false);
+    expect(intersectsPlayerObstacle({ ...player, y: 80 }, wall)).toBe(true);
+    // Touching only the normal frame inside its opening must not hit the recessed barrier.
+    expect(intersectsPlayerObstacle(player, makeObstacle({ x: 250, kind: 'hybrid' }))).toBe(false);
+  });
+
   it('keeps normal dashes collidable with every wall', () => {
     const player = createPlayer();
     const specialWall = makeObstacle({ kind: 'special' });

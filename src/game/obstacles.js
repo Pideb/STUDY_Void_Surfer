@@ -1,5 +1,14 @@
 import { MOVING_GAP_AMPLITUDE, OBSTACLE_WIDTH, SPECIAL_OBSTACLE_WIDTH, WORLD_HEIGHT } from './constants.js';
 
+export function isDashObstacle(obstacle) {
+  return obstacle?.kind === 'special' || obstacle?.kind === 'hybrid';
+}
+
+export function getDashBarrierBounds(obstacle) {
+  const width = obstacle.kind === 'hybrid' ? SPECIAL_OBSTACLE_WIDTH : obstacle.width;
+  return { x: obstacle.x + (obstacle.width - width) / 2, width };
+}
+
 function clampGapCenter(gapCenter, gapHeight) {
   const halfGap = gapHeight / 2;
   const safeCenter = Number.isFinite(gapCenter) ? gapCenter : WORLD_HEIGHT / 2;
@@ -26,7 +35,7 @@ export function createObstacle({
   }
 
   const safeGapHeight = Math.max(1, Math.min(WORLD_HEIGHT, Number(gapHeight) || 1));
-  const normalizedKind = kind === 'special' ? 'special' : 'normal';
+  const normalizedKind = ['special', 'hybrid'].includes(kind) ? kind : 'normal';
   const canMoveGap = normalizedKind === 'normal' && Boolean(movingGap);
   const baseGapCenter = clampGapCenter(gapCenter, safeGapHeight);
   const safeAmplitude = Number.isFinite(gapMotionAmplitude)
@@ -47,12 +56,14 @@ export function createObstacle({
     baseGapCenter,
     gapHeight: safeGapHeight,
     kind: normalizedKind,
+    barrierBroken: false,
+    barrierBreakY: null,
     warningIndex: Math.max(0, Math.trunc(warningIndex)),
     movingGap: canMoveGap,
     gapMotionPhase: canMoveGap ? safePhase : null,
     gapMotionAmplitude: canMoveGap ? safeAmplitude : 0,
     gapMotionCycleSeconds: canMoveGap ? safeCycle : null,
-    showTimingGuide: normalizedKind === 'special' && Boolean(showTimingGuide),
+    showTimingGuide: normalizedKind !== 'normal' && Boolean(showTimingGuide),
     stageId: typeof stageId === 'string' && stageId.length > 0 ? stageId : null,
     visualSeed: Number(rng()) || 0,
     passed: false,

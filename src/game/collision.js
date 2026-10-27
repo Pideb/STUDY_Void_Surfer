@@ -5,6 +5,7 @@ import {
   WORLD_HEIGHT,
 } from './constants.js';
 import { getLaserFrontX } from './boss-attacks.js';
+import { getDashBarrierBounds, isDashObstacle } from './obstacles.js';
 
 function getPlayerBounds(player) {
   return {
@@ -24,14 +25,12 @@ export function intersectsPlayerObstacle(player, obstacle) {
     return false;
   }
 
-  if (player.isDashing && player.dashKind === 'special'
-    && player.dashTargetId && obstacle.kind === 'special'
-    && player.dashTargetId === obstacle.id) {
-    return false;
-  }
+  const targetedDash = player.isDashing && player.dashKind === 'special'
+    && player.dashTargetId && isDashObstacle(obstacle)
+    && player.dashTargetId === obstacle.id;
 
   if (obstacle.kind === 'special') {
-    return true;
+    return !targetedDash;
   }
 
   const bounds = getPlayerBounds(player);
@@ -40,7 +39,12 @@ export function intersectsPlayerObstacle(player, obstacle) {
   const overlapsTopSolid = bounds.top < gapTop;
   const overlapsBottomSolid = bounds.bottom > gapBottom && bounds.top < WORLD_HEIGHT;
 
-  return overlapsTopSolid || overlapsBottomSolid;
+  if (overlapsTopSolid || overlapsBottomSolid) return true;
+  if (obstacle.kind === 'hybrid') {
+    return !obstacle.barrierBroken && !targetedDash
+      && overlapsHorizontal(bounds, getDashBarrierBounds(obstacle));
+  }
+  return false;
 }
 
 export function isSpecialTimingSuccess({ playerX, wallX, speed, windowSeconds }) {

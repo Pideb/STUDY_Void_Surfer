@@ -7,6 +7,7 @@ import {
   STAR_FIELD,
   VISUAL_THEME,
 } from './visual-theme.js';
+import { getDashBarrierBounds } from './obstacles.js';
 import { drawLaser } from './laser-renderer.js';
 import { VISUAL_ASSET_MANIFEST } from './visual-assets.js';
 
@@ -313,6 +314,19 @@ function drawClippedWallAsset(ctx, image, obstacle, y, height, sourceXRatio, sou
 }
 
 export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = null, visualAssets = null, reducedMotion = false) {
+  if (obstacle.kind === 'hybrid') {
+    drawObstacle(ctx, { ...obstacle, kind: 'normal', showTimingGuide: false, breakEffect: null }, theme, difficulty, visualAssets, reducedMotion);
+    const barrier = getDashBarrierBounds(obstacle);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(0, obstacle.gapCenter - obstacle.gapHeight / 2, WORLD_WIDTH, obstacle.gapHeight);
+    ctx.clip();
+    const breakEffect = obstacle.breakEffect ?? (obstacle.barrierBroken
+      ? { centerY: obstacle.barrierBreakY, remainingSeconds: 0, durationSeconds: 1, seed: 0 } : null);
+    drawObstacle(ctx, { ...obstacle, ...barrier, kind: 'special', breakEffect }, theme, difficulty, visualAssets, reducedMotion);
+    ctx.restore();
+    return;
+  }
   const isSpecial = obstacle.kind === 'special';
   const visual = obstacle.stageId ? resolveStageTheme(obstacle.stageId) : theme;
   const primary = isSpecial ? visual.specialObstacle : visual.obstacle;

@@ -1,6 +1,6 @@
 # Task: T02 Combined gap and dash-barrier walls
 
-## Status: pending
+## Status: done
 
 ## Goal
 Combined gap and dash-barrier walls; apply the approved combat/audio review with deterministic state and regression coverage.
@@ -17,9 +17,9 @@ User approved all previews and requested autonomous continuation. Existing laser
 - Meaningful regressions in `tests/game/{obstacles,collision,game-engine,renderer,laser-safety}.test.js`: top/bottom solids lethal during targeted dash; barrier intact/lethal, correct timed dash, no guide offset; first-boss gating, seeded repeated boss clears with mixed kinds and laser gaps safe.
 
 ## Acceptance Criteria
-- [ ] All behaviors and fields described above implemented.
-- [ ] Focused regressions pass; no stale async state, paused clocks or collision/render mismatch.
-- [ ] Production build and whitespace checks pass.
+- [x] All behaviors and fields described above implemented.
+- [x] Focused regressions pass; no stale async state, paused clocks or collision/render mismatch.
+- [x] Production build and whitespace checks pass.
 
 ## Validation
 - `npm test -- --run tests/game/obstacles.test.js tests/game/collision.test.js tests/game/game-engine.test.js tests/game/renderer.test.js tests/game/laser-safety.test.js`
@@ -36,6 +36,8 @@ Task: T02-hybrid-walls
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: 104 focused tests and build passed, including 20 seeded boss clears.
+- `barrierBreakY:number|null` retains local break geometry after its transient effect.
+- commit: see task commit

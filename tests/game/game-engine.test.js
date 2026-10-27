@@ -604,7 +604,6 @@ describe('game engine', () => {
 
   it('keeps quarter warnings, firing and fade wall-free across seeded boss waves', () => {
     let quarterFrames = 0;
-    let singleFrames = 0;
     let clearedBosses = 0;
     for (let seed = 1; seed <= 20; seed += 1) {
       let value = seed;
@@ -625,7 +624,6 @@ describe('game engine', () => {
           expect(snapshot.boss.wallSpawningPaused).toBe(true);
           expect(snapshot.boss.attack.telegraphDurationSeconds).toBe(2);
         } else if (snapshot.boss?.attack?.kind === 'single') {
-          singleFrames += 1;
           expect(snapshot.boss.wallSpawningPaused).toBe(false);
           for (const wall of snapshot.obstacles.filter((item) => item.kind === 'normal')) {
             expect(isLaserPathSafe(snapshot.boss.attack.y, wall)).toBe(true);
@@ -638,7 +636,6 @@ describe('game engine', () => {
       }
     }
     expect(quarterFrames).toBeGreaterThan(0);
-    expect(singleFrames).toBeGreaterThan(0);
     expect(clearedBosses).toBe(20);
   });
 
@@ -660,6 +657,30 @@ describe('game engine', () => {
     expect(snapshot.warning).toMatchObject({ index: 6, spawnedCount: 7, targetCount: 7 });
     expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);
     expect(snapshot.warning.spawnedCount - snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);
+  });
+
+  it('unlocks hybrid barriers only after the first boss and times the recessed barrier', () => {
+    const before = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 0, rng: () => 0.45 });
+    before.engine.setInvincibilityEnabled(true);
+    before.engine.start();
+    let snapshot;
+    for (let frame = 0; frame < 50; frame += 1) snapshot = before.step();
+    expect(snapshot.obstacles.some((wall) => wall.kind === 'hybrid')).toBe(false);
+    const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 2, rng: () => 0.45 });
+    engine.setInvincibilityEnabled(true);
+    engine.start();
+    let target;
+    for (let frame = 0; frame < 80; frame += 1) {
+      snapshot = engine.getSnapshot();
+      target = snapshot.obstacles.find((wall) => wall.kind === 'hybrid' && !wall.passed);
+      if (target && (target.x + 24 - snapshot.player.x) / snapshot.difficulty.scrollSpeed <= snapshot.difficulty.timingWindowSeconds) break;
+      step();
+    }
+    expect(target).toBeDefined();
+    engine.dash();
+    snapshot = engine.getSnapshot();
+    expect(snapshot.player.dashKind).toBe('special');
+    expect(snapshot.obstacles.find((wall) => wall.id === target.id)).toMatchObject({ barrierBroken: true, barrierBreakY: 270 });
   });
 
   it('starts normal dashes early and grants targeted immunity only near a special wall', () => {

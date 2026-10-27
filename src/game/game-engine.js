@@ -42,7 +42,7 @@ import {
   shouldSpawnMovingGap,
   shouldSpawnSpecial,
 } from './difficulty.js';
-import { createObstacle, updateObstacle } from './obstacles.js';
+import { createObstacle, getDashBarrierBounds, isDashObstacle, updateObstacle } from './obstacles.js';
 import { advanceScore } from './score.js';
 import { getAircraftDefinition, isAircraftUnlocked } from './aircraft.js';
 import { createStageShuffleBag, getStageDefinition } from './stages.js';
@@ -308,15 +308,16 @@ export function createGameEngine(deps = {}) {
       : 0;
     const forceNormal = Boolean(session?.isBoss && remainingSlots <= remainingNormals);
     const forceSpecial = Boolean(session && remainingSlots <= remainingSpecials);
-    const kind = forceNormal ? 'normal'
+    let kind = forceNormal ? 'normal'
       : forceSpecial || shouldSpawnSpecial(rng, difficulty) ? 'special' : 'normal';
+    if (kind === 'special' && firstBossCleared && safeRandom(rng) < 0.5) kind = 'hybrid';
     const movingGap = kind === 'normal' && shouldSpawnMovingGap(rng, difficulty);
     const gapMotionCycleSeconds = movingGap
       ? (difficulty.isWarning || difficulty.isBoss
         ? WARNING_MOVING_GAP_CYCLE_SECONDS
         : NORMAL_MOVING_GAP_CYCLE_SECONDS)
       : null;
-    const showTimingGuide = kind === 'special' && !firstBossCleared;
+    const showTimingGuide = kind !== 'normal' && !firstBossCleared;
     let gapCenter = createGapCenter(difficulty.gapHeight, rng);
     if (previousBaseGapCenter !== null
       && (scoreSession.progressionScore >= GAP_CONTINUITY_SCORE || aircraft.id === 'velocity')) {
@@ -341,8 +342,8 @@ export function createGameEngine(deps = {}) {
     previousBaseGapCenter = obstacle.baseGapCenter;
     if (session) {
       session.spawnedCount += 1;
-      if (kind === 'special') session.specialObstacleIds.add(obstacle.id);
-      if (kind === 'special') session.specialSpawnedCount += 1;
+      if (isDashObstacle(obstacle)) session.specialObstacleIds.add(obstacle.id);
+      if (isDashObstacle(obstacle)) session.specialSpawnedCount += 1;
     }
   }
 
@@ -747,15 +748,23 @@ export function createGameEngine(deps = {}) {
     if (challenge?.active) return false;
     const difficulty = getCurrentDifficulty();
     const target = obstacles
-      .filter((obstacle) => obstacle.kind === 'special' && !obstacle.passed && obstacle.x >= player.x)
-      .sort((left, right) => left.x - right.x)[0];
-    const isSpecialDash = target && isSpecialTimingSuccess({
+      .filter((obstacle) => isDashObstacle(obstacle) && !obstacle.barrierBroken && !obstacle.passed
+        && getDashBarrierBounds(obstacle).x >= player.x)
+      .sort((left, right) => getDashBarrierBounds(left).x - getDashBarrierBounds(right).x)[0];
+    const insideGap = !target || target.kind !== 'hybrid'
+      || (player.y - player.height / 2 >= target.gapCenter - target.gapHeight / 2
+        && player.y + player.height / 2 <= target.gapCenter + target.gapHeight / 2);
+    const isSpecialDash = target && insideGap && isSpecialTimingSuccess({
       playerX: player.x,
-      wallX: target.x,
+      wallX: getDashBarrierBounds(target).x,
       speed: difficulty.scrollSpeed,
       windowSeconds: difficulty.timingWindowSeconds,
     });
     startDash(player, DASH_DURATION_SECONDS, isSpecialDash ? target.id : null, isSpecialDash ? 'special' : 'normal');
+    if (isSpecialDash && target.kind === 'hybrid') {
+      target.barrierBroken = true;
+      target.barrierBreakY = player.y;
+    }
     if (isSpecialDash) target.breakEffect = {
       centerY: player.y,
       remainingSeconds: SPECIAL_BREAK_DURATION_SECONDS,
