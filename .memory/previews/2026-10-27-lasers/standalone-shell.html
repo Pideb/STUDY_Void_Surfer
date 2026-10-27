@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VOID SURFER · 레이저 애니메이션 v2</title>
+  <style>
+    :root { color-scheme: dark; --muted-foreground: #a9b8cc; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: clamp(16px, 3vw, 40px); background: #080d18; color: #eaf4ff; font: 16px/1.5 system-ui, sans-serif; }
+    main { max-width: 1536px; margin: 0 auto; }
+    h1 { margin: 0 0 6px; font-size: clamp(20px, 3vw, 28px); }
+    p { margin: 0 0 24px; color: #a9b8cc; }
+    h3 { font-size: 18px; }
+    .btn { min-height: 44px; padding: 8px 16px; border: 1px solid #405575; border-radius: 6px; background: #17263d; color: #eaf4ff; font: inherit; cursor: pointer; }
+    .btn:hover { background: #223b5b; }
+    .btn:focus-visible { outline: 2px solid #8ce9ff; outline-offset: 3px; }
+    @media (min-width: 1100px) {
+      #vs-laser-preview-20261027 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      #vs-laser-preview-20261027 .vs-controls { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>VOID SURFER · 레이저 애니메이션 v2</h1>
+    <p>빛 번짐 · 둥근 발사 선단 · 흐르는 광선 · 전역 레이저 예고 2초</p>
+    __VS_PREVIEW_FRAGMENT__
+  </main>
+</body>
+</html>

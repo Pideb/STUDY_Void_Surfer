@@ -7,6 +7,7 @@ import {
   STAR_FIELD,
   VISUAL_THEME,
 } from './visual-theme.js';
+import { drawLaser } from './laser-renderer.js';
 import { VISUAL_ASSET_MANIFEST } from './visual-assets.js';
 
 function getDevicePixelRatio() {
@@ -864,56 +865,6 @@ function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null)
   ctx.restore();
 }
 
-function drawLaser(ctx, attack, theme, visualAssets = null, stageId = null) {
-  if (!attack || attack.type !== 'laser') return;
-  const telegraph = attack.telegraphRemainingSeconds > 0;
-  const alpha = telegraph ? 0.42 : 0.9;
-  ctx.save();
-  ctx.globalAlpha = alpha;
-  ctx.strokeStyle = theme.laser;
-  ctx.fillStyle = theme.laser;
-  ctx.lineWidth = Math.max(2, attack.thickness ?? 8);
-  setGlow(ctx, theme.laser, telegraph ? 8 : 20);
-  const image = getStageAsset(visualAssets, stageId, 'laser');
-  const drawLaserImage = (y) => {
-    if (!image) return;
-    const sourceY = image.height * 0.38;
-    const sourceHeight = image.height * 0.24;
-    const thickness = attack.thickness ?? 8;
-    ctx.drawImage(image, 0, sourceY, image.width, sourceHeight,
-      0, y - thickness, WORLD_WIDTH, thickness * 2);
-  };
-  if (attack.kind === 'single') {
-    if (image) {
-      drawLaserImage(attack.y);
-    } else {
-      ctx.beginPath(); ctx.moveTo(0, attack.y); ctx.lineTo(WORLD_WIDTH, attack.y); ctx.stroke();
-      if (!telegraph) ctx.fillRect(0, attack.y - (attack.thickness ?? 8) / 2, WORLD_WIDTH, attack.thickness ?? 8);
-    }
-  } else if (attack.kind === 'quarter') {
-    const zoneHeight = attack.zoneHeight ?? WORLD_HEIGHT / 4;
-    for (let zone = 0; zone < 4; zone += 1) {
-      const top = zone * zoneHeight;
-      if (zone === attack.safeZone) {
-        ctx.globalAlpha = 0.8;
-        ctx.strokeStyle = theme.primary;
-        ctx.lineWidth = 2;
-        ctx.strokeRect?.(0, top, WORLD_WIDTH, zoneHeight);
-        ctx.fillStyle = `${theme.primary}16`;
-        ctx.fillRect(0, top, WORLD_WIDTH, zoneHeight);
-        ctx.globalAlpha = alpha;
-      } else if (!telegraph) {
-        ctx.globalAlpha = 0.24;
-        ctx.fillRect(0, top, WORLD_WIDTH, zoneHeight);
-        drawLaserImage(top + zoneHeight / 2);
-        ctx.globalAlpha = alpha;
-      }
-    }
-  }
-  resetGlow(ctx);
-  ctx.restore();
-}
-
 function drawChallengeEffects(ctx, challenge, feedbackEffect) {
   if (challenge?.active) {
     ctx.save();
@@ -990,7 +941,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       }, visualAssets, prefersReducedMotion);
     }
 
-    drawLaser(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
+    drawLaser(ctx, snapshot.boss?.attack);
     drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
     drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id, prefersReducedMotion);
     if (!snapshot.deathEffect) {

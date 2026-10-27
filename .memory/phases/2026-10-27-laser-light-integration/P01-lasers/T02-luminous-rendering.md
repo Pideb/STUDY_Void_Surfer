@@ -1,6 +1,6 @@
 # Task: T02 Luminous Rendering
 
-## Status: pending
+## Status: done
 
 ## Goal
 Replace rectangular lasers with the approved v2 light in real gameplay, preserving readable safe lanes.
@@ -25,9 +25,9 @@ Use code-native Canvas glow, not flat stretched PNG rectangles. Cyan/white appro
 - Document .7s single, 2s quarter warning and no-gap / wall-free scheduling in README.
 
 ## Acceptance Criteria
-- [ ] Real renderer uses approved layered light and right-to-left motion.
-- [ ] Safe lane stays marked; active glow excludes it.
-- [ ] Full suite and build pass; phase/current reflect completion.
+- [x] Real renderer uses approved layered light and right-to-left motion.
+- [x] Safe lane stays marked; active glow excludes it.
+- [x] Full suite and build pass; phase/current reflect completion.
 
 ## Validation
 - `npm test -- --run`
@@ -48,6 +48,8 @@ Task: T02-luminous-rendering
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: all 30 files / 265 tests, production build and whitespace checks passed.
+- Visual reference: user-approved standalone v2 preview; runtime geometry verified by Canvas tests. No claim of a fresh browser playtest.
+- commit: see task commit

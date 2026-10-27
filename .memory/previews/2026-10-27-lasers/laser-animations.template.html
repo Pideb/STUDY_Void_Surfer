@@ -1,0 +1,310 @@
+<div id="vs-laser-preview-20261027">
+  <style>
+    #vs-laser-preview-20261027 { display: grid; gap: 20px; }
+    #vs-laser-preview-20261027 .vs-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+    #vs-laser-preview-20261027 h3 { margin: 0; }
+    #vs-laser-preview-20261027 .vs-status { color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+    #vs-laser-preview-20261027 figure { margin: 0; display: grid; gap: 8px; }
+    #vs-laser-preview-20261027 .vs-playfield { position: relative; overflow: hidden; background: #030713; color: #e9fcff; font: 500 14px system-ui, sans-serif; }
+    #vs-laser-preview-20261027 canvas { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; }
+    #vs-laser-preview-20261027 .vs-hp { position: absolute; inset: 12px auto auto 12px; display: flex; align-items: center; gap: 10px; padding: 6px 10px; background: #050d1ee6; }
+    #vs-laser-preview-20261027 .vs-hp-bars { display: flex; gap: 5px; }
+    #vs-laser-preview-20261027 .vs-hp-bars i { display: block; width: 20px; height: 9px; background: #83f6ff; box-shadow: 0 0 8px #50e6ff88; }
+    #vs-laser-preview-20261027 .vs-controls { display: flex; flex-wrap: wrap; gap: 8px; }
+    #vs-laser-preview-20261027 img[hidden] { display: none; }
+  </style>
+  <div class="vs-controls">
+    <button class="btn" type="button" data-action="pause" aria-pressed="false">일시정지</button>
+    <button class="btn" type="button" data-action="restart">처음부터 재생</button>
+  </div>
+  <figure>
+    <figcaption class="vs-heading"><h3>단일 레이저</h3><span class="vs-status" data-status="single"></span></figcaption>
+    <div class="vs-playfield">
+      <div class="vs-hp" aria-label="보스 체력 3"><span>BOSS HP</span><span class="vs-hp-bars" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <canvas width="960" height="540" data-laser="single" role="img" aria-label="무작위 높이의 예고선 뒤에 흰색 청록 레이저가 화면 오른쪽에서 왼쪽으로 뻗습니다.">단일 레이저 발사 미리보기</canvas>
+    </div>
+  </figure>
+  <figure>
+    <figcaption class="vs-heading"><h3>전역 레이저</h3><span class="vs-status" data-status="quarter"></span></figcaption>
+    <div class="vs-playfield">
+      <div class="vs-hp" aria-label="보스 체력 3"><span>BOSS HP</span><span class="vs-hp-bars" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <canvas width="960" height="540" data-laser="quarter" role="img" aria-label="안전한 한 구역을 2초 동안 표시한 뒤 나머지 세 구역에 오른쪽에서 왼쪽으로 넓고 밝은 레이저가 발사됩니다.">전역 레이저 발사 미리보기</canvas>
+    </div>
+  </figure>
+  <img data-art="background" src="__VS_BACKGROUND__" alt="" hidden>
+  <img data-art="boss" src="__VS_BOSS__" alt="" hidden>
+  <img data-art="ship" src="__VS_SHIP__" alt="" hidden>
+  <script>
+    (() => {
+      const root = document.getElementById('vs-laser-preview-20261027');
+      if (!root || root.dataset.initialized) return;
+      root.dataset.initialized = 'true';
+      const art = Object.fromEntries([...root.querySelectorAll('img[data-art]')].map(image => [image.dataset.art, image]));
+      const pauseButton = root.querySelector('[data-action="pause"]');
+      const restartButton = root.querySelector('[data-action="restart"]');
+      const panels = ['single', 'quarter'].map(kind => ({
+        kind, canvas: root.querySelector(`[data-laser="${kind}"]`),
+        status: root.querySelector(`[data-status="${kind}"]`), phase: null,
+      }));
+      const W = 960, H = 540;
+      const clamp = value => Math.max(0, Math.min(1, value));
+      const cyan = '#55eaff', white = '#f6ffff';
+      let paused = Boolean(window.openai?.widgetState?.privateContent?.paused);
+      let elapsed = 0, previousTimestamp = null, frameId = null, disposed = false;
+      let visible = true;
+
+      function saveState() {
+        window.openai?.setWidgetState?.({
+          modelContent: { singleLaserDirection: 'right-to-left', quarterWarningSeconds: 2 },
+          privateContent: { paused },
+        }).catch(() => {});
+      }
+
+      function reflectControls() {
+        pauseButton.textContent = paused ? '계속 재생' : '일시정지';
+        pauseButton.setAttribute('aria-pressed', String(paused));
+      }
+
+      function scene(ctx, time) {
+        ctx.clearRect(0, 0, W, H);
+        ctx.drawImage(art.background, 0, 0, W, H);
+        ctx.fillStyle = 'rgba(1, 4, 15, 0.48)';
+        ctx.fillRect(0, 0, W, H);
+        ctx.save();
+        ctx.shadowColor = '#81adff'; ctx.shadowBlur = 12;
+        ctx.drawImage(art.boss, 748, 203 + Math.sin(time * 1.1) * 8, 192, 128);
+        ctx.restore();
+      }
+
+      function ship(ctx, y, time) {
+        const x = 240;
+        ctx.save();
+        ctx.strokeStyle = '#72f9e9'; ctx.shadowColor = '#72f9e9'; ctx.shadowBlur = 9;
+        ctx.lineCap = 'round'; ctx.lineWidth = 4;
+        ctx.beginPath(); ctx.moveTo(x - 125, y + 5);
+        ctx.bezierCurveTo(x - 80, y + 13, x - 54, y - 6, x - 22, y);
+        ctx.stroke();
+        ctx.shadowBlur = 6;
+        ctx.drawImage(art.ship, x - 33, y - 22 + Math.sin(time * 1.3) * 2, 66, 44);
+        ctx.restore();
+      }
+
+      function charge(ctx, y, radius, strength) {
+        ctx.save();
+        const glow = ctx.createRadialGradient(W - 8, y, 0, W - 8, y, radius);
+        glow.addColorStop(0, `rgba(245,255,255,${strength})`);
+        glow.addColorStop(0.28, `rgba(89,232,255,${strength * 0.7})`);
+        glow.addColorStop(1, 'rgba(40,154,255,0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(W - radius - 8, y - radius, radius * 2, radius * 2);
+        ctx.restore();
+      }
+
+      function beam(ctx, y, height, front, time, opacity = 1) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.lineCap = 'round';
+        const broad = height > 30;
+        const tip = front > 0 ? front : -height * 2;
+        const shimmer = 0.96 + Math.sin(time * 9 + y * 0.03) * 0.04;
+
+        // Overlapping soft rays have no rectangular face or hard vertical leading edge.
+        function ray(centerY, width, color, alpha, blur = 0, offset = 0) {
+          ctx.save();
+          ctx.globalAlpha = opacity * alpha * shimmer;
+          ctx.strokeStyle = color;
+          ctx.lineWidth = width;
+          ctx.filter = blur > 0 ? `blur(${blur}px)` : 'none';
+          ctx.beginPath();
+          ctx.moveTo(W + height * 2, centerY);
+          ctx.lineTo(tip + width / 2 + offset, centerY);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        ray(y, height * 1.45, '#227eff', 0.08, broad ? 20 : 12);
+        ray(y, height, '#36caff', 0.17, broad ? 13 : 7);
+        ray(y, height * 0.6, cyan, 0.28, broad ? 9 : 4);
+        ray(y, height * 0.29, '#a5faff', 0.58, broad ? 6 : 2);
+        ray(y, Math.max(2, height * 0.1), white, 0.92, broad ? 3 : 0);
+
+        const filaments = broad ? 11 : 5;
+        for (let index = 0; index < filaments; index += 1) {
+          const fraction = (index / (filaments - 1) - 0.5) * 2;
+          const lineY = y + fraction * height * 0.36
+            + Math.sin(time * 5 + index * 1.9) * height * 0.018;
+          const alpha = 0.12 + (1 - Math.abs(fraction)) * 0.35;
+          ray(lineY, broad ? 1.5 + (index % 3) : 0.9, '#d2ffff', alpha, 2,
+            Math.abs(fraction) * height * 0.23);
+        }
+
+        // Fine highlights stream left within the glow rather than outlining a box.
+        ctx.shadowColor = cyan;
+        ctx.shadowBlur = 8;
+        ctx.filter = 'none';
+        for (let index = 0; index < (broad ? 22 : 10); index += 1) {
+          const x = ((index * 103 - time * 980) % (W + 180) + W + 180) % (W + 180) - 90;
+          if (x < front + 20 || x > W) continue;
+          const offsetY = Math.sin(index * 2.4) * height * 0.39;
+          const length = 16 + (index % 5) * 9;
+          const highlight = ctx.createLinearGradient(x, 0, x + length, 0);
+          highlight.addColorStop(0, 'rgba(221,255,255,0)');
+          highlight.addColorStop(0.65, 'rgba(221,255,255,0.55)');
+          highlight.addColorStop(1, 'rgba(221,255,255,0)');
+          ctx.strokeStyle = highlight;
+          ctx.globalAlpha = opacity * 0.6;
+          ctx.lineWidth = 1 + index % 2;
+          ctx.beginPath(); ctx.moveTo(x, y + offsetY);
+          ctx.lineTo(x + length, y + offsetY); ctx.stroke();
+        }
+
+        if (front > 0) {
+          ctx.save();
+          ctx.globalAlpha = opacity;
+          ctx.shadowBlur = 0;
+          ctx.translate(front + height * 0.18, y);
+          ctx.scale(broad ? 0.55 : 1, 1);
+          const radius = Math.max(18, height * 0.58);
+          const flare = ctx.createRadialGradient(0, 0, 0, 0, 0, radius);
+          flare.addColorStop(0, 'rgba(247,255,255,0.95)');
+          flare.addColorStop(0.2, 'rgba(162,249,255,0.65)');
+          flare.addColorStop(0.55, 'rgba(52,202,255,0.2)');
+          flare.addColorStop(1, 'rgba(52,202,255,0)');
+          ctx.fillStyle = flare;
+          ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fill();
+          ctx.restore();
+        }
+        ctx.restore();
+      }
+
+      function safeLane(ctx, zone, time, warning) {
+        const top = zone * H / 4, height = H / 4;
+        ctx.save();
+        ctx.fillStyle = warning ? 'rgba(28,223,181,0.05)' : 'rgba(5,30,36,0.14)';
+        ctx.fillRect(0, top, W, height);
+        ctx.strokeStyle = '#7effd7'; ctx.lineWidth = warning ? 3 : 2;
+        ctx.shadowColor = '#7effd7'; ctx.shadowBlur = warning ? 9 : 3;
+        ctx.beginPath();
+        ctx.moveTo(0, top + 3); ctx.lineTo(W, top + 3);
+        ctx.moveTo(0, top + height - 3); ctx.lineTo(W, top + height - 3);
+        ctx.stroke();
+        ctx.fillStyle = '#7effd7';
+        ctx.beginPath();
+        ctx.moveTo(22 + Math.sin(time * 3) * 3, top + height / 2);
+        ctx.lineTo(38, top + height / 2 - 10); ctx.lineTo(38, top + height / 2 + 10);
+        ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+
+      function status(panel, text, phase) {
+        panel.status.textContent = text;
+        panel.status.dataset.phase = phase;
+        panel.phase = phase;
+      }
+
+      function drawSingle(panel, time) {
+        const ctx = panel.canvas.getContext('2d');
+        const cycle = Math.floor(time / 3.4), t = time % 3.4;
+        const heights = [0.29, 0.74, 0.44, 0.86, 0.16, 0.61];
+        const y = H * heights[cycle % heights.length];
+        scene(ctx, time);
+        if (t < 0.7) {
+          ctx.save(); ctx.strokeStyle = '#8defff'; ctx.globalAlpha = 0.65;
+          ctx.setLineDash([12, 12]); ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); ctx.restore();
+          charge(ctx, y, 24 + 17 * t / 0.7, 0.5 + 0.4 * t / 0.7);
+          status(panel, `발사 예고 ${(0.7 - t).toFixed(1)}초 · 높이 무작위`, 'warning');
+        } else if (t < 1.7) {
+          const front = W * (1 - clamp((t - 0.7) / 0.4));
+          beam(ctx, y, 18, front, time);
+          charge(ctx, y, 48, 1);
+          status(panel, front > 0 ? '오른쪽 → 왼쪽 발사' : '발사 중', 'active');
+        } else if (t < 1.85) {
+          beam(ctx, y, 18, 0, time, 1 - (t - 1.7) / 0.15);
+          status(panel, '잔광 소멸', 'fade');
+        } else status(panel, '다음 발사 높이 선택', 'rest');
+        const shipY = y < H / 2 ? Math.min(H - 45, y + 100) : Math.max(65, y - 100);
+        ship(ctx, shipY, time);
+      }
+
+      function drawQuarter(panel, time) {
+        const ctx = panel.canvas.getContext('2d');
+        const cycle = Math.floor(time / 4.5), t = time % 4.5;
+        const zones = [2, 0, 3, 1];
+        const safe = zones[cycle % zones.length], zoneHeight = H / 4;
+        scene(ctx, time);
+        safeLane(ctx, safe, time, t < 2);
+        if (t < 2) {
+          for (let zone = 0; zone < 4; zone += 1) {
+            if (zone === safe) continue;
+            ctx.save();
+            ctx.strokeStyle = 'rgba(99,226,255,0.25)'; ctx.setLineDash([14, 16]);
+            ctx.lineWidth = 1;
+            for (const fraction of [0.2, 0.5, 0.8]) {
+              const y = (zone + fraction) * zoneHeight;
+              ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+            }
+            ctx.restore();
+            charge(ctx, (zone + 0.5) * zoneHeight, 28, 0.3 + t * 0.22);
+          }
+          status(panel, `안전 구역 ${safe + 1} · 발사까지 ${(2 - t).toFixed(1)}초`, 'warning');
+        } else if (t < 3.15) {
+          const front = W * (1 - clamp((t - 2) / 0.4));
+          const opacity = t < 3 ? 1 : 1 - (t - 3) / 0.15;
+          ctx.save(); ctx.beginPath();
+          if (safe > 0) ctx.rect(0, 0, W, safe * zoneHeight);
+          if (safe < 3) ctx.rect(0, (safe + 1) * zoneHeight, W, H - (safe + 1) * zoneHeight);
+          ctx.clip();
+          for (let zone = 0; zone < 4; zone += 1) {
+            if (zone === safe) continue;
+            beam(ctx, (zone + 0.5) * zoneHeight, zoneHeight - 8, front, time, opacity);
+            charge(ctx, (zone + 0.5) * zoneHeight, 60, opacity);
+          }
+          ctx.restore();
+          status(panel, t >= 3 ? '잔광 소멸' : front > 0 ? '세 구역 동시 발사 · 오른쪽 → 왼쪽' : `안전 구역 ${safe + 1} 유지`, t >= 3 ? 'fade' : 'active');
+        } else status(panel, '다음 안전 구역 선택', 'rest');
+        ship(ctx, (safe + 0.5) * zoneHeight, time);
+      }
+
+      function draw() {
+        drawSingle(panels[0], elapsed);
+        drawQuarter(panels[1], elapsed);
+        root.dataset.previewTime = elapsed.toFixed(2);
+      }
+
+      function tick(timestamp) {
+        if (disposed) return;
+        if (!root.isConnected) { disposed = true; return; }
+        if (!paused && visible && !document.hidden && previousTimestamp !== null) elapsed += Math.min(0.1, (timestamp - previousTimestamp) / 1000);
+        previousTimestamp = timestamp;
+        if (visible) draw();
+        frameId = requestAnimationFrame(tick);
+      }
+
+      pauseButton.addEventListener('click', () => {
+        paused = !paused; reflectControls(); saveState();
+      });
+      restartButton.addEventListener('click', () => {
+        elapsed = 0; previousTimestamp = null; paused = false;
+        reflectControls(); draw(); saveState();
+      });
+      window.addEventListener('openai:set_globals', event => {
+        const restored = event.detail?.globals?.widgetState?.privateContent;
+        if (restored && typeof restored.paused === 'boolean') { paused = restored.paused; reflectControls(); }
+      });
+      window.addEventListener('pagehide', () => { disposed = true; cancelAnimationFrame(frameId); }, { once: true });
+      if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; previousTimestamp = null; });
+        observer.observe(root);
+      }
+      reflectControls();
+      Promise.all(Object.values(art).map(image => image.complete && image.naturalWidth > 0 ? Promise.resolve() : new Promise((resolve, reject) => {
+        image.addEventListener('load', resolve, { once: true });
+        image.addEventListener('error', reject, { once: true });
+      }))).then(() => {
+        root.dataset.ready = 'true';
+        draw(); frameId = requestAnimationFrame(tick);
+      }).catch(() => { panels.forEach(panel => { panel.status.textContent = '미리보기 이미지 로드 실패'; }); });
+    })();
+  </script>
+</div>

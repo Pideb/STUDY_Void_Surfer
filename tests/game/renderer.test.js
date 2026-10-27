@@ -3,6 +3,8 @@ import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import {
   createRenderer, drawBoss, drawDashTrail, drawObstacle, drawShip, drawShipDeathEffect, drawShipExhaust,
 } from '../../src/game/renderer.js';
+import { drawLaser } from '../../src/game/laser-renderer.js';
+import { createSingleLaser, createQuarterLaser, getLaserFrontX, updateLaser } from '../../src/game/boss-attacks.js';
 import { STAGE_VISUAL_THEMES, VISUAL_THEME } from '../../src/game/visual-theme.js';
 
 function createContext() {
@@ -30,6 +32,8 @@ function createContext() {
     rotate: vi.fn(),
     scale: vi.fn(),
     createRadialGradient: vi.fn(() => gradient),
+    createLinearGradient: vi.fn(() => gradient),
+    setLineDash: vi.fn(),
     gradient,
   };
 }
@@ -529,7 +533,7 @@ describe('renderer', () => {
     renderer.destroy();
   });
 
-  it('draws Crystal Gates laser art and falls back only when an individual asset is missing', () => {
+  it('draws approved luminous laser rays over stage art without stretching the old panel asset', () => {
     const canvas = document.createElement('canvas');
     const context = createContext();
     canvas.getContext = vi.fn(() => context);
@@ -546,13 +550,66 @@ describe('renderer', () => {
       obstacles: [],
       difficulty: {},
       stage: { id: 'crystal-gates', mode: 'normal', elapsedSeconds: 0 },
-      boss: { attack: { type: 'laser', kind: 'single', y: 210, thickness: 8, telegraphRemainingSeconds: 0 } },
+      boss: { attack: { type: 'laser', kind: 'single', y: 210, thickness: 18, telegraphRemainingSeconds: 0, activeRemainingSeconds: 1 } },
     });
 
     expect(context.drawImage.mock.calls.some(([drawn]) => drawn === stageBackground)).toBe(true);
-    expect(context.drawImage.mock.calls.some(([drawn]) => drawn === laser)).toBe(true);
+    expect(context.drawImage.mock.calls.some(([drawn]) => drawn === laser)).toBe(false);
+    expect(context.createLinearGradient).toHaveBeenCalled();
+    expect(context.stroke).toHaveBeenCalled();
     expect(context.fill).toHaveBeenCalled(); // The unavailable player sprite uses the procedural fallback.
     renderer.destroy();
+  });
+
+  it('draws the same right-to-left front used for collision across warning, firing and fade', () => {
+    const attack = { type: 'laser', ...createSingleLaser({ gapCenter: 270, gapHeight: 180 }) };
+    const context = createContext();
+    drawLaser(context, attack);
+    expect(context.setLineDash).toHaveBeenCalledWith([12, 12]);
+    expect(context.lineTo).toHaveBeenCalledWith(WORLD_WIDTH, attack.y);
+    expect(context.save.mock.calls.length).toBe(context.restore.mock.calls.length);
+    context.lineTo.mockClear();
+    updateLaser(attack, 0.8);
+    drawLaser(context, attack);
+    const front = getLaserFrontX(attack);
+    // The 2px white core is round-capped: its visible leading edge is exactly front.
+    expect(context.lineTo).toHaveBeenCalledWith(front + 1, attack.y);
+    expect(context.translate).toHaveBeenCalledWith(front + 18 * 0.18, attack.y);
+    expect(context.createRadialGradient).toHaveBeenCalled();
+    updateLaser(attack, 0.95);
+    expect(attack.activeRemainingSeconds).toBe(0);
+    drawLaser(context, attack);
+    const fadingStrokes = context.stroke.mock.calls.length;
+    updateLaser(attack, 1);
+    drawLaser(context, attack);
+    expect(context.stroke.mock.calls.length).toBe(fadingStrokes);
+    expect(context.save.mock.calls.length).toBe(context.restore.mock.calls.length);
+    for (const call of [...context.lineTo.mock.calls, ...context.arc.mock.calls]) {
+      expect(call.every(Number.isFinite)).toBe(true);
+    }
+  });
+
+  it.each([0, 0.3, 0.6, 0.9])('keeps quarter %s safe and uses shared glow without boxed danger panels', (random) => {
+    const attack = { type: 'laser', ...createQuarterLaser({ rng: () => random }) };
+    const context = createContext();
+    drawLaser(context, attack);
+    expect(context.setLineDash).toHaveBeenCalledWith([14, 16]);
+    expect(context.strokeRect).not.toHaveBeenCalled();
+    updateLaser(attack, 2.1);
+    context.rect.mockClear();
+    context.fillRect.mockClear();
+    drawLaser(context, attack);
+    const safeTop = attack.safeZone * 135;
+    for (const [, top, , height] of context.rect.mock.calls) {
+      expect(top + height <= safeTop || top >= safeTop + 135).toBe(true);
+    }
+    expect(context.clip).toHaveBeenCalledTimes(1);
+    expect(context.createLinearGradient).toHaveBeenCalled();
+    // Only the subtle safe-lane tint may fill the full width; danger is rendered as light.
+    expect(context.fillRect.mock.calls.filter(([, , width]) => width === WORLD_WIDTH))
+      .toEqual([[0, safeTop, WORLD_WIDTH, 135]]);
+    expect(context.strokeRect).not.toHaveBeenCalled();
+    expect(context.save.mock.calls.length).toBe(context.restore.mock.calls.length);
   });
 
   it('uses the loaded menu background without drawing a duplicate default aircraft', () => {

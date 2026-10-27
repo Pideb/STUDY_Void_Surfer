@@ -7,11 +7,12 @@
 [P01 Lasers](./phases/2026-10-27-laser-light-integration/P01-lasers/phase.md)
 
 ## Active Task
-[T01 Safe Laser Engine](./phases/2026-10-27-laser-light-integration/P01-lasers/T01-safe-laser-engine.md)
+[T02 Luminous Rendering](./phases/2026-10-27-laser-light-integration/P01-lasers/T02-luminous-rendering.md)
 
 ## Status
 - Approved v2 laser appearance and concurrent/wall-free scheduling recorded.
-- T01 in progress; T02 pending. User authorized implementation through completion.
+- T01 done (`0bf9579`): 60 related tests and production build passed.
+- T02 in progress; user authorized implementation through completion.
 
 ## Next Step (IMPORTANT)
-Implement T01 geometry, clocks, collision and scheduling, validate and commit; continue T02 rendering.
+Apply approved v2 light to the real renderer, validate full suite/build, commit and complete plan.
