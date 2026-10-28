@@ -1,0 +1,36 @@
+<!doctype html><meta charset="utf-8"><title>Penalty playback verification</title><pre id="status">Running…</pre>
+<script type="module">
+const event=(element,type)=>new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Timed out: '+type)),12000);element.addEventListener(type,()=>{clearTimeout(timer);resolve();},{once:true});element.addEventListener('error',()=>reject(new Error('Media decode error')),{once:true});});
+const report=[];
+setTimeout(async()=>{
+try{
+  for(const id of ['ink','glitch']){
+    const video=document.createElement('video');video.muted=true;video.playsInline=true;video.preload='auto';document.body.append(video);
+    await fetch('/review-status/'+id,{method:'POST',body:JSON.stringify({status:'checking-metadata'})});
+    const metadata=event(video,'loadedmetadata');video.src=id+'-v2.webm';await metadata;
+    await fetch('/review-status/'+id,{method:'POST',body:JSON.stringify({status:'checking-playback',duration:video.duration})});
+    if(!Number.isFinite(video.duration)||video.duration<5.8||video.duration>6.4)throw new Error('Invalid duration');
+    const canvas=document.createElement('canvas');canvas.width=96;canvas.height=54;const c=canvas.getContext('2d'),hashes=[],means=[];
+    const targets=[.15,1.5,2.1,5.5];
+    const sample=()=>{
+      if(!targets.length||video.currentTime<targets[0]||video.readyState<2)return;
+      targets.shift();
+      c.drawImage(video,0,0,96,54);
+      const data=c.getImageData(0,0,96,54).data;let hash=2166136261,mean=0;
+      for(let i=0;i<data.length;i++){hash=Math.imul(hash^data[i],16777619)>>>0;if(i%4!==3)mean+=data[i];}
+      hashes.push(hash);means.push(mean/(96*54*3));
+    };
+    const tick=()=>{sample();if(!video.ended)requestAnimationFrame(tick);};
+    const ended=event(video,'ended');await video.play();requestAnimationFrame(tick);await ended;
+    if(hashes.length!==4)throw new Error('Missing presented samples '+hashes.length);
+    if(hashes[1]===hashes[2])throw new Error('Static animation '+id+' '+JSON.stringify({hashes,means}));
+    if(id==='ink'&&means[1]>=means[0]*.55)throw new Error('Ink not visibly stronger');
+    const seeked=event(video,'seeked');video.currentTime=3;await seeked;
+    const previous=await(await fetch(id+'-capture.json')).json();
+    const result={...previous,status:'verified',playback:{duration:video.duration,width:video.videoWidth,height:video.videoHeight,totalFrames:video.getVideoPlaybackQuality?.().totalVideoFrames,playedToEnd:true,seekedTo:video.currentTime,hashes,means}};
+    await fetch('/review-status/'+id,{method:'POST',body:JSON.stringify(result)});report.push(result);video.remove();
+  }
+  document.querySelector('#status').textContent=JSON.stringify(report,null,2);document.title='Playback verified';
+}catch(error){document.querySelector('#status').textContent=error.stack;await fetch('/review-status/ink',{method:'POST',body:JSON.stringify({status:'verification-error',error:error.message})});}
+},200);
+</script>

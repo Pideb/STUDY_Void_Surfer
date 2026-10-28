@@ -1,0 +1,24 @@
+{
+  "status": "verified",
+  "duration": 6.017,
+  "playback": {
+    "duration": 6.017,
+    "width": 960,
+    "height": 540,
+    "totalFrames": 121,
+    "playedToEnd": true,
+    "seekedTo": 3,
+    "hashes": [
+      1797233253,
+      3654159308,
+      86013116,
+      230004938
+    ],
+    "means": [
+      23.18094135802469,
+      6.155156893004115,
+      6.09522890946502,
+      23.5917566872428
+    ]
+  }
+}

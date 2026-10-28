@@ -1,23 +1,16 @@
 # Current Context
 
 ## Active Plan
-None. [Dash and Boss Flow Refinements](./plans/2026-10-28-dash-boss-flow-refinements.md) completed 2026-10-28.
+[Menu Music and Manual Boss Laser](./plans/2026-10-28-menu-music-manual-fire.md)
 
 ## Active Phase
-None. P01 Runtime completed (5/5).
+[P01 Runtime](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/phase.md)
 
 ## Active Task
-None. All five Tasks done and committed.
+[T01 Independent manual boss weapon](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T01-manual-weapon.md)
 
 ## Status
-- T01 dash/cooldown/projectile lifecycle: ca6a8de.
-- T02 future-speed barrier spacing: 003c23e.
-- T03 distributed volleys, dual lasers and live roar: 155ea3d.
-- T04 admin hitbox and fixed full-height portal: 1439fa5.
-- T05 final integration/renderer verification: 407ee14.
-- 41 files / 556 tests passed; production build/config and whitespace checks passed.
-- User amendment preserved: projectiles are never gated on special-wall presence/timing.
-- [Evidence and actual renderer captures](./validation/2026-10-28-dash-boss-flow-refinements/report.md).
+- Plan created; user authorized automatic sequential execution of all6Tasks.
 
 ## Next Step (IMPORTANT)
-No remaining Task. Playtest using npm run dev and collect feedback on cooldown, attack frequency and difficulty. No deployment or database change performed.
+Read T01 and implement independent weapon/HP states, validate and commit before T02.
