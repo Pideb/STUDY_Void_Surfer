@@ -1,19 +1,16 @@
 # Current Context
 
 ## Active Plan
-None. [Dash Cooldown Tuning](./plans/2026-10-28-dash-cooldown-tuning.md) completed2026-10-28.
+[Central Hitbox, Clarity and Aircraft Balance](./plans/2026-10-28-central-hitbox.md)
 
 ## Active Phase
-None. P01-tuning1/1 complete.
+[P01 Runtime](./phases/2026-10-28-central-hitbox/P01-runtime/phase.md)
 
 ## Active Task
-None.
+[T01 Shared damage geometry](./phases/2026-10-28-central-hitbox/P01-runtime/T01-damage-geometry.md)
 
 ## Status
-- Space cooldown0.7s; implementation commit 86e460e.
-- Dash/projectile protection0.6s, special passage spacing1.2s and timing windows unchanged.
-- Existing4 focused test files /128 tests, production build and whitespace checks passed.
-- Previous menu/manual-laser plan remains complete: d6ba5c9.
+- Five detailed Tasks created. User authorized automatic sequential execution.
 
 ## Next Step (IMPORTANT)
-Playtest with npm run dev. No remaining Task. Azure deployment remains deferred separately; no DB/auth change.
+Read T01, implement shared16px body without changing sprite size, validate and commit.
