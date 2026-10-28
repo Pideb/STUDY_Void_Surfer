@@ -79,7 +79,7 @@ export function intersectsPlayerLaser(player, laser, worldHeight = WORLD_HEIGHT)
   }
 
   const thickness = laser.thickness || BOSS_LASER_THICKNESS;
-  return Math.abs(player.y - laser.y) <= thickness / 2 + player.height / 2;
+  return (laser.ys ?? [laser.y]).some(y => Math.abs(player.y - y) <= thickness / 2 + player.height / 2);
 }
 
 export function startDash(player, durationSeconds = DASH_DURATION_SECONDS, obstacleId = null, dashKind = 'normal') {

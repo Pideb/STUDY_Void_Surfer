@@ -8,12 +8,31 @@ import {
   reflectProjectile,
   updateBossProjectile,
   createQuarterLaser,
+  createSingleLaser,
+  isLaserPathSafe,
   updateLaser,
 } from '../../src/game/boss-attacks.js';
 import { applyLift, createPlayer, updatePlayer } from '../../src/game/player.js';
 import { intersectsPlayerLaser } from '../../src/game/collision.js';
 
 describe('consecutive global laser warnings', () => {
+  it('announces and collides with two distinct safe lines on one shared clock', () => {
+    const laser = createSingleLaser({ lineCount: 2, rng: () => .2, gapCenter: 270, gapHeight: 180 });
+    expect(laser.ys).toHaveLength(2);
+    expect(Math.abs(laser.ys[0] - laser.ys[1])).toBeGreaterThan(60);
+    for (const y of laser.ys) expect(isLaserPathSafe(y, {gapCenter:270,gapHeight:180})).toBe(true);
+    const player={...createPlayer(),y:laser.ys[1]};
+    expect(intersectsPlayerLaser(player,laser)).toBe(false);
+    updateLaser(laser,1.1);
+    expect(laser.activeElapsedSeconds).toBeCloseTo(.4);
+    expect(intersectsPlayerLaser(player,laser)).toBe(true);
+    expect(intersectsPlayerLaser({...player,y:270},laser)).toBe(false);
+  });
+  it('falls back to one line when only one small safe interval exists', () => {
+    const laser=createSingleLaser({lineCount:2,gapCenter:300,gapHeight:480,rng:()=>.5});
+    expect(laser.ys).toHaveLength(1);
+    expect(createSingleLaser({lineCount:2,gapCenter:270,gapHeight:540})).toBeNull();
+  });
   it('excludes the previous quarter for every RNG endpoint and restarts a full warning', () => {
     for (const previous of [0, 1, 2, 3]) for (const value of [0, .5, 1]) {
       const laser = createQuarterLaser({ excludeSafeZone: previous, rng: () => value });

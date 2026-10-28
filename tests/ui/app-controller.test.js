@@ -736,7 +736,7 @@ describe('app controller product flow', () => {
     expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('menu');
   });
 
-  it('plays the locked-stage roar once and blocks phantom lift feedback while the world is frozen', async () => {
+  it('plays the locked-stage roar once and permits flight until actual WASD starts', async () => {
     harness = makeHarness(); harness.controller.mount(); await settle();
     harness.controller.dispatch('START_GAME_FROM_MENU'); harness.controller.dispatch('START_PLAYING');
     harness.snapshot.stage = { id: 'crystal-gates' };
@@ -745,8 +745,12 @@ describe('app controller product flow', () => {
     expect(harness.audioManager.play).toHaveBeenCalledWith('bossRoar', { id: '1:roar-1', stageId: 'abyssal-beast' });
     expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'bossRoar')).toHaveLength(1);
     harness.canvas.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }));
-    expect(harness.gameEngine.lift).not.toHaveBeenCalled();
-    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'lift')).toHaveLength(0);
+    expect(harness.gameEngine.lift).toHaveBeenCalledOnce();
+    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'lift')).toHaveLength(1);
+    harness.snapshot.challenge = { active: true, sequence: ['KeyW'], cursor: 0, remainingSeconds: 5, timeLimitSeconds: 5 };
+    harness.frames.shift()(48);
+    harness.canvas.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }));
+    expect(harness.gameEngine.lift).toHaveBeenCalledOnce();
   });
 
   it('plays one explosion at death-effect start and refuses to pause the death sequence', async () => {

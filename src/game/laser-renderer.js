@@ -117,6 +117,10 @@ function safeLane(ctx, zone, time, warning) {
 
 export function drawLaser(ctx, attack) {
   if (!attack || attack.type !== 'laser') return;
+  if (attack.kind === 'single' && attack.ys?.length > 1) {
+    for (const y of attack.ys) drawLaser(ctx, { ...attack, y, ys: undefined });
+    return;
+  }
   const warning = attack.telegraphRemainingSeconds > 0;
   const fading = attack.activeRemainingSeconds <= 0;
   const opacity = fading ? Math.max(0, (attack.fadeRemainingSeconds ?? 0) / BOSS_LASER_FADE_SECONDS) : 1;

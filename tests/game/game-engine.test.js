@@ -796,22 +796,26 @@ describe('game engine', () => {
     expect(snapshot.warning.spawnedCount - snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);
   });
 
-  it('freezes world clocks for a full roar then gives the first boss its entire countdown', () => {
+  it('keeps flight live during roar, then freezes only WASD with its entire countdown', () => {
     const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 1, rng: () => .4 });
     engine.setInvincibilityEnabled(true); engine.start();
     let snapshot = engine.getSnapshot();
     for (let i = 0; i < 1000 && !snapshot.boss?.roar; i++) snapshot = step();
     expect(snapshot.boss?.roar).not.toBeNull();
-    const frozen = snapshot;
-    expect(engine.lift()).toBe(false); expect(engine.dash()).toBe(false);
+    const beforeRoar = snapshot;
     for (let i = 0; i < 7; i++) snapshot = step();
     expect(snapshot.boss.roar.elapsedSeconds).toBeCloseTo(.7);
-    expect(snapshot.elapsedSeconds).toBe(frozen.elapsedSeconds);
-    expect(snapshot.player).toEqual(frozen.player);
-    expect(snapshot.obstacles).toEqual(frozen.obstacles);
+    expect(snapshot.elapsedSeconds).toBeCloseTo(beforeRoar.elapsedSeconds + .7);
+    expect(snapshot.backgroundScrollDistancePx).toBeGreaterThan(beforeRoar.backgroundScrollDistancePx);
+    expect(engine.lift()).toBe(true); expect(engine.dash()).toBe(true);
     snapshot = step();
     expect(snapshot.boss.roar).toBeNull();
     expect(snapshot.challenge).toMatchObject({ active: true, remainingSeconds: 5 });
+    expect(snapshot.player.y).toBeLessThan(beforeRoar.player.y);
+    const frozen = snapshot; snapshot = step();
+    expect(snapshot.elapsedSeconds).toBe(frozen.elapsedSeconds);
+    expect(snapshot.player).toEqual(frozen.player);
+    expect(snapshot.challenge.remainingSeconds).toBeCloseTo(4.9);
     for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
     snapshot = engine.getSnapshot();
     expect(snapshot.boss.hp).toBe(3);
@@ -842,10 +846,11 @@ describe('game engine', () => {
     let queue = [];
     const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 3, rng: () => queue.shift() ?? .4 });
     engine.setInvincibilityEnabled(true); engine.start();
-    let snapshot = engine.getSnapshot(), queued = false;
+    let snapshot = engine.getSnapshot();
     const shots = new Map();
     for (let i = 0; i < 1500 && !snapshot.boss?.roar; i++) {
-      if (snapshot.boss?.attack?.type === 'volley' && !queued) { queue = [0, .99, .1, .1, .1]; queued = true; }
+      if (snapshot.boss?.attack?.type === 'volley' && snapshot.boss.volleysFired === snapshot.boss.volleyBudget
+        && snapshot.obstacles.length === 0) queue = [0, .99, .1, .1, .1];
       snapshot = step();
       const attack = snapshot.boss?.attack;
       if (attack?.kind === 'quarter' && !shots.has(attack.id)) {

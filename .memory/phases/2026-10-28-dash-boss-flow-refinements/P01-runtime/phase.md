@@ -4,13 +4,13 @@
 | Task | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
 | T01 | done | Dash cooldown, one-press input, projectile protection and offscreen lifetime | [T01](./T01-dash-projectiles.md) |
-| T02 | in_progress | Speed-aware mandatory barrier spacing | [T02](./T02-barrier-spacing.md) |
-| T03 | pending | Frequent dual lasers, distributed volleys and live roar | [T03](./T03-boss-scheduler.md) |
+| T02 | done | Speed-aware mandatory barrier spacing | [T02](./T02-barrier-spacing.md) |
+| T03 | in_progress | Frequent dual lasers, distributed volleys and live roar | [T03](./T03-boss-scheduler.md) |
 | T04 | pending | Admin hitbox display and full-height fixed portal | [T04](./T04-debug-portal.md) |
 | T05 | pending | Integrated regression and actual renderer validation | [T05](./T05-final-verification.md) |
 
 ## Progress
-- done: 1/5 (active: T02)
+- done: 2/5 (active: T03)
 
 ## Constraints
 Execute sequentially with specified commits. The user authorizes plan plus execution. Projectiles may fire with special walls without a wall-type/timing gate. Preserve laser safety, score/aircraft/account contracts and approved assets.

@@ -1,6 +1,6 @@
 # Task: T03 Distributed Boss Attacks and Live Roar
 
-## Status: pending
+## Status: done
 
 ## Goal
 Use more frequent one/two-line lasers and1..3 stage volleys during wall waves, including special walls, while flight continues until WASD starts.
@@ -42,12 +42,12 @@ BOSS_DOUBLE_LASER_CHANCE=.3;
 - Tests: RNG endpoints/uniform budget sampled once,1/2/3 usages, real volley overlap with special/hybrid and normal walls, no special gate, no starvation/stall, laser70/30 positions/warnings/collision/fallback, near versus distant special conflicts, roar moves player/world and permits inputs, challenge full time freezes world. Update superseded one-volley/frozen-roar expectations in earlier integration tests only where changed behavior requires.
 
 ## Acceptance Criteria
-- [ ] More frequent one/two-line lasers remain safe and fully telegraphed.
-- [ ] Exactly sampled1..3 volleys run per cycle and can overlap special walls without a special filter.
-- [ ] Flight continues during roar; only actual WASD freezes world and retains full timer.
+- [x] More frequent one/two-line lasers remain safe and fully telegraphed.
+- [x] Exactly sampled1..3 volleys run per cycle and can overlap special walls without a special filter.
+- [x] Flight continues during roar; only actual WASD freezes world and retains full timer.
 
 ## Validation
-- `npx vitest run tests/game/boss-attacks.test.js tests/game/boss.test.js tests/game/game-engine.test.js tests/game/renderer.test.js tests/integration/combat-evolution.test.js tests/integration/mobile-input.test.js tests/ui/app-controller.test.js`
+- `npx vitest run tests/game/boss-attacks.test.js tests/game/boss.test.js tests/game/boss-flow.test.js tests/game/game-engine.test.js tests/game/renderer.test.js tests/integration/combat-evolution.test.js tests/integration/mobile-input.test.js tests/ui/app-controller.test.js`
 - `git diff --check`
 
 ## Commit Message
@@ -63,6 +63,6 @@ Task: T03-boss-scheduler
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

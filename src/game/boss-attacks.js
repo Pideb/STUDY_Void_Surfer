@@ -240,11 +240,19 @@ function laserClock(telegraphDurationSeconds) {
   };
 }
 
-export function createSingleLaser({ rng = Math.random, styleKey = 'default', ...geometry } = {}) {
+export function createSingleLaser({ rng = Math.random, styleKey = 'default', lineCount = 1, ...geometry } = {}) {
   const y = findSafeLaserY({ ...geometry, rng });
   if (y === null) return null;
+  const ys = [y];
+  if (lineCount >= 2) {
+    const gaps = geometry.gaps ?? [{ gapCenter: geometry.gapCenter, gapHeight: geometry.gapHeight }];
+    const second = findSafeLaserY({ ...geometry, rng, gaps: [...gaps, {
+      gapCenter: y, gapHeight: (geometry.thickness ?? BOSS_LASER_THICKNESS) + (geometry.playerHeight ?? 24) + 16,
+    }] });
+    if (second !== null) ys.push(second);
+  }
   return {
-    kind: 'single', y, safeZone: null,
+    kind: 'single', y, ys, safeZone: null,
     ...laserClock(BOSS_LASER_TELEGRAPH_SECONDS),
     thickness: BOSS_LASER_THICKNESS, styleKey,
   };

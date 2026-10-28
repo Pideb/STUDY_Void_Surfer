@@ -37,7 +37,7 @@ describe('approved boss evolution across complete stage cycles', () => {
       expect(snapshot.deathEffect).toBeNull();
       if (before.boss?.roar) {
         roarFrames++;
-        expect(snapshot.elapsedSeconds).toBe(before.elapsedSeconds);
+        expect(snapshot.elapsedSeconds).toBeCloseTo(before.elapsedSeconds + .1);
         expect(snapshot.player).toEqual(before.player);
       }
       if (before.boss && snapshot.boss) expect(snapshot.score).toBe(before.score);

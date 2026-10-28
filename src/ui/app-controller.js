@@ -447,12 +447,12 @@ export function createAppController(deps) {
 
   function triggerLift() {
     if (state.screen !== 'playing') return;
-    if (state.snapshot?.challenge?.active || state.snapshot?.boss?.roar || state.snapshot?.deathEffect) return;
+    if (state.snapshot?.challenge?.active || state.snapshot?.deathEffect) return;
     if (gameEngine.lift?.() !== false) audioManager.play('lift');
   }
 
   function triggerDash() {
-    if (state.screen !== 'playing' || state.snapshot?.challenge?.active || state.snapshot?.boss?.roar || state.snapshot?.deathEffect) return;
+    if (state.screen !== 'playing' || state.snapshot?.challenge?.active || state.snapshot?.deathEffect) return;
     if (gameEngine.dash?.()) {
       audioManager.play('dash');
     }

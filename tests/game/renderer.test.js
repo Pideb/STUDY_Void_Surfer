@@ -40,6 +40,17 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('draws both warned and fired laser lines using the shared right-to-left sweep', () => {
+    const context=createContext();
+    const attack={type:'laser',kind:'single',ys:[80,460],y:80,thickness:18,telegraphDurationSeconds:.7,
+      telegraphRemainingSeconds:.7,activeRemainingSeconds:1,fadeRemainingSeconds:.15};
+    drawLaser(context,attack);
+    expect(context.lineTo).toHaveBeenCalledWith(960,80);
+    expect(context.lineTo).toHaveBeenCalledWith(960,460);
+    context.moveTo.mockClear(); updateLaser(attack,1.1); drawLaser(context,attack);
+    expect(context.moveTo).toHaveBeenCalledWith(996,80);
+    expect(context.moveTo).toHaveBeenCalledWith(996,460);
+  });
   it('fills a white recharge arc around the enlarged ship and hides it when ready', () => {
     const context = createContext(), player = { x: 240, y: 270, width: 36, dashCooldownRemainingSeconds: .5 };
     drawDashCooldown(context, player);

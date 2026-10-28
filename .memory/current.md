@@ -7,10 +7,10 @@
 [P01 Runtime](./phases/2026-10-28-dash-boss-flow-refinements/P01-runtime/phase.md)
 
 ## Active Task
-[T02-barrier-spacing](./phases/2026-10-28-dash-boss-flow-refinements/P01-runtime/T02-barrier-spacing.md)
+[T03-boss-scheduler](./phases/2026-10-28-dash-boss-flow-refinements/P01-runtime/T03-boss-scheduler.md)
 
 ## Status
-- 1/5 done. Latest completed task: T01-dash-projectiles (`ca6a8de`).
+- 2/5 done. Latest completed task: T02-barrier-spacing (`003c23e`).
 
 ## Next Step (IMPORTANT)
 Read active blueprint, implement and validate, then commit and advance.
