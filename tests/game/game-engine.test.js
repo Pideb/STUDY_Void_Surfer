@@ -23,6 +23,15 @@ function createRuntimeEngine(overrides = {}) {
 }
 
 describe('game engine', () => {
+  it.each(['default', 'aegis', 'velocity'])('keeps the capped aircraft speed after pause deductions (%s)', (aircraftId) => {
+    const { engine } = createRuntimeEngine({ initialScore: 200, aircraftId, guestMode: true });
+    engine.start();
+    const ceiling = getBaseSpeed(150) * (aircraftId === 'velocity' ? 2 : 1);
+    expect(engine.getSnapshot().difficulty.scrollSpeed).toBeCloseTo(ceiling);
+    engine.pause();
+    expect(engine.getSnapshot().progressionScore).toBe(200);
+    expect(engine.getSnapshot().difficulty.targetScrollSpeed).toBeCloseTo(ceiling);
+  });
   it('starts a fresh playing session', () => {
     let currentTime = 1000;
     const engine = createGameEngine({ now: () => currentTime });
@@ -564,7 +573,7 @@ describe('game engine', () => {
     }
     expect(snapshot.challenge).toMatchObject({ active: false, result: 'failure', resolved: true });
     expect(snapshot.boss).toMatchObject({ hp: 3, challengeCount: 1, successfulChallenges: 0, wallSpawningPaused: false });
-    expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(0.75);
+    expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(4);
     expect(snapshot.score).toBe(60);
     expect(snapshot.progressionScore).toBe(60);
     for (let frame = 0; frame < 1000 && !snapshot.challenge.active; frame += 1) snapshot = step(100);
@@ -594,7 +603,7 @@ describe('game engine', () => {
         expect(snapshot.score).toBe(entryScore);
         expect(snapshot.progressionScore).toBe(entryScore);
         if (snapshot.challenge?.active) {
-          expect(snapshot.challenge.timeLimitSeconds).toBe(5);
+          expect(snapshot.challenge.timeLimitSeconds).toBe(snapshot.boss.number === 1 ? 5 : 2.8);
           expect(snapshot.challenge.sequence.length).toBeGreaterThanOrEqual(6);
           for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
           successes += 1;

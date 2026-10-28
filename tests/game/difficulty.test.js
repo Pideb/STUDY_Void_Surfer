@@ -4,11 +4,27 @@ import {
   getBaseSpeed,
   getDifficulty,
   getBossSpeedMultiplier,
+  chooseWarningScoreStep,
   shouldSpawnSpecial,
   shouldSpawnMovingGap,
 } from '../../src/game/difficulty.js';
 
 describe('difficulty', () => {
+  it('caps only base progression at 150 and preserves boss multipliers', () => {
+    const ceiling = 240 * 1.1 ** 15;
+    expect(getBaseSpeed(149)).toBeCloseTo(240 * 1.1 ** 14);
+    for (const score of [150, 151, 10000]) expect(getBaseSpeed(score)).toBeCloseTo(ceiling);
+    expect(getBaseSpeed(NaN)).toBe(240);
+    expect(getBaseSpeed(-1)).toBe(240);
+    expect(getDifficulty(200, 0, 1, () => 0, BOSS_PATTERNS.FAST).scrollSpeed).toBeCloseTo(ceiling * 1.25);
+    expect(getDifficulty(200, 0, 1, () => 0, BOSS_PATTERNS.SLOW).scrollSpeed).toBeCloseTo(ceiling * .75);
+  });
+
+  it('chooses an inclusive five-to-eight-point encounter interval', () => {
+    expect(chooseWarningScoreStep(() => 0)).toBe(5);
+    expect(chooseWarningScoreStep(() => .5)).toBe(7);
+    expect(chooseWarningScoreStep(() => 1)).toBe(8);
+  });
   it('increases base speed by ten percent every ten progression points', () => {
     expect(getBaseSpeed(0)).toBe(240);
     expect(getBaseSpeed(9)).toBe(240);

@@ -8,13 +8,13 @@ import {
 } from '../../src/game/wasd-challenge.js';
 
 describe('WASD boss challenge', () => {
-  it('starts with three to four keys and grows to eight with a fixed five seconds', () => {
+  it('starts with five seconds and uses 2.8 seconds after the first boss', () => {
     const early = createChallenge({ bossNumber: 1, rng: () => 0 });
     const late = createChallenge({ bossNumber: 9, rng: () => 0.99 });
 
     expect(early).toMatchObject({ maxKeys: 4, timeLimitSeconds: 5 });
     expect(early.sequence.length).toBeGreaterThanOrEqual(3);
-    expect(late).toMatchObject({ maxKeys: 8, timeLimitSeconds: 5 });
+    expect(late).toMatchObject({ maxKeys: 8, timeLimitSeconds: 2.8 });
     expect(late.sequence).toHaveLength(8);
     expect(late.sequence.every((key) => CHALLENGE_KEYS.includes(key))).toBe(true);
   });
@@ -26,7 +26,7 @@ describe('WASD boss challenge', () => {
       const long = createChallenge({ bossNumber, rng: () => 0.99 });
       expect(short.sequence).toHaveLength(Math.max(3, maximum - 2));
       expect(long.sequence).toHaveLength(maximum);
-      expect(long.remainingSeconds).toBe(5);
+      expect(long.remainingSeconds).toBe(bossNumber === 1 ? 5 : 2.8);
       expect(long.sequence.some((key, index, keys) => index >= 3
         && keys.slice(index - 3, index + 1).every((value) => value === key))).toBe(false);
     }
@@ -46,5 +46,6 @@ describe('WASD boss challenge', () => {
     expect(updateChallenge(timeout, 5)).toBe('failure');
     expect(createChallengeFailureEffect(() => 0).kind).toBe('ink');
     expect(createChallengeFailureEffect(() => 0.99).kind).toBe('glitch');
+    expect(createChallengeFailureEffect(() => 0)).toMatchObject({ remainingSeconds: 4, durationSeconds: 4 });
   });
 });

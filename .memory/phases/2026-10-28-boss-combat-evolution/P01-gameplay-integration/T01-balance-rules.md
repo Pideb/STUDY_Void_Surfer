@@ -1,6 +1,6 @@
 # Task: T01 Balance rules and challenge limits
 
-## Status: in_progress
+## Status: done
 
 ## Goal
 Cap score-driven speed at150, shorten encounter spacing, apply approved WASD limits and4s penalties without changing aircraft/scoring conventions.
@@ -52,7 +52,7 @@ Task: T01-balance-rules
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed — 3 files / 66 tests (2026-10-28).
 - commit: pending
 

@@ -1,4 +1,4 @@
-import { BOSS_CHALLENGE_TIME_LIMIT_SECONDS } from './constants.js';
+import { BOSS_CHALLENGE_TIME_LIMIT_SECONDS, BOSS_LATER_CHALLENGE_TIME_LIMIT_SECONDS, CHALLENGE_FAILURE_EFFECT_SECONDS } from './constants.js';
 
 const CHALLENGE_KEYS = Object.freeze(['KeyW', 'KeyA', 'KeyS', 'KeyD']);
 
@@ -10,7 +10,7 @@ function getDifficulty(bossNumber) {
   const safeNumber = Math.max(1, Math.trunc(Number(bossNumber) || 1));
   return {
     maxKeys: Math.min(8, 4 + safeNumber - 1),
-    timeLimitSeconds: BOSS_CHALLENGE_TIME_LIMIT_SECONDS,
+    timeLimitSeconds: safeNumber === 1 ? BOSS_CHALLENGE_TIME_LIMIT_SECONDS : BOSS_LATER_CHALLENGE_TIME_LIMIT_SECONDS,
   };
 }
 
@@ -73,8 +73,8 @@ export function updateChallenge(challenge, deltaSeconds) {
 export function createChallengeFailureEffect(rng = Math.random) {
   return {
     kind: roll(rng) < 0.5 ? 'ink' : 'glitch',
-    remainingSeconds: 0.75,
-    durationSeconds: 0.75,
+    remainingSeconds: CHALLENGE_FAILURE_EFFECT_SECONDS,
+    durationSeconds: CHALLENGE_FAILURE_EFFECT_SECONDS,
   };
 }
 
