@@ -15,6 +15,7 @@ import { BOSS_RIGS } from './boss-rigs.js';
 import { getBossGeometry } from './boss-geometry.js';
 import { getPreparedBossRig, getBossPose, drawBossRig, drawBossActionEffects } from './boss-motion.js';
 import { drawPortal, drawTransitionOverlay } from './portal-renderer.js';
+import { drawChallengeFailure } from './challenge-effects.js';
 
 function getDevicePixelRatio() {
   return Math.max(1, Number(globalThis.devicePixelRatio) || 1);
@@ -915,7 +916,7 @@ export function drawManualLaser(ctx, shot, player, theme, core) {
   ctx.restore();
 }
 
-function drawChallengeEffects(ctx, challenge, feedbackEffect, player = null) {
+function drawChallengeEffects(ctx, challenge, feedbackEffect, player = null, reducedMotion = false) {
   if (challenge?.active) {
     ctx.save();
     ctx.fillStyle = 'rgba(2, 4, 12, 0.66)';
@@ -933,30 +934,7 @@ function drawChallengeEffects(ctx, challenge, feedbackEffect, player = null) {
     });
     ctx.restore();
   }
-  if (!feedbackEffect || feedbackEffect.remainingSeconds <= 0) return;
-  const progress = Math.max(0, Math.min(1, feedbackEffect.remainingSeconds / (feedbackEffect.durationSeconds || 1)));
-  ctx.save();
-  // Strong early obstruction, tapering without covering the player's immediate corridor.
-  ctx.globalAlpha = Math.min(.84, Math.sqrt(progress) * .84);
-  if (player) {
-    ctx.beginPath(); ctx.rect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    ctx.ellipse(player.x, player.y, 92, 64, 0, 0, Math.PI * 2); ctx.clip('evenodd');
-  }
-  if (feedbackEffect.kind === 'ink') {
-    ctx.fillStyle = '#05040a';
-    for (let index = 0; index < 8; index += 1) {
-      const x = (index * 137 + 83) % WORLD_WIDTH;
-      const y = (index * 79 + 38) % WORLD_HEIGHT;
-      ctx.beginPath(); ctx.arc(x, y, 64 + (index % 3) * 18, 0, Math.PI * 2); ctx.fill();
-    }
-  } else {
-    ctx.fillStyle = '#bafcff';
-    for (let index = 0; index < 11; index += 1) {
-      const y = (index * 53 + 17) % WORLD_HEIGHT;
-      ctx.fillRect((index * 71) % 460, y, WORLD_WIDTH * (0.35 + (index % 3) * 0.12), 4 + (index % 3) * 2);
-    }
-  }
-  ctx.restore();
+  drawChallengeFailure(ctx, feedbackEffect, player, { reducedMotion });
 }
 
 export function drawDashCooldown(ctx, player) {
@@ -1034,7 +1012,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       drawShip(ctx, facing, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
       drawManualLaser(ctx, shot, snapshot.player, theme, core);
     }
-    drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player);
+    drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player, prefersReducedMotion);
     if (!snapshot.deathEffect) drawDashCooldown(ctx, snapshot.player);
     if (showPlayerHitbox && !snapshot.deathEffect && snapshot.player) {
       const b = getPlayerBounds(snapshot.player);

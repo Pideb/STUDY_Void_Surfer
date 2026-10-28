@@ -46,6 +46,6 @@ describe('WASD boss challenge', () => {
     expect(updateChallenge(timeout, 5)).toBe('failure');
     expect(createChallengeFailureEffect(() => 0).kind).toBe('ink');
     expect(createChallengeFailureEffect(() => 0.99).kind).toBe('glitch');
-    expect(createChallengeFailureEffect(() => 0)).toMatchObject({ remainingSeconds: 4, durationSeconds: 4 });
+    expect(createChallengeFailureEffect(() => 0)).toMatchObject({ remainingSeconds: 5, durationSeconds: 5 });
   });
 });

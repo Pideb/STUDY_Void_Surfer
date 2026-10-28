@@ -101,7 +101,7 @@ describe('renderer', () => {
       player: { x: 240, y: 270, width: 36, height: 24, velocityY: 0 },
       feedbackEffect: { kind: 'ink', durationSeconds: 4, remainingSeconds: 4 },
     });
-    expect(context.ellipse).toHaveBeenCalledWith(240, 270, 92, 64, 0, 0, Math.PI * 2);
+    expect(context.ellipse).toHaveBeenCalledWith(240, 270, 74, 52, 0, 0, Math.PI * 2);
     expect(context.clip).toHaveBeenCalledWith('evenodd');
     renderer.destroy();
   });

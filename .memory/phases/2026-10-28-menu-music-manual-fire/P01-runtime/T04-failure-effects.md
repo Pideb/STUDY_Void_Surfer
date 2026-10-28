@@ -1,6 +1,6 @@
 # Task: T04 Approved animated ink and glitch penalties
 
-## Status: pending
+## Status: done
 
 ## Goal
 Use approved ink-v3/glitch-v5 appearance for5s rather than static stripes/fullscreen blindness.
@@ -24,8 +24,8 @@ Use approved ink-v3/glitch-v5 appearance for5s rather than static stripes/fullsc
 - Effect expiry5s, ink/glitch deterministic geometry and changing noise, approved bounds/intensity constants, fade and no effect after expiry; renderer smoke passes.
 
 ## Acceptance Criteria
-- [ ] Observable goal and all approved timings/counts above implemented.
-- [ ] Specified validation passes without replacing meaningful adjacent guarantees.
+- [x] Observable goal and all approved timings/counts above implemented.
+- [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
 - `npm test -- --run tests/game/wasd-challenge.test.js tests/game/challenge-effects.test.js tests/game/renderer.test.js` ? expected successful exit; run individual commands sequentially when separated above.
@@ -44,6 +44,6 @@ Task: T04-failure-effects
 ```
 
 ## Progress
-- [ ] ?? ??
-- [ ] ?? ??
+- [x] ?? ??
+- [x] ?? ??
 - commit: pending

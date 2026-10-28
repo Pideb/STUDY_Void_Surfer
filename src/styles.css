@@ -792,22 +792,7 @@ button:focus-visible {
   display: none;
 }
 
-.challenge-failure-effect.is-ink {
-  background:
-    radial-gradient(ellipse at 18% 32%, rgba(0,0,0,0.94) 0 5%, transparent 13%),
-    radial-gradient(ellipse at 75% 68%, rgba(0,0,0,0.88) 0 7%, transparent 18%),
-    radial-gradient(ellipse at 52% 18%, rgba(0,0,0,0.8) 0 4%, transparent 12%);
-}
-
-.challenge-failure-effect.is-glitch {
-  background: repeating-linear-gradient(178deg, transparent 0 2.6rem, rgba(186,252,255,0.28) 2.65rem 2.78rem, transparent 2.84rem 4rem);
-  animation: challenge-glitch 90ms steps(2, end) infinite;
-}
-
-@keyframes challenge-glitch {
-  0% { transform: translateX(-5px); }
-  100% { transform: translateX(5px); }
-}
+/* Failure obstruction is rendered once on the canvas, not duplicated in CSS. */
 
 .hangar-screen {
   display: grid;
