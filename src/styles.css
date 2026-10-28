@@ -1050,3 +1050,14 @@ button:focus-visible {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* Independent boss weapon: gauge on every device, separate touch-only fire. */
+.weapon-hud { position:absolute; bottom:max(1rem, env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:min(36vw, 320px); padding:.5rem .7rem; border:1px solid #6ad9fa66; border-radius:.5rem; background:#071322dc; color:#c6efff; font-size:clamp(.65rem,1.5vw,.85rem); text-align:center; }
+.weapon-hud[hidden], .game-hud .mobile-fire-button[hidden] { display:none; }
+.weapon-gauge { height:.5rem; margin-top:.3rem; border-radius:1rem; overflow:hidden; background:#243c52; }
+.weapon-gauge span { display:block; height:100%; background:#76e9ff; box-shadow:0 0 10px #57cfff; }
+.weapon-hud.is-ready { border-color:#edfcff; box-shadow:0 0 18px #69ddff77; color:#fff; }
+.weapon-hud.is-ready .weapon-gauge span { background:#fff; }
+.mobile-fire-button { position:absolute; right:max(1rem, env(safe-area-inset-right)); bottom:max(5.5rem, calc(env(safe-area-inset-bottom) + 5rem)); min-width:7rem; min-height:3.2rem; touch-action:manipulation; }
+@media (pointer:coarse), (hover:none), (max-width:700px) { .game-hud .mobile-fire-button { display:inline-flex; pointer-events:auto; } }
+@media (pointer:coarse), (hover:none) { .game-hud .mobile-space-button { display:inline-flex; pointer-events:auto; } }

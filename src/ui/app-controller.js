@@ -121,8 +121,10 @@ export function createAppController(deps) {
   let rankingPersonalRequestId = 0;
   let adminTriggerElement = null;
   let spaceHeld = false;
-  const handleKeyUp = (event) => { if (event.code === 'Space') spaceHeld = false; };
-  const handleBlur = () => { spaceHeld = false; };
+  const fireKeys = new Set(['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight']);
+  const fireHeld = new Set();
+  const handleKeyUp = (event) => { if (event.code === 'Space') spaceHeld = false; fireHeld.delete(event.code); };
+  const handleBlur = () => { spaceHeld = false; fireHeld.clear(); };
 
   function paint() {
     rankingObserver?.disconnect();
@@ -250,6 +252,7 @@ export function createAppController(deps) {
       pause: () => dispatch({ type: 'PAUSE' }),
       toggleMute,
       space: triggerDash,
+      fire: triggerFire,
       challengeKey: submitChallengeKey,
     });
     root.replaceChildren(gameHud.element);
@@ -470,6 +473,16 @@ export function createAppController(deps) {
     if (state.screen !== 'playing' || state.snapshot?.challenge?.active || state.snapshot?.deathEffect) return;
     if (gameEngine.dash?.()) {
       audioManager.play('dash');
+    }
+  }
+
+  function triggerFire() {
+    if (state.screen !== 'playing' || state.snapshot?.challenge?.active || state.snapshot?.deathEffect) return;
+    if (gameEngine.fire?.() === true) {
+      state.snapshot = gameEngine.getSnapshot();
+      gameHud?.update(state.snapshot);
+      const id = state.snapshot.boss?.weapon?.firing?.id;
+      audioManager.play('projectileReflect', { id: `${audioRunId}:${id}` });
     }
   }
 
@@ -927,6 +940,9 @@ export function createAppController(deps) {
   }
 
   function handleKeyDown(event) {
+    const isFireKey = fireKeys.has(event.code);
+    const repeatedFire = isFireKey && (fireHeld.size > 0 || event.repeat);
+    if (isFireKey) fireHeld.add(event.code);
     if (event.code === 'Space') {
       const repeated = spaceHeld || event.repeat;
       spaceHeld = true;
@@ -955,6 +971,11 @@ export function createAppController(deps) {
       }
     }
     if (event.target?.closest?.('input, select, textarea, [contenteditable="true"]')) return;
+    if (isFireKey && state.screen === 'playing') {
+      event.preventDefault();
+      if (!repeatedFire) triggerFire();
+      return;
+    }
     if (state.screen === 'playing' && state.snapshot?.challenge?.active) {
       if (['KeyW', 'KeyA', 'KeyS', 'KeyD'].includes(event.code)) {
         event.preventDefault();

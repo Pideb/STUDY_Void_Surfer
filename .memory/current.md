@@ -7,11 +7,11 @@
 P01-runtime
 
 ## Active Task
-[Next task](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T02-projectile-phases.md)
+[Next task](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T03-fire-ui.md)
 
 ## Status
-- T01 completed and verified; commit 033ad4e.
-- Progress 1/6. User authorized sequential completion.
+- T02 completed and verified; commit 3b37d4d.
+- Progress 2/6. User authorized sequential completion.
 
 ## Next Step (IMPORTANT)
 Read next task blueprint and continue implementation, validation and commit.

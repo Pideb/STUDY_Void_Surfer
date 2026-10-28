@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import {
-  createRenderer, drawBoss, drawDashCooldown, drawDashShockRing, drawDashTrail, drawObstacle, drawShip, drawShipDeathEffect, drawShipExhaust,
+  createRenderer, drawManualLaser, drawBoss, drawDashCooldown, drawDashShockRing, drawDashTrail, drawObstacle, drawShip, drawShipDeathEffect, drawShipExhaust,
 } from '../../src/game/renderer.js';
 import { drawLaser } from '../../src/game/laser-renderer.js';
 import { createSingleLaser, createQuarterLaser, getLaserFrontX, updateLaser } from '../../src/game/boss-attacks.js';
@@ -40,6 +40,13 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('aims the manual beam at the live boss core and supports temporary ship facing', () => {
+    const c = createContext(), player = { x: 240, y: 300, width: 36, height: 24, velocityY: 100, facingAngle: -.2 };
+    drawShip(c, player); expect(c.rotate).toHaveBeenCalledWith(-.2);
+    drawManualLaser(c, { elapsedSeconds: .22, chargeSeconds: .2, toX: 750, toY: 270 }, player, { accent: '#67dfff' }, { x: 810, y: 220 });
+    expect(c.lineTo).toHaveBeenCalledWith(810, 220);
+    expect(player.width).toBe(36); expect(player.height).toBe(24);
+  });
   it('draws the true trimmed hitbox only with the explicit debug render option',()=>{
     const context=createContext(),canvas=document.createElement('canvas');canvas.getContext=()=>context;
     const renderer=createRenderer(canvas),snapshot={difficulty:{},player:{x:240,y:270,width:36,height:24,velocityY:0}};

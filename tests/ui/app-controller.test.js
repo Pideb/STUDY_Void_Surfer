@@ -27,6 +27,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
     update: vi.fn(),
     lift: vi.fn(),
     dash: vi.fn(),
+    fire: vi.fn(() => true),
     pause: vi.fn(() => { snapshot.state = 'paused'; snapshot.score = Math.max(0, snapshot.score - 10); return { score: snapshot.score }; }),
     resume: vi.fn(() => { snapshot.state = 'playing'; }),
     stop: vi.fn(() => { snapshot.state = 'game-over'; }),
@@ -95,6 +96,22 @@ describe('app controller product flow', () => {
     harness = null;
     localStorage.removeItem(GUEST_RECORD_STORAGE_KEY);
     localStorage.removeItem('void-surfer:admin-settings:v1');
+  });
+
+  it('fires once per released modifier press and does not queue blocked fire', async () => {
+    harness = makeHarness(); harness.controller.mount(); await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU'); harness.controller.dispatch('START_PLAYING');
+    const key = (type, code, repeat = false) => window.dispatchEvent(new KeyboardEvent(type, { code, repeat, bubbles: true, cancelable: true }));
+    key('keydown', 'ShiftLeft'); key('keydown', 'ShiftLeft', true); key('keydown', 'ControlLeft');
+    expect(harness.gameEngine.fire).toHaveBeenCalledTimes(1);
+    key('keyup', 'ShiftLeft'); key('keyup', 'ControlLeft'); key('keydown', 'ControlRight');
+    expect(harness.gameEngine.fire).toHaveBeenCalledTimes(2);
+    key('keyup', 'ControlRight');
+    harness.snapshot.challenge = { active: true, sequence: ['KeyW'] }; harness.frames.shift()(16);
+    key('keydown', 'ShiftRight'); expect(harness.gameEngine.fire).toHaveBeenCalledTimes(2);
+    harness.snapshot.challenge = null; harness.frames.shift()(32);
+    key('keydown', 'ShiftRight', true); expect(harness.gameEngine.fire).toHaveBeenCalledTimes(2);
+    key('keyup', 'ShiftRight'); key('keydown', 'ShiftRight'); expect(harness.gameEngine.fire).toHaveBeenCalledTimes(3);
   });
 
   it('shows the title menu as GUEST and keeps sign-in errors from blocking play', async () => {

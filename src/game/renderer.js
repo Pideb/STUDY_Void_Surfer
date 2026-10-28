@@ -37,7 +37,7 @@ function resetGlow(ctx) {
 }
 
 export function drawShip(ctx, player, theme = VISUAL_THEME, aircraftId = 'default', visualAssets = null) {
-  const tilt = Math.max(-0.35, Math.min(0.35, player.velocityY / 1000));
+  const tilt = Number.isFinite(player.facingAngle) ? player.facingAngle : Math.max(-0.35, Math.min(0.35, player.velocityY / 1000));
   const dashIntensity = getDashIntensity(player);
   const craft = AIRCRAFT_VISUALS[aircraftId] ?? AIRCRAFT_VISUALS.default;
 
@@ -893,6 +893,28 @@ function drawCounterattack(ctx, counterattack, theme) {
   ctx.restore();
 }
 
+export function drawManualLaser(ctx, shot, player, theme, core) {
+  if (!shot || !player) return;
+  const target = core ?? { x: shot.toX, y: shot.toY };
+  const angle = Math.atan2(target.y - player.y, target.x - player.x);
+  const x = player.x + Math.cos(angle) * 28, y = player.y + Math.sin(angle) * 28;
+  ctx.save(); setGlow(ctx, theme.accent, 24);
+  if (shot.elapsedSeconds < shot.chargeSeconds) {
+    const progress = shot.elapsedSeconds / shot.chargeSeconds;
+    const glow = ctx.createRadialGradient(x, y, 0, x, y, 8 + progress * 14);
+    glow.addColorStop(0, '#ffffff'); glow.addColorStop(.3, '#bafcff'); glow.addColorStop(1, '#65dcff00');
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(x, y, 8 + progress * 14, 0, Math.PI * 2); ctx.fill();
+  } else {
+    ctx.lineCap = 'round';
+    for (const [width, color, alpha] of [[24, theme.accent, .25], [11, '#85edff', .85], [4, '#ffffff', 1]]) {
+      ctx.lineWidth = width; ctx.strokeStyle = color; ctx.globalAlpha = alpha;
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(target.x, target.y); ctx.stroke();
+    }
+    ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(target.x, target.y, 16, 0, Math.PI * 2); ctx.fill();
+  }
+  ctx.restore();
+}
+
 function drawChallengeEffects(ctx, challenge, feedbackEffect, player = null) {
   if (challenge?.active) {
     ctx.save();
@@ -1006,7 +1028,11 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       drawShipDeathEffect(ctx, snapshot.deathEffect, snapshot.deathEffect.aircraftId ?? snapshot.aircraft?.id, prefersReducedMotion);
     } else {
       drawShipExhaust(ctx, snapshot.player, snapshot.aircraft?.id, elapsed, snapshot.flightTrail);
-      drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
+      const shot = snapshot.boss?.weapon?.firing;
+      const core = snapshot.boss ? getBossGeometry(snapshot.boss.stageId).core : null;
+      const facing = shot && core ? { ...snapshot.player, facingAngle: Math.atan2(core.y - snapshot.player.y, core.x - snapshot.player.x) } : snapshot.player;
+      drawShip(ctx, facing, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
+      drawManualLaser(ctx, shot, snapshot.player, theme, core);
     }
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player);
     if (!snapshot.deathEffect) drawDashCooldown(ctx, snapshot.player);

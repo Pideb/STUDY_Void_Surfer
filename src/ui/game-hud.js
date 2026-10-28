@@ -104,11 +104,42 @@ export function createGameHud(model, handlers) {
     ariaLabel: '특수 벽 대시',
   });
   mobileSpace.addEventListener('pointerdown', (event) => event.preventDefault());
-  hud.append(topBar, bossHealth, banner, challengeOverlay, failureEffect, mobileSpace);
+  const weaponHud = document.createElement('section');
+  weaponHud.className = 'weapon-hud';
+  weaponHud.hidden = true;
+  const weaponLabel = document.createElement('span');
+  weaponLabel.className = 'weapon-label';
+  const weaponGauge = document.createElement('div');
+  weaponGauge.className = 'weapon-gauge';
+  weaponGauge.setAttribute('role', 'progressbar');
+  weaponGauge.setAttribute('aria-label', '레이저 충전');
+  weaponGauge.setAttribute('aria-valuemin', '0');
+  const weaponFill = document.createElement('span');
+  weaponGauge.append(weaponFill);
+  weaponHud.append(weaponLabel, weaponGauge);
+  const mobileFire = createButton('레이저 발사', () => handlers.fire?.(), { className: 'mobile-fire-button', ariaLabel: '보스 레이저 발사' });
+  mobileFire.addEventListener('pointerdown', event => { event.preventDefault(); event.stopPropagation(); });
+  mobileFire.addEventListener('click', event => event.stopPropagation());
+  hud.append(topBar, bossHealth, banner, challengeOverlay, failureEffect, weaponHud, mobileSpace, mobileFire);
 
   function update(snapshot) {
     score.textContent = `점수 ${snapshot.score ?? 0}`;
     const boss = snapshot.boss;
+    const weapon = boss?.weapon;
+    const ready = Boolean(weapon?.ready);
+    weaponHud.hidden = !weapon;
+    mobileFire.hidden = !weapon || Boolean(snapshot.challenge?.active || snapshot.deathEffect);
+    mobileFire.disabled = !ready || Boolean(weapon?.firing || snapshot.challenge?.active || snapshot.deathEffect || boss?.hp <= 0);
+    weaponHud.classList.toggle('is-ready', ready);
+    if (weapon) {
+      const limit = Math.max(.001, Number(weapon.rechargeSeconds) || 10);
+      const charged = Math.min(limit, Math.max(0, Number(weapon.chargeSeconds) || 0));
+      weaponGauge.setAttribute('aria-valuemax', String(limit));
+      weaponGauge.setAttribute('aria-valuenow', String(charged));
+      weaponGauge.setAttribute('aria-valuetext', ready ? '레이저 발사 가능' : `레이저 충전 ${Math.floor(charged / limit * 100)}%`);
+      weaponFill.style.width = `${charged / limit * 100}%`;
+      weaponLabel.textContent = weapon.firing ? '레이저 발사 중' : ready ? 'LASER READY · SHIFT / CTRL' : `LASER · ${(limit - charged).toFixed(1)}초`;
+    }
     bossHealth.hidden = !boss;
     if (boss) {
       const required = Math.max(1, Math.trunc(Number(boss.maxHp) || 3));

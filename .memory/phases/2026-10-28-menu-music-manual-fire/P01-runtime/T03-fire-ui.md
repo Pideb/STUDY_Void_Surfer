@@ -1,6 +1,6 @@
 # Task: T03 Manual-fire controls and readable firing feedback
 
-## Status: pending
+## Status: done
 
 ## Goal
 Bottom charge meter and distinct mobile FIRE button expose the weapon; render alignment, charge and guaranteed hit beam.
@@ -24,8 +24,8 @@ Bottom charge meter and distinct mobile FIRE button expose the weapon; render al
 - Keyboard modifier repeat/blocked lifecycle, touch/button isolation, meter ready/disabled states, desktop button hidden, mobile landscape fits, renderer records actual target direction/beam without altering hitbox.
 
 ## Acceptance Criteria
-- [ ] Observable goal and all approved timings/counts above implemented.
-- [ ] Specified validation passes without replacing meaningful adjacent guarantees.
+- [x] Observable goal and all approved timings/counts above implemented.
+- [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
 - `npm test -- --run tests/ui/game-hud.test.js tests/ui/app-controller.test.js tests/game/renderer.test.js tests/integration/mobile-input.test.js` ? expected successful exit; run individual commands sequentially when separated above.
@@ -44,6 +44,6 @@ Task: T03-fire-ui
 ```
 
 ## Progress
-- [ ] ?? ??
-- [ ] ?? ??
+- [x] ?? ??
+- [x] ?? ??
 - commit: pending

@@ -143,8 +143,14 @@ describe('mobile and keyboard controls', () => {
     }
 
     const after = engine.getSnapshot();
-    expect(after.boss).toMatchObject({ hp: 3, successfulChallenges: 0 });
-    expect(after.boss.counterattack).not.toBeNull();
+    expect(after.boss).toMatchObject({ hp: 3, successfulChallenges: 1 });
+    expect(after.boss.counterattack).toBeNull();
+    expect(after.boss.weapon.firing).toBeNull();
+    const fireButton = root.querySelector('.mobile-fire-button');
+    expect(fireButton.disabled).toBe(false);
+    fireButton.click();
+    expect(engine.getSnapshot().boss.weapon.firing).not.toBeNull();
+    expect(engine.getSnapshot().boss.weapon.ready).toBe(false);
     expect(after.player).toEqual(before.player);
     expect(after.elapsedSeconds).toBe(before.elapsedSeconds);
     expect(controls.hidden).toBe(true);

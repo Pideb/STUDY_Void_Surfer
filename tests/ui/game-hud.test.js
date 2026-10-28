@@ -8,6 +8,23 @@ function makeHud() {
 }
 
 describe('game HUD', () => {
+  it('shows charge and ready state and uses a separate mobile fire button', () => {
+    const fire = vi.fn();
+    const hud = createGameHud({ getMuted: () => false }, { fire });
+    const boss = { hp: 3, weapon: { chargeSeconds: 4, rechargeSeconds: 10, ready: false, firing: null } };
+    hud.update({ boss });
+    const gauge = hud.element.querySelector('[aria-label="레이저 충전"]');
+    const button = hud.element.querySelector('.mobile-fire-button');
+    expect(gauge.getAttribute('aria-valuenow')).toBe('4');
+    expect(button.disabled).toBe(true);
+    boss.weapon = { ...boss.weapon, chargeSeconds: 10, ready: true };
+    hud.update({ boss });
+    expect(hud.element.querySelector('.weapon-hud').classList.contains('is-ready')).toBe(true);
+    button.click(); expect(fire).toHaveBeenCalledOnce();
+    hud.update({ boss, challenge: { active: true, sequence: [] } });
+    expect(button.disabled).toBe(true); expect(button.hidden).toBe(true);
+    hud.update({}); expect(hud.element.querySelector('.weapon-hud').hidden).toBe(true);
+  });
   it('hides stage and aircraft identity while retaining score and an accessible segmented boss gauge', () => {
     const hud = makeHud();
     hud.update({
