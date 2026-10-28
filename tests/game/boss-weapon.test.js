@@ -10,12 +10,18 @@ describe('independent boss weapon', () => {
     expect(startBossWeapon(w, { id: 'a', fromX: 240, fromY: 270, toX: 800, toY: 200 })).toBe(true);
     expect(startBossWeapon(w, {})).toBe(false);
     expect(w.chargeSeconds).toBe(0);
-    expect(advanceBossWeapon(w, .19)).toBe(false);
-    expect(advanceBossWeapon(w, .01)).toBe(true);
-    expect(advanceBossWeapon(w, .05)).toBe(false);
+    expect(advanceBossWeapon(w, .499)).toBe(false);
+    expect(advanceBossWeapon(w, .001)).toBe(true);
+    expect(advanceBossWeapon(w, .199)).toBe(false);
     expect(w.firing).not.toBeNull();
-    advanceBossWeapon(w, .05); expect(w.firing).toBeNull();
-    expect(w.chargeSeconds).toBeCloseTo(.3);
+    expect(advanceBossWeapon(w, .001)).toBe(false); expect(w.firing).toBeNull();
+    expect(w.chargeSeconds).toBeCloseTo(.7);
+  });
+  it('emits only one hit even when a tick spans charge and recovery', () => {
+    const w=createBossWeapon();advanceBossWeapon(w,10);
+    startBossWeapon(w,{fromX:240,fromY:270,toX:800,toY:200});
+    expect(advanceBossWeapon(w,1)).toBe(true);expect(w.firing).toBeNull();
+    expect(advanceBossWeapon(w,1)).toBe(false);
   });
   it('rejects invalid deltas and invalid shots without spending ammunition', () => {
     const w = createBossWeapon();

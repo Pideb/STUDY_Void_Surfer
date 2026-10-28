@@ -7,7 +7,7 @@ export function startBossWeapon(weapon, shot) {
     || !['fromX', 'fromY', 'toX', 'toY'].every(key => Number.isFinite(shot[key]))) return false;
   weapon.ready = false;
   weapon.chargeSeconds = 0;
-  weapon.firing = { ...shot, elapsedSeconds: 0, chargeSeconds: .2, durationSeconds: .3, impacted: false };
+  weapon.firing = { ...shot, elapsedSeconds: 0, chargeSeconds: .5, durationSeconds: .7, impacted: false };
   return true;
 }
 

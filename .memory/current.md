@@ -7,11 +7,11 @@
 [P01 Runtime](./phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/phase.md)
 
 ## Active Task
-[T01 Fixed Speed](./phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/T01-fixed-speed.md)
+[Next task](./phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/T02-cooldown-weapon-ui.md)
 
 ## Status
-- Planning complete0/4; user authorized sequential implementation through completion.
-- Prior central-hitbox plan complete at77228b1; preserve16px damage/56x36 activation and high-resolution renderer.
+- T01 complete and verified; commit eac7e76.
+- Progress 1/4; sequential completion authorized.
 
 ## Next Step (IMPORTANT)
-ReadT01 and implement fixed+10 actual speed per10 points with shared100-point cap. Then followT02..T04 sequentially, validate and commit each. Azure deployment remains deferred; no DB/auth changes.
+Read next blueprint, implement, validate, commit and advance.

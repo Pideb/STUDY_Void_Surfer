@@ -92,11 +92,21 @@ describe('renderer', () => {
   it('fills a white recharge arc around the enlarged ship and hides it when ready', () => {
     const context = createContext(), player = { x: 240, y: 270, width: 36, dashCooldownRemainingSeconds: .35 };
     drawDashCooldown(context, player);
-    expect(context.arc).toHaveBeenCalledWith(240, 270, 40.4, -Math.PI / 2, Math.PI / 2);
+    expect(context.arc).toHaveBeenCalledWith(204, 246, 8, -Math.PI / 2, Math.PI / 2);
+    expect(context.arc.mock.calls.every(([x,y,r])=>x===204&&y===246&&r<=9.5)).toBe(true);
     expect(context.strokeStyle).toBe('#ffffff');
     context.arc.mockClear(); drawDashCooldown(context, { ...player, dashCooldownRemainingSeconds: 0 });
     expect(context.arc).not.toHaveBeenCalled();
     expect(context.strokeRect).not.toHaveBeenCalled();
+  });
+
+  it('keeps charging the manual laser until.5s then renders its beam during recovery', () => {
+    const c=createContext(),player={x:240,y:270},theme={accent:'#67dfff'};
+    const shot={chargeSeconds:.5,durationSeconds:.7,toX:750,toY:270};
+    drawManualLaser(c,{...shot,elapsedSeconds:.499},player,theme);
+    expect(c.createRadialGradient).toHaveBeenCalled();expect(c.lineTo).not.toHaveBeenCalled();
+    drawManualLaser(c,{...shot,elapsedSeconds:.5},player,theme);
+    expect(c.lineTo).toHaveBeenCalledWith(750,270);
   });
   it('renders each live projectile of the stage volley and the player counterattack', () => {
     const canvas = document.createElement('canvas'), context = createContext();

@@ -1,6 +1,6 @@
 # Task: T02 Cooldown, Weapon and UI
 
-## Status: pending
+## Status: done
 
 ## Goal
 Render the approved small cooldown marker, make manual firing last.70s and display the requested aircraft/tutorial text.
@@ -33,9 +33,9 @@ Render the approved small cooldown marker, make manual firing last.70s and displ
 - UI asserts exact new sentence and absence of cap suffix on every description, preserving traits and unlock labels.
 
 ## Acceptance Criteria
-- [ ] Approved marker matches location/size, progress and readiness behavior.
-- [ ] .70s firing and one impact at.50s verified in actual engine.
-- [ ] Both wording changes match confirmed text.
+- [x] Approved marker matches location/size, progress and readiness behavior.
+- [x] .70s firing and one impact at.50s verified in actual engine.
+- [x] Both wording changes match confirmed text.
 
 ## Validation
 - `npm test -- --run tests/game/boss-weapon.test.js tests/integration/manual-boss-fire.test.js tests/game/renderer.test.js tests/ui/app-controller.test.js tests/ui/screens.test.js` — pass.
@@ -54,6 +54,6 @@ Task: T02-cooldown-weapon-ui
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

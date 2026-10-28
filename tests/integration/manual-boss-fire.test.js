@@ -24,22 +24,24 @@ describe('manual boss laser in real engine', () => {
       }
       const before=engine.getSnapshot();expect(engine.fire()).toBe(true);
       tick(.1);expect(engine.getSnapshot().boss.hp).toBe(before.boss.hp);
+      for(let frame=0;frame<3;frame++)tick(.1);
+      expect(engine.getSnapshot().boss.hp).toBe(before.boss.hp);
       tick(.1);const impacted=engine.getSnapshot();
       expect(impacted.boss.hp).toBe(aircraftId==='aegis'?0:3-i-1);
       expect(impacted.boss.maxHp).toBe(3);expect(impacted.boss.laserHits).toBe(i+1);
-      tick(.1);
+      tick(.1);tick(.1);
     }
     const cleared=until(s=>!s.boss&&s.stage.transition);
     expect(cleared.score).toBe(entry.score+10);tick(.1);expect(engine.getSnapshot().score).toBe(cleared.score);
   });
-  it('unlocks physics only for the fraction beyond the0.3s firing action', () => {
+  it('unlocks physics only for the fraction beyond the0.7s firing action', () => {
     const { engine, tick, until } = setup();
     until(s => s.boss?.weapon.ready && !s.challenge?.active);
     engine.lift(); const before = engine.getSnapshot(); engine.fire();
-    for (let i = 0; i < 4; i++) tick(.07);
+    for (let i = 0; i < 10; i++) tick(.069);
     expect(engine.getSnapshot().player.y).toBe(before.player.y);
     const after = tick(.07);
-    expect(after.player.y).toBeCloseTo(before.player.y + before.player.velocityY * .05);
+    expect(after.player.y).toBeCloseTo(before.player.y + before.player.velocityY * .06);
     expect(after.boss.weapon.firing).toBeNull();
   });
   it('does not protect the firing ship against a real wall contact', () => {
@@ -89,7 +91,10 @@ describe('manual boss laser in real engine', () => {
     expect(after.player.y).toBe(before.player.y);
     expect(after.obstacles[0].x).toBeLessThan(before.obstacles[0].x);
     expect(after.boss.hp).toBe(3);
+    for(let frame=0;frame<3;frame++)tick(.1);
+    expect(engine.getSnapshot().boss.hp).toBe(3);
     tick(.1); expect(engine.getSnapshot().boss.hp).toBe(2);
+    tick(.1);expect(engine.getSnapshot().boss.weapon.firing).not.toBeNull();
     tick(.1); expect(engine.getSnapshot().boss.weapon.firing).toBeNull();
     engine.pause(); const charge = engine.getSnapshot().boss.weapon.chargeSeconds;
     tick(.1); expect(engine.getSnapshot().boss.weapon.chargeSeconds).toBe(charge);

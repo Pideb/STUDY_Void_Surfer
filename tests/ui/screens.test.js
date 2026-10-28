@@ -161,9 +161,8 @@ describe('product flow screens', () => {
     expect(tutorial.textContent).toContain('SPACE: 대시 (회피)');
     expect(tutorial.textContent).not.toContain('SPACE: 언제든 대시 잔상이 남습니다');
     expect(tutorial.textContent).toContain('특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다');
-    expect(tutorial.textContent).toContain('레이저 3발 명중 시 클리어');
-    expect(tutorial.textContent).toContain('SHIFT/CTRL 또는 모바일 발사 버튼');
-    expect(tutorial.textContent).toContain('비행 중 10초마다 레이저 1발');
+    expect(tutorial.querySelectorAll('.tutorial-list > li')[3].textContent).toBe('보스전에서는 10초마다 레이저가 충전됩니다. Ctrl/Shift 키로 발사하세요');
+    expect(tutorial.textContent).not.toContain('레이저 3발 명중 시 클리어');
     expect(tutorial.textContent).not.toContain('보스 투사체');
     expect(tutorial.textContent).not.toContain('BOSS 1~4는 3회, 5번째부터는 5회 반사가 필요합니다.');
     expect(tutorial.textContent).not.toContain('WASD 챌린지는 별도 도전이며, 성공해도 BOSS에게 피해를 주지 않습니다.');

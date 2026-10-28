@@ -944,11 +944,13 @@ export function drawDashCooldown(ctx, player) {
   const remaining = player?.dashCooldownRemainingSeconds ?? 0;
   if (!(remaining > 0)) return;
   const progress = 1 - Math.max(0, Math.min(1, remaining / DASH_COOLDOWN_SECONDS));
-  const radius = Math.max(38, player.width * .9 + 8);
-  ctx.save(); ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff';
-  ctx.globalAlpha = .22; ctx.beginPath(); ctx.arc(player.x, player.y, radius, 0, Math.PI * 2); ctx.stroke();
-  ctx.globalAlpha = .95; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 6;
-  ctx.beginPath(); ctx.arc(player.x, player.y, radius, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2); ctx.stroke();
+  const radius = 8, x = player.x - 36, y = player.y - 24;
+  ctx.save(); ctx.lineWidth = 1.8; ctx.strokeStyle = '#ffffff';
+  ctx.fillStyle = 'rgba(2, 8, 20, 0.85)';
+  ctx.beginPath(); ctx.arc(x, y, radius + 1.5, 0, Math.PI * 2); ctx.fill();
+  ctx.globalAlpha = .25; ctx.beginPath(); ctx.arc(x, y, radius, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = 1; ctx.lineCap = 'round'; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 2;
+  ctx.beginPath(); ctx.arc(x, y, radius, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2); ctx.stroke();
   ctx.restore();
 }
 
