@@ -1,6 +1,7 @@
 # Central Square Hitbox — Review Complete
 
 - Final authority: [confirmed decisions](../../decisions/2026-10-28-central-hitbox.md). Historical pending notes below are superseded by the confirmed size.
+- Implementation now complete: all5Tasks verified; commit b2ece8b. See [actual runtime evidence](../../validation/2026-10-28-central-hitbox/report.md). Earlier preview geometry and old center-based timing illustrations remain historical references, not the current production behavior.
 
 - Date: 2026-10-28 (Asia/Seoul).
 - User requests: central square hitbox for damage; explain separate special-wall success detection; show multiple actual-aircraft examples before choosing.

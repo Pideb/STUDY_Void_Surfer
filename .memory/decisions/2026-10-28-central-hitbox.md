@@ -1,7 +1,7 @@
 # Decisions: Central Square Hitbox
 
 - Date: 2026-10-28 (Asia/Seoul)
-- Status: Confirmed — hitboxes, rendering, aircraft balance and laser edge exclusion resolved; planning and implementation not started.
+- Status: Implemented and verified 2026-10-28. All five Tasks complete; final implementation/validation commit `b2ece8b`. The interview decisions below record the approved requirements.
 - Feature name: `central-hitbox`
 - Approved review: [comparison.png](../previews/2026-10-28-central-hitbox/comparison.png), generated with the production aircraft renderer and existing assets.
 
@@ -47,6 +47,7 @@
 - Use independent X/Y render transforms from actual buffer dimensions to the unchanged logical world, retaining current full-window coverage. Reapply high-quality image smoothing after canvas resize. Cover menu rendering as well as gameplay/foreground/effects.
 - Follow existing resize lifecycle and add element-size/DPR awareness as needed; resizing a canvas clears it, so menu/paused frames must be redrawn rather than left blank. Avoid reallocating the backing buffer every frame when dimensions have not changed.
 - Apply a practical render-pixel/DPR ceiling for high-density/mobile performance, maintaining aspect ratio when applying the ceiling. Select concrete limits in planning with desktop1080p/1440p/4K and landscape-mobile evidence; do not promise unlimited native rendering on every device.
+- Implemented limits: DPR at most2, render-buffer area at most3840*2160 pixels, uniform scale reduction when exceeding this area. Real1920x1080/DPR1,640x360/DPR2 and3840x2160/DPR2 captures passed.
 - **Rationale**: User asks for sharper player artwork and prefers an overall resolution improvement. The avoidable viewport-to-buffer mismatch affects the whole canvas, while source ship files are already high resolution.
 
 ## D06. Aircraft-specific Speed Progression Caps — User Requested
@@ -83,4 +84,4 @@
 - No unrelated issue requiring expanded scope was identified. Deployment, authentication and database work are outside this change.
 
 ## Next Step
-- Interview decisions are resolved. `/memory-plan central-hitbox` creates a combined blueprint for hitboxes, viewport-resolution rendering, aircraft caps, line-laser edge exclusions and AEGIS damage. Production behavior is unchanged until sequential execution is requested.
+- User authorized planning and sequential execution through the final Task. All approved changes are now implemented. See [verification report](../validation/2026-10-28-central-hitbox/report.md); next step is physical playtesting/feedback, with no remaining active Task.

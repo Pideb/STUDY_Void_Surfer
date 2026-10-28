@@ -7,7 +7,7 @@
 | T02 | done | Independent success box and interior line lasers | [T02](./T02-activation-lasers.md) |
 | T03 | done | Aircraft caps and AEGIS one-shot boss damage | [T03](./T03-aircraft-balance.md) |
 | T04 | done | Crisp viewport-sized rendering | [T04](./T04-viewport-resolution.md) |
-| T05 | pending | Full regression and actual visual verification | [T05](./T05-integration-review.md) |
+| T05 | done | Full regression and actual visual verification | [T05](./T05-integration-review.md) |
 
 ## Progress
-- done: 4/5 (active: T05)
+- done: 5/5 (active: none)
