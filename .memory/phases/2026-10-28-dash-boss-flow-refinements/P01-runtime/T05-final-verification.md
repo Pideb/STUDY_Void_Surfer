@@ -1,6 +1,6 @@
 # Task: T05 Final Runtime Verification
 
-## Status: pending
+## Status: done
 
 ## Goal
 Prove all new behaviors work together through repeated encounters, render visible effects in a real browser, and complete the plan/current pointers with committed evidence.
@@ -22,15 +22,20 @@ Prove all new behaviors work together through repeated encounters, render visibl
 - **Error & Exception Handling**: no hidden test skips or unhandled errors; finite attack completion, safe missing assets/reduced animation, old admin storage works. Do not expand scope on speculative concerns.
 
 ## Acceptance Criteria
-- [ ] All integrated behaviors and no-special-projectile-gate verified for three aircraft without stalls.
-- [ ] Full test/build/config pass and actual renderer evidence recorded.
-- [ ] All task commits and memory pointers finalized; working tree clean.
+- [x] All integrated behaviors and no-special-projectile-gate verified for three aircraft without stalls.
+- [x] Full test/build/config pass and actual renderer evidence recorded.
+- [x] All task commits and memory pointers finalized; working tree clean.
 
 ## Validation
 - `npx vitest run`
 - `npm run build`
 - `npm run verify:config`
 - `git diff --check`
+
+## Evidence
+- 41 files / 556 tests passed; production build/config and whitespace passed.
+- See [verification report](../../../validation/2026-10-28-dash-boss-flow-refinements/report.md) for decision coverage and actual renderer captures.
+- 18 new multi-aircraft integration scenarios completed 36 bosses and 36 portals; retained six-stage regression also passed.
 
 ## Commit Message
 ```text
@@ -45,6 +50,6 @@ Task: T05-final-verification
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

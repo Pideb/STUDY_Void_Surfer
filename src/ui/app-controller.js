@@ -964,7 +964,9 @@ export function createAppController(deps) {
       }
       return;
     }
-    if (event.target?.closest?.('button, a')) return;
+    // Handle the mobile dash button's keyboard press ourselves: native Space
+    // clicks on keyup would otherwise queue a dash across the cooldown boundary.
+    if (event.target?.closest?.('button, a') && !event.target?.closest?.('.mobile-space-button')) return;
     if (event.code === 'Space' && state.screen === 'playing') {
       event.preventDefault();
       triggerDash();

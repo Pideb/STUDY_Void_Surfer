@@ -101,6 +101,7 @@ describe('collision', () => {
     const player = createPlayer();
     const laser = createSingleLaser({ gapCenter: 70, gapHeight: 100, rng: () => 0.2 });
     laser.y = player.y;
+    laser.ys = [player.y];
     expect(intersectsPlayerLaser(player, laser)).toBe(false);
     updateLaser(laser, 0.7 + 0.29);
     expect(intersectsPlayerLaser(player, laser)).toBe(false);
