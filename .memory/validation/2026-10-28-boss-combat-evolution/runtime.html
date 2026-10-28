@@ -1,0 +1,15 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Production renderer verification · VOID SURFER</title>
+<style>
+  *{box-sizing:border-box} body{margin:0;padding:18px;background:#060b15;color:#e5efff;font:16px system-ui}
+  h1{font-size:20px;margin:0 0 8px} #status{color:#9ac9dd;margin:0 0 14px}
+  main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+  article{margin:0}h2{font-size:13px;letter-spacing:1.5px;margin:0 0 7px;color:#b4c6e3}
+  canvas{display:block;width:100%;aspect-ratio:16/9!important;border:1px solid #263347}
+  body.single main{display:block}body.single{padding:0}body.single h1,body.single #status,body.single h2{display:none}
+  body.single canvas{height:100vh;object-fit:contain;aspect-ratio:auto!important}
+</style>
+<h1>VOID SURFER · actual production renderer / approved assets</h1>
+<p id="status">Loading production assets…</p><main></main>
+<script type="module" src="./runtime.mjs"></script>

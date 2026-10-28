@@ -11,6 +11,8 @@ import {
   BOSS_PROJECTILE_MIN_SPEED_MULTIPLIER,
   BOSS_PROJECTILE_REFLECTION_WINDOW_SECONDS,
   PLAYER_FRONT_HITBOX_TRIM,
+  GRAVITY,
+  MAX_FRAME_DELTA_SECONDS,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants.js';
@@ -250,7 +252,7 @@ export function createSingleLaser({ rng = Math.random, styleKey = 'default', ...
 
 export function createQuarterLaser({
   rng = Math.random, worldHeight = WORLD_HEIGHT, styleKey = 'default', excludeSafeZone = null,
-  playerY = worldHeight / 2, playerHeight = 24, liftSpeed = 360,
+  playerY = worldHeight / 2, playerHeight = 24, liftSpeed = 360, gravity = GRAVITY,
 } = {}) {
   const zones = [0, 1, 2, 3].filter((zone) => zone !== excludeSafeZone);
   const safeZone = zones[Math.floor(roll(rng) * zones.length)];
@@ -259,9 +261,11 @@ export function createQuarterLaser({
   const safeCenterMax = (safeZone + 1) * zoneHeight - playerHeight / 2 - 8;
   const distance = playerY < safeCenterMin ? safeCenterMin - playerY
     : playerY > safeCenterMax ? playerY - safeCenterMax : 0;
-  // Conservative travel budget: retain the entire baseline and lengthen extreme crossings.
+  // updatePlayer applies gravity before displacement. Budget the slowest supported
+  // frame even when the pilot repeatedly lifts, then retain reaction time/margin.
+  const climbSpeed = Math.max(1, Math.abs(liftSpeed) - Math.max(0, gravity) * MAX_FRAME_DELTA_SECONDS);
   const preparation = Math.max(BOSS_QUARTER_LASER_TELEGRAPH_SECONDS,
-    distance / Math.max(100, Math.abs(liftSpeed)) * 1.2 + .2);
+    distance / climbSpeed * 1.2 + .2);
   return {
     kind: 'quarter', y: null,
     safeZone, zoneHeight,

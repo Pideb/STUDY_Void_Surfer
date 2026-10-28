@@ -32,9 +32,9 @@ createBossRoarBuffer(context,stageId): AudioBuffer (new wrapper); audioManager.p
 Sixroarbuffers differ, exact.8s, dedupe/mute/pauseoffset/menu/restart cancellation; controller onecueperroar/perdeath not perframe, stagedidentity stable, guest/admin unaffected; entrysiren/BGM tests unchanged.
 
 ## Acceptance Criteria
-- [ ] Play the approved design-specific roar with the .8s frozen wind-up and one spacecraft explosion on death, respecting mute/pause/restart/menu without stale cues.
-- [ ] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
-- [ ] Specified validation passes; evidence recorded below.
+- [x] Play the approved design-specific roar with the .8s frozen wind-up and one spacecraft explosion on death, respecting mute/pause/restart/menu without stale cues.
+- [x] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
+- [x] Specified validation passes; evidence recorded below.
 
 ## Validation
 - `npx vitest run tests/audio/audio-manager.test.js tests/audio/audio-assets.test.js tests/ui/app-controller.test.js tests/integration/game-flow.test.js` — passes
@@ -55,5 +55,5 @@ Task: T05-combat-audio
 ## Progress
 - [x] Implementation complete — exact stage roar buffers, transient pause/resume/cancel lifecycle and death-start explosion.
 - [x] Validation passed — 4 files / 71 tests and production build.
-- commit: pending
+- commit: 5dc12b1
 

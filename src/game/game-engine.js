@@ -463,7 +463,7 @@ export function createGameEngine(deps = {}) {
   function getStageState() {
     const stageId = stageOrder[stageIndex] ?? getStageDefinition().id;
     const definition = getStageDefinition(stageId);
-    const mode = warningSession?.isBoss ? 'boss' : warningSession ? 'warning' : 'normal';
+    const mode = warningSession?.isBoss || pendingStageAdvance ? 'boss' : warningSession ? 'warning' : 'normal';
     return { definition, mode };
   }
 
@@ -543,6 +543,7 @@ export function createGameEngine(deps = {}) {
       rng, styleKey: getStageDefinition(bossEncounter.stageId).laserStyle,
       excludeSafeZone: bossEncounter.previousSafeZone,
       playerY: player.y, playerHeight: player.height, liftSpeed: LIFT_VELOCITY * aircraft.liftMultiplier,
+      gravity: gravity * aircraft.gravityMultiplier,
     });
     bossEncounter.previousSafeZone = laser.safeZone;
     bossEncounter.attack = { id: `boss-attack-${nextAttackId++}`, type: 'laser', ...laser };

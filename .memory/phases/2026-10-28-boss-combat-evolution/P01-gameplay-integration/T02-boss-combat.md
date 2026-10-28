@@ -32,9 +32,9 @@ createSignatureAttack({id,stageId,bossNumber,playerX,playerY,baseSpeed,rng}): Si
 New deterministic signatures tests (six identities, swept hit/miss/admin, delays/telegraphs); engine cycles beyond3 attacks, retry failures, three counterattack impacts, no scoring duringboss, final clear once, roar world freeze/full countdown, safe independent singles; globals60% RNG and uniform counts, nonrepeat quarters, every2s warning, no walls/other attacks. Existing tests asserting no projectiles or instantaneous HP should be replaced with new behavior, not removed wholesale.
 
 ## Acceptance Criteria
-- [ ] Make six boss identities fire real dodge hazards, interleave fair lasers and frozen roar/WASD, and visibly counterattack for three-hit clears without stalled encounters.
-- [ ] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
-- [ ] Specified validation passes; evidence recorded below.
+- [x] Make six boss identities fire real dodge hazards, interleave fair lasers and frozen roar/WASD, and visibly counterattack for three-hit clears without stalled encounters.
+- [x] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
+- [x] Specified validation passes; evidence recorded below.
 
 ## Validation
 - `npx vitest run tests/game/boss.test.js tests/game/boss-attacks.test.js tests/game/boss-signatures.test.js tests/game/laser-safety.test.js tests/game/game-engine.test.js` — passes

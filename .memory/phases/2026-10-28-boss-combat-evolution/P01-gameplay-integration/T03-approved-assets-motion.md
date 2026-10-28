@@ -32,9 +32,9 @@ prepareBossRig({rig,image,canvasFactory}): PreparedRig|null; getBossPose({animat
 Exact artwork hashes versus approved candidates; Industrial/Gravity hash unchanged; six ornament/roar deployedpaths; preload dedupe/failure remains. Rig caching/articulation/time-varying region transforms, fallback and reduced motion; volley telegraph visuals and counterattack/roar. Existing renderer mocks and seven-key manifest expectation updated to eight.
 
 ## Acceptance Criteria
-- [ ] Deploy the exact approved four replacement bosses/six portal ornaments/six roar sounds and make real-game bosses articulate like the accepted preview.
-- [ ] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
-- [ ] Specified validation passes; evidence recorded below.
+- [x] Deploy the exact approved four replacement bosses/six portal ornaments/six roar sounds and make real-game bosses articulate like the accepted preview.
+- [x] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
+- [x] Specified validation passes; evidence recorded below.
 
 ## Validation
 - `node scripts/build-combat-assets.mjs` — passes

@@ -32,9 +32,9 @@ createPortalTransition({fromKey,toKey,fromStageId,destinationStageId,crossingX,c
 Speed integration at240/480/960 and Velocitycap, phase timings/opaque swap, old obstacle stageId unchanged/no newwalls untilreveal, immediate matching next-stageboss aftershuffle, no attacks duringportal, boundedresume/restart/pause; all six NEXT-stage decorations and geometry, overlay layerorder/reduced/fallback. Replace old two-wall/wipe-specific tests with approved portal behavior.
 
 ## Acceptance Criteria
-- [ ] After clearing the current stage boss, approach the matching destination portal, swap scenery under white cover, and resume only new-stage obstacles after reveal.
-- [ ] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
-- [ ] Specified validation passes; evidence recorded below.
+- [x] After clearing the current stage boss, approach the matching destination portal, swap scenery under white cover, and resume only new-stage obstacles after reveal.
+- [x] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
+- [x] Specified validation passes; evidence recorded below.
 
 ## Validation
 - `npx vitest run tests/game/portal-transition.test.js tests/game/game-engine.test.js tests/game/renderer.test.js tests/game/stages.test.js` — passes

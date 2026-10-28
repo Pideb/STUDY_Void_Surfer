@@ -8,7 +8,10 @@ import {
   reflectProjectile,
   updateBossProjectile,
   createQuarterLaser,
+  updateLaser,
 } from '../../src/game/boss-attacks.js';
+import { applyLift, createPlayer, updatePlayer } from '../../src/game/player.js';
+import { intersectsPlayerLaser } from '../../src/game/collision.js';
 
 describe('consecutive global laser warnings', () => {
   it('excludes the previous quarter for every RNG endpoint and restarts a full warning', () => {
@@ -24,6 +27,23 @@ describe('consecutive global laser warnings', () => {
     expect(laser.safeZone).toBe(0);
     expect(laser.telegraphDurationSeconds).toBeGreaterThan(2);
     expect(laser.telegraphRemainingSeconds).toBe(laser.telegraphDurationSeconds);
+  });
+  it.each([.1, 1 / 30, 1 / 60])('lets AEGIS reach and hold the top quarter from the bottom at dt=%s', dt => {
+    const player = { ...createPlayer(), y: 510 };
+    const laser = createQuarterLaser({ rng: () => 0, playerY: player.y, liftSpeed: 252, gravity: 1170 });
+    expect(laser.telegraphDurationSeconds).toBeGreaterThan(3);
+    let firingFrames = 0;
+    for (let frame = 0; frame < 600 && laser.state !== 'resolved'; frame++) {
+      if (player.y > 67.5) applyLift(player, 252);
+      updatePlayer(player, dt, 1170);
+      updateLaser(laser, dt);
+      expect(player.y).toBeGreaterThan(player.height / 2);
+      expect(intersectsPlayerLaser(player, laser)).toBe(false);
+      if (laser.telegraphRemainingSeconds <= 0 && laser.activeRemainingSeconds > 0) firingFrames++;
+      if (laser.activeRemainingSeconds <= 0 && laser.fadeRemainingSeconds <= 0) break;
+    }
+    expect(firingFrames).toBeGreaterThan(0);
+    expect(laser.activeRemainingSeconds).toBe(0);
   });
 });
 

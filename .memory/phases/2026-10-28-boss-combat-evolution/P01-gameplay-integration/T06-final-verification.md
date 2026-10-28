@@ -1,6 +1,6 @@
 # Task: T06 Integrated gameplay and production visual verification
 
-## Status: pending
+## Status: done
 
 ## Goal
 Prove every approved feature works together in real game output, close any regression, and leave plan/current pointers complete.
@@ -32,15 +32,20 @@ End-to-end deterministic simulation helpers pump createGameEngine with now/gravi
 Complete Vitest suite plus new combat integration; productionbuild+verify:config; HTTPfetchallfournewboss/sixportal/sixroarassets; visualinspectactualruntime sixboss/portal with representativeaircraft. Record counts/results and material limitations.
 
 ## Acceptance Criteria
-- [ ] Prove every approved feature works together in real game output, close any regression, and leave plan/current pointers complete.
-- [ ] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
-- [ ] Specified validation passes; evidence recorded below.
+- [x] Prove every approved feature works together in real game output, close any regression, and leave plan/current pointers complete.
+- [x] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
+- [x] Specified validation passes; evidence recorded below.
 
 ## Validation
 - `npx vitest run` — passes
 - `npm run build` — passes
 - `npm run verify:config` — passes
 - `git diff --check` — passes
+
+## Final Evidence
+- 37 files / 500 tests passed; production build/config, 16 approved HTTP assets and 53 visual URLs verified.
+- See [verification report](../../../validation/2026-10-28-boss-combat-evolution/report.md) for D01..D15 coverage and actual renderer captures.
+- Closed AEGIS gravity-aware quarter-laser timing and boss-clear background boundary defects; mobile counterattack/HP timing verified.
 
 ## Commit Message
 ```text
@@ -55,7 +60,7 @@ Task: T06-final-verification
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
 

@@ -32,9 +32,9 @@ getBaseSpeed(progressionScore: number): number; createChallenge({bossNumber:numb
 Boundary scores149/150/151/10000/invalid, capped boss base with multipliers, Velocity ceiling via engine, elapsed-time independence, inclusive5..8 gap RNG extremes, first/later challenge durations and failure effect4s. Existing tests describing old durations/ranges must be updated only where superseded.
 
 ## Acceptance Criteria
-- [ ] Cap score-driven speed at150, shorten encounter spacing, apply approved WASD limits and4s penalties without changing aircraft/scoring conventions.
-- [ ] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
-- [ ] Specified validation passes; evidence recorded below.
+- [x] Cap score-driven speed at150, shorten encounter spacing, apply approved WASD limits and4s penalties without changing aircraft/scoring conventions.
+- [x] Actual runtime integration preserves earlier completed Tasks and existing guest/admin/aircraft behavior.
+- [x] Specified validation passes; evidence recorded below.
 
 ## Validation
 - `npx vitest run tests/game/difficulty.test.js tests/game/wasd-challenge.test.js tests/game/game-engine.test.js` — passes

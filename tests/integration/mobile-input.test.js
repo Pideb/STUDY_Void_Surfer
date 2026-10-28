@@ -128,7 +128,8 @@ describe('mobile and keyboard controls', () => {
     }
 
     const after = engine.getSnapshot();
-    expect(after.boss).toMatchObject({ hp: 2, successfulChallenges: 1 });
+    expect(after.boss).toMatchObject({ hp: 3, successfulChallenges: 0 });
+    expect(after.boss.counterattack).not.toBeNull();
     expect(after.player).toEqual(before.player);
     expect(after.elapsedSeconds).toBe(before.elapsedSeconds);
     expect(controls.hidden).toBe(true);
@@ -137,10 +138,14 @@ describe('mobile and keyboard controls', () => {
     expect(input).toHaveBeenCalledTimes(before.challenge.sequence.length);
     expect(lift).not.toHaveBeenCalled();
     expect(dash).not.toHaveBeenCalled();
-    expect(root.querySelector('.boss-health-text').textContent).toBe('2 / 3');
+    expect(root.querySelector('.boss-health-text').textContent).toBe('3 / 3');
     expect(audioManager.play.mock.calls.filter(([event]) => event === 'challengeSuccess')).toHaveLength(1);
-    currentTime += 100;
-    frames.shift()(currentTime);
+    for (let frame = 0; frame < 4; frame++) {
+      currentTime += 100;
+      frames.shift()(currentTime);
+    }
+    expect(engine.getSnapshot().boss).toMatchObject({ hp: 2, successfulChallenges: 1 });
+    expect(root.querySelector('.boss-health-text').textContent).toBe('2 / 3');
     expect(audioManager.play.mock.calls.filter(([event]) => event === 'challengeSuccess')).toHaveLength(1);
   });
 });
