@@ -1,0 +1,64 @@
+{
+  "mode": "ink",
+  "assets": 53,
+  "failedAssets": [],
+  "viewport": {
+    "width": 1366,
+    "height": 683
+  },
+  "documentOverflow": false,
+  "fireButton": {
+    "display": "none",
+    "disabled": false,
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "right": 0,
+      "bottom": 0
+    }
+  },
+  "gauge": {
+    "x": 523,
+    "y": 616.2000122070312,
+    "width": 320,
+    "height": 50.80000305175781,
+    "right": 843,
+    "bottom": 667.0000152587891
+  },
+  "hp": 3,
+  "weapon": {
+    "chargeSeconds": 10,
+    "rechargeSeconds": 10,
+    "ready": true,
+    "firing": null
+  },
+  "effect": {
+    "kind": "ink",
+    "remainingSeconds": 3.5000000000000053,
+    "durationSeconds": 5
+  },
+  "fixture": "Real public engine state, production renderer/HUD/styles, gravity0/admin collision bypass for deterministic screenshots; not a manual playtest.",
+  "status": "verified",
+  "playback": {
+    "duration": 6.487,
+    "width": 960,
+    "height": 540,
+    "totalFrames": 128,
+    "playedToEnd": true,
+    "seekedTo": 3,
+    "hashes": [
+      3226066004,
+      3494406038,
+      3201798693,
+      220890598
+    ],
+    "means": [
+      16.27565586419753,
+      10.605259773662551,
+      10.763503086419753,
+      15.588155864197532
+    ]
+  }
+}

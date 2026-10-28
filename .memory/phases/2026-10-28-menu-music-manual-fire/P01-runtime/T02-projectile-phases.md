@@ -28,8 +28,8 @@ Each wall firing has one projectile; every completed wall group gets1..3 complet
 - [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
-- `npm test -- --run tests/game/boss-signatures.test.js tests/integration/projectile-phases.test.js` ? expected successful exit; run individual commands sequentially when separated above.
-- `git diff --check` ? no whitespace errors.
+- `npm test -- --run tests/game/boss-signatures.test.js tests/integration/projectile-phases.test.js` - expected successful exit; run individual commands sequentially when separated above.
+- `git diff --check` - no whitespace errors.
 
 ## Commit Message
 ```text
@@ -44,6 +44,6 @@ Task: T02-projectile-phases
 ```
 
 ## Progress
-- [x] ?? ??
-- [x] ?? ??
+- [x] Implementation complete
+- [x] Validation passed
 - commit: 3b37d4d

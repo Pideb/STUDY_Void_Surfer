@@ -1,6 +1,6 @@
 # Task: T06 Final regression and actual renderer evidence
 
-## Status: pending
+## Status: done
 
 ## Goal
 All tasks work together through boss clears/restarts and selected visuals/audio are shown in real runtime captures.
@@ -24,12 +24,12 @@ All tasks work together through boss clears/restarts and selected visuals/audio 
 - All regression checks pass; actual renderer captures and reusable verification scripts show approved effects and controls; working tree committed, memory pointer complete.
 
 ## Acceptance Criteria
-- [ ] Observable goal and all approved timings/counts above implemented.
-- [ ] Specified validation passes without replacing meaningful adjacent guarantees.
+- [x] Observable goal and all approved timings/counts above implemented.
+- [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
-- `npm test -- --run; npm run build; npm run verify:config; git diff --check` ? expected successful exit; run individual commands sequentially when separated above.
-- `git diff --check` ? no whitespace errors.
+- `npm test -- --run; npm run build; npm run verify:config; git diff --check` - expected successful exit; run individual commands sequentially when separated above.
+- `git diff --check` - no whitespace errors.
 
 ## Commit Message
 ```text
@@ -44,6 +44,6 @@ Task: T06-integration-review
 ```
 
 ## Progress
-- [ ] ?? ??
-- [ ] ?? ??
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

@@ -28,8 +28,8 @@ Play an actual seamless ORBIT RUN loop in the menu with existing music/mute/unlo
 - [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
-- `npm test -- --run tests/audio` ? expected successful exit; run individual commands sequentially when separated above.
-- `git diff --check` ? no whitespace errors.
+- `npm test -- --run tests/audio` - expected successful exit; run individual commands sequentially when separated above.
+- `git diff --check` - no whitespace errors.
 
 ## Commit Message
 ```text
@@ -44,6 +44,6 @@ Task: T05-menu-music
 ```
 
 ## Progress
-- [x] ?? ??
-- [x] ?? ??
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- commit: 8d0ea73

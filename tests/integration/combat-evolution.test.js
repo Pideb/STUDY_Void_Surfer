@@ -26,12 +26,13 @@ describe('approved boss evolution across complete stage cycles', () => {
         if (!failed.has(number)) {
           const wrong = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].find(code => code !== snapshot.challenge.sequence[snapshot.challenge.cursor]);
           engine.handleChallengeKey(wrong); failed.add(number);
-          expect(engine.getSnapshot().feedbackEffect.durationSeconds).toBe(4);
+          expect(engine.getSnapshot().feedbackEffect.durationSeconds).toBe(5);
         } else {
           for (const code of snapshot.challenge.sequence.slice(snapshot.challenge.cursor)) engine.handleChallengeKey(code);
-          expect(engine.getSnapshot().boss.counterattack).not.toBeNull(); counterattacks++;
+          expect(engine.getSnapshot().boss.counterattack).toBeNull();
         }
       }
+      if(engine.getSnapshot().boss?.successfulChallenges>=1&&engine.getSnapshot().boss.weapon.ready&&engine.fire())counterattacks++;
       const before = engine.getSnapshot(); time += 100; engine.update(time); snapshot = engine.getSnapshot();
       expect(snapshot.aircraft.id).toBe(aircraftId);
       expect(snapshot.deathEffect).toBeNull();

@@ -13,6 +13,24 @@ function setup(extra = {}) {
 }
 
 describe('manual boss laser in real engine', () => {
+  it('unlocks physics only for the fraction beyond the0.3s firing action', () => {
+    const { engine, tick, until } = setup();
+    until(s => s.boss?.weapon.ready && !s.challenge?.active);
+    engine.lift(); const before = engine.getSnapshot(); engine.fire();
+    for (let i = 0; i < 4; i++) tick(.07);
+    expect(engine.getSnapshot().player.y).toBe(before.player.y);
+    const after = tick(.07);
+    expect(after.player.y).toBeCloseTo(before.player.y + before.player.velocityY * .05);
+    expect(after.boss.weapon.firing).toBeNull();
+  });
+  it('does not protect the firing ship against a real wall contact', () => {
+    const { engine, tick, until } = setup();
+    until(s => s.boss?.weapon.ready && s.obstacles.some(w => w.kind === 'special' && w.x > 260 && w.x < 300));
+    engine.setInvincibilityEnabled(false); expect(engine.fire()).toBe(true);
+    let s;
+    for (let i = 0; i < 10; i++) { s = tick(.05); if (s.deathEffect) break; }
+    expect(s.deathEffect?.reason).toBe('obstacle');
+  });
   it('WASD neither damages nor adds charge, freezes charging while active and restarts waves', () => {
     const { engine, tick, until, finishChallenge } = setup();
     const s = until(s => s.challenge?.active);

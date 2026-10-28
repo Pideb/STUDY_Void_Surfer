@@ -7,11 +7,11 @@
 P01-runtime
 
 ## Active Task
-[Next task](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T05-menu-music.md)
+[Next task](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T06-integration-review.md)
 
 ## Status
-- T04 completed and verified; commit 811b81b.
-- Progress 4/6. User authorized sequential completion.
+- T05 completed and verified; commit 8d0ea73.
+- Progress 5/6. User authorized sequential completion.
 
 ## Next Step (IMPORTANT)
 Read next task blueprint and continue implementation, validation and commit.

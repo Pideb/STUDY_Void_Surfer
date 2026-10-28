@@ -28,8 +28,8 @@ Bottom charge meter and distinct mobile FIRE button expose the weapon; render al
 - [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
-- `npm test -- --run tests/ui/game-hud.test.js tests/ui/app-controller.test.js tests/game/renderer.test.js tests/integration/mobile-input.test.js` ? expected successful exit; run individual commands sequentially when separated above.
-- `git diff --check` ? no whitespace errors.
+- `npm test -- --run tests/ui/game-hud.test.js tests/ui/app-controller.test.js tests/game/renderer.test.js tests/integration/mobile-input.test.js` - expected successful exit; run individual commands sequentially when separated above.
+- `git diff --check` - no whitespace errors.
 
 ## Commit Message
 ```text
@@ -44,6 +44,6 @@ Task: T03-fire-ui
 ```
 
 ## Progress
-- [x] ?? ??
-- [x] ?? ??
+- [x] Implementation complete
+- [x] Validation passed
 - commit: 8422e0d

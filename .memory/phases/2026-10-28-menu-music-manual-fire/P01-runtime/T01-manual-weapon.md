@@ -28,8 +28,8 @@ Add an independently clocked one-shot weapon; WASD success no longer attacks or 
 - [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
-- `npm test -- --run tests/game/boss-weapon.test.js tests/integration/manual-boss-fire.test.js` ? expected successful exit; run individual commands sequentially when separated above.
-- `git diff --check` ? no whitespace errors.
+- `npm test -- --run tests/game/boss-weapon.test.js tests/integration/manual-boss-fire.test.js` - expected successful exit; run individual commands sequentially when separated above.
+- `git diff --check` - no whitespace errors.
 
 ## Commit Message
 ```text
@@ -44,6 +44,6 @@ Task: T01-manual-weapon
 ```
 
 ## Progress
-- [x] ?? ??
-- [x] ?? ??
+- [x] Implementation complete
+- [x] Validation passed
 - commit: 033ad4e

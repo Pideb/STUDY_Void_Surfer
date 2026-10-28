@@ -1,0 +1,24 @@
+{
+  "mode": "menu",
+  "assets": 53,
+  "failedAssets": [],
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "documentOverflow": false,
+  "fireButton": {
+    "display": null,
+    "bounds": null
+  },
+  "gauge": null,
+  "hp": 3,
+  "weapon": {
+    "chargeSeconds": 10,
+    "rechargeSeconds": 10,
+    "ready": true,
+    "firing": null
+  },
+  "effect": null,
+  "fixture": "Real public engine state, production renderer/HUD/styles, gravity0/admin collision bypass for deterministic screenshots; not a manual playtest."
+}

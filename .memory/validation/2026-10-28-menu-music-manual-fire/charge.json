@@ -1,0 +1,49 @@
+{
+  "mode": "charge",
+  "assets": 53,
+  "failedAssets": [],
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "documentOverflow": false,
+  "fireButton": {
+    "display": "none",
+    "disabled": true,
+    "bounds": {
+      "x": 0,
+      "y": 0,
+      "width": 0,
+      "height": 0,
+      "right": 0,
+      "bottom": 0
+    }
+  },
+  "gauge": {
+    "x": 480,
+    "y": 653.2000122070312,
+    "width": 320,
+    "height": 50.80000305175781,
+    "right": 800,
+    "bottom": 704.0000152587891
+  },
+  "hp": 3,
+  "weapon": {
+    "chargeSeconds": 0.1,
+    "rechargeSeconds": 10,
+    "ready": false,
+    "firing": {
+      "id": "player-laser-3",
+      "fromX": 240,
+      "fromY": 270,
+      "toX": 819.92,
+      "toY": 268.08,
+      "elapsedSeconds": 0.1,
+      "chargeSeconds": 0.2,
+      "durationSeconds": 0.3,
+      "impacted": false
+    }
+  },
+  "effect": null,
+  "fixture": "Real public engine state, production renderer/HUD/styles, gravity0/admin collision bypass for deterministic screenshots; not a manual playtest."
+}

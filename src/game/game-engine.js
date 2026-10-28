@@ -31,7 +31,6 @@ import {
   WORLD_HEIGHT,
   WORLD_WIDTH,
   BOSS_ROAR_SECONDS,
-  BOSS_COUNTERATTACK_SECONDS,
   BOSS_SINGLE_LASER_INTERVAL_SECONDS,
   BOSS_SINGLE_LASER_CHANCE,
   BOSS_DOUBLE_LASER_CHANCE,
@@ -656,10 +655,10 @@ export function createGameEngine(deps = {}) {
     }
   }
 
-  function updateBossAttack(deltaSeconds, protectedSeconds = 0) {
+  function updateBossAttack(deltaSeconds, protectedSeconds = 0, weaponDeltaSeconds = deltaSeconds) {
     if (bossEncounter?.hp > 0 && bossEncounter.entranceRemainingSeconds <= 0) {
       const shotId = bossEncounter.weapon.firing?.id;
-      if (advanceBossWeapon(bossEncounter.weapon, deltaSeconds)) {
+      if (advanceBossWeapon(bossEncounter.weapon, weaponDeltaSeconds)) {
         advanceBossEncounter(bossEncounter, 'laser-hit');
         bossEncounter.hitEffect = { remainingSeconds: .38, durationSeconds: .38 };
         bossEncounter.animation = { kind: 'hit', actionId: shotId, elapsedSeconds: 0, durationSeconds: .38 };
@@ -804,6 +803,7 @@ export function createGameEngine(deps = {}) {
     elapsedSeconds += deltaSeconds;
     if (bossEncounter?.animation) bossEncounter.animation.elapsedSeconds += deltaSeconds;
     const previousBossEncounter = bossEncounter;
+    const previousEntranceSeconds = bossEncounter?.entranceRemainingSeconds ?? 0;
     updateBossPreview(deltaSeconds);
     if (bossEncounter && bossEncounter === previousBossEncounter) {
       bossEncounter.entranceRemainingSeconds = Math.max(0, bossEncounter.entranceRemainingSeconds - deltaSeconds);
@@ -840,7 +840,9 @@ export function createGameEngine(deps = {}) {
       bossEncounter.hitEffect.remainingSeconds = Math.max(0, bossEncounter.hitEffect.remainingSeconds - deltaSeconds);
       if (bossEncounter.hitEffect.remainingSeconds === 0) bossEncounter.hitEffect = null;
     }
-    updateBossAttack(deltaSeconds, protectedSeconds);
+    const weaponDeltaSeconds = bossEncounter === previousBossEncounter
+      ? Math.max(0, deltaSeconds - previousEntranceSeconds) : 0;
+    updateBossAttack(deltaSeconds, protectedSeconds, weaponDeltaSeconds);
     if (deathEffect) return;
     if (feedbackEffect) {
       feedbackEffect.remainingSeconds = Math.max(0, feedbackEffect.remainingSeconds - deltaSeconds);

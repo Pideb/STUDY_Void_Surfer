@@ -1,0 +1,39 @@
+{
+  "mode": "mobile",
+  "assets": 53,
+  "failedAssets": [],
+  "viewport": {
+    "width": 640,
+    "height": 360
+  },
+  "documentOverflow": false,
+  "fireButton": {
+    "display": "flex",
+    "disabled": false,
+    "bounds": {
+      "x": 512,
+      "y": 220.8000030517578,
+      "width": 112,
+      "height": 51.19999694824219,
+      "right": 624,
+      "bottom": 272
+    }
+  },
+  "gauge": {
+    "x": 204.8000030517578,
+    "y": 298.20001220703125,
+    "width": 230.39999389648438,
+    "height": 45.80000305175781,
+    "right": 435.1999969482422,
+    "bottom": 344.00001525878906
+  },
+  "hp": 3,
+  "weapon": {
+    "chargeSeconds": 10,
+    "rechargeSeconds": 10,
+    "ready": true,
+    "firing": null
+  },
+  "effect": null,
+  "fixture": "Real public engine state, production renderer/HUD/styles, gravity0/admin collision bypass for deterministic screenshots; not a manual playtest."
+}

@@ -104,6 +104,7 @@ describe('game engine', () => {
       if (snapshot.challenge?.active) {
         for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
       }
+      if(snapshot.boss?.weapon.ready)engine.fire();
       previous = snapshot;
       snapshot = step();
       if (snapshot.stage.transition) {
@@ -180,6 +181,7 @@ describe('game engine', () => {
       if (before.challenge?.active) {
         for (const code of before.challenge.sequence.slice(before.challenge.cursor)) engine.handleChallengeKey(code);
       }
+      if(before.boss?.successfulChallenges>=2&&before.boss.weapon.ready)engine.fire();
       for (const wall of before.obstacles) {
         if (artOwners.has(wall.id)) expect(wall.stageId).toBe(artOwners.get(wall.id));
         else artOwners.set(wall.id, wall.stageId);
@@ -655,13 +657,14 @@ describe('game engine', () => {
     }
     expect(snapshot.challenge).toMatchObject({ active: false, result: 'failure', resolved: true });
     expect(snapshot.boss).toMatchObject({ hp: 3, challengeCount: 1, successfulChallenges: 0, wallSpawningPaused: false });
-    expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(4);
+    expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(5);
     expect(snapshot.score).toBe(60);
     expect(snapshot.progressionScore).toBe(60);
     for (let frame = 0; frame < 1000 && !snapshot.challenge.active; frame += 1) snapshot = step(100);
     expect(snapshot.challenge.active).toBe(true);
     for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
-    expect(engine.getSnapshot().boss.counterattack).not.toBeNull();
+    expect(engine.getSnapshot().boss.counterattack).toBeNull();
+    expect(engine.fire()).toBe(true);
     for (let frame = 0; frame < 3; frame += 1) step(100);
     expect(engine.getSnapshot().boss).toMatchObject({ hp: 2, challengeCount: 2, successfulChallenges: 1 });
     expect(engine.handleChallengeKey('KeyW')).toBe(false);
@@ -669,13 +672,13 @@ describe('game engine', () => {
     expect(engine.getSnapshot().boss.successfulChallenges).toBe(1);
   });
 
-  it('clears a late boss with exactly three challenges and awards its only ten points once', () => {
+  it('clears a late boss with exactly three manual laser hits and awards its only ten points once', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 120, initialCompletedWarningCount: 9, rng: () => 0.5,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
-    let successes = 0;
+    let successes = 0, shots = 0;
     let enteredBoss = false;
     let entryScore;
     let snapshot = engine.getSnapshot();
@@ -693,11 +696,13 @@ describe('game engine', () => {
           successes += 1;
         }
       }
+      if(engine.getSnapshot().boss?.successfulChallenges>=1&&engine.getSnapshot().boss.weapon.ready&&engine.fire())shots++;
       snapshot = step(100);
       if (enteredBoss && !snapshot.boss) break;
     }
     expect(enteredBoss).toBe(true);
-    expect(successes).toBe(3);
+    expect(shots).toBe(3);
+    expect(successes).toBeGreaterThanOrEqual(1);
     expect(snapshot.boss).toBeNull();
     expect(snapshot.score).toBe(entryScore + 10);
     expect(snapshot.progressionScore).toBe(entryScore + 10);
@@ -769,6 +774,7 @@ describe('game engine', () => {
         if (snapshot.challenge?.active) {
           for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
         }
+        if(snapshot.boss?.successfulChallenges>=1&&snapshot.boss.weapon.ready)engine.fire();
         if (enteredBoss && !snapshot.boss) { clearedBosses += 1; break; }
       }
     }
@@ -819,8 +825,10 @@ describe('game engine', () => {
     for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
     snapshot = engine.getSnapshot();
     expect(snapshot.boss.hp).toBe(3);
-    expect(snapshot.boss.counterattack.fromX).toBe(snapshot.player.x);
-    expect(snapshot.boss.counterattack.toX).toBeGreaterThan(740);
+    expect(snapshot.boss.counterattack).toBeNull();
+    expect(engine.fire()).toBe(true);
+    expect(engine.getSnapshot().boss.weapon.firing.fromX).toBe(snapshot.player.x);
+    expect(engine.getSnapshot().boss.weapon.firing.toX).toBeGreaterThan(740);
     for (let i = 0; i < 3; i++) snapshot = step();
     expect(snapshot.boss.hp).toBe(2);
     expect(snapshot.boss.hitEffect).not.toBeNull();
