@@ -23,7 +23,7 @@ function createRuntimeEngine(overrides = {}) {
 }
 
 describe('game engine', () => {
-  it('recharges for one live second without refreshing blocked dashes, freezes on pause and resets on restart', () => {
+  it('recharges in0.7 live seconds without refreshing blocked dashes, freezes on pause and resets on restart', () => {
     const { engine, step } = createRuntimeEngine(); engine.start();
     expect(engine.dash()).toBe(true);
     step(100); const before = engine.getSnapshot().player;
@@ -32,11 +32,15 @@ describe('game engine', () => {
     engine.pause(); step(1000);
     expect(engine.getSnapshot().player).toEqual(before);
     engine.resume();
-    for (let i = 0; i < 6; i++) step(100);
+    for (let i = 0; i < 5; i++) step(100);
+    step(50);
     expect(engine.getSnapshot().player).toMatchObject({ isDashing: false });
-    expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBeCloseTo(.3);
+    expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBeCloseTo(.05);
     expect(engine.dash()).toBe(false);
-    for (let i = 0; i < 3; i++) step(100);
+    step(49);
+    expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBeCloseTo(.001);
+    expect(engine.dash()).toBe(false);
+    step(1);
     expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBe(0);
     expect(engine.dash()).toBe(true);
     engine.start(); expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBe(0);

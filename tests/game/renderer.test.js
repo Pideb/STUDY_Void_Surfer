@@ -66,7 +66,7 @@ describe('renderer', () => {
     expect(context.moveTo).toHaveBeenCalledWith(996,460);
   });
   it('fills a white recharge arc around the enlarged ship and hides it when ready', () => {
-    const context = createContext(), player = { x: 240, y: 270, width: 36, dashCooldownRemainingSeconds: .5 };
+    const context = createContext(), player = { x: 240, y: 270, width: 36, dashCooldownRemainingSeconds: .35 };
     drawDashCooldown(context, player);
     expect(context.arc).toHaveBeenCalledWith(240, 270, 40.4, -Math.PI / 2, Math.PI / 2);
     expect(context.strokeStyle).toBe('#ffffff');
