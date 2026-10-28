@@ -1,6 +1,6 @@
 # Task: T05 Roar and explosion audio lifecycle integration
 
-## Status: pending
+## Status: done
 
 ## Goal
 Play the approved design-specific roar with the .8s frozen wind-up and one spacecraft explosion on death, respecting mute/pause/restart/menu without stale cues.
@@ -53,7 +53,7 @@ Task: T05-combat-audio
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete — exact stage roar buffers, transient pause/resume/cancel lifecycle and death-start explosion.
+- [x] Validation passed — 4 files / 71 tests and production build.
 - commit: pending
 

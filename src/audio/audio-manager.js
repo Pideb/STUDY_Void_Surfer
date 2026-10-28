@@ -1,12 +1,17 @@
 import { createStageMusicPlayer } from './stage-music-player.js';
 import { createBossEntryBuffer } from './boss-entry-siren.js';
+import { createBossRoarBuffer } from './boss-roar.js';
+import { ROAR_PROFILES, ROAR_DURATION_SECONDS } from './boss-roar-synth.js';
 
 const SOUND_CONFIG = Object.freeze({
   lift: [{ frequency: 420, duration: 0.08, type: 'triangle', volume: 0.65 }],
   dash: [{ frequency: 680, duration: 0.14, type: 'sawtooth', volume: 0.8 }],
   score: [{ frequency: 760, duration: 0.1, type: 'sine', volume: 0.5 }],
   boss: [{ frequency: 90, duration: 0.45, type: 'sawtooth', volume: 0.8 }, { frequency: 110, duration: 0.32, type: 'triangle', volume: 0.55, offset: 0.08 }],
-  collision: [{ frequency: 70, duration: 0.3, type: 'sawtooth', volume: 0.8 }],
+  collision: [
+    { frequency: 110, endFrequency: 28, duration: 0.33, type: 'sawtooth', volume: 0.8, noise: true },
+    { frequency: 62, endFrequency: 20, duration: 0.28, type: 'sine', volume: 0.75, offset: 0.05 },
+  ],
   pause: [{ frequency: 260, duration: 0.12, type: 'triangle', volume: 0.5 }],
   bossCharge: [
     { frequency: 110, duration: 0.22, type: 'sawtooth', volume: 0.52 },
@@ -65,7 +70,7 @@ const SCENE_SETTINGS = Object.freeze({
 });
 
 export const AUDIO_EVENTS = Object.freeze([
-  'bossEntry', 'bossCharge', 'projectileReflect', 'bossHit', 'laserTelegraph',
+  'bossEntry', 'bossRoar', 'bossCharge', 'projectileReflect', 'bossHit', 'laserTelegraph',
   'challengeSuccess', 'challengeFailureInk', 'challengeFailureGlitch',
 ]);
 
@@ -111,6 +116,9 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
   let entryVoice = null;
   let entryOffset = 0;
   let entryPaused = false;
+  const roarBuffers = new Map();
+  let roarVoice = null;
+  let pausedRoar = null;
   let destroyed = false;
   let musicTimer = null;
   let musicMode = 'none';
@@ -167,6 +175,14 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
     const startTime = (context.currentTime ?? 0) + offset;
     oscillator.type = config.type;
     oscillator.frequency.value = config.frequency;
+    if (Number.isFinite(config.endFrequency) && config.endFrequency > 0) {
+      oscillator.frequency.setValueAtTime?.(config.frequency, startTime);
+      if (typeof oscillator.frequency.exponentialRampToValueAtTime === 'function') {
+        oscillator.frequency.exponentialRampToValueAtTime(config.endFrequency, startTime + config.duration);
+      } else {
+        oscillator.frequency.setTargetAtTime?.(config.endFrequency, startTime, config.duration / 3);
+      }
+    }
     setGainValue(envelope, 0.0001, startTime);
     setGainValue(envelope, 0.22 * (config.volume ?? 1), startTime + 0.01);
     setGainValue(envelope, 0.0001, startTime + config.duration);
@@ -295,6 +311,48 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
     source.start(context.currentTime ?? 0, voice.offset);
   }
 
+  function audioTime() {
+    return Number.isFinite(context?.currentTime) ? Math.max(0, context.currentTime) : 0;
+  }
+
+  function cancelRoar({ retainOffset = false } = {}) {
+    const voice = roarVoice;
+    roarVoice = null; // stop() may synchronously deliver an old onended callback.
+    pausedRoar = null;
+    if (!voice) return;
+    if (retainOffset) {
+      const offset = Math.min(ROAR_DURATION_SECONDS, voice.offset + Math.max(0, audioTime() - voice.startedAt));
+      if (offset < ROAR_DURATION_SECONDS) pausedRoar = { stageId: voice.stageId, buffer: voice.buffer, offset };
+    }
+    try { voice.source.stop(); } catch { /* Already ended. */ }
+    voice.source.disconnect?.();
+  }
+
+  function playRoar(stageId, retained = null) {
+    if (destroyed || musicPaused || !context?.createBufferSource || !masterGain) return;
+    const id = ROAR_PROFILES.some((profile) => profile.id === stageId) ? stageId : ROAR_PROFILES[0].id;
+    let buffer = retained?.buffer ?? roarBuffers.get(id);
+    if (!buffer) {
+      buffer = createBossRoarBuffer(context, id);
+      if (!buffer) return;
+      roarBuffers.set(id, buffer);
+    }
+    const offset = retained?.offset ?? 0;
+    if (offset >= ROAR_DURATION_SECONDS) return;
+    const source = context.createBufferSource();
+    source.buffer = buffer;
+    source.loop = false;
+    source.connect(masterGain);
+    const voice = { source, stageId: id, buffer, offset, startedAt: audioTime() };
+    pausedRoar = null;
+    roarVoice = voice;
+    source.onended = () => {
+      source.disconnect?.();
+      if (roarVoice === voice) { roarVoice = null; pausedRoar = null; }
+    };
+    source.start(voice.startedAt, offset, ROAR_DURATION_SECONDS - offset);
+  }
+
   if (!AudioContextCtor) return createNoopManager();
 
   return {
@@ -315,6 +373,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
     isMuted() { return muted; },
     setMusicMode(mode) {
       const nextMode = MUSIC_MODES[mode] ? mode : 'none';
+      if (nextMode === 'menu' || nextMode === 'none') cancelRoar();
       if (nextMode === musicMode && !(nextMode !== 'none' && musicPaused)) return;
       stopMusicScheduler();
       musicPaused = false;
@@ -358,6 +417,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
     },
     resetRun() {
       cancelEntry();
+      cancelRoar();
       playedEventIds.clear();
       musicDucked = false; musicPaused = false; musicMode = 'none';
       setGainValue(musicGain, 0.14, context?.currentTime ?? 0);
@@ -368,6 +428,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
       musicPaused = true;
       stageMusicPlayer?.pause();
       cancelEntry({ retainOffset: true });
+      cancelRoar({ retainOffset: true });
       stopMusicScheduler();
       stopMusicVoices();
     },
@@ -376,25 +437,28 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
       musicPaused = false;
       stageMusicPlayer?.resume();
       if (musicDucked && entryPaused) playEntry();
+      if (pausedRoar) playRoar(pausedRoar.stageId, pausedRoar);
       scheduleMusic();
     },
     play(event, metadata = {}) {
-      if (muted || !context || !ensureGraph()) return;
+      if (event === 'collision') cancelRoar();
+      if (destroyed || muted || !context || !ensureGraph()) return;
       if (event === 'warning') {
         playTone({ frequency: 196, duration: 0.1, type: 'square', volume: 0.72 });
         playTone({ frequency: 146.83, duration: 0.12, type: 'square', volume: 0.72 }, masterGain, { offset: 0.13 });
         return;
       }
       const config = SOUND_CONFIG[event];
-      if (!config && event !== 'bossEntry') return;
-      if (event === 'bossEntry' && musicPaused) return;
+      if (!config && event !== 'bossEntry' && event !== 'bossRoar') return;
+      if ((event === 'bossEntry' || event === 'bossRoar') && musicPaused) return;
       if (metadata.id !== undefined && metadata.id !== null) {
         const key = `${event}:${metadata.id}`;
         if (playedEventIds.has(key)) return;
         playedEventIds.add(key);
         if (playedEventIds.size > DEDUPE_LIMIT) playedEventIds.delete(playedEventIds.values().next().value);
       }
-      if (event === 'bossEntry') { cancelEntry(); playEntry(); return; }
+      if (event === 'bossEntry') { cancelRoar(); cancelEntry(); playEntry(); return; }
+      if (event === 'bossRoar') { cancelEntry(); cancelRoar(); playRoar(metadata.stageId); return; }
       for (const tone of config) {
         if (tone.noise) playNoiseBurst(tone);
         playTone(tone, masterGain, { offset: tone.offset ?? 0 });
@@ -403,6 +467,8 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
     destroy() {
       destroyed = true;
       cancelEntry();
+      cancelRoar();
+      roarBuffers.clear();
       stageMusicPlayer?.destroy();
       stopMusicScheduler();
       stopMusicVoices();

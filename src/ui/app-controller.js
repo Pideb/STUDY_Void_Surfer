@@ -113,6 +113,8 @@ export function createAppController(deps) {
   let previousChallengeActive = false;
   let lastBossPreviewId = null;
   let audioRunId = 0;
+  let lastRoarId = null;
+  let lastDeathEffectId = null;
   let rankingObserver = null;
   let rankingRequestId = 0;
   let rankingPersonalRequestId = 0;
@@ -442,13 +444,12 @@ export function createAppController(deps) {
 
   function triggerLift() {
     if (state.screen !== 'playing') return;
-    if (state.snapshot?.challenge?.active) return;
-    gameEngine.lift?.();
-    audioManager.play('lift');
+    if (state.snapshot?.challenge?.active || state.snapshot?.boss?.roar || state.snapshot?.deathEffect) return;
+    if (gameEngine.lift?.() !== false) audioManager.play('lift');
   }
 
   function triggerDash() {
-    if (state.screen !== 'playing' || state.snapshot?.challenge?.active) return;
+    if (state.screen !== 'playing' || state.snapshot?.challenge?.active || state.snapshot?.boss?.roar || state.snapshot?.deathEffect) return;
     if (gameEngine.dash?.()) {
       audioManager.play('dash');
     }
@@ -487,6 +488,20 @@ export function createAppController(deps) {
   }
 
   function syncCombatAudio(snapshot) {
+    if (snapshot?.deathEffect) {
+      const id = `${audioRunId}:death`;
+      if (lastDeathEffectId !== id) {
+        lastDeathEffectId = id;
+        audioManager.setMusicMode?.('none');
+        audioManager.play('collision', { id });
+      }
+      return;
+    }
+    const roar = snapshot?.boss?.roar;
+    if (roar?.id && roar.id !== lastRoarId) {
+      lastRoarId = roar.id;
+      audioManager.play('bossRoar', { id: `${audioRunId}:${roar.id}`, stageId: snapshot.boss.stageId });
+    } else if (!roar) lastRoarId = null;
     const previewId = snapshot?.bossPreview?.warningIndex ?? null;
     if (previewId !== lastBossPreviewId) {
       lastBossPreviewId = previewId;
@@ -508,14 +523,14 @@ export function createAppController(deps) {
         lastAttackId = attack.id;
         lastAttackPhase = null;
       }
-      if (attack.type === 'projectile' && attack.state === 'charging' && lastAttackPhase !== 'charging') {
-        audioManager.play('bossCharge', { id: attack.id });
+      if ((attack.type === 'projectile' || attack.type === 'volley') && attack.state === 'charging' && lastAttackPhase !== 'charging') {
+        audioManager.play('bossCharge', { id: `${audioRunId}:${attack.id}` });
         lastAttackPhase = 'charging';
       } else if (attack.type === 'projectile' && attack.state === 'returning' && lastAttackPhase !== 'returning') {
-        audioManager.play('projectileReflect', { id: attack.id });
+        audioManager.play('projectileReflect', { id: `${audioRunId}:${attack.id}` });
         lastAttackPhase = 'returning';
       } else if (attack.type === 'laser' && attack.telegraphRemainingSeconds > 0 && lastAttackPhase !== 'telegraph') {
-        audioManager.play('laserTelegraph', { id: attack.id });
+        audioManager.play('laserTelegraph', { id: `${audioRunId}:${attack.id}` });
         lastAttackPhase = 'telegraph';
       }
     }
@@ -525,7 +540,7 @@ export function createAppController(deps) {
       const bossKey = String(boss.number ?? 'boss');
       const previous = previousBoss?.key === bossKey ? previousBoss.hp : boss.maxHp;
       if (Number.isFinite(previous) && Number.isFinite(boss.hp) && boss.hp < previous) {
-        audioManager.play('bossHit', { id: `${bossKey}:${boss.hp}` });
+        audioManager.play('bossHit', { id: `${audioRunId}:${bossKey}:${boss.hp}` });
       }
       previousBoss = { key: bossKey, hp: boss.hp };
     } else {
@@ -535,7 +550,7 @@ export function createAppController(deps) {
     const challenge = snapshot?.challenge;
     if (challenge?.active && !previousChallengeActive) challengeRunId += 1;
     if (challenge && !challenge.active && previousChallengeActive) {
-      const challengeId = `challenge-${challengeRunId}`;
+      const challengeId = `${audioRunId}:challenge-${challengeRunId}`;
       if (challenge.result === 'success') {
         audioManager.play('challengeSuccess', { id: challengeId });
       } else if (challenge.result === 'failure') {
@@ -589,6 +604,8 @@ export function createAppController(deps) {
     state.snapshot = null;
     lastDifficultyMode = 'normal';
     audioRunId += 1;
+    lastRoarId = null;
+    lastDeathEffectId = null;
     lastBossPreviewId = null;
     audioManager.resetRun?.();
     gameEngine.setGuestMode?.(!state.user);
@@ -863,7 +880,7 @@ export function createAppController(deps) {
         setScreen('menu');
         break;
       case 'PAUSE':
-        if (state.screen === 'playing' && !state.snapshot?.challenge?.active) {
+        if (state.screen === 'playing' && !state.snapshot?.challenge?.active && !state.snapshot?.deathEffect) {
           state.snapshot = gameEngine.pause();
           audioManager.pauseMusic?.();
           audioManager.play('pause');

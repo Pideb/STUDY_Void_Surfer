@@ -55,5 +55,5 @@ Task: T04-portal-transition
 ## Progress
 - [x] Implementation complete — actual-speed portal phases, covered stage swap, destination ornaments and bounded wall resume.
 - [x] Validation passed — 5 files / 164 tests; production build passed.
-- commit: pending
+- commit: 46dc0cd
 

@@ -736,6 +736,43 @@ describe('app controller product flow', () => {
     expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('menu');
   });
 
+  it('plays the locked-stage roar once and blocks phantom lift feedback while the world is frozen', async () => {
+    harness = makeHarness(); harness.controller.mount(); await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU'); harness.controller.dispatch('START_PLAYING');
+    harness.snapshot.stage = { id: 'crystal-gates' };
+    harness.snapshot.boss = { number: 1, hp: 3, maxHp: 3, stageId: 'abyssal-beast', roar: { id: 'roar-1', elapsedSeconds: 0, durationSeconds: .8 } };
+    harness.frames.shift()(16); harness.frames.shift()(32);
+    expect(harness.audioManager.play).toHaveBeenCalledWith('bossRoar', { id: '1:roar-1', stageId: 'abyssal-beast' });
+    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'bossRoar')).toHaveLength(1);
+    harness.canvas.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true, button: 0 }));
+    expect(harness.gameEngine.lift).not.toHaveBeenCalled();
+    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'lift')).toHaveLength(0);
+  });
+
+  it('plays one explosion at death-effect start and refuses to pause the death sequence', async () => {
+    harness = makeHarness(); harness.controller.mount(); await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU'); harness.controller.dispatch('START_PLAYING');
+    harness.snapshot.deathEffect = { reason: 'projectile', elapsedSeconds: 0, durationSeconds: .5 };
+    harness.frames.shift()(16); harness.frames.shift()(32);
+    expect(harness.snapshot.state).toBe('playing');
+    expect(harness.audioManager.play).toHaveBeenCalledWith('collision', { id: '1:death' });
+    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'collision')).toHaveLength(1);
+    expect(harness.audioManager.setMusicMode).toHaveBeenLastCalledWith('none');
+    harness.controller.dispatch('PAUSE'); expect(harness.gameEngine.pause).not.toHaveBeenCalled();
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+  });
+
+  it('gives identical roar event IDs a new run namespace after restart', async () => {
+    harness = makeHarness(); harness.controller.mount(); await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU'); harness.controller.dispatch('START_PLAYING');
+    harness.snapshot.boss = { stageId: 'solar-forge', roar: { id: 'roar-1' } };
+    harness.frames.shift()(16);
+    harness.snapshot.state = 'game-over'; harness.frames.shift()(32); await settle();
+    harness.controller.dispatch('RESTART_IMMEDIATE');
+    const sounds = harness.audioManager.play.mock.calls.filter(([event]) => event === 'bossRoar');
+    expect(sounds.map(([, meta]) => meta.id)).toEqual(['1:roar-1', '2:roar-1']);
+  });
+
   it('plays combat cues once per attack phase and crossfades stage scenes', async () => {
     harness = makeHarness();
     harness.controller.mount();
@@ -750,19 +787,19 @@ describe('app controller product flow', () => {
     };
     harness.frames.shift()(16);
     harness.frames.shift()(32);
-    expect(harness.audioManager.play).toHaveBeenCalledWith('bossCharge', { id: 'shot-1' });
+    expect(harness.audioManager.play).toHaveBeenCalledWith('bossCharge', { id: '1:shot-1' });
     expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'bossCharge')).toHaveLength(1);
     expect(harness.audioManager.setMusicScene).toHaveBeenCalledWith('crystal-gates');
 
     harness.snapshot.boss.attack.state = 'returning';
     harness.snapshot.boss.hp = 2;
     harness.frames.shift()(48);
-    expect(harness.audioManager.play).toHaveBeenCalledWith('projectileReflect', { id: 'shot-1' });
-    expect(harness.audioManager.play).toHaveBeenCalledWith('bossHit', { id: '3:2' });
+    expect(harness.audioManager.play).toHaveBeenCalledWith('projectileReflect', { id: '1:shot-1' });
+    expect(harness.audioManager.play).toHaveBeenCalledWith('bossHit', { id: '1:3:2' });
 
     harness.snapshot.boss.attack = { id: 'laser-1', type: 'laser', kind: 'single', telegraphRemainingSeconds: 0.7 };
     harness.frames.shift()(64);
-    expect(harness.audioManager.play).toHaveBeenCalledWith('laserTelegraph', { id: 'laser-1' });
+    expect(harness.audioManager.play).toHaveBeenCalledWith('laserTelegraph', { id: '1:laser-1' });
   });
 
   it('plays WASD outcome cues once and selects the ink or glitch failure timbre', async () => {
@@ -784,6 +821,6 @@ describe('app controller product flow', () => {
     harness.snapshot.challenge = { active: false, result: 'failure' };
     harness.snapshot.feedbackEffect = { kind: 'glitch', remainingSeconds: 0.7 };
     harness.frames.shift()(80);
-    expect(harness.audioManager.play).toHaveBeenCalledWith('challengeFailureGlitch', { id: 'challenge-2' });
+    expect(harness.audioManager.play).toHaveBeenCalledWith('challengeFailureGlitch', { id: '1:challenge-2' });
   });
 });
