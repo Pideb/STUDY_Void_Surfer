@@ -1,13 +1,13 @@
 # Current Context
 
 ## Active Plan
-[Combat and Audio Integration](./plans/2026-10-27-combat-audio-integration.md)
+[Boss Combat Evolution](./plans/2026-10-28-boss-combat-evolution.md)
 
 ## Active Phase
-None. All phases complete.
+[P01 Gameplay Integration](./phases/2026-10-28-boss-combat-evolution/P01-gameplay-integration/phase.md)
 
 ## Active Task
-None. Plan complete.
+[T01 Balance rules and challenge limits](./phases/2026-10-28-boss-combat-evolution/P01-gameplay-integration/T01-balance-rules.md)
 
 ## Status
 - T01 done (`96707d4`): HP countdown, shock-ring dash and right-edge boss entrance.
@@ -18,4 +18,4 @@ None. Plan complete.
 - Approved review sources preserved in .memory/previews; production audio rebuild: `node scripts/build-game-audio.mjs`.
 
 ## Next Step (IMPORTANT)
-No active task. Ready for playtesting via `npm run dev`: siren then boss music/entrance, HP3-to0, post-first-clear hybrid walls, shock-ring dash, and background transition with no new walls until complete.
+Read active T01 blueprint and implement speed cap, encounter spacing and challenge timing. Planning is complete. User authorized sequential implementation/validation/commit through T06 without further routine confirmation. Earlier status entries describe the previous completed plan.
