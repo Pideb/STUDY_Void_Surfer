@@ -4,6 +4,12 @@ import { getDashBarrierBounds } from '../../src/game/obstacles.js';
 import { getPlayerBounds, getSpecialSuccessBounds } from '../../src/game/player-geometry.js';
 
 describe('separate central damage and aircraft-sized activation', () => {
+  it('does not tunnel through a special wall at a low-frame-rate VELOCITY cap', () => {
+    let time=0;const e=createGameEngine({now:()=>time,gravity:0,rng:()=>0,guestMode:true,aircraftId:'velocity',initialScore:70});
+    e.start();let s;
+    for(let i=0;i<100;i++){time+=100;e.update(time);s=e.getSnapshot();if(s.deathEffect)break;}
+    expect(s.deathEffect?.reason).toBe('obstacle');
+  });
   it.each(['default', 'aegis', 'velocity'])('%s activates before its center reaches the band without changing artwork', aircraftId => {
     let clock = 0;
     const engine = createGameEngine({ now: () => clock, gravity: 0, rng: () => 0, initialScore: 10, aircraftId, guestMode: true });

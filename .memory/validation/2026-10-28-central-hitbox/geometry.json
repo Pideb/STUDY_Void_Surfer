@@ -1,0 +1,91 @@
+{
+  "mode": "geometry",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "dpr": 1,
+  "buffer": {
+    "width": 1920,
+    "height": 1080
+  },
+  "css": {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080,
+    "width": 1920,
+    "height": 1080
+  },
+  "logicalWorld": {
+    "width": 960,
+    "height": 540
+  },
+  "damage": {
+    "left": 232,
+    "right": 248,
+    "top": 262,
+    "bottom": 278
+  },
+  "success": {
+    "left": 212,
+    "right": 268,
+    "top": 252,
+    "bottom": 288
+  },
+  "assets": 53,
+  "failedAssets": [],
+  "documentOverflow": false,
+  "fireButton": {
+    "display": "none",
+    "bounds": {
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "width": 0,
+      "height": 0
+    }
+  },
+  "aircraft": {
+    "id": "default",
+    "name": "NOVA",
+    "scoreMultiplier": 1,
+    "gravityMultiplier": 1,
+    "liftMultiplier": 1,
+    "speedCapScore": 100,
+    "bossLaserDamage": 1
+  },
+  "difficulty": {
+    "score": 10,
+    "progressionScore": 10,
+    "elapsedSeconds": 2.5999999999999988,
+    "warningIndex": 0,
+    "isWarning": false,
+    "isBoss": false,
+    "bossPattern": null,
+    "baseSpeed": 264,
+    "speedMultiplier": 1,
+    "scrollSpeed": 264,
+    "gapHeight": 180,
+    "specialChance": 0.2,
+    "movingGapChance": 0,
+    "timingWindowSeconds": 0.3,
+    "nextWarningScore": 20,
+    "aircraftId": "default",
+    "aircraftScrollSpeedMultiplier": 1,
+    "aircraftSpawnIntervalMultiplier": 1,
+    "speedAdjustmentMultiplier": 1,
+    "effectiveSpeedMultiplier": 1,
+    "targetScrollSpeed": 264
+  },
+  "boss": null,
+  "hpUi": "",
+  "timing": {
+    "barrierX": 345.5999999999984,
+    "bandWidth": 79.2,
+    "eligible": true,
+    "centerInBand": false
+  },
+  "fixture": "Actual public engine state and production renderer/HUD/CSS; gravity0/collision bypass for reproducible images. DPR set in this review page only."
+}

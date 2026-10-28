@@ -5,6 +5,7 @@ import { createObstacle } from '../../src/game/obstacles.js';
 import {
   advanceDash,
   intersectsPlayerObstacle,
+  intersectsSweptPlayerObstacle,
   intersectsPlayerLaser,
   isProjectileReflectionSuccess,
   isSpecialTimingSuccess,
@@ -22,6 +23,19 @@ function makeObstacle(overrides = {}) {
 }
 
 describe('collision', () => {
+  it('catches thin/normal walls crossing the entire small body, with exact dash expiry protection', () => {
+    const player=createPlayer();
+    for(const kind of ['special','normal','hybrid']){
+      const old=makeObstacle({kind,x:280,gapCenter:80}),wall={...old,x:140};
+      expect(intersectsPlayerObstacle(player,old)).toBe(false);
+      expect(intersectsPlayerObstacle(player,wall)).toBe(false);
+      expect(intersectsSweptPlayerObstacle(player,wall,player,old,.1)).toBe(true);
+    }
+    const old=makeObstacle({kind:'special',x:280}),wall={...old,x:140};
+    const protectedPlayer={...player,isDashing:true,dashKind:'special',dashTargetId:wall.id,dashRemainingSeconds:.08};
+    expect(intersectsSweptPlayerObstacle(player,wall,protectedPlayer,old,.1)).toBe(false);
+    expect(intersectsSweptPlayerObstacle(player,wall,{...protectedPlayer,dashRemainingSeconds:.03},old,.1)).toBe(true);
+  });
   it('allows a player inside the gap and rejects a player in the top solid', () => {
     const player = createPlayer();
     const obstacle = makeObstacle();

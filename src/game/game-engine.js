@@ -43,7 +43,7 @@ import {
 } from './constants.js';
 import { applyLift, createPlayer, isOutOfBounds, updatePlayer } from './player.js';
 import { GAME_STATES } from './game-state.js';
-import { advanceDash, intersectsPlayerObstacle, isSpecialTimingSuccess, startDash } from './collision.js';
+import { advanceDash, intersectsSweptPlayerObstacle, isSpecialTimingSuccess, startDash } from './collision.js';
 import { intersectsPlayerLaser } from './collision.js';
 import {
   chooseBossPattern,
@@ -799,6 +799,7 @@ export function createGameEngine(deps = {}) {
     }
 
     const liveRoar = bossEncounter?.roar;
+    const previousPlayer = { ...player };
     const firing = bossEncounter?.weapon.firing;
     const lockedSeconds = firing ? Math.min(deltaSeconds, Math.max(0, firing.durationSeconds - firing.elapsedSeconds)) : 0;
     if (deltaSeconds > lockedSeconds) updatePlayer(player, deltaSeconds - lockedSeconds, gravity * aircraft.gravityMultiplier);
@@ -828,7 +829,9 @@ export function createGameEngine(deps = {}) {
     else if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
 
+    const previousObstacles = new Map();
     for (const obstacle of obstacles) {
+      previousObstacles.set(obstacle.id, { ...obstacle });
       updateObstacle(obstacle, deltaSeconds, difficulty.scrollSpeed, elapsedSeconds);
       if (obstacle.breakEffect) {
         obstacle.breakEffect.remainingSeconds -= deltaSeconds;
@@ -856,7 +859,9 @@ export function createGameEngine(deps = {}) {
       return;
     }
 
-    if (!invincibilityEnabled && obstacles.some((obstacle) => intersectsPlayerObstacle(player, obstacle))) {
+    if (!invincibilityEnabled && obstacles.some((obstacle) => intersectsSweptPlayerObstacle(
+      player, obstacle, previousPlayer, previousObstacles.get(obstacle.id), deltaSeconds,
+    ))) {
       stop('obstacle');
       return;
     }

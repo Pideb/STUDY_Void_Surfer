@@ -29,7 +29,7 @@ describe('consecutive global laser warnings', () => {
     expect(intersectsPlayerLaser({...player,y:270},laser)).toBe(false);
   });
   it('falls back to one line when only one small safe interval exists', () => {
-    const laser=createSingleLaser({lineCount:2,gapCenter:300,gapHeight:480,rng:()=>.5});
+    const laser=createSingleLaser({lineCount:2,gapCenter:300,gapHeight:400,rng:()=>.5});
     expect(laser.ys).toHaveLength(1);
     expect(createSingleLaser({lineCount:2,gapCenter:270,gapHeight:540})).toBeNull();
   });

@@ -461,7 +461,7 @@ describe('app controller product flow', () => {
 
     const aegis = [...harness.root.querySelectorAll('.aircraft-option')]
       .find((button) => button.getAttribute('aria-label').startsWith('AEGIS'));
-    expect(aegis.querySelector('.aircraft-performance').textContent).toBe('중력 ×1.3 · 상승력 70%');
+    expect(aegis.querySelector('.aircraft-performance').textContent).toBe('중력 ×1.3 · 상승력 70% · 보스 레이저 1발 처치 · 속도 증가 100점까지');
   });
 
   it('falls back to the default aircraft and explains a failed best-score lookup', async () => {

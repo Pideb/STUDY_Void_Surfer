@@ -1,0 +1,91 @@
+{
+  "mode": "velocity",
+  "viewport": {
+    "width": 1920,
+    "height": 1080
+  },
+  "dpr": 1,
+  "buffer": {
+    "width": 1920,
+    "height": 1080
+  },
+  "css": {
+    "left": 0,
+    "top": 0,
+    "right": 1920,
+    "bottom": 1080,
+    "width": 1920,
+    "height": 1080
+  },
+  "logicalWorld": {
+    "width": 960,
+    "height": 540
+  },
+  "damage": {
+    "left": 232,
+    "right": 248,
+    "top": 262,
+    "bottom": 278
+  },
+  "success": {
+    "left": 212,
+    "right": 268,
+    "top": 252,
+    "bottom": 288
+  },
+  "assets": 53,
+  "failedAssets": [],
+  "documentOverflow": false,
+  "fireButton": {
+    "display": "none",
+    "bounds": {
+      "left": 0,
+      "top": 0,
+      "right": 0,
+      "bottom": 0,
+      "width": 0,
+      "height": 0
+    }
+  },
+  "aircraft": {
+    "id": "velocity",
+    "name": "VELOCITY",
+    "scoreMultiplier": 1.5,
+    "gravityMultiplier": 1,
+    "liftMultiplier": 1,
+    "speedCapScore": 70,
+    "bossLaserDamage": 1
+  },
+  "difficulty": {
+    "score": 201,
+    "progressionScore": 201,
+    "elapsedSeconds": 21.050000000000164,
+    "warningIndex": 2,
+    "isWarning": true,
+    "isBoss": true,
+    "bossPattern": "fast",
+    "baseSpeed": 467.6921040000003,
+    "speedMultiplier": 1.25,
+    "scrollSpeed": 1028.9226288000007,
+    "gapHeight": 135,
+    "specialChance": 0.5,
+    "movingGapChance": 0,
+    "timingWindowSeconds": 0.15,
+    "nextWarningScore": 30,
+    "aircraftId": "velocity",
+    "aircraftScrollSpeedMultiplier": 2,
+    "aircraftSpawnIntervalMultiplier": 0.5,
+    "speedAdjustmentMultiplier": 0.88,
+    "effectiveSpeedMultiplier": 2.1999999999999997,
+    "targetScrollSpeed": 1028.9226288000007
+  },
+  "boss": {
+    "hp": 3,
+    "maxHp": 3,
+    "laserHits": 0,
+    "damageTaken": 0
+  },
+  "hpUi": "3 / 3",
+  "timing": null,
+  "fixture": "Actual public engine state and production renderer/HUD/CSS; gravity0/collision bypass for reproducible images. DPR set in this review page only."
+}

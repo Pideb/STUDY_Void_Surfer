@@ -7,11 +7,11 @@
 P01-runtime
 
 ## Active Task
-[Next task](./phases/2026-10-28-central-hitbox/P01-runtime/T04-viewport-resolution.md)
+[Next task](./phases/2026-10-28-central-hitbox/P01-runtime/T05-integration-review.md)
 
 ## Status
-- T03 completed and verified; commit d33201c.
-- Progress 3/5. User authorized sequential completion.
+- T04 completed and verified; commit 3dc4b5c.
+- Progress 4/5. User authorized sequential completion.
 
 ## Next Step (IMPORTANT)
 Read next task blueprint and continue implementation, validation and commit.

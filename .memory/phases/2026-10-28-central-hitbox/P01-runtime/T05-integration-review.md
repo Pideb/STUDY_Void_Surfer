@@ -1,6 +1,6 @@
 # Task: T05 Full regression and actual visual verification
 
-## Status: pending
+## Status: done
 
 ## Goal
 Full regression and actual visual verification with observable behavior defined below.
@@ -20,12 +20,13 @@ Full regression and actual visual verification with observable behavior defined 
 - **State/return**: public snapshots remain detached; operations reflect real state without mutation hooks; visual and actual geometry agree.
 
 ### I02. Verification
+- Confirmed runtime edge case: at VELOCITY cap and100ms frame delta, a24px wall crossed the entire16px body without overlap at either endpoint. Include a swept obstacle check in `collision.js`/`game-engine.js` and focused unit/runtime regression tests so the approved smaller body cannot tunnel. Preserve targeted dash protection throughout the actual crossing interval; do not add new invincibility.
 - Related Files: associated existing tests listed above; new test paths are explicit.
 - Exercise exact boundaries and changed behavior plus existing adjacent regressions. Do not silently delete meaningful checks.
 
 ## Acceptance Criteria
-- [ ] Production behavior matches all stated values/edge cases.
-- [ ] Specified validation passes.
+- [x] Production behavior matches all stated values/edge cases.
+- [x] Specified validation passes.
 
 ## Validation
 - `npm test -- --run; npm run build; npm run verify:config; git diff --check` - each command must succeed; semicolon-separated commands run sequentially.
@@ -44,6 +45,6 @@ Task: T05-integration-review
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

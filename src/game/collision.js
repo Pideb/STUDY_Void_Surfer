@@ -39,6 +39,45 @@ export function intersectsPlayerObstacle(player, obstacle) {
   return false;
 }
 
+// The smaller body must still catch a thin wall that crosses it between frames.
+function horizontalContactInterval(player, wall, previousPlayer, previousWall) {
+  const old = getPlayerBounds(previousPlayer), current = getPlayerBounds(player);
+  if (!old || !current) return null;
+  const from = previousWall.x - previousPlayer.x, to = wall.x - player.x;
+  const low = old.left - previousPlayer.x - wall.width, high = old.right - previousPlayer.x;
+  if (from === to) return from > low && from < high ? [0, 1] : null;
+  const a = (low - from) / (to - from), b = (high - from) / (to - from);
+  const enter = Math.max(0, Math.min(a, b)), exit = Math.min(1, Math.max(a, b));
+  return enter < exit ? [enter, exit] : null;
+}
+
+export function intersectsSweptPlayerObstacle(player, obstacle, previousPlayer, previousObstacle, deltaSeconds) {
+  if (!previousPlayer || !previousObstacle) return intersectsPlayerObstacle(player, obstacle);
+  const interval = horizontalContactInterval(player, obstacle, previousPlayer, previousObstacle);
+  if (!interval) return false;
+  const old = getPlayerBounds(previousPlayer), current = getPlayerBounds(player);
+  if (obstacle.kind !== 'special') {
+    const halfGap = obstacle.gapHeight / 2;
+    // Linear in-frame motion: a solid is entered if either end of the contact
+    // interval is outside the opening. Endpoints also cover a complete crossing.
+    const hitsSolid = interval.some(t => {
+      const top = old.top + (current.top - old.top) * t;
+      const bottom = old.bottom + (current.bottom - old.bottom) * t;
+      const gap = previousObstacle.gapCenter + (obstacle.gapCenter - previousObstacle.gapCenter) * t;
+      return top < gap - halfGap || (bottom > gap + halfGap && top < WORLD_HEIGHT);
+    });
+    if (hitsSolid) return true;
+    if (obstacle.kind !== 'hybrid' || obstacle.barrierBroken) return false;
+  }
+  const barrier = getDashBarrierBounds(obstacle), oldBarrier = getDashBarrierBounds(previousObstacle);
+  const barrierInterval = horizontalContactInterval(player, barrier, previousPlayer, oldBarrier);
+  if (!barrierInterval) return false;
+  const protectedThroughout = previousPlayer.isDashing && previousPlayer.dashKind === 'special'
+    && previousPlayer.dashTargetId === obstacle.id
+    && previousPlayer.dashRemainingSeconds + 1e-9 >= barrierInterval[1] * deltaSeconds;
+  return !protectedThroughout;
+}
+
 export function isSpecialTimingSuccess({ playerX, wallX, speed, windowSeconds }) {
   if (![playerX, wallX, speed, windowSeconds].every(Number.isFinite) || speed <= 0 || windowSeconds < 0) {
     return false;
