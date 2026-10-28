@@ -1,6 +1,6 @@
 # Task: T01 Independent manual boss weapon
 
-## Status: pending
+## Status: done
 
 ## Goal
 Add an independently clocked one-shot weapon; WASD success no longer attacks or removes HP.
@@ -24,8 +24,8 @@ Add an independently clocked one-shot weapon; WASD success no longer attacks or 
 - Unit clock/invalid delta/full capacity/reset; integration WASD no damage, three manual hits, live walls during lock, partial timestep physics, no pause/WASD charge and no new invulnerability.
 
 ## Acceptance Criteria
-- [ ] Observable goal and all approved timings/counts above implemented.
-- [ ] Specified validation passes without replacing meaningful adjacent guarantees.
+- [x] Observable goal and all approved timings/counts above implemented.
+- [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
 - `npm test -- --run tests/game/boss-weapon.test.js tests/integration/manual-boss-fire.test.js` ? expected successful exit; run individual commands sequentially when separated above.
@@ -44,6 +44,6 @@ Task: T01-manual-weapon
 ```
 
 ## Progress
-- [ ] ?? ??
-- [ ] ?? ??
+- [x] ?? ??
+- [x] ?? ??
 - commit: pending

@@ -1,4 +1,5 @@
 import { BOSS_ENTRANCE_SECONDS, BOSS_REQUIRED_CHALLENGES } from './constants.js';
+import { createBossWeapon } from './boss-weapon.js';
 
 export function getBossHealth() {
   return BOSS_REQUIRED_CHALLENGES;
@@ -27,6 +28,8 @@ export function createBossEncounter(number, stageId = 'crystal-gates') {
     entranceDurationSeconds: BOSS_ENTRANCE_SECONDS,
     entranceRemainingSeconds: BOSS_ENTRANCE_SECONDS,
     successfulChallenges: 0,
+    laserHits: 0,
+    weapon: createBossWeapon(),
     requiredChallenges: maxHp,
     attack: null,
     normalWallsSinceAttack: 0,
@@ -47,8 +50,10 @@ export function advanceBossEncounter(encounter, event, value = 0) {
     encounter.challengeCount += 1;
     if (event === 'challenge-success') {
       encounter.successfulChallenges = Math.min(encounter.requiredChallenges, encounter.successfulChallenges + 1);
-      encounter.hp = encounter.maxHp - encounter.successfulChallenges;
     }
+  } else if (event === 'laser-hit') {
+    encounter.laserHits = Math.min(encounter.maxHp, encounter.laserHits + 1);
+    encounter.hp = encounter.maxHp - encounter.laserHits;
   } else if (event === 'special-resolved') {
     encounter.lastSpecialResolvedAt = Number(value) || 0;
   } else if (event === 'attack-resolved') {
