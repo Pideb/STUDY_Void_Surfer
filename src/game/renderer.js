@@ -8,6 +8,7 @@ import {
   VISUAL_THEME,
 } from './visual-theme.js';
 import { getDashBarrierBounds } from './obstacles.js';
+import { getPlayerBounds } from './collision.js';
 import { drawLaser } from './laser-renderer.js';
 import { VISUAL_ASSET_MANIFEST } from './visual-assets.js';
 import { BOSS_RIGS } from './boss-rigs.js';
@@ -964,7 +965,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     ctx.setTransform?.(pixelRatio, 0, 0, pixelRatio, 0, 0);
   }
 
-  function render(snapshot) {
+  function render(snapshot, { showPlayerHitbox = false } = {}) {
     ctx.save();
     ctx.setTransform?.(pixelRatio, 0, 0, pixelRatio, 0, 0);
     const stage = snapshot.stage ?? { id: 'crystal-gates', mode: 'normal', elapsedSeconds: snapshot.elapsedSeconds ?? 0 };
@@ -1009,6 +1010,13 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     }
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player);
     if (!snapshot.deathEffect) drawDashCooldown(ctx, snapshot.player);
+    if (showPlayerHitbox && !snapshot.deathEffect && snapshot.player) {
+      const b = getPlayerBounds(snapshot.player);
+      if (Object.values(b).every(Number.isFinite)) {
+        ctx.save(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.shadowBlur = 0;
+        ctx.strokeRect(b.left, b.top, b.right - b.left, b.bottom - b.top); ctx.restore();
+      }
+    }
     // Keep essential warning geometry readable above failure obstruction.
     if (snapshot.feedbackEffect) {
       drawLaser(ctx, snapshot.boss?.attack);

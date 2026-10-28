@@ -7,7 +7,7 @@ import {
 import { getLaserFrontX } from './boss-attacks.js';
 import { getDashBarrierBounds, isDashObstacle } from './obstacles.js';
 
-function getPlayerBounds(player) {
+export function getPlayerBounds(player) {
   return {
     left: player.x - player.width / 2,
     right: player.x + player.width / 2 - PLAYER_FRONT_HITBOX_TRIM,

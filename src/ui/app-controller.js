@@ -27,14 +27,15 @@ function readAdminSettings(storage) {
     if (parsed?.version !== 1
       || typeof parsed.adminModeEnabled !== 'boolean'
       || typeof parsed.invincibilityEnabled !== 'boolean') {
-      return { adminModeEnabled: false, invincibilityEnabled: false };
+      return { adminModeEnabled: false, invincibilityEnabled: false, showPlayerHitbox: false };
     }
     return {
       adminModeEnabled: parsed.adminModeEnabled,
       invincibilityEnabled: parsed.invincibilityEnabled,
+      showPlayerHitbox: parsed.showPlayerHitbox === true,
     };
   } catch {
-    return { adminModeEnabled: false, invincibilityEnabled: false };
+    return { adminModeEnabled: false, invincibilityEnabled: false, showPlayerHitbox: false };
   }
 }
 
@@ -94,7 +95,7 @@ export function createAppController(deps) {
     rankingError: null, rankingPersonalRecord: null, rankingPersonalLoading: false,
     rankingPersonalError: null, rankingReturnScreen: 'menu',
     submitState: 'idle',
-    adminModeEnabled: false, invincibilityEnabled: false, adminDialogOpen: false,
+    adminModeEnabled: false, invincibilityEnabled: false, showPlayerHitbox: false, adminDialogOpen: false,
   };
   const adminSettingsStorage = deps.adminSettingsStorage ?? globalThis.localStorage;
   let unsubscribeAuth = () => {};
@@ -159,6 +160,7 @@ export function createAppController(deps) {
         adminDialogOpen: state.adminDialogOpen,
         adminModeEnabled: state.adminModeEnabled,
         invincibilityEnabled: state.invincibilityEnabled,
+        showPlayerHitbox: state.showPlayerHitbox,
       }, {
         start: () => dispatch({ type: 'START_GAME_FROM_MENU' }),
         hangar: () => dispatch({ type: 'OPEN_HANGAR' }),
@@ -170,6 +172,7 @@ export function createAppController(deps) {
         closeAdminSettings: closeAdminSettings,
         toggleAdminMode: setAdminModeEnabled,
         toggleInvincibility: setInvincibilityEnabled,
+        togglePlayerHitbox: setShowPlayerHitbox,
       }));
       if (state.adminDialogOpen) root.querySelector('[role="dialog"] [aria-label="관리자 모드"]')?.focus();
       return;
@@ -264,12 +267,14 @@ export function createAppController(deps) {
     if (!isDesignatedAdmin(user)) {
       state.adminModeEnabled = false;
       state.invincibilityEnabled = false;
+      state.showPlayerHitbox = false;
       gameEngine.setInvincibilityEnabled?.(false);
       return;
     }
     const settings = readAdminSettings(adminSettingsStorage);
     state.adminModeEnabled = settings.adminModeEnabled;
     state.invincibilityEnabled = settings.invincibilityEnabled;
+    state.showPlayerHitbox = settings.showPlayerHitbox;
     gameEngine.setInvincibilityEnabled?.(state.invincibilityEnabled);
   }
 
@@ -280,6 +285,7 @@ export function createAppController(deps) {
         version: 1,
         adminModeEnabled: state.adminModeEnabled,
         invincibilityEnabled: state.invincibilityEnabled,
+        showPlayerHitbox: state.showPlayerHitbox,
       }));
     } catch {
       // Test controls remain usable for this session when browser storage is unavailable.
@@ -312,6 +318,13 @@ export function createAppController(deps) {
     if (!isDesignatedAdmin(state.user)) return;
     state.invincibilityEnabled = Boolean(enabled);
     gameEngine.setInvincibilityEnabled?.(state.invincibilityEnabled);
+    persistAdminSettings();
+    paint();
+  }
+
+  function setShowPlayerHitbox(enabled) {
+    if (!isDesignatedAdmin(state.user)) return;
+    state.showPlayerHitbox = Boolean(enabled);
     persistAdminSettings();
     paint();
   }
@@ -417,10 +430,12 @@ export function createAppController(deps) {
       state.user = null;
       state.adminModeEnabled = false;
       state.invincibilityEnabled = false;
+      state.showPlayerHitbox = false;
       state.adminDialogOpen = false;
       gameEngine.setInvincibilityEnabled?.(false);
       state.adminModeEnabled = false;
       state.invincibilityEnabled = false;
+      state.showPlayerHitbox = false;
       state.adminDialogOpen = false;
       gameEngine.setInvincibilityEnabled?.(false);
       gameEngine.setGuestMode?.(true);
@@ -592,7 +607,8 @@ export function createAppController(deps) {
     if (state.screen !== 'playing') return;
     gameEngine.update(timestamp);
     state.snapshot = gameEngine.getSnapshot();
-    renderer.render(state.snapshot);
+    renderer.render(state.snapshot, { showPlayerHitbox: Boolean(isDesignatedAdmin(state.user)
+      && state.adminModeEnabled && state.showPlayerHitbox) });
     gameHud?.update(state.snapshot);
     syncDifficultyFeedback(state.snapshot);
     syncCombatAudio(state.snapshot);
@@ -979,6 +995,7 @@ export function createAppController(deps) {
           state.user = null;
           state.adminModeEnabled = false;
           state.invincibilityEnabled = false;
+          state.showPlayerHitbox = false;
           state.adminDialogOpen = false;
           gameEngine.setInvincibilityEnabled?.(false);
           gameEngine.setGuestMode?.(true);

@@ -65,12 +65,21 @@ export function renderAdminSettingsDialog(model, handlers) {
   invincibleToggle.setAttribute('aria-label', '기체 무적');
   invincibleToggle.addEventListener('change', () => handlers.toggleInvincibility?.(invincibleToggle.checked));
   invincibleLabel.append(invincibleToggle, document.createTextNode(' 기체 무적 (화면 경계와 WASD 도전 실패는 유지)'));
+  const hitboxLabel = document.createElement('label');
+  const hitboxToggle = document.createElement('input');
+  hitboxToggle.type = 'checkbox';
+  hitboxToggle.checked = Boolean(model.showPlayerHitbox);
+  hitboxToggle.setAttribute('role', 'switch');
+  hitboxToggle.setAttribute('aria-label', '플레이어 히트박스 표시');
+  hitboxToggle.addEventListener('change', () => handlers.togglePlayerHitbox?.(hitboxToggle.checked));
+  hitboxLabel.append(hitboxToggle, document.createTextNode(' 플레이어 히트박스 표시 (관리자 모드에서만 적용)'));
 
   dialog.append(
     heading,
     disclaimer,
     adminLabel,
     invincibleLabel,
+    hitboxLabel,
     createButton('닫기', handlers.close, { className: 'secondary-button' }),
   );
   return dialog;
@@ -164,6 +173,7 @@ export function renderMenuScreen(model, handlers) {
       close: handlers.closeAdminSettings,
       toggleAdminMode: handlers.toggleAdminMode,
       toggleInvincibility: handlers.toggleInvincibility,
+      togglePlayerHitbox: handlers.togglePlayerHitbox,
     }));
   }
   return menu;

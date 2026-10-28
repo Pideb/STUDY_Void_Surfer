@@ -70,7 +70,7 @@ function ornamentPose(stage, sector, time, reduced = false) {
 }
 
 function shell(c, { x, y, rx, ry, alpha, stage, time: t, reducedMotion, ornamentImage, size }) {
-  const h = Math.min(500, ry * 2.7), w = h * size.width / size.height;
+  const h = ry * 2.7, w = h * size.width / size.height;
   c.save(); c.globalAlpha = alpha;
   c.beginPath(); c.rect(-1000, -1000, 3000, 3000);
   ellipse(c, x, y, rx + 4, ry + 3, 0, 0, Math.PI * 2); c.clip('evenodd');
@@ -131,9 +131,9 @@ export function drawPortal(c, { transition, destinationBackground, ornamentImage
   const stage = found < 0 ? 0 : found, color = destinations[stage][1];
   const x = finite(transition.portalX,
     finite(transition.crossingX, W / 4) + 960 - Math.max(0, finite(transition.travelledPixels)));
-  // Do not clamp or recapture the engine's real player crossing coordinates.
-  const y = finite(transition.crossingY, H / 2), time = seconds(transition.elapsedSeconds);
-  const near = clamp((1080 - x) / 850), rx = 29 + near * 32, ry = 118 + near * 88;
+  // Fixed vertical opening: even the enlarged ship near either boundary fits.
+  const y = H / 2, time = seconds(transition.elapsedSeconds);
+  const near = clamp((1080 - x) / 850), rx = 70 + near * 34, ry = H / 2 + 100;
   const size = imageSize(ornamentImage);
   if (size) shell(c, { x, y, rx, ry, alpha, stage, time, reducedMotion, ornamentImage, size });
   c.save(); c.globalAlpha = alpha;

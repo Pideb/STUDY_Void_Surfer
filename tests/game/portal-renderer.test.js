@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import * as renderer from '../../src/game/portal-renderer.js';
 
@@ -55,33 +54,34 @@ function context() {
   return c;
 }
 
-// Use the read-only approved drawing functions as an independent regression oracle.
-// This compares every drawing command, not just counts or copies of our formulas.
-const preview = readFileSync('.memory/previews/2026-10-28-portal-motion-review/portal.js', 'utf8');
-const previewDrawing = preview.slice(preview.indexOf('  function glow('), preview.indexOf('  function ship('));
-const approvedPortal = new Function('c', 'assets', 'state', 'stages', 'clamp', `${previewDrawing}\nreturn portal;`);
 
 describe('portal renderer approved art', () => {
+  it('fits the enlarged visible ship at every legal flight height inside the actual aperture',()=>{
+    const c=context();drawPortal(c,{transition:transition({portalX:240})});
+    const [,cy,rx,ry]=c.ellipse.mock.calls[0];
+    for(let y=12;y<=528;y+=12)for(const dx of [-34,34])for(const dy of [-22,22]){
+      expect(dx*dx/(rx*rx)+(y+dy-cy)**2/(ry*ry)).toBeLessThan(1);
+    }
+  });
   it('exports exactly the three integration helpers', () => {
     expect(Object.keys(renderer).sort()).toEqual(['drawPortal', 'drawTransitionOverlay', 'getPortalWhiteAlpha']);
   });
 
-  it.each(destinations)('matches every approved drawing command for %s', (id, color) => {
-    const stage = destinations.findIndex(([key]) => key === id);
+  it.each(destinations)('preserves destination art and masks with the enlarged opening for %s', (id, color) => {
     for (const reduced of [false, true]) {
       for (const [x, time, phase, phaseTime, alpha] of [
         [1200, .45, 'approach', 0, 1], [625, 1.7, 'approach', 1.25, 1],
         [240, 3.25, 'approach', 2.8, 1], [192, 3.35, 'white-out', .1, .5],
       ]) {
-        const actual = context(), approved = context();
+        const actual = context();
         drawPortal(actual, {
           transition: transition({ destinationStageId: id, portalX: x, elapsedSeconds: time, phase, phaseElapsedSeconds: phaseTime }),
           ornamentImage, destinationBackground, reducedMotion: reduced,
         });
-        approvedPortal(approved, { ornament: ornamentImage, to: destinationBackground },
-          { to: stage, time, reduced, ornaments: true }, destinations.map(([key, tint]) => [key, key, tint]),
-          value => Math.max(0, Math.min(1, value)))(x, alpha);
-        expect(actual.operations).toEqual(approved.operations);
+        expect(actual.images.filter(({args})=>args[0]===ornamentImage)).toHaveLength(8);
+        expect(actual.drawImage).toHaveBeenLastCalledWith(destinationBackground,0,0,960,540);
+        const aperture=actual.ellipse.mock.calls.find(([cx,cy,rx,ry])=>cx===x&&cy===270&&ry>=340);
+        expect(aperture).toBeDefined();
         expect(actual.operations).toContainEqual(['set', 'shadowColor', color]);
       }
     }
@@ -105,15 +105,19 @@ describe('portal renderer approved art', () => {
     const art = c.images.filter(({ args }) => args[0] === ornamentImage);
     expect(art).toHaveLength(8);
     for (const { args } of art) {
-      expect(args).toEqual([ornamentImage, -375, -250, 750, 500]);
+      expect(args[0]).toBe(ornamentImage);
+      expect(args[4]).toBeGreaterThan(700);
+      expect(args[3]/args[4]).toBeCloseTo(1.5);
+      expect(args[1]).toBeCloseTo(-args[3]/2);
+      expect(args[2]).toBeCloseTo(-args[4]/2);
     }
     expect(c.drawImage).toHaveBeenLastCalledWith(destinationBackground, 0, 0, 960, 540);
   });
 
-  it.each([45, 199, 270, 341, 495])('honors captured crossingY=%s without clamping or mutating the snapshot', y => {
+  it.each([45, 199, 270, 341, 495])('ignores stale crossingY=%s and keeps the opening at mid-height without mutation', y => {
     const c = context(), snapshot = Object.freeze(transition({ crossingY: y, portalX: 451 }));
     drawPortal(c, { transition: snapshot, ornamentImage, destinationBackground });
-    expect(c.ellipse.mock.calls.every(([x, cy]) => x === 451 && cy === y)).toBe(true);
+    expect(c.ellipse.mock.calls.every(([x, cy]) => x === 451 && cy === 270)).toBe(true);
     expect(snapshot.crossingY).toBe(y);
     expect(snapshot.portalX).toBe(451);
   });
@@ -130,16 +134,16 @@ describe('portal renderer approved art', () => {
     const image = Object.freeze({ width: 200, height: 100, naturalWidth: 1200, naturalHeight: 1200, complete: true });
     const c = context();
     drawPortal(c, { transition: transition({ portalX: 240 }), ornamentImage: image, destinationBackground });
-    expect(c.drawImage.mock.calls.filter(([img]) => img === image)).toEqual(
-      Array.from({ length: 8 }, () => [image, -250, -250, 500, 500]),
-    );
+    const layers=c.drawImage.mock.calls.filter(([img])=>img===image);
+    expect(layers).toHaveLength(8);
+    for(const [,x,y,w,h] of layers){expect(w).toBeCloseTo(h);expect(h).toBeGreaterThan(700);expect(x).toBe(-w/2);expect(y).toBe(-h/2);}
     expect(c.drawImage.mock.calls.every(args => args.length === 5)).toBe(true);
   });
 
   it('freezes all eight ornament poses with reduced motion', () => {
     const c = context();
     drawPortal(c, { transition: transition({ crossingY: 301 }), ornamentImage, reducedMotion: true });
-    expect(c.translate.mock.calls.slice(0, 8)).toEqual(Array.from({ length: 8 }, () => [600, 301]));
+    expect(c.translate.mock.calls.slice(0, 8)).toEqual(Array.from({ length: 8 }, () => [600, 270]));
     expect(c.rotate.mock.calls).toEqual(Array.from({ length: 8 }, () => [0]));
   });
 });

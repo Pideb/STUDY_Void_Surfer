@@ -528,13 +528,9 @@ export function createGameEngine(deps = {}) {
   function updateStage(deltaSeconds, scrollSpeed) {
     stageElapsedSeconds += deltaSeconds;
     if (pendingStageAdvance && !stageTransition && obstacles.length === 0) {
-      stageTransition = createPortalTransition({ ...pendingStageAdvance, crossingX: player.x, crossingY: player.y });
+      stageTransition = createPortalTransition({ ...pendingStageAdvance, crossingX: player.x });
     }
     if (stageTransition) {
-      if (stageTransition.phase === 'lead-in' || stageTransition.phase === 'approach') {
-        // Cosmetic portal follows the real crossing height; flight physics remain active.
-        stageTransition.crossingY = player.y;
-      }
       advancePortalTransition(stageTransition, deltaSeconds, scrollSpeed);
       if (stageTransition.swapped && pendingStageAdvance) {
         stageOrder = pendingStageAdvance.order;

@@ -3,6 +3,9 @@ import { createPortalTransition, advancePortalTransition } from '../../src/game/
 
 const make = () => createPortalTransition({ fromKey: 'crystal-gates-boss', toKey: 'abyssal-beast', fromStageId: 'crystal-gates', destinationStageId: 'abyssal-beast', crossingX: 240, crossingY: 270 });
 describe('engine-owned destination portal timeline', () => {
+  it.each([12,100,270,528])('keeps the portal at mid-height regardless of incoming playerY=%s',crossingY=>{
+    expect(createPortalTransition({crossingY}).crossingY).toBe(270);
+  });
   it.each([240, 480, 960, 2005])('moves 960 world pixels at wall speed before a covered scenery swap (%s)', speed => {
     const t = make();
     advancePortalTransition(t, .45, speed);

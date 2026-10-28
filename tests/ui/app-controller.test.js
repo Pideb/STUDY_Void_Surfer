@@ -163,6 +163,26 @@ describe('app controller product flow', () => {
     expect(localStorage.getItem('void-surfer:admin-settings:v1')).not.toBeNull();
   });
 
+  it.each([false,true])('renders the debug toggle only for an active designated admin mode=%s',async adminModeEnabled=>{
+    localStorage.setItem('void-surfer:admin-settings:v1',JSON.stringify({version:1,adminModeEnabled,invincibilityEnabled:false}));
+    harness=makeHarness({user:{id:'admin-1',email:'gh.lee@dexconsulting.net'}});harness.controller.mount();await settle();
+    harness.root.querySelector('[data-admin-settings-trigger]').click();
+    const toggle=harness.root.querySelector('[aria-label="플레이어 히트박스 표시"]');
+    expect(toggle.checked).toBe(false);toggle.checked=true;toggle.dispatchEvent(new Event('change',{bubbles:true}));
+    expect(JSON.parse(localStorage.getItem('void-surfer:admin-settings:v1')).showPlayerHitbox).toBe(true);
+    harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');
+    harness.frames.shift()(16);
+    expect(harness.renderer.render.mock.calls.at(-1)[1]).toEqual({showPlayerHitbox:adminModeEnabled});
+    expect(harness.gameEngine.setInvincibilityEnabled).toHaveBeenLastCalledWith(false);
+  });
+
+  it.each([null,pilot])('ignores persisted debug settings for a guest or ordinary account',async user=>{
+    localStorage.setItem('void-surfer:admin-settings:v1',JSON.stringify({version:1,adminModeEnabled:true,invincibilityEnabled:true,showPlayerHitbox:true}));
+    harness=makeHarness({user});harness.controller.mount();await settle();
+    harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');harness.frames.shift()(16);
+    expect(harness.renderer.render.mock.calls.at(-1)[1]).toEqual({showPlayerHitbox:false});
+  });
+
   it('skips leaderboard writes for admin-mode runs while retaining score and a neutral notice', async () => {
     harness = makeHarness({ user: { id: 'admin-1', email: 'gh.lee@dexconsulting.net' } });
     harness.controller.mount();

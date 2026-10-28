@@ -1,15 +1,15 @@
-import { WORLD_WIDTH } from './constants.js';
+import { WORLD_WIDTH, WORLD_HEIGHT } from './constants.js';
 
 const DURATIONS = Object.freeze({ 'lead-in': .45, 'white-out': .2, hold: .1, reveal: .6 });
 const NEXT = Object.freeze({ 'lead-in': 'approach', approach: 'white-out', 'white-out': 'hold', hold: 'reveal', reveal: 'complete' });
 const finite = (n, fallback) => Number.isFinite(n) ? n : fallback;
 
-export function createPortalTransition({ fromKey, toKey, fromStageId, destinationStageId, crossingX = 240, crossingY = 270 } = {}) {
+export function createPortalTransition({ fromKey, toKey, fromStageId, destinationStageId, crossingX = 240 } = {}) {
   return {
     kind: 'portal', fromKey, toKey, fromStageId, destinationStageId,
     phase: 'lead-in', elapsedSeconds: 0, phaseElapsedSeconds: 0,
     travelledPixels: 0, portalX: finite(crossingX, 240) + WORLD_WIDTH,
-    crossingX: finite(crossingX, 240), crossingY: finite(crossingY, 270),
+    crossingX: finite(crossingX, 240), crossingY: WORLD_HEIGHT / 2,
     progress: 0, swapped: false,
   };
 }

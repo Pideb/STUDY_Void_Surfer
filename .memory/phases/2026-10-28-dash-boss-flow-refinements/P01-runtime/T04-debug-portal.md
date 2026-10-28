@@ -1,6 +1,6 @@
 # Task: T04 Admin Hitbox and Full-Height Portal
 
-## Status: pending
+## Status: done
 
 ## Goal
 Display accurate collision bounds only through the authorized admin option and make the portal accessible at every legal flight height without tracking the player.
@@ -28,8 +28,8 @@ getPlayerBounds(player):{left:number,right:number,top:number,bottom:number};
 - Do not alter player position/velocity or impose an entry collision. Background swap stays under opaque hold, spawn resumes only after reveal. Reduced motion/missing ornament fallbacks remain functional.
 
 ## Acceptance Criteria
-- [ ] Only authorized active admin option shows actual bounds, independent from invincibility.
-- [ ] Portal never tracks playerY and its actual opening covers all legal flight heights with ship margin.
+- [x] Only authorized active admin option shows actual bounds, independent from invincibility.
+- [x] Portal never tracks playerY and its actual opening covers all legal flight heights with ship margin.
 
 ## Validation
 - `npx vitest run tests/ui/app-controller.test.js tests/ui/screens.test.js tests/game/renderer.test.js tests/game/portal-renderer.test.js tests/game/portal-transition.test.js tests/game/game-engine.test.js`
@@ -48,6 +48,6 @@ Task: T04-debug-portal
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
