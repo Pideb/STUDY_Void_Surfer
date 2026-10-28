@@ -13,6 +13,7 @@ import { VISUAL_ASSET_MANIFEST } from './visual-assets.js';
 import { BOSS_RIGS } from './boss-rigs.js';
 import { getBossGeometry } from './boss-geometry.js';
 import { getPreparedBossRig, getBossPose, drawBossRig, drawBossActionEffects } from './boss-motion.js';
+import { drawPortal, drawTransitionOverlay } from './portal-renderer.js';
 
 function getDevicePixelRatio() {
   return Math.max(1, Number(globalThis.devicePixelRatio) || 1);
@@ -594,31 +595,9 @@ function drawBackgroundTransition(ctx, stage, elapsedSeconds, visualAssets = nul
     drawStageBackground(ctx, stage?.id, elapsedSeconds, stage?.mode === 'boss', visualAssets, prefersReducedMotion, scrollDistancePx, scrollSpeed);
     return;
   }
-  const progress = Math.max(0, Math.min(1, transition.progress ?? 1));
-  const travelled = Math.max(0, Math.min(WORLD_WIDTH, transition.travelledPixels ?? progress * WORLD_WIDTH));
-  function scene(key, left = 0, width = WORLD_WIDTH, alpha = 1) {
-    if (width <= 0 || alpha <= 0) return;
-    ctx.save();
-    ctx.beginPath(); ctx.rect(left, 0, width, WORLD_HEIGHT); ctx.clip();
-    ctx.globalAlpha = alpha;
-    drawStageBackground(ctx, backgroundKeyToId(key), elapsedSeconds, String(key).endsWith('-boss'),
-      visualAssets, prefersReducedMotion, scrollDistancePx, scrollSpeed);
-    ctx.restore();
-  }
-  scene(transition.fromKey);
-  if (prefersReducedMotion) {
-    scene(transition.toKey, 0, WORLD_WIDTH, progress);
-    return;
-  }
-  // Only the reveal boundary travels at wall speed; texture retains its subtle parallax.
-  const edge = WORLD_WIDTH - travelled;
-  const feather = Math.min(48, travelled, WORLD_WIDTH - travelled);
-  if (feather > 0) {
-    for (let index = 0; index < 8; index += 1) {
-      scene(transition.toKey, edge + feather * index / 8, feather / 8 + 0.5, (index + 1) / 8);
-    }
-  }
-  scene(transition.toKey, edge + feather, WORLD_WIDTH - edge - feather);
+  const key = transition.swapped ? transition.toKey : transition.fromKey;
+  drawStageBackground(ctx, backgroundKeyToId(key), elapsedSeconds, String(key).endsWith('-boss'),
+    visualAssets, prefersReducedMotion, scrollDistancePx, scrollSpeed);
 }
 
 function drawStageAtmosphere(ctx, mode, elapsedSeconds = 0) {
@@ -984,6 +963,14 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     const scrollSpeed = snapshot.difficulty?.scrollSpeed ?? 240;
     drawBackgroundTransition(ctx, stage, elapsed, visualAssets, reducedMotion, backgroundScroll, scrollSpeed);
     drawStageAtmosphere(ctx, stage.mode, elapsed);
+    if (stage.transition?.kind === 'portal') {
+      drawPortal(ctx, {
+        transition: stage.transition,
+        destinationBackground: getStageAsset(visualAssets, stage.transition.destinationStageId, 'background'),
+        ornamentImage: getStageAsset(visualAssets, stage.transition.destinationStageId, 'portalOrnaments'),
+        reducedMotion: prefersReducedMotion,
+      });
+    }
 
     for (const obstacle of snapshot.obstacles ?? []) {
       const stageObstacle = obstacle.stageId ? obstacle : { ...obstacle, stageId: stage.id };
@@ -1014,6 +1001,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       drawLaser(ctx, snapshot.boss?.attack);
       drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, snapshot.boss?.stageId ?? stage.id);
     }
+    drawTransitionOverlay(ctx, { transition: stage.transition, reducedMotion: prefersReducedMotion });
     ctx.restore();
   }
 

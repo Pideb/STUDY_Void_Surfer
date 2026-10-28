@@ -1,6 +1,6 @@
 # Task: T04 Destination portal transition in the actual engine
 
-## Status: pending
+## Status: done
 
 ## Goal
 After clearing the current stage boss, approach the matching destination portal, swap scenery under white cover, and resume only new-stage obstacles after reveal.
@@ -53,7 +53,7 @@ Task: T04-portal-transition
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete — actual-speed portal phases, covered stage swap, destination ornaments and bounded wall resume.
+- [x] Validation passed — 5 files / 164 tests; production build passed.
 - commit: pending
 

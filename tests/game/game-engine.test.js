@@ -70,7 +70,7 @@ describe('game engine', () => {
     expect(snapshot.stage.transition).toBeNull();
   });
 
-  it.each(['default', 'velocity'])('suspends new walls throughout a wall-speed transition and resumes without a burst (%s)', (aircraftId) => {
+  it.each(['default', 'velocity'])('suspends new walls through every portal phase and resumes without a burst (%s)', (aircraftId) => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60, initialCompletedWarningCount: 1, rng: () => 0.5,
       aircraftId, guestMode: true,
@@ -93,9 +93,18 @@ describe('game engine', () => {
         transitionFrames += 1;
         for (const wall of snapshot.obstacles) expect(transitionIds.get(wall.id)).toBe(wall.stageId);
         expect(snapshot.bossPreview).toBeNull();
-        if (previous.stage.transition) {
-          expect(snapshot.stage.transition.travelledPixels - previous.stage.transition.travelledPixels)
-            .toBeCloseTo(snapshot.difficulty.scrollSpeed * 0.1);
+        const transition = snapshot.stage.transition;
+        expect(snapshot.stage.id).toBe(transition.swapped ? transition.destinationStageId : transition.fromStageId);
+        expect(snapshot.boss).toBeNull();
+        expect(snapshot.warning).toBeNull();
+        if (transition.phase === 'lead-in') expect(transition.travelledPixels).toBe(0);
+        if (previous.stage.transition?.phase === 'approach') {
+          expect(transition.travelledPixels - previous.stage.transition.travelledPixels)
+            .toBeCloseTo(Math.min(960 - previous.stage.transition.travelledPixels, snapshot.difficulty.scrollSpeed * 0.1));
+        }
+        if (['white-out', 'hold', 'reveal'].includes(transition.phase)) {
+          expect(transition.travelledPixels).toBe(960);
+          expect(transition.progress).toBe(1);
         }
       } else if (previous.stage.transition) {
         expect(snapshot.obstacles.filter((wall) => !transitionIds.has(wall.id))).toHaveLength(1);
@@ -121,48 +130,55 @@ describe('game engine', () => {
     expect(snapshot.backgroundScrollDistancePx).toBeCloseTo(6);
   });
 
-  it('advances one stage after two walls pass following a boss clear', () => {
+  it('swaps stages under opaque portal cover after a boss clear and gives the next boss its stage identity', () => {
     const { engine, step } = createRuntimeEngine({
-      initialScore: 60,
-      initialCompletedWarningCount: 1,
-      rng: () => 0.5,
-      stageRng: () => 0.5,
+      initialScore: 60, initialCompletedWarningCount: 1,
+      rng: () => 0.5, stageRng: () => 0.5,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
-    for (let frame = 0; frame < 15; frame += 1) step(100);
+    for (let frame = 0; frame < 15; frame += 1) step();
     const initial = engine.getSnapshot();
     const nextStageId = initial.stage.order[1];
     expect(initial.warning.index).toBe(2);
     expect(initial.specialTimingGuideActive).toBe(true);
-    let previousScore = initial.score;
-    let bossCleared = false;
-    let subsequentWallsPassed = 0;
-    let changedAfterSecondWall = false;
-    let oldArtRemainedAtChange = false;
-    let newArtSpawned = false;
-    let previousSpawnedCount = initial.warning.spawnedCount;
+    let snapshot = initial;
+    let cleared = false;
+    let resumed = false;
+    let nextBoss = false;
     let bossWavesCompleted = 0;
-    const fullBossWaveSpecialCounts = [];
+    const specialCounts = [];
+    const artOwners = new Map();
+    const phases = new Set();
+    let approachSeconds = 0;
+    let opacityStart = null;
+    let postClearScore = null;
+    let swapped = false;
 
-    for (let frame = 0; frame < 12000 && (!changedAfterSecondWall || !newArtSpawned); frame += 1) {
-      const before = engine.getSnapshot();
-      expect(before.boss?.attack?.type).not.toBe('projectile');
+    for (let frame = 0; frame < 12000 && !nextBoss; frame += 1) {
+      const before = snapshot;
+      if (before.boss) expect(before.boss.stageId).toBe(before.stage.id);
+      if (before.boss?.attack?.type === 'volley') expect(before.boss.attack.stageId).toBe(before.stage.id);
       if (before.challenge?.active) {
         for (const code of before.challenge.sequence.slice(before.challenge.cursor)) engine.handleChallengeKey(code);
       }
-
-      const specialWall = before.obstacles
-        .filter((obstacle) => obstacle.kind === 'special' && !obstacle.passed && obstacle.x >= before.player.x)
-        .sort((left, right) => left.x - right.x)[0];
-      if (specialWall
-        && (specialWall.x - before.player.x) / before.difficulty.scrollSpeed <= before.difficulty.timingWindowSeconds) {
-        engine.dash();
+      for (const wall of before.obstacles) {
+        if (artOwners.has(wall.id)) expect(wall.stageId).toBe(artOwners.get(wall.id));
+        else artOwners.set(wall.id, wall.stageId);
       }
-
-      const snapshot = step(10);
+      const milliseconds = before.stage.transition ? 10 : 100;
+      snapshot = step(milliseconds);
+      const delta = milliseconds / 1000;
+      // Existing artwork keeps its owner until it physically exits the world.
+      // Passing the player or changing scenery must never silently remove/relabel it.
+      for (const wall of before.obstacles) {
+        const retained = snapshot.obstacles.find((candidate) => candidate.id === wall.id);
+        if (retained) expect(retained.stageId).toBe(wall.stageId);
+        else expect(wall.x + wall.width - snapshot.difficulty.scrollSpeed * delta).toBeLessThan(0);
+      }
       if (before.boss && !snapshot.boss) {
-        bossCleared = true;
+        cleared = true;
+        postClearScore = snapshot.score;
         expect(snapshot.score - before.score).toBe(10);
         expect(snapshot.progressionScore - before.progressionScore).toBe(10);
         expect(snapshot.difficulty.baseSpeed).toBeCloseTo(getBaseSpeed(snapshot.progressionScore));
@@ -171,45 +187,92 @@ describe('game engine', () => {
         expect(snapshot.difficulty.movingGapChance).toBe(0.5);
         expect(snapshot.specialTimingGuideActive).toBe(false);
         expect(snapshot.stage.id).toBe(initial.stage.id);
-        previousScore = snapshot.score;
-      } else if (bossCleared && snapshot.score > previousScore) {
-        subsequentWallsPassed += snapshot.score - previousScore;
-        if (subsequentWallsPassed === 1) {
-          expect(snapshot.stage.id).toBe(initial.stage.id);
+      }
+      if (before.warning?.spawnedCount === 7 && snapshot.warning?.spawnedCount === 0) bossWavesCompleted += 1;
+      if (snapshot.warning?.spawnedCount === 7 && before.warning?.spawnedCount !== 7 && snapshot.warning.index === 2) {
+        specialCounts.push(snapshot.warning.specialSpawnedCount);
+      }
+      const transition = snapshot.stage.transition;
+      if (transition) {
+        phases.add(transition.phase);
+        expect(cleared).toBe(true);
+        expect(snapshot.obstacles).toHaveLength(0);
+        expect(snapshot.score).toBe(postClearScore);
+        expect(snapshot.boss).toBeNull();
+        expect(snapshot.bossPreview).toBeNull();
+        expect(snapshot.warning).toBeNull();
+        expect(transition).toMatchObject({
+          kind: 'portal', fromStageId: initial.stage.id, destinationStageId: nextStageId,
+          fromKey: initial.stage.bossBackgroundKey, toKey: nextStageId,
+          crossingX: snapshot.player.x, crossingY: snapshot.player.y,
+        });
+        expect(snapshot.stage.id).toBe(transition.swapped ? nextStageId : initial.stage.id);
+        if (transition.phase === 'lead-in') {
+          expect(transition.travelledPixels).toBe(0);
+          expect(transition.phaseElapsedSeconds).toBeLessThan(0.45);
         }
-        if (subsequentWallsPassed >= 2) {
-          changedAfterSecondWall = snapshot.stage.id === nextStageId;
-          if (changedAfterSecondWall) {
-            oldArtRemainedAtChange = snapshot.obstacles.some((obstacle) => obstacle.stageId === initial.stage.id);
-          }
+        const travelled = transition.travelledPixels - (before.stage.transition?.travelledPixels ?? 0);
+        if (travelled > 0) approachSeconds += travelled / snapshot.difficulty.scrollSpeed;
+        if (transition.phase === 'approach') {
+          expect(transition.elapsedSeconds - transition.phaseElapsedSeconds).toBeCloseTo(0.45);
+          expect(transition.portalX).toBeCloseTo(snapshot.player.x + 960 - transition.travelledPixels);
+        }
+        if (['white-out', 'hold', 'reveal'].includes(transition.phase)) {
+          opacityStart ??= transition.elapsedSeconds - transition.phaseElapsedSeconds;
+          expect(opacityStart).toBeCloseTo(0.45 + approachSeconds);
+          expect(transition.travelledPixels).toBe(960);
+          expect(transition.progress).toBe(1);
+          expect(transition.portalX).toBe(snapshot.player.x);
+          const phaseStart = transition.elapsedSeconds - transition.phaseElapsedSeconds;
+          expect(phaseStart - opacityStart).toBeCloseTo({ 'white-out': 0, hold: 0.2, reveal: 0.3 }[transition.phase]);
+          expect(transition.phaseElapsedSeconds).toBeLessThan({ 'white-out': 0.2, hold: 0.1, reveal: 0.6 }[transition.phase]);
+        }
+        if (transition.swapped && !swapped) {
+          expect(transition.phase).toBe('hold');
+          expect(before.stage.id).toBe(initial.stage.id);
+          expect(before.stage.transition.phase).toBe('white-out');
+          swapped = true;
+        }
+      } else if (before.stage.transition) {
+        expect(before.stage.transition.phase).toBe('reveal');
+        expect(before.stage.transition.phaseElapsedSeconds + delta).toBeGreaterThanOrEqual(0.6 - 1e-9);
+        expect(before.stage.transition.phaseElapsedSeconds + delta).toBeLessThan(0.6 + delta);
+        expect(snapshot.stage.id).toBe(nextStageId);
+        expect(snapshot.obstacles).toHaveLength(1);
+        expect(snapshot.obstacles[0].stageId).toBe(nextStageId);
+        resumed = true;
+      }
+      if (resumed) {
+        for (const wall of snapshot.obstacles) expect(wall.stageId).toBe(nextStageId);
+        if (snapshot.boss) {
+          expect(snapshot.boss.number).toBe(2);
+          expect(snapshot.boss.stageId).toBe(nextStageId);
+          expect(snapshot.stage.id).toBe(nextStageId);
+          nextBoss = true;
         }
       }
-      if (before.warning?.spawnedCount === 7 && snapshot.warning?.spawnedCount === 0) {
-        bossWavesCompleted += 1;
-      }
-      if (snapshot.warning?.spawnedCount === 7
-        && previousSpawnedCount !== 7 && snapshot.warning.index === 2) {
-        fullBossWaveSpecialCounts.push(snapshot.warning.specialSpawnedCount);
-      }
-      if (changedAfterSecondWall && snapshot.obstacles.some((obstacle) => obstacle.stageId === nextStageId)) {
-        newArtSpawned = true;
-      }
-      previousScore = snapshot.score;
-      previousSpawnedCount = snapshot.warning?.spawnedCount ?? -1;
-      if (snapshot.state === GAME_STATES.GAME_OVER) break;
     }
-
-    expect(bossCleared).toBe(true);
+    expect(cleared).toBe(true);
     expect(bossWavesCompleted).toBeGreaterThanOrEqual(2);
-    expect(fullBossWaveSpecialCounts.length).toBeGreaterThanOrEqual(2);
-    expect(fullBossWaveSpecialCounts.every((count) => count >= 3)).toBe(true);
-    expect(subsequentWallsPassed).toBeGreaterThanOrEqual(2);
-    expect(changedAfterSecondWall).toBe(true);
-    expect(oldArtRemainedAtChange).toBe(true);
-    expect(newArtSpawned).toBe(true);
+    expect(specialCounts.length).toBeGreaterThanOrEqual(2);
+    expect(specialCounts.every((count) => count >= 3)).toBe(true);
+    expect(artOwners.size).toBeGreaterThan(0);
+    expect([...phases]).toEqual(['lead-in', 'approach', 'white-out', 'hold', 'reveal']);
+    expect(swapped).toBe(true);
+    expect(resumed).toBe(true);
+    expect(nextBoss).toBe(true);
     engine.start();
-    expect(engine.getSnapshot().difficulty.movingGapChance).toBe(0);
-    expect(engine.getSnapshot().specialTimingGuideActive).toBe(true);
+    const restarted = engine.getSnapshot();
+    expect(restarted.stage.id).toBe(initial.stage.id);
+    expect(restarted.stage.index).toBe(0);
+    expect(restarted.stage.transition).toBeNull();
+    expect(restarted.obstacles).toHaveLength(0);
+    expect(restarted.difficulty.movingGapChance).toBe(0);
+    expect(restarted.specialTimingGuideActive).toBe(true);
+    for (let frame = 0; frame < 15; frame += 1) snapshot = step();
+    expect(snapshot.stage.id).toBe(initial.stage.id);
+    expect(snapshot.stage.transition).toBeNull();
+    expect(snapshot.boss.stageId).toBe(initial.stage.id);
   });
 
   it('uses the boss atmosphere variant while a boss warning is active', () => {

@@ -56,5 +56,5 @@ Task: T03-approved-assets-motion
 ## Progress
 - [x] Implementation complete — exact approved production assets, bounded articulated-rig cache, volley/counterattack/roar rendering.
 - [x] Validation passed — asset builder, 4 files / 86 tests, production build.
-- commit: pending
+- commit: a34ec7d
 

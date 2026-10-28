@@ -49,6 +49,7 @@ import { createObstacle, getDashBarrierBounds, isDashObstacle, updateObstacle } 
 import { advanceScore } from './score.js';
 import { getBossGeometry } from './boss-geometry.js';
 import { createSignatureAttack, updateSignatureAttack } from './boss-signatures.js';
+import { createPortalTransition, advancePortalTransition } from './portal-transition.js';
 import { getAircraftDefinition, isAircraftUnlocked } from './aircraft.js';
 import { createStageShuffleBag, getStageDefinition } from './stages.js';
 import {
@@ -119,7 +120,7 @@ export function createGameEngine(deps = {}) {
   let stageElapsedSeconds = 0;
   let stageTransition = null;
   let backgroundScrollDistancePx = 0;
-  let wallsUntilStageAdvance = 0;
+  let pendingStageAdvance = null;
   let bossEncounter = null;
   let challenge = null;
   let feedbackEffect = null;
@@ -251,7 +252,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function startWarningIfNeeded() {
-    if (warningSession || bossPreview || stageTransition || wallsUntilStageAdvance > 0) return;
+    if (warningSession || bossPreview || stageTransition || pendingStageAdvance) return;
 
     const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared);
     if (!candidate.isWarning) return;
@@ -402,10 +403,6 @@ export function createGameEngine(deps = {}) {
       }
       warningSession?.specialObstacleIds.delete(obstacle.id);
       startWarningIfNeeded();
-      if (wallsUntilStageAdvance > 0) {
-        wallsUntilStageAdvance -= 1;
-        if (wallsUntilStageAdvance === 0) advanceStage();
-      }
     }
 
     if (warningSession
@@ -450,7 +447,7 @@ export function createGameEngine(deps = {}) {
     stageElapsedSeconds = 0;
     stageTransition = null;
     backgroundScrollDistancePx = 0;
-    wallsUntilStageAdvance = 0;
+    pendingStageAdvance = null;
     bossEncounter = null;
     challenge = null;
     feedbackEffect = null;
@@ -476,33 +473,36 @@ export function createGameEngine(deps = {}) {
 
   function advanceStage() {
     const previous = getStageState();
-    const nextIndex = stageIndex + 1;
-    if (nextIndex < stageOrder.length) {
-      stageIndex = nextIndex;
-    } else {
-      stageOrder = createStageShuffleBag(stageRng, previous.definition.id);
-      stageIndex = 0;
-    }
-    const next = getStageState();
-    stageTransition = {
+    const wraps = stageIndex + 1 >= stageOrder.length;
+    const order = wraps ? createStageShuffleBag(stageRng, previous.definition.id) : stageOrder;
+    const index = wraps ? 0 : stageIndex + 1;
+    const next = getStageDefinition(order[index]);
+    pendingStageAdvance = {
+      order, index, fromStageId: previous.definition.id, destinationStageId: next.id,
       fromKey: getActiveBackgroundKey(previous.definition, previous.mode),
-      toKey: getActiveBackgroundKey(next.definition, next.mode),
-      progress: 0,
-      travelledPixels: 0,
-      durationSeconds: WORLD_WIDTH / Math.max(1, getCurrentDifficulty().scrollSpeed),
+      toKey: next.backgroundKey,
     };
-    stageElapsedSeconds = 0;
+    spawnAccumulatorSeconds = 0;
   }
 
   function updateStage(deltaSeconds, scrollSpeed) {
     stageElapsedSeconds += deltaSeconds;
+    if (pendingStageAdvance && !stageTransition && obstacles.length === 0) {
+      stageTransition = createPortalTransition({ ...pendingStageAdvance, crossingX: player.x, crossingY: player.y });
+    }
     if (stageTransition) {
-      stageTransition.travelledPixels = Math.min(
-        WORLD_WIDTH,
-        stageTransition.travelledPixels + scrollSpeed * deltaSeconds,
-      );
-      stageTransition.progress = stageTransition.travelledPixels / WORLD_WIDTH;
-      if (stageTransition.progress >= 1) stageTransition = null;
+      if (stageTransition.phase === 'lead-in' || stageTransition.phase === 'approach') {
+        // Cosmetic portal follows the real crossing height; flight physics remain active.
+        stageTransition.crossingY = player.y;
+      }
+      advancePortalTransition(stageTransition, deltaSeconds, scrollSpeed);
+      if (stageTransition.swapped && pendingStageAdvance) {
+        stageOrder = pendingStageAdvance.order;
+        stageIndex = pendingStageAdvance.index;
+        pendingStageAdvance = null;
+        stageElapsedSeconds = 0;
+      }
+      if (stageTransition.phase === 'complete') stageTransition = null;
     }
   }
 
@@ -658,7 +658,7 @@ export function createGameEngine(deps = {}) {
     scoreSession.progressionScore += 10;
     completedWarningCount += 1;
     nextWarningScore = getScore() + chooseWarningScoreStep(rng);
-    wallsUntilStageAdvance = 2;
+    advanceStage();
     warningSession = null;
     bossEncounter = null;
     spawnAccumulatorSeconds = 0;
@@ -772,7 +772,7 @@ export function createGameEngine(deps = {}) {
       spawnAccumulatorSeconds = Math.max(0, interval - deltaSeconds);
     }
     difficulty = getCurrentDifficulty();
-    if (stageTransition) spawnAccumulatorSeconds = 0;
+    if (stageTransition || pendingStageAdvance) spawnAccumulatorSeconds = 0;
     else if (bossEncounter?.entranceRemainingSeconds > 0) spawnAccumulatorSeconds = 0;
     else if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
