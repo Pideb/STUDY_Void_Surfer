@@ -1,7 +1,7 @@
 import {
   BASE_GAP_HEIGHT, BASE_SCROLL_SPEED, BOSS_FAST_MULTIPLIER, BOSS_PATTERNS, BOSS_SLOW_MULTIPLIER,
   MOVING_GAP_CHANCE, NORMAL_SPECIAL_CHANCE, NORMAL_TIMING_WINDOW_SECONDS,
-  SPECIAL_UNLOCK_SCORE, SPEED_STEP_MULTIPLIER, SPEED_STEP_SCORE_POINTS, WARNING_GAP_MULTIPLIER,
+  SPECIAL_UNLOCK_SCORE, SPEED_STEP_INCREMENT, SPEED_STEP_SCORE_POINTS, WARNING_GAP_MULTIPLIER,
   WARNING_SCORE_STEP_MAX, WARNING_SCORE_STEP_MIN, WARNING_SPECIAL_CHANCE, WARNING_START_SCORE,
   WARNING_TIMING_WINDOW_SECONDS,
 } from './constants.js';
@@ -13,8 +13,12 @@ function normalizeWarningCount(value) { return Number.isFinite(value) ? Math.max
 function roll(rng) { return Math.min(0.999999, Math.max(0, Number(rng()) || 0)); }
 
 export function getBaseSpeed(progressionScore, aircraftId = 'default') {
-  const cappedScore = Math.min(getAircraftDefinition(aircraftId).speedCapScore, normalizeScore(progressionScore));
-  return BASE_SCROLL_SPEED * (SPEED_STEP_MULTIPLIER ** Math.floor(cappedScore / SPEED_STEP_SCORE_POINTS));
+  const aircraft = getAircraftDefinition(aircraftId);
+  const cappedScore = Math.min(aircraft.speedCapScore, normalizeScore(progressionScore));
+  // Callers apply the aircraft movement factor after this shared base. Only the
+  // starting speed is doubled for VELOCITY; actual progression stays +10 for all.
+  return BASE_SCROLL_SPEED + SPEED_STEP_INCREMENT * Math.floor(cappedScore / SPEED_STEP_SCORE_POINTS)
+    / aircraft.scrollSpeedMultiplier;
 }
 export function chooseBossPattern(rng = Math.random) {
   const patterns = Object.values(BOSS_PATTERNS);

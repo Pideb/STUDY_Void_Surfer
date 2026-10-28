@@ -3,8 +3,9 @@ import {getBarrierSpeedBound} from '../../src/game/barrier-spacing.js';
 import {getBaseSpeed} from '../../src/game/difficulty.js';
 
 describe('future barrier speed bound',()=>{
-  it.each([['default',1],['aegis',1],['velocity',2]])('uses the same %s cap as actual flight', (aircraftId,aircraftSpeedMultiplier)=>{
+  it.each([['default',1,425],['aegis',1,425],['velocity',2,725]])('uses the same %s cap as actual flight', (aircraftId,aircraftSpeedMultiplier,ceiling)=>{
     expect(getBarrierSpeedBound({progressionScore:10000,aircraftId,aircraftSpeedMultiplier})).toBeCloseTo(getBaseSpeed(10000,aircraftId)*1.25*aircraftSpeedMultiplier);
+    expect(getBarrierSpeedBound({progressionScore:10000,aircraftId,aircraftSpeedMultiplier})).toBe(ceiling);
   });
   it('includes future score steps and fast-boss changes without applying the endgame cap from launch',()=>{
     const speed=getBarrierSpeedBound({progressionScore:10,unpassedCount:2,minimumScrollSpeed:198,minimumSpawnInterval:1.4});

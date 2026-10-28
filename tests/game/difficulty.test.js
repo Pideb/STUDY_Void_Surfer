@@ -11,17 +11,17 @@ import {
 
 describe('difficulty', () => {
   it('caps base progression at100 and preserves boss multipliers', () => {
-    const ceiling = 240 * 1.1 ** 10;
-    expect(getBaseSpeed(99)).toBeCloseTo(240 * 1.1 ** 9);
+    const ceiling = 340;
+    expect(getBaseSpeed(99)).toBe(330);
     for (const score of [100, 109, 150, 10000]) expect(getBaseSpeed(score)).toBeCloseTo(ceiling);
     expect(getBaseSpeed(NaN)).toBe(240);
     expect(getBaseSpeed(-1)).toBe(240);
     expect(getDifficulty(200, 0, 1, () => 0, BOSS_PATTERNS.FAST).scrollSpeed).toBeCloseTo(ceiling * 1.25);
     expect(getDifficulty(200, 0, 1, () => 0, BOSS_PATTERNS.SLOW).scrollSpeed).toBeCloseTo(ceiling * .75);
   });
-  it.each([['default',100],['aegis',100],['velocity',70]])('%s stops score-driven growth at%s', (id,cap) => {
-    expect(getBaseSpeed(cap-1,id)).toBeCloseTo(240*1.1**(cap/10-1));
-    for(const score of [cap,cap+9,150,10000])expect(getBaseSpeed(score,id)).toBeCloseTo(240*1.1**(cap/10));
+  it.each([['default',100,1,340],['aegis',100,1,340],['velocity',100,2,580]])('%s stops score-driven growth at%s', (id,cap,multiplier,ceiling) => {
+    expect(getBaseSpeed(cap-1,id)*multiplier).toBe(ceiling-10);
+    for(const score of [cap,cap+9,150,10000])expect(getBaseSpeed(score,id)*multiplier).toBe(ceiling);
     expect(getDifficulty(200,0,1,()=>0,BOSS_PATTERNS.FAST,20,200,false,id).baseSpeed).toBeCloseTo(getBaseSpeed(cap,id));
   });
 
@@ -30,12 +30,12 @@ describe('difficulty', () => {
     expect(chooseWarningScoreStep(() => .5)).toBe(7);
     expect(chooseWarningScoreStep(() => 1)).toBe(8);
   });
-  it('increases base speed by ten percent every ten progression points', () => {
+  it('increases speed by a fixed ten every ten progression points', () => {
     expect(getBaseSpeed(0)).toBe(240);
     expect(getBaseSpeed(9)).toBe(240);
-    expect(getBaseSpeed(10)).toBeCloseTo(264);
-    expect(getBaseSpeed(20)).toBeCloseTo(290.4);
-    expect(getDifficulty(0, 120, 0, Math.random, null, 20, 10).baseSpeed).toBeCloseTo(264);
+    expect(getBaseSpeed(10)).toBe(250);
+    expect(getBaseSpeed(20)).toBe(260);
+    expect(getDifficulty(0, 120, 0, Math.random, null, 20, 10).baseSpeed).toBe(250);
   });
 
   it('keeps special walls locked below score ten', () => {

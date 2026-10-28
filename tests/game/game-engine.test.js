@@ -23,6 +23,18 @@ function createRuntimeEngine(overrides = {}) {
 }
 
 describe('game engine', () => {
+  it.each([['default',240,340],['aegis',240,340],['velocity',480,580]])(
+    'applies identical actual +10 steps and the100-point cap to %s', (aircraftId,start,ceiling) => {
+      for (const [score,increment] of [[0,0],[9,0],[10,10],[20,20],[99,90],[100,100],[109,100],[10000,100]]) {
+        const {engine}=createRuntimeEngine({initialScore:score,aircraftId,guestMode:true});
+        engine.start();const snapshot=engine.getSnapshot();
+        expect(snapshot.difficulty.scrollSpeed).toBe(start+increment);
+        expect(snapshot.difficulty.targetScrollSpeed).toBe(start+increment);
+        expect(snapshot.aircraft.speedCapScore).toBe(100);
+        expect(snapshot.difficulty.scrollSpeed).toBeLessThanOrEqual(ceiling);
+      }
+    },
+  );
   it('recharges in0.7 live seconds without refreshing blocked dashes, freezes on pause and resets on restart', () => {
     const { engine, step } = createRuntimeEngine(); engine.start();
     expect(engine.dash()).toBe(true);
@@ -206,7 +218,7 @@ describe('game engine', () => {
         expect(snapshot.score - before.score).toBe(10);
         expect(snapshot.progressionScore - before.progressionScore).toBe(10);
         expect(snapshot.difficulty.baseSpeed).toBeCloseTo(getBaseSpeed(snapshot.progressionScore));
-        expect(snapshot.difficulty.baseSpeed / before.difficulty.baseSpeed).toBeCloseTo(1.1);
+        expect(snapshot.difficulty.baseSpeed - before.difficulty.baseSpeed).toBe(10);
         expect(snapshot.speedChange).not.toBeNull();
         expect(snapshot.difficulty.movingGapChance).toBe(0.5);
         expect(snapshot.specialTimingGuideActive).toBe(false);
@@ -428,7 +440,7 @@ describe('game engine', () => {
       snapshot = step(100);
     }
     expect(snapshot.progressionScore).toBeGreaterThanOrEqual(10);
-    expect(snapshot.difficulty.targetScrollSpeed).toBeCloseTo(264);
+    expect(snapshot.difficulty.targetScrollSpeed).toBeCloseTo(250);
     expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(240);
     expect(snapshot.speedChange).toMatchObject({ direction: 'up' });
 
@@ -437,14 +449,14 @@ describe('game engine', () => {
       for (let frame = 0; frame < 5; frame += 1) snapshot = step(100);
       speeds.push(snapshot.difficulty.scrollSpeed);
       if (quarter === 1) {
-        expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(252);
+        expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(245);
         expect(snapshot.speedChange).toMatchObject({ direction: 'up', remainingSeconds: 1 });
       }
     }
     expect(speeds.every((speed, index) => index === 0 || speed > speeds[index - 1])).toBe(true);
     expect(speeds[1] - speeds[0]).toBeLessThan(speeds[2] - speeds[1]);
     expect(speeds[4] - speeds[3]).toBeLessThan(speeds[3] - speeds[2]);
-    expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(264);
+    expect(snapshot.difficulty.scrollSpeed).toBeCloseTo(250);
     expect(snapshot.speedChange).toBeNull();
   });
 
@@ -1121,7 +1133,7 @@ describe('game engine', () => {
     expect(whilePaused.state).toBe(GAME_STATES.PAUSED);
     expect(whilePaused.score).toBe(5);
     expect(whilePaused.progressionScore).toBe(15);
-    expect(whilePaused.difficulty.baseSpeed).toBeCloseTo(264);
+    expect(whilePaused.difficulty.baseSpeed).toBeCloseTo(250);
     expect(whilePaused.player.y).toBe(beforePause.player.y);
   });
 

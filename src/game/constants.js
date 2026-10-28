@@ -18,9 +18,9 @@ export const PAUSE_SCORE_PENALTY = 10;
 
 export const BASE_SCROLL_SPEED = 240;
 export const SPEED_STEP_SCORE_POINTS = 10;
-export const SPEED_STEP_MULTIPLIER = 1.1;
+export const SPEED_STEP_INCREMENT = 10;
 export const SPEED_CAP_SCORE = 100;
-export const VELOCITY_SPEED_CAP_SCORE = 70;
+export const VELOCITY_SPEED_CAP_SCORE = 100;
 export const OBSTACLE_WIDTH = 72;
 export const SPECIAL_OBSTACLE_WIDTH = 24;
 export const OBSTACLE_SPAWN_X = WORLD_WIDTH + OBSTACLE_WIDTH;

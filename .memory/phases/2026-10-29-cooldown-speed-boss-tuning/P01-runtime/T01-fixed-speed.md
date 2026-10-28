@@ -1,6 +1,6 @@
 # Task: T01 Fixed Speed
 
-## Status: pending
+## Status: done
 
 ## Goal
 All aircraft gain exactly10 actual px/s per10 monotonic progression points, with100-point growth cap: NOVA/AEGIS240->340, VELOCITY480->580.
@@ -33,8 +33,8 @@ All aircraft gain exactly10 actual px/s per10 monotonic progression points, with
 - Check future bound at cap against explicit425 for NOVA/AEGIS and725 conservative VELOCITY (boss-fast adjustment may make actual lower); ensure early bounds are not prematurely capped.
 
 ## Acceptance Criteria
-- [ ] Actual capped normal speeds340/340/580 and equal+10 steps proven.
-- [ ] Boss factors, pause behavior, scoring and future wall-spacing invariants preserved.
+- [x] Actual capped normal speeds340/340/580 and equal+10 steps proven.
+- [x] Boss factors, pause behavior, scoring and future wall-spacing invariants preserved.
 
 ## Validation
 - `npm test -- --run tests/game/difficulty.test.js tests/game/game-engine.test.js tests/game/barrier-spacing.test.js tests/integration/combat-evolution.test.js tests/integration/dash-boss-flow.test.js` — pass.
@@ -53,6 +53,6 @@ Task: T01-fixed-speed
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
