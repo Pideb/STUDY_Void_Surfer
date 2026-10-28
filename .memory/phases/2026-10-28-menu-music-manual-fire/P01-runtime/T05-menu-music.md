@@ -1,6 +1,6 @@
 # Task: T05 Loop approved ORBIT RUN menu composition
 
-## Status: pending
+## Status: done
 
 ## Goal
 Play an actual seamless ORBIT RUN loop in the menu with existing music/mute/unlock lifecycle.
@@ -24,8 +24,8 @@ Play an actual seamless ORBIT RUN loop in the menu with existing music/mute/unlo
 - WAV header/duration/loop edge/approved sample hash and safe peak; menu async switching/mute/pause/destroy with fake audio; previous stage tests unaffected.
 
 ## Acceptance Criteria
-- [ ] Observable goal and all approved timings/counts above implemented.
-- [ ] Specified validation passes without replacing meaningful adjacent guarantees.
+- [x] Observable goal and all approved timings/counts above implemented.
+- [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
 - `npm test -- --run tests/audio` ? expected successful exit; run individual commands sequentially when separated above.
@@ -44,6 +44,6 @@ Task: T05-menu-music
 ```
 
 ## Progress
-- [ ] ?? ??
-- [ ] ?? ??
+- [x] ?? ??
+- [x] ?? ??
 - commit: pending

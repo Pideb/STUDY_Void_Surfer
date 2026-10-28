@@ -7,11 +7,11 @@
 P01-runtime
 
 ## Active Task
-[Next task](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T04-failure-effects.md)
+[Next task](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T05-menu-music.md)
 
 ## Status
-- T03 completed and verified; commit 8422e0d.
-- Progress 3/6. User authorized sequential completion.
+- T04 completed and verified; commit 811b81b.
+- Progress 4/6. User authorized sequential completion.
 
 ## Next Step (IMPORTANT)
 Read next task blueprint and continue implementation, validation and commit.

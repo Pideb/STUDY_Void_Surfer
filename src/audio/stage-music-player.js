@@ -1,4 +1,4 @@
-import { MUSIC_TRACKS } from './music-manifest.js';
+import { MUSIC_TRACKS, MENU_MUSIC_TRACK } from './music-manifest.js';
 
 // Async loading never owns game state. Only the latest, unpaused selection may start.
 export function createStageMusicPlayer(context, { destination, fetcher = globalThis.fetch, onPlaying = () => {} } = {}) {
@@ -88,8 +88,8 @@ export function createStageMusicPlayer(context, { destination, fetcher = globalT
     },
     select(sceneId, mode) {
       if (destroyed) return;
-      const track = MUSIC_TRACKS[sceneId]?.[mode];
-      const nextKey = track ? `${sceneId}:${mode}` : null;
+      const track = mode === 'menu' ? MENU_MUSIC_TRACK : MUSIC_TRACKS[sceneId]?.[mode];
+      const nextKey = track ? (mode === 'menu' ? 'menu' : `${sceneId}:${mode}`) : null;
       if (nextKey === desired?.key) return;
       generation += 1;
       offset = 0;

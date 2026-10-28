@@ -17,6 +17,26 @@ const flush = async () => { for (let index = 0; index < 15; index += 1) await Pr
 const response = (key) => ({ ok: true, arrayBuffer: async () => ({ key }) });
 
 describe('stage music loading and playback', () => {
+  it('plays ORBIT RUN independently of scene, reuses its loop and preserves pause offset', async () => {
+    const ctx = context(), fetcher = vi.fn(async url => response(url));
+    const player = createStageMusicPlayer(ctx, { fetcher, destination: {} });
+    player.select('crystal-gates', 'menu'); await flush();
+    expect(ctx.sources[0].buffer.key).toBe('/assets/audio/menu/orbit-run.wav');
+    player.select('solar-forge', 'menu'); expect(ctx.sources).toHaveLength(1);
+    ctx.currentTime = 3; player.pause(); ctx.currentTime = 8; player.resume();
+    expect(ctx.sources[1].start).toHaveBeenCalledWith(8, 3);
+    player.select('solar-forge', 'boss'); await flush();
+    expect(ctx.sources.at(-1).buffer.key).toContain('/boss/solar-forge.wav');
+    player.destroy(); expect(player.isPlaying()).toBe(false);
+  });
+  it('cannot let a delayed menu decode replace newly selected gameplay', async () => {
+    const ctx = context(), pending = new Map();
+    const player = createStageMusicPlayer(ctx, { destination: {}, fetcher: url => new Promise(resolve => pending.set(url, resolve)) });
+    player.select('crystal-gates', 'menu'); player.select('solar-forge', 'gameplay'); await flush();
+    pending.get('/assets/audio/gameplay/solar-forge.wav')(response('game')); await flush();
+    pending.get('/assets/audio/menu/orbit-run.wav')(response('late-menu')); await flush();
+    expect(ctx.sources).toHaveLength(1); expect(ctx.sources[0].buffer.key).toBe('game'); player.destroy();
+  });
   it('preloads both stage tracks and crossfades cached selections without restarting identical ones', async () => {
     const ctx = context();
     const fetcher = vi.fn(async (url) => response(url));

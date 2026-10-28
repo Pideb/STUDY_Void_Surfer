@@ -121,3 +121,13 @@ export const MUSIC_TRACKS = Object.freeze({
     }
   }
 });
+
+export const MENU_MUSIC_TRACK = Object.freeze({
+  "url": "/assets/audio/menu/orbit-run.wav",
+  "title": "ORBIT RUN",
+  "bpm": 112,
+  "durationSeconds": 17.142857142857142,
+  "bars": 8,
+  "sampleRate": 22050,
+  "channels": 2
+});
