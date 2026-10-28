@@ -149,7 +149,7 @@ export function createGameEngine(deps = {}) {
   function getTargetDifficulty() {
     if (!warningSession) {
       const warningThreshold = bossPreview ? Number.MAX_SAFE_INTEGER : nextWarningScore;
-      const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, warningThreshold, scoreSession.progressionScore, firstBossCleared);
+      const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, warningThreshold, scoreSession.progressionScore, firstBossCleared, aircraft.id);
       return applyAircraftDifficulty(base);
     }
 
@@ -158,7 +158,7 @@ export function createGameEngine(deps = {}) {
       elapsedSeconds,
       completedWarningCount,
       rng,
-      warningSession.bossPattern, nextWarningScore, scoreSession.progressionScore, firstBossCleared,
+      warningSession.bossPattern, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id,
     );
     const speedMultiplier = warningSession.isBoss
       ? getBossSpeedMultiplier(
@@ -268,7 +268,7 @@ export function createGameEngine(deps = {}) {
   function startWarningIfNeeded() {
     if (warningSession || bossPreview || stageTransition || pendingStageAdvance) return;
 
-    const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared);
+    const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id);
     if (!candidate.isWarning) return;
 
     const isBoss = candidate.warningIndex % 2 === 0;
@@ -301,7 +301,7 @@ export function createGameEngine(deps = {}) {
       ? createBossEncounter(Math.max(1, Math.floor(warningIndex / 2)), getStageState().definition.id)
       : null;
     if (bossEncounter) {
-      bossEncounter.baseScrollSpeed = getBaseSpeed(scoreSession.progressionScore);
+      bossEncounter.baseScrollSpeed = getBaseSpeed(scoreSession.progressionScore, aircraft.id);
       bossEncounter.bossStartElapsedSeconds = elapsedSeconds;
       bossEncounter.volleyBudget = 1 + Math.floor(safeRandom(rng) * 3);
     }
@@ -339,9 +339,9 @@ export function createGameEngine(deps = {}) {
         progressionScore: scoreSession.progressionScore,
         unpassedCount: obstacles.filter(wall => !wall.passed).length,
         distanceToPlayer: barrierX - player.x,
-        minimumScrollSpeed: Math.min(difficulty.scrollSpeed, getBaseSpeed(scoreSession.progressionScore) * .75 * aircraft.scrollSpeedMultiplier),
+        minimumScrollSpeed: Math.min(difficulty.scrollSpeed, getBaseSpeed(scoreSession.progressionScore, aircraft.id) * .75 * aircraft.scrollSpeedMultiplier),
         minimumSpawnInterval: WARNING_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier,
-        aircraftSpeedMultiplier: aircraft.scrollSpeedMultiplier,
+        aircraftSpeedMultiplier: aircraft.scrollSpeedMultiplier, aircraftId: aircraft.id,
       });
       if (totalScrollDistancePx + barrierX - lastSpecialBarrierWorldX < speedBound * SPECIAL_RESPONSE_INTERVAL_SECONDS) {
         if (forceSpecial && !forceNormal) return false;
@@ -661,7 +661,7 @@ export function createGameEngine(deps = {}) {
     if (bossEncounter?.hp > 0 && bossEncounter.entranceRemainingSeconds <= 0) {
       const shotId = bossEncounter.weapon.firing?.id;
       if (advanceBossWeapon(bossEncounter.weapon, weaponDeltaSeconds)) {
-        advanceBossEncounter(bossEncounter, 'laser-hit');
+        advanceBossEncounter(bossEncounter, 'laser-hit', aircraft.bossLaserDamage);
         bossEncounter.hitEffect = { remainingSeconds: .38, durationSeconds: .38 };
         bossEncounter.animation = { kind: 'hit', actionId: shotId, elapsedSeconds: 0, durationSeconds: .38 };
         if (bossEncounter.hp === 0) {
@@ -983,6 +983,8 @@ export function createGameEngine(deps = {}) {
         scoreMultiplier: aircraft.scoreMultiplier,
         gravityMultiplier: aircraft.gravityMultiplier,
         liftMultiplier: aircraft.liftMultiplier,
+        speedCapScore: aircraft.speedCapScore,
+        bossLaserDamage: aircraft.bossLaserDamage,
       },
       stage: {
         id: stageState.definition.id,

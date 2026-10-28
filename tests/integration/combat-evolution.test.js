@@ -57,7 +57,9 @@ describe('approved boss evolution across complete stage cycles', () => {
     }
     expect(clears).toBe(6); expect(identities.size).toBe(6); expect(signatureStages.size).toBe(6);
     expect(portalStages.size).toBeGreaterThanOrEqual(5); expect(failed.size).toBe(6);
-    expect(counterattacks).toBe(18); expect(roarFrames).toBeGreaterThan(100);
+    expect(counterattacks).toBe(aircraftId === 'aegis' ? 6 : 18);
+    // Six bosses, each with a failed and a successful challenge: at least12 full .8s roars.
+    expect(roarFrames).toBeGreaterThanOrEqual(96);
     expect(completedPortals).toBe(6);
     engine.start(); snapshot = engine.getSnapshot();
     expect(snapshot.stage.transition).toBeNull(); expect(snapshot.feedbackEffect).toBeNull();

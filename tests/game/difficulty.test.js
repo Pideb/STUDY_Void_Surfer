@@ -10,14 +10,19 @@ import {
 } from '../../src/game/difficulty.js';
 
 describe('difficulty', () => {
-  it('caps only base progression at 150 and preserves boss multipliers', () => {
-    const ceiling = 240 * 1.1 ** 15;
-    expect(getBaseSpeed(149)).toBeCloseTo(240 * 1.1 ** 14);
-    for (const score of [150, 151, 10000]) expect(getBaseSpeed(score)).toBeCloseTo(ceiling);
+  it('caps base progression at100 and preserves boss multipliers', () => {
+    const ceiling = 240 * 1.1 ** 10;
+    expect(getBaseSpeed(99)).toBeCloseTo(240 * 1.1 ** 9);
+    for (const score of [100, 109, 150, 10000]) expect(getBaseSpeed(score)).toBeCloseTo(ceiling);
     expect(getBaseSpeed(NaN)).toBe(240);
     expect(getBaseSpeed(-1)).toBe(240);
     expect(getDifficulty(200, 0, 1, () => 0, BOSS_PATTERNS.FAST).scrollSpeed).toBeCloseTo(ceiling * 1.25);
     expect(getDifficulty(200, 0, 1, () => 0, BOSS_PATTERNS.SLOW).scrollSpeed).toBeCloseTo(ceiling * .75);
+  });
+  it.each([['default',100],['aegis',100],['velocity',70]])('%s stops score-driven growth at%s', (id,cap) => {
+    expect(getBaseSpeed(cap-1,id)).toBeCloseTo(240*1.1**(cap/10-1));
+    for(const score of [cap,cap+9,150,10000])expect(getBaseSpeed(score,id)).toBeCloseTo(240*1.1**(cap/10));
+    expect(getDifficulty(200,0,1,()=>0,BOSS_PATTERNS.FAST,20,200,false,id).baseSpeed).toBeCloseTo(getBaseSpeed(cap,id));
   });
 
   it('chooses an inclusive five-to-eight-point encounter interval', () => {

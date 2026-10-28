@@ -7,6 +7,8 @@ import {
   VELOCITY_MOVEMENT_MULTIPLIER,
   VELOCITY_SCORE_MULTIPLIER,
   VELOCITY_SPAWN_INTERVAL_MULTIPLIER,
+  SPEED_CAP_SCORE,
+  VELOCITY_SPEED_CAP_SCORE,
 } from './constants.js';
 
 export const AIRCRAFT_IDS = Object.freeze({
@@ -49,7 +51,11 @@ const definitions = [
     liftMultiplier: 1,
     visualKey: 'velocity',
   },
-].map((definition) => Object.freeze(definition));
+].map((definition) => Object.freeze({
+  ...definition,
+  speedCapScore: definition.id === AIRCRAFT_IDS.VELOCITY ? VELOCITY_SPEED_CAP_SCORE : SPEED_CAP_SCORE,
+  bossLaserDamage: definition.id === AIRCRAFT_IDS.AEGIS ? 3 : 1,
+}));
 
 export const AIRCRAFT_CATALOG = Object.freeze(definitions);
 

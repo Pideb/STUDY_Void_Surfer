@@ -48,7 +48,7 @@ describe('game engine', () => {
   it.each(['default', 'aegis', 'velocity'])('keeps the capped aircraft speed after pause deductions (%s)', (aircraftId) => {
     const { engine } = createRuntimeEngine({ initialScore: 200, aircraftId, guestMode: true });
     engine.start();
-    const ceiling = getBaseSpeed(150) * (aircraftId === 'velocity' ? 2 : 1);
+    const ceiling = getBaseSpeed(150, aircraftId) * (aircraftId === 'velocity' ? 2 : 1);
     expect(engine.getSnapshot().difficulty.scrollSpeed).toBeCloseTo(ceiling);
     engine.pause();
     expect(engine.getSnapshot().progressionScore).toBe(200);

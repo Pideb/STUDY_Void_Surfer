@@ -31,6 +31,7 @@ export function createBossEncounter(number, stageId = 'crystal-gates') {
     entranceRemainingSeconds: BOSS_ENTRANCE_SECONDS,
     successfulChallenges: 0,
     laserHits: 0,
+    damageTaken: 0,
     weapon: createBossWeapon(),
     requiredChallenges: maxHp,
     attack: null,
@@ -45,7 +46,7 @@ export function createBossEncounter(number, stageId = 'crystal-gates') {
   };
 }
 
-export function advanceBossEncounter(encounter, event, value = 0) {
+export function advanceBossEncounter(encounter, event, value) {
   if (!encounter || encounter.cleared) return encounter;
 
   if (event === 'challenge-success' || event === 'challenge-failure') {
@@ -54,8 +55,11 @@ export function advanceBossEncounter(encounter, event, value = 0) {
       encounter.successfulChallenges = Math.min(encounter.requiredChallenges, encounter.successfulChallenges + 1);
     }
   } else if (event === 'laser-hit') {
-    encounter.laserHits = Math.min(encounter.maxHp, encounter.laserHits + 1);
-    encounter.hp = encounter.maxHp - encounter.laserHits;
+    const damage = value === undefined ? 1 : Number(value);
+    if (!Number.isFinite(damage) || damage <= 0 || encounter.hp <= 0) return encounter;
+    encounter.laserHits += 1;
+    encounter.damageTaken = Math.min(encounter.maxHp, encounter.damageTaken + Math.max(1, Math.trunc(damage)));
+    encounter.hp = encounter.maxHp - encounter.damageTaken;
   } else if (event === 'special-resolved') {
     encounter.lastSpecialResolvedAt = Number(value) || 0;
   } else if (event === 'attack-resolved') {

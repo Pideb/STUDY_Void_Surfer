@@ -13,6 +13,25 @@ function setup(extra = {}) {
 }
 
 describe('manual boss laser in real engine', () => {
+  it.each([['default',3],['aegis',1],['velocity',3]])('%s starts with3HP and clears in%s actual impacts', (aircraftId,hits) => {
+    const { engine,tick,until,finishChallenge } = setup({aircraftId});
+    const entry=until(s=>s.boss);
+    expect(entry.boss).toMatchObject({hp:3,maxHp:3});
+    for(let i=0;i<hits;i++){
+      for(let frame=0;frame<6000;frame++){
+        const s=engine.getSnapshot();if(s.challenge?.active)finishChallenge();
+        if(s.boss?.weapon.ready&&!s.challenge?.active)break;tick();
+      }
+      const before=engine.getSnapshot();expect(engine.fire()).toBe(true);
+      tick(.1);expect(engine.getSnapshot().boss.hp).toBe(before.boss.hp);
+      tick(.1);const impacted=engine.getSnapshot();
+      expect(impacted.boss.hp).toBe(aircraftId==='aegis'?0:3-i-1);
+      expect(impacted.boss.maxHp).toBe(3);expect(impacted.boss.laserHits).toBe(i+1);
+      tick(.1);
+    }
+    const cleared=until(s=>!s.boss&&s.stage.transition);
+    expect(cleared.score).toBe(entry.score+10);tick(.1);expect(engine.getSnapshot().score).toBe(cleared.score);
+  });
   it('unlocks physics only for the fraction beyond the0.3s firing action', () => {
     const { engine, tick, until } = setup();
     until(s => s.boss?.weapon.ready && !s.challenge?.active);

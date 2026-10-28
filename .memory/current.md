@@ -7,11 +7,11 @@
 P01-runtime
 
 ## Active Task
-[Next task](./phases/2026-10-28-central-hitbox/P01-runtime/T02-activation-lasers.md)
+[Next task](./phases/2026-10-28-central-hitbox/P01-runtime/T03-aircraft-balance.md)
 
 ## Status
-- T01 completed and verified; commit 6e1e3f0.
-- Progress 1/5. User authorized sequential completion.
+- T02 completed and verified; commit 9fbab6b.
+- Progress 2/5. User authorized sequential completion.
 
 ## Next Step (IMPORTANT)
 Read next task blueprint and continue implementation, validation and commit.

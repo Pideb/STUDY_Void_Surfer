@@ -1,6 +1,6 @@
 # Task: T03 Aircraft caps and AEGIS one-shot boss damage
 
-## Status: pending
+## Status: done
 
 ## Goal
 Aircraft caps and AEGIS one-shot boss damage with observable behavior defined below.
@@ -20,12 +20,13 @@ Aircraft caps and AEGIS one-shot boss damage with observable behavior defined be
 - **State/return**: public snapshots remain detached; operations reflect real state without mutation hooks; visual and actual geometry agree.
 
 ### I02. Verification
+- Code-location clarification: `src/ui/app-controller.js::getHangarAircraft` builds hangar descriptions/stats; update it together with the screen renderer so the selected aircraft's new values are visible.
 - Related Files: associated existing tests listed above; new test paths are explicit.
 - Exercise exact boundaries and changed behavior plus existing adjacent regressions. Do not silently delete meaningful checks.
 
 ## Acceptance Criteria
-- [ ] Production behavior matches all stated values/edge cases.
-- [ ] Specified validation passes.
+- [x] Production behavior matches all stated values/edge cases.
+- [x] Specified validation passes.
 
 ## Validation
 - `npm test -- --run tests/game/difficulty.test.js tests/game/aircraft.test.js tests/game/barrier-spacing.test.js tests/game/boss.test.js tests/game/game-engine.test.js tests/ui/screens.test.js tests/integration/manual-boss-fire.test.js tests/integration/dash-boss-flow.test.js tests/integration/combat-evolution.test.js` - each command must succeed; semicolon-separated commands run sequentially.
@@ -44,6 +45,6 @@ Task: T03-aircraft-balance
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
