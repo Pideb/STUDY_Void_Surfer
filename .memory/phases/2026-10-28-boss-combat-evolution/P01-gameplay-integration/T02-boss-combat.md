@@ -1,6 +1,6 @@
 # Task: T02 Stage-specific combat and safe laser scheduling
 
-## Status: pending
+## Status: done
 
 ## Goal
 Make six boss identities fire real dodge hazards, interleave fair lasers and frozen roar/WASD, and visibly counterattack for three-hit clears without stalled encounters.
@@ -52,7 +52,7 @@ Task: T02-boss-combat
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed — 5 files / 138 tests, including seeded retries and global sequence safety.
 - commit: pending
 

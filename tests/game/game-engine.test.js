@@ -128,6 +128,7 @@ describe('game engine', () => {
       rng: () => 0.5,
       stageRng: () => 0.5,
     });
+    engine.setInvincibilityEnabled(true);
     engine.start();
     for (let frame = 0; frame < 15; frame += 1) step(100);
     const initial = engine.getSnapshot();
@@ -144,7 +145,7 @@ describe('game engine', () => {
     let bossWavesCompleted = 0;
     const fullBossWaveSpecialCounts = [];
 
-    for (let frame = 0; frame < 7000 && (!changedAfterSecondWall || !newArtSpawned); frame += 1) {
+    for (let frame = 0; frame < 12000 && (!changedAfterSecondWall || !newArtSpawned); frame += 1) {
       const before = engine.getSnapshot();
       expect(before.boss?.attack?.type).not.toBe('projectile');
       if (before.challenge?.active) {
@@ -579,6 +580,8 @@ describe('game engine', () => {
     for (let frame = 0; frame < 1000 && !snapshot.challenge.active; frame += 1) snapshot = step(100);
     expect(snapshot.challenge.active).toBe(true);
     for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
+    expect(engine.getSnapshot().boss.counterattack).not.toBeNull();
+    for (let frame = 0; frame < 3; frame += 1) step(100);
     expect(engine.getSnapshot().boss).toMatchObject({ hp: 2, challengeCount: 2, successfulChallenges: 1 });
     expect(engine.handleChallengeKey('KeyW')).toBe(false);
     step(100);
@@ -622,7 +625,7 @@ describe('game engine', () => {
     expect(snapshot.progressionScore).toBe(entryScore + 10);
   });
 
-  it('unlocks lasers at boss two and guarantees a challenge after a laser', () => {
+  it('runs single lasers and a stage signature before the required challenge', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60, initialCompletedWarningCount: 3, rng: () => 0,
     });
@@ -630,21 +633,24 @@ describe('game engine', () => {
     engine.start();
     const lasers = new Set();
     let concurrent = false;
+    let signatureSeen = false;
     let snapshot = engine.getSnapshot();
     for (let frame = 0; frame < 1000 && !snapshot.challenge?.active; frame += 1) {
       snapshot = step(100);
       const attack = snapshot.boss?.attack;
-      if (attack) {
+      if (attack?.type === 'volley') signatureSeen = true;
+      if (attack?.type === 'laser') {
         expect(attack.type).toBe('laser');
         expect(snapshot.challenge?.active).not.toBe(true);
         lasers.add(attack.id);
         if (snapshot.obstacles.some((wall) => wall.kind === 'normal' && !wall.passed)) concurrent = true;
-        for (const wall of snapshot.obstacles.filter((wall) => wall.kind === 'normal')) {
+        for (const wall of snapshot.obstacles.filter((wall) => wall.kind === 'normal' && attack.kind === 'single')) {
           expect(isLaserPathSafe(attack.y, wall)).toBe(true);
         }
       }
     }
-    expect(lasers.size).toBe(1);
+    expect(lasers.size).toBeGreaterThanOrEqual(1);
+    expect(signatureSeen).toBe(true);
     expect(concurrent).toBe(true);
     expect(snapshot.boss.number).toBe(2);
     expect(snapshot.challenge?.active).toBe(true);
@@ -674,7 +680,7 @@ describe('game engine', () => {
           expect(snapshot.boss.wallSpawningPaused).toBe(true);
           expect(snapshot.boss.attack.telegraphDurationSeconds).toBe(2);
         } else if (snapshot.boss?.attack?.kind === 'single') {
-          expect(snapshot.boss.wallSpawningPaused).toBe(false);
+          expect(snapshot.boss.wallSpawningPaused).toBe(true);
           for (const wall of snapshot.obstacles.filter((item) => item.kind === 'normal')) {
             expect(isLaserPathSafe(snapshot.boss.attack.y, wall)).toBe(true);
           }
@@ -707,6 +713,79 @@ describe('game engine', () => {
     expect(snapshot.warning).toMatchObject({ index: 6, spawnedCount: 7, targetCount: 7 });
     expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);
     expect(snapshot.warning.spawnedCount - snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);
+  });
+
+  it('freezes world clocks for a full roar then gives the first boss its entire countdown', () => {
+    const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 1, rng: () => .4 });
+    engine.setInvincibilityEnabled(true); engine.start();
+    let snapshot = engine.getSnapshot();
+    for (let i = 0; i < 1000 && !snapshot.boss?.roar; i++) snapshot = step();
+    expect(snapshot.boss?.roar).not.toBeNull();
+    const frozen = snapshot;
+    expect(engine.lift()).toBe(false); expect(engine.dash()).toBe(false);
+    for (let i = 0; i < 7; i++) snapshot = step();
+    expect(snapshot.boss.roar.elapsedSeconds).toBeCloseTo(.7);
+    expect(snapshot.elapsedSeconds).toBe(frozen.elapsedSeconds);
+    expect(snapshot.player).toEqual(frozen.player);
+    expect(snapshot.obstacles).toEqual(frozen.obstacles);
+    snapshot = step();
+    expect(snapshot.boss.roar).toBeNull();
+    expect(snapshot.challenge).toMatchObject({ active: true, remainingSeconds: 5 });
+    for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
+    snapshot = engine.getSnapshot();
+    expect(snapshot.boss.hp).toBe(3);
+    expect(snapshot.boss.counterattack.fromX).toBe(snapshot.player.x);
+    expect(snapshot.boss.counterattack.toX).toBeGreaterThan(740);
+    for (let i = 0; i < 3; i++) snapshot = step();
+    expect(snapshot.boss.hp).toBe(2);
+    expect(snapshot.boss.hitEffect).not.toBeNull();
+  });
+
+  it('checks single lasers before a wall wave completes, starting with boss one', () => {
+    // Keep spawn/gap rolls high but make independent activation checks succeed.
+    let n = 0;
+    const runtime = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 1, rng: () => {
+      n++; return n % 9 === 0 ? .3 : .9;
+    } });
+    runtime.engine.setInvincibilityEnabled(true); runtime.engine.start();
+    let snapshot;
+    for (let i = 0; i < 600; i++) {
+      snapshot = runtime.step();
+      if (snapshot.boss?.attack?.kind === 'single') break;
+    }
+    expect(snapshot.boss?.attack?.kind).toBe('single');
+    expect(snapshot.boss.number).toBe(1);
+    expect(snapshot.boss.wallSpawningPaused).toBe(true);
+    // All existing normal openings remain safe throughout the shot.
+    for (const wall of snapshot.obstacles.filter(w => w.kind === 'normal')) expect(isLaserPathSafe(snapshot.boss.attack.y, wall)).toBe(true);
+  });
+
+  it('gives every shot in a three-shot global sequence a new safe quarter and full warning', () => {
+    let queue = [];
+    const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 3, rng: () => queue.shift() ?? .4 });
+    engine.setInvincibilityEnabled(true); engine.start();
+    let snapshot = engine.getSnapshot(), queued = false;
+    const shots = new Map();
+    for (let i = 0; i < 1500 && !snapshot.boss?.roar; i++) {
+      if (snapshot.boss?.attack?.type === 'volley' && !queued) { queue = [0, .99, .1, .1, .1]; queued = true; }
+      snapshot = step();
+      const attack = snapshot.boss?.attack;
+      if (attack?.kind === 'quarter' && !shots.has(attack.id)) {
+        expect(snapshot.obstacles).toHaveLength(0);
+        expect(attack.telegraphRemainingSeconds).toBe(attack.telegraphDurationSeconds);
+        expect(attack.telegraphRemainingSeconds).toBeGreaterThanOrEqual(2);
+        shots.set(attack.id, attack.safeZone);
+      }
+      if (attack?.type === 'volley') {
+        const x = attack.projectiles[0].x;
+        attack.projectiles[0].x = -999;
+        expect(engine.getSnapshot().boss.attack.projectiles[0].x).toBe(x);
+      }
+    }
+    const zones = [...shots.values()];
+    expect(zones).toHaveLength(3);
+    expect(zones[0]).not.toBe(zones[1]); expect(zones[1]).not.toBe(zones[2]);
+    expect(snapshot.boss.roar).not.toBeNull();
   });
 
   it('unlocks hybrid barriers only after the first boss and times the recessed barrier', () => {

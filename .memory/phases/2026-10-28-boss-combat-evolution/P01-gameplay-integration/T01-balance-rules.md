@@ -54,5 +54,5 @@ Task: T01-balance-rules
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed — 3 files / 66 tests (2026-10-28).
-- commit: pending
+- commit: d2018b6
 

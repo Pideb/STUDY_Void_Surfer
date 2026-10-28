@@ -248,11 +248,24 @@ export function createSingleLaser({ rng = Math.random, styleKey = 'default', ...
   };
 }
 
-export function createQuarterLaser({ rng = Math.random, worldHeight = WORLD_HEIGHT, styleKey = 'default' } = {}) {
+export function createQuarterLaser({
+  rng = Math.random, worldHeight = WORLD_HEIGHT, styleKey = 'default', excludeSafeZone = null,
+  playerY = worldHeight / 2, playerHeight = 24, liftSpeed = 360,
+} = {}) {
+  const zones = [0, 1, 2, 3].filter((zone) => zone !== excludeSafeZone);
+  const safeZone = zones[Math.floor(roll(rng) * zones.length)];
+  const zoneHeight = worldHeight / 4;
+  const safeCenterMin = safeZone * zoneHeight + playerHeight / 2 + 8;
+  const safeCenterMax = (safeZone + 1) * zoneHeight - playerHeight / 2 - 8;
+  const distance = playerY < safeCenterMin ? safeCenterMin - playerY
+    : playerY > safeCenterMax ? playerY - safeCenterMax : 0;
+  // Conservative travel budget: retain the entire baseline and lengthen extreme crossings.
+  const preparation = Math.max(BOSS_QUARTER_LASER_TELEGRAPH_SECONDS,
+    distance / Math.max(100, Math.abs(liftSpeed)) * 1.2 + .2);
   return {
     kind: 'quarter', y: null,
-    safeZone: Math.floor(roll(rng) * 4), zoneHeight: worldHeight / 4,
-    ...laserClock(BOSS_QUARTER_LASER_TELEGRAPH_SECONDS),
+    safeZone, zoneHeight,
+    ...laserClock(preparation),
     thickness: BOSS_LASER_THICKNESS, styleKey,
   };
 }

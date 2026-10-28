@@ -4,12 +4,21 @@ export function getBossHealth() {
   return BOSS_REQUIRED_CHALLENGES;
 }
 
-export function createBossEncounter(number) {
+export function createBossEncounter(number, stageId = 'crystal-gates') {
   const safeNumber = Math.max(1, Math.trunc(Number(number) || 1));
   const maxHp = getBossHealth();
 
   return {
     number: safeNumber,
+    stageId,
+    cyclePhase: 'walls',
+    cycleNumber: 1,
+    singleLaserElapsedSeconds: 0,
+    globalShotsRemaining: 0,
+    previousSafeZone: null,
+    roar: null,
+    counterattack: null,
+    animation: { kind: 'idle', elapsedSeconds: 0, durationSeconds: 0, actionId: null },
     hp: maxHp,
     maxHp,
     entranceDurationSeconds: BOSS_ENTRANCE_SECONDS,

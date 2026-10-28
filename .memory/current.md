@@ -7,9 +7,10 @@
 [P01 Gameplay Integration](./phases/2026-10-28-boss-combat-evolution/P01-gameplay-integration/phase.md)
 
 ## Active Task
-[T01 Balance rules and challenge limits](./phases/2026-10-28-boss-combat-evolution/P01-gameplay-integration/T01-balance-rules.md)
+[T02 Stage-specific combat and safe laser scheduling](./phases/2026-10-28-boss-combat-evolution/P01-gameplay-integration/T02-boss-combat.md)
 
 ## Status
+- Current plan: T01 done (`d2018b6`), 3 files / 66 tests passed. Active: T02. Older entries below are the previous plan history.
 - T01 done (`96707d4`): HP countdown, shock-ring dash and right-edge boss entrance.
 - T02 done (`2ff2f14`): hybrid gap/dash walls and collision/render integration.
 - T03 done (`03fb7a2`): wall-speed background reveal with spawn suspension and bounded resume.
@@ -18,4 +19,4 @@
 - Approved review sources preserved in .memory/previews; production audio rebuild: `node scripts/build-game-audio.mjs`.
 
 ## Next Step (IMPORTANT)
-Read active T01 blueprint and implement speed cap, encounter spacing and challenge timing. Planning is complete. User authorized sequential implementation/validation/commit through T06 without further routine confirmation. Earlier status entries describe the previous completed plan.
+Read active T02 blueprint; implement signature hazards, safe laser sequences, frozen roar and visible automatic counterattack. Continue through T06 automatically as authorized.

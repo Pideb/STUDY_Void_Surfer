@@ -7,7 +7,25 @@ import {
   isProjectileInReflectionWindow,
   reflectProjectile,
   updateBossProjectile,
+  createQuarterLaser,
 } from '../../src/game/boss-attacks.js';
+
+describe('consecutive global laser warnings', () => {
+  it('excludes the previous quarter for every RNG endpoint and restarts a full warning', () => {
+    for (const previous of [0, 1, 2, 3]) for (const value of [0, .5, 1]) {
+      const laser = createQuarterLaser({ excludeSafeZone: previous, rng: () => value });
+      expect(laser.safeZone).not.toBe(previous);
+      expect(laser.telegraphRemainingSeconds).toBeGreaterThanOrEqual(2);
+      expect(laser.activeRemainingSeconds).toBe(1);
+    }
+  });
+  it('extends a difficult AEGIS crossing without reducing the baseline', () => {
+    const laser = createQuarterLaser({ rng: () => 0, playerY: 510, liftSpeed: 252 });
+    expect(laser.safeZone).toBe(0);
+    expect(laser.telegraphDurationSeconds).toBeGreaterThan(2);
+    expect(laser.telegraphRemainingSeconds).toBe(laser.telegraphDurationSeconds);
+  });
+});
 
 describe('boss projectiles', () => {
   it('creates a direct projectile with charge and randomized speed bounds', () => {
