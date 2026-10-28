@@ -203,6 +203,36 @@ describe('signature clocks and movement', () => {
 });
 
 describe('swept contact, harmless misses and engine-owned immunity', () => {
+  it('keeps a missed shot visible behind the player until its complete body exits', () => {
+    const attack = centerShot();
+    updateSignatureAttack(attack, 1.1 + 600 / 220, { ...player, y: 400 });
+    expect(attack.projectiles[0]).toMatchObject({ state: 'flying', hitPlayer: false });
+    expect(attack.projectiles[0].x).toBeCloseTo(150);
+    updateSignatureAttack(attack, 1, player);
+    expect(attack.state).toBe('resolved');
+    expect(attack.hitPlayer).toBe(false);
+  });
+  it.each([[.5, false], [.1, true], [.2, true]])('splits swept contact at protection expiry (%s seconds)', (immuneSeconds, hit) => {
+    const attack = centerShot();
+    updateSignatureAttack(attack, 1.1 + 450 / 220, player);
+    expect(attack.projectiles[0].x).toBeCloseTo(300);
+    updateSignatureAttack(attack, .6, player, { immuneSeconds });
+    expect(attack.hitPlayer).toBe(hit);
+    if (!hit) {
+      expect(attack.projectiles[0].x).toBeCloseTo(168);
+      updateSignatureAttack(attack, 1, player);
+      expect(attack.hitPlayer).toBe(false);
+      expect(attack.state).toBe('resolved');
+    }
+  });
+  it('continues an admin-immune contact without leaving a sticky hit flag', () => {
+    const attack = centerShot();
+    updateSignatureAttack(attack, 3.8, player, { projectileImmune: true });
+    expect(attack.projectiles[0].x).toBeLessThan(214);
+    expect(attack.hitPlayer).toBe(false);
+    updateSignatureAttack(attack, 1, player);
+    expect(attack).toMatchObject({ hitPlayer: false, state: 'resolved' });
+  });
   it('detects contact when a single update passes completely through the player', () => {
     const attack = centerShot();
     updateSignatureAttack(attack, 100, player);
@@ -230,11 +260,11 @@ describe('swept contact, harmless misses and engine-owned immunity', () => {
     },
   );
 
-  it('resolves after passing the player; later movement cannot turn a miss into a hit', () => {
+  it('resolves only offscreen; later movement cannot resurrect a resolved miss', () => {
     const attack = centerShot();
     updateSignatureAttack(attack, 100, { ...player, y: 400 });
     expect(attack).toMatchObject({ state: 'resolved', hitPlayer: false });
-    expect(attack.projectiles[0].x).toBeCloseTo(214);
+    expect(attack.projectiles[0].x).toBeCloseTo(-8);
     const before = structuredClone(attack);
     updateSignatureAttack(attack, 100, player);
     expect(attack).toEqual(before);

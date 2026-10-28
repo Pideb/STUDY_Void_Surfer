@@ -23,6 +23,24 @@ function createRuntimeEngine(overrides = {}) {
 }
 
 describe('game engine', () => {
+  it('recharges for one live second without refreshing blocked dashes, freezes on pause and resets on restart', () => {
+    const { engine, step } = createRuntimeEngine(); engine.start();
+    expect(engine.dash()).toBe(true);
+    step(100); const before = engine.getSnapshot().player;
+    expect(engine.dash()).toBe(false);
+    expect(engine.getSnapshot().player).toEqual(before);
+    engine.pause(); step(1000);
+    expect(engine.getSnapshot().player).toEqual(before);
+    engine.resume();
+    for (let i = 0; i < 6; i++) step(100);
+    expect(engine.getSnapshot().player).toMatchObject({ isDashing: false });
+    expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBeCloseTo(.3);
+    expect(engine.dash()).toBe(false);
+    for (let i = 0; i < 3; i++) step(100);
+    expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBe(0);
+    expect(engine.dash()).toBe(true);
+    engine.start(); expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBe(0);
+  });
   it.each(['default', 'aegis', 'velocity'])('keeps the capped aircraft speed after pause deductions (%s)', (aircraftId) => {
     const { engine } = createRuntimeEngine({ initialScore: 200, aircraftId, guestMode: true });
     engine.start();

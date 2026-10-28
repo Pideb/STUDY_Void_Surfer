@@ -5,6 +5,7 @@ import {
   BOSS_LASER_UNLOCK_NUMBER,
   BOSS_PATTERN_PREVIEW_SECONDS,
   DASH_DURATION_SECONDS,
+  DASH_COOLDOWN_SECONDS,
   FLIGHT_TRAIL_LIFETIME_SECONDS,
   GAP_CONTINUITY_SCORE,
   GRAVITY,
@@ -605,7 +606,7 @@ export function createGameEngine(deps = {}) {
     };
   }
 
-  function updateBossAttack(deltaSeconds) {
+  function updateBossAttack(deltaSeconds, protectedSeconds = 0) {
     if (bossEncounter?.counterattack) {
       const counter = bossEncounter.counterattack;
       counter.elapsedSeconds = Math.min(counter.durationSeconds, counter.elapsedSeconds + deltaSeconds);
@@ -620,7 +621,9 @@ export function createGameEngine(deps = {}) {
     if (!bossEncounter?.attack) return;
     const attack = bossEncounter.attack;
     if (attack.type === 'volley') {
-      updateSignatureAttack(attack, deltaSeconds, player);
+      updateSignatureAttack(attack, deltaSeconds, player, {
+        projectileImmune: invincibilityEnabled, immuneSeconds: protectedSeconds,
+      });
       if (attack.hitPlayer && !invincibilityEnabled) { stop('projectile'); return; }
       if (attack.state === 'resolved') {
         bossEncounter.attack = null;
@@ -785,12 +788,13 @@ export function createGameEngine(deps = {}) {
         if (obstacle.breakEffect.remainingSeconds <= 0) delete obstacle.breakEffect;
       }
     }
+    const protectedSeconds = player.isDashing ? player.dashRemainingSeconds : 0;
     advanceDash(player, deltaSeconds);
     if (bossEncounter?.hitEffect) {
       bossEncounter.hitEffect.remainingSeconds = Math.max(0, bossEncounter.hitEffect.remainingSeconds - deltaSeconds);
       if (bossEncounter.hitEffect.remainingSeconds === 0) bossEncounter.hitEffect = null;
     }
-    updateBossAttack(deltaSeconds);
+    updateBossAttack(deltaSeconds, protectedSeconds);
     if (deathEffect) return;
     if (feedbackEffect) {
       feedbackEffect.remainingSeconds = Math.max(0, feedbackEffect.remainingSeconds - deltaSeconds);
@@ -833,6 +837,7 @@ export function createGameEngine(deps = {}) {
   function dash() {
     if (state !== GAME_STATES.PLAYING || deathEffect) return false;
     if (challenge?.active || bossEncounter?.roar) return false;
+    if (player.dashCooldownRemainingSeconds > 0) return false;
     const difficulty = getCurrentDifficulty();
     const target = obstacles
       .filter((obstacle) => isDashObstacle(obstacle) && !obstacle.barrierBroken && !obstacle.passed
@@ -848,6 +853,7 @@ export function createGameEngine(deps = {}) {
       windowSeconds: difficulty.timingWindowSeconds,
     });
     startDash(player, DASH_DURATION_SECONDS, isSpecialDash ? target.id : null, isSpecialDash ? 'special' : 'normal');
+    player.dashCooldownRemainingSeconds = DASH_COOLDOWN_SECONDS;
     if (isSpecialDash && target.kind === 'hybrid') {
       target.barrierBroken = true;
       target.barrierBreakY = player.y;

@@ -1,5 +1,5 @@
 import {
-  DASH_DURATION_SECONDS, WORLD_HEIGHT, WORLD_WIDTH,
+  DASH_DURATION_SECONDS, DASH_COOLDOWN_SECONDS, WORLD_HEIGHT, WORLD_WIDTH,
 } from './constants.js';
 import {
   AIRCRAFT_VISUALS,
@@ -936,6 +936,18 @@ function drawChallengeEffects(ctx, challenge, feedbackEffect, player = null) {
   ctx.restore();
 }
 
+export function drawDashCooldown(ctx, player) {
+  const remaining = player?.dashCooldownRemainingSeconds ?? 0;
+  if (!(remaining > 0)) return;
+  const progress = 1 - Math.max(0, Math.min(1, remaining / DASH_COOLDOWN_SECONDS));
+  const radius = Math.max(38, player.width * .9 + 8);
+  ctx.save(); ctx.lineWidth = 2; ctx.strokeStyle = '#ffffff';
+  ctx.globalAlpha = .22; ctx.beginPath(); ctx.arc(player.x, player.y, radius, 0, Math.PI * 2); ctx.stroke();
+  ctx.globalAlpha = .95; ctx.shadowColor = '#ffffff'; ctx.shadowBlur = 6;
+  ctx.beginPath(); ctx.arc(player.x, player.y, radius, -Math.PI / 2, -Math.PI / 2 + progress * Math.PI * 2); ctx.stroke();
+  ctx.restore();
+}
+
 export function createRenderer(canvas, { visualAssets = null, reducedMotion = null } = {}) {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
@@ -996,6 +1008,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
     }
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player);
+    if (!snapshot.deathEffect) drawDashCooldown(ctx, snapshot.player);
     // Keep essential warning geometry readable above failure obstruction.
     if (snapshot.feedbackEffect) {
       drawLaser(ctx, snapshot.boss?.attack);

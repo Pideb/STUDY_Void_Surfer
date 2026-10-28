@@ -93,9 +93,12 @@ export function startDash(player, durationSeconds = DASH_DURATION_SECONDS, obsta
 }
 
 export function advanceDash(player, deltaSeconds) {
-  if (!player.isDashing || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) {
+  if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) {
     return player;
   }
+  player.dashCooldownRemainingSeconds = Math.max(0, (player.dashCooldownRemainingSeconds ?? 0) - deltaSeconds);
+  if (player.dashCooldownRemainingSeconds < 1e-9) player.dashCooldownRemainingSeconds = 0;
+  if (!player.isDashing) return player;
 
   player.dashRemainingSeconds = Math.max(0, (player.dashRemainingSeconds ?? 0) - deltaSeconds);
   if (player.dashRemainingSeconds === 0) {

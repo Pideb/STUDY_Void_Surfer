@@ -61,6 +61,16 @@ describe('mobile and keyboard controls', () => {
     space.click();
     window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true, cancelable: true }));
     expect(engine.dash).toHaveBeenCalledTimes(2);
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', repeat: true, bubbles: true, cancelable: true }));
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true, cancelable: true }));
+    expect(engine.dash).toHaveBeenCalledTimes(2);
+    window.dispatchEvent(new Event('blur'));
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', repeat: true, bubbles: true, cancelable: true }));
+    expect(engine.dash).toHaveBeenCalledTimes(2);
+    window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Space', bubbles: true }));
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Space', bubbles: true, cancelable: true }));
+    expect(engine.dash).toHaveBeenCalledTimes(3);
+    window.dispatchEvent(new KeyboardEvent('keyup', { code: 'Space', bubbles: true }));
     expect(audioManager.play).not.toHaveBeenCalledWith('dash');
 
     engine.dash.mockReturnValue(true);

@@ -1,6 +1,6 @@
 # Task: T01 Dash and Projectile Lifecycle
 
-## Status: in_progress
+## Status: done
 
 ## Goal
 Make each fresh Space press activate at most one dash with a visible1s cooldown, protect only projectile contacts for0.6s, and let missed/immune shots leave the viewport naturally.
@@ -33,9 +33,9 @@ updateSignatureAttack(attack: Volley, deltaSeconds: number, player?: Player|null
 - Tests: cooldown repeated input cannot extend effect; expires1s,0.6s protection; pause/challenge/restart; trajectory continues behind player; high-delta swept contacts and immunity expiry; keyboard hold across cooldown/challenge/menu/blur and touch duplicate events; renderer ring progression disappears at0. Existing tests expecting immediate repeat calls must simulate fresh release/elapsed time.
 
 ## Acceptance Criteria
-- [ ] Accepted dash starts1s ring; blocked attempts have no effects or buffered action.
-- [ ] Exactly one activation per physical press on keyboard/touch; lifecycle recovery works.
-- [ ] Projectile-only immunity has no delayed death; misses/immune shots leave screen with finite completion.
+- [x] Accepted dash starts1s ring; blocked attempts have no effects or buffered action.
+- [x] Exactly one activation per physical press on keyboard/touch; lifecycle recovery works.
+- [x] Projectile-only immunity has no delayed death; misses/immune shots leave screen with finite completion.
 
 ## Validation
 - `npx vitest run tests/game/player.test.js tests/game/collision.test.js tests/game/boss-signatures.test.js tests/game/game-engine.test.js tests/game/renderer.test.js tests/integration/mobile-input.test.js tests/ui/app-controller.test.js`
@@ -54,6 +54,6 @@ Task: T01-dash-projectiles
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

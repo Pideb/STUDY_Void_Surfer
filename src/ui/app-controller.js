@@ -119,6 +119,9 @@ export function createAppController(deps) {
   let rankingRequestId = 0;
   let rankingPersonalRequestId = 0;
   let adminTriggerElement = null;
+  let spaceHeld = false;
+  const handleKeyUp = (event) => { if (event.code === 'Space') spaceHeld = false; };
+  const handleBlur = () => { spaceHeld = false; };
 
   function paint() {
     rankingObserver?.disconnect();
@@ -908,6 +911,11 @@ export function createAppController(deps) {
   }
 
   function handleKeyDown(event) {
+    if (event.code === 'Space') {
+      const repeated = spaceHeld || event.repeat;
+      spaceHeld = true;
+      if (repeated) { if (state.screen === 'playing') event.preventDefault(); return; }
+    }
     if (state.adminDialogOpen) {
       const dialog = root.querySelector('[role="dialog"]');
       const focusable = [...(dialog?.querySelectorAll('button, input, [tabindex]:not([tabindex="-1"])') ?? [])]
@@ -962,6 +970,8 @@ export function createAppController(deps) {
     };
     pointerTarget?.addEventListener('pointerdown', handlePointerDown);
     globalThis.window?.addEventListener('keydown', handleKeyDown);
+    globalThis.window?.addEventListener('keyup', handleKeyUp);
+    globalThis.window?.addEventListener('blur', handleBlur);
     try {
       unsubscribeAuth = authService.subscribeToAuth((user) => {
         if (!user) {
@@ -1008,6 +1018,8 @@ export function createAppController(deps) {
     pointerTarget = null;
     handlePointerDown = null;
     globalThis.window?.removeEventListener('keydown', handleKeyDown);
+    globalThis.window?.removeEventListener('keyup', handleKeyUp);
+    globalThis.window?.removeEventListener('blur', handleBlur);
     unsubscribeAuth?.();
     renderer.destroy?.();
     audioManager.destroy?.();

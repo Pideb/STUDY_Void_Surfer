@@ -2,7 +2,6 @@ import {
   PLAYER_FRONT_HITBOX_TRIM,
   PLAYER_START_X,
   PLAYER_START_Y,
-  PLAYER_WIDTH,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants.js';
@@ -127,7 +126,7 @@ function contactTime(from, to, bounds) {
 }
 
 function pointAtX(projectile, x) {
-  const progress = clamp((projectile.bossX - x) / (projectile.bossX - projectile.targetX), 0, 1);
+  const progress = Math.max(0, (projectile.bossX - x) / (projectile.bossX - projectile.targetX));
   const position = progress * PATH_SEGMENTS;
   const index = Math.min(PATH_SEGMENTS - 1, Math.floor(position));
   const from = projectile.telegraphPoints[index];
@@ -136,8 +135,7 @@ function pointAtX(projectile, x) {
 }
 
 function moveProjectile(projectile, flightSeconds, bounds) {
-  const exitX = Math.max(-HALF_WIDTH,
-    (bounds?.left ?? projectile.targetX - PLAYER_WIDTH / 2) - HALF_WIDTH);
+  const exitX = -HALF_WIDTH;
   const nextX = Math.min(projectile.x, Math.max(exitX, projectile.bossX - projectile.speed * flightSeconds));
   projectile.previousX = projectile.x;
   projectile.previousY = projectile.y;
@@ -171,15 +169,17 @@ function moveProjectile(projectile, flightSeconds, bounds) {
   if (projectile.x <= exitX + EPSILON) projectile.state = 'resolved';
 }
 
-/** Update in place; engine owns pause/roar freezing and admin damage immunity. */
-export function updateSignatureAttack(attack, deltaSeconds, player = null) {
+/** Split a frame at protection expiry, so immunity never extends past its clock. */
+export function updateSignatureAttack(attack, deltaSeconds, player = null, { projectileImmune = false, immuneSeconds = 0 } = {}) {
   if (!attack || attack.state === 'resolved' || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) {
     return attack;
   }
   // Cap before adding to avoid overflow and ensure the final tick launches even
   // the last delayed shot before resolving, rather than skipping its collision.
+  const previousElapsed = attack.elapsedSeconds;
   attack.elapsedSeconds += Math.min(deltaSeconds, Math.max(0, attack.durationSeconds - attack.elapsedSeconds));
-  const bounds = playerBounds(player);
+  const bounds = projectileImmune ? null : playerBounds(player);
+  const immuneUntil = previousElapsed + Math.min(deltaSeconds, Math.max(0, finite(immuneSeconds, 0)));
   for (const projectile of attack.projectiles) {
     if (projectile.state === 'resolved') continue;
     projectile.elapsedSeconds = Math.max(0, attack.elapsedSeconds - projectile.delaySeconds);
@@ -187,7 +187,13 @@ export function updateSignatureAttack(attack, deltaSeconds, player = null) {
     if (projectile.chargeRemainingSeconds > EPSILON) continue;
     projectile.chargeRemainingSeconds = 0;
     projectile.state = 'flying';
-    moveProjectile(projectile, Math.max(0, projectile.elapsedSeconds - CHARGE_SECONDS), bounds);
+    const launchAt = projectile.delaySeconds + CHARGE_SECONDS;
+    if (immuneUntil > previousElapsed && immuneUntil >= launchAt) {
+      moveProjectile(projectile, Math.max(0, Math.min(attack.elapsedSeconds, immuneUntil) - launchAt), null);
+    }
+    if (projectile.state !== 'resolved' && (immuneUntil < attack.elapsedSeconds || immuneUntil <= previousElapsed)) {
+      moveProjectile(projectile, Math.max(0, projectile.elapsedSeconds - CHARGE_SECONDS), bounds);
+    }
     attack.hitPlayer ||= projectile.hitPlayer;
   }
   attack.state = attack.projectiles.every((projectile) => projectile.state === 'resolved')

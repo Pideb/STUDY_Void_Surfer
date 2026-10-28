@@ -16,6 +16,7 @@ export function createPlayer() {
     height: PLAYER_HEIGHT,
     isDashing: false,
     dashRemainingSeconds: 0,
+    dashCooldownRemainingSeconds: 0,
     dashTargetId: null,
     dashKind: 'none',
   };

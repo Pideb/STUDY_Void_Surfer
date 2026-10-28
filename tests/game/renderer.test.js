@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../../src/game/constants.js';
 import {
-  createRenderer, drawBoss, drawDashShockRing, drawDashTrail, drawObstacle, drawShip, drawShipDeathEffect, drawShipExhaust,
+  createRenderer, drawBoss, drawDashCooldown, drawDashShockRing, drawDashTrail, drawObstacle, drawShip, drawShipDeathEffect, drawShipExhaust,
 } from '../../src/game/renderer.js';
 import { drawLaser } from '../../src/game/laser-renderer.js';
 import { createSingleLaser, createQuarterLaser, getLaserFrontX, updateLaser } from '../../src/game/boss-attacks.js';
@@ -40,6 +40,15 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('fills a white recharge arc around the enlarged ship and hides it when ready', () => {
+    const context = createContext(), player = { x: 240, y: 270, width: 36, dashCooldownRemainingSeconds: .5 };
+    drawDashCooldown(context, player);
+    expect(context.arc).toHaveBeenCalledWith(240, 270, 40.4, -Math.PI / 2, Math.PI / 2);
+    expect(context.strokeStyle).toBe('#ffffff');
+    context.arc.mockClear(); drawDashCooldown(context, { ...player, dashCooldownRemainingSeconds: 0 });
+    expect(context.arc).not.toHaveBeenCalled();
+    expect(context.strokeRect).not.toHaveBeenCalled();
+  });
   it('renders each live projectile of the stage volley and the player counterattack', () => {
     const canvas = document.createElement('canvas'), context = createContext();
     canvas.getContext = () => context;
