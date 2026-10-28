@@ -1,17 +1,23 @@
 # Current Context
 
 ## Active Plan
-[Menu Music and Manual Boss Laser](./plans/2026-10-28-menu-music-manual-fire.md)
+None. 2026-10-28-menu-music-manual-fire complete.
 
 ## Active Phase
-P01-runtime
+None.
 
 ## Active Task
-[Next task](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T06-integration-review.md)
+None. All six Tasks complete.
 
 ## Status
-- T05 completed and verified; commit 8d0ea73.
-- Progress 5/6. User authorized sequential completion.
+- T01 independent weapon/HP: 033ad4e.
+- T02 projectile phases: 3b37d4d.
+- T03 controls/HUD/shot feedback: 8422e0d.
+- T04 approved 5-second penalties: 811b81b.
+- T05 ORBIT RUN menu loop: 8d0ea73.
+- T06 full regression/renderer verification: 1361098.
+- Progress 6/6; 46 files / 597 tests, build/config/whitespace checks passed.
+- [Validation report and actual-renderer evidence](./validation/2026-10-28-menu-music-manual-fire/report.md).
 
 ## Next Step (IMPORTANT)
-Read next task blueprint and continue implementation, validation and commit.
+Playtest using npm run dev. Boss laser: 10s active-flight recharge, one shot stored, Shift/Ctrl or separate mobile fire button; .2s charge + .1s recovery while enemies continue. Three hits clear. Both failure penalties last5s. No deployment/DB change performed; Azure group access remains separate deferred work.

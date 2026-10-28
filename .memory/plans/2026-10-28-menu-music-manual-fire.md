@@ -1,5 +1,8 @@
 # Plan: Menu Music and Manual Boss Laser
 
+## Status
+Completed 2026-10-28: 6/6 Tasks. Final verification commit `1361098`; 46 test files / 597 tests, build, config and whitespace checks passed. [Evidence](../validation/2026-10-28-menu-music-manual-fire/report.md).
+
 ## Goal
 Implement selected ORBIT RUN menu music, independent10s one-shot weapon and3-hit boss HP, single wall shots plus wall-free1..3 signatures,5s approved ink/glitch, desktop/touch controls and actual renderer verification.
 
@@ -9,7 +12,7 @@ Implement selected ORBIT RUN menu music, independent10s one-shot weapon and3-hit
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | in_progress | Six sequential runtime/audio/validation tasks | [P01](../phases/2026-10-28-menu-music-manual-fire/P01-runtime/phase.md) |
+| P01 | done | Six sequential runtime/audio/validation tasks | [P01](../phases/2026-10-28-menu-music-manual-fire/P01-runtime/phase.md) |
 
 ## Order and rationale
 1. Weapon/HP state first so UI consumes a real API.

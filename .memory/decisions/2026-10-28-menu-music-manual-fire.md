@@ -1,7 +1,7 @@
 # Decisions: Menu Music and Manual Boss Laser
 
 - Date: 2026-10-28 (Asia/Seoul)
-- Status: Confirmed — interview complete; implementation plan not yet created.
+- Status: Implemented and verified 2026-10-28. All six Tasks complete; final implementation/validation commit `1361098`. Interview decisions below preserve the selected behavior.
 - Feature name: `menu-music-manual-fire`
 - Review sources: [approved previews and interview history](../previews/2026-10-28-menu-music-manual-fire/review-notes.md).
 - Prior completed plan: `2026-10-28-dash-boss-flow-refinements`. These decisions supersede only the affected mechanics.
@@ -81,5 +81,5 @@
 - Azure deployment remains waiting for company resource-group access. This interview does not create a deployment plan or change Supabase.
 
 ## Interview Result
-- All requested design choices above are resolved. Next step: `/memory-plan menu-music-manual-fire`, followed by the sequential execution workflow when requested.
-- This document records decisions only. Production code is not yet changed and `.memory/current.md` has no active implementation task for this feature.
+- All requested design choices above were resolved before planning. The user then authorized both planning and sequential execution through the final Task.
+- Production implementation is complete. `.memory/current.md` has no remaining active Task. See [verification report](../validation/2026-10-28-menu-music-manual-fire/report.md); physical playtesting remains the next feedback step.
