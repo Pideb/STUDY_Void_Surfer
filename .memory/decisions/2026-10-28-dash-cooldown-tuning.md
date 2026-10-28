@@ -1,7 +1,7 @@
 # Decisions: Dash Cooldown Tuning
 
 - Date: 2026-10-28 (Asia/Seoul)
-- Status: Confirmed
+- Status: Implemented and verified; commit 86e460e
 
 ## D01. Shorter Space cooldown
 - **Chosen**: User explicitly confirmed0.7 seconds from accepted activation, replacing1.0s.

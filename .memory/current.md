@@ -1,16 +1,19 @@
 # Current Context
 
 ## Active Plan
-[Dash Cooldown Tuning](./plans/2026-10-28-dash-cooldown-tuning.md)
+None. [Dash Cooldown Tuning](./plans/2026-10-28-dash-cooldown-tuning.md) completed2026-10-28.
 
 ## Active Phase
-[P01 Tuning](./phases/2026-10-28-dash-cooldown-tuning/P01-tuning/phase.md)
+None. P01-tuning1/1 complete.
 
 ## Active Task
-[T01 Shorter Space cooldown](./phases/2026-10-28-dash-cooldown-tuning/P01-tuning/T01-cooldown.md)
+None.
 
 ## Status
-- User approved0.7s; single Task ready to execute.
+- Space cooldown0.7s; implementation commit 86e460e.
+- Dash/projectile protection0.6s, special passage spacing1.2s and timing windows unchanged.
+- Existing4 focused test files /128 tests, production build and whitespace checks passed.
+- Previous menu/manual-laser plan remains complete: d6ba5c9.
 
 ## Next Step (IMPORTANT)
-Read T01, change shared cooldown and existing assertions/docs, validate and commit.
+Playtest with npm run dev. No remaining Task. Azure deployment remains deferred separately; no DB/auth change.
