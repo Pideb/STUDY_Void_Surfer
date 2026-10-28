@@ -1,22 +1,17 @@
 # Current Context
 
 ## Active Plan
-None. 2026-10-28-central-hitbox complete.
+[Cooldown, Speed and Boss Tuning](./plans/2026-10-29-cooldown-speed-boss-tuning.md)
 
 ## Active Phase
-None.
+[P01 Runtime](./phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/phase.md)
 
 ## Active Task
-None. All five Tasks complete.
+[T01 Fixed Speed](./phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/T01-fixed-speed.md)
 
 ## Status
-- T01 common16px damage geometry: 6e1e3f0.
-- T02 independent56x36 activation / interior line lasers: 9fbab6b.
-- T03 aircraft caps / AEGIS three-damage laser: d33201c.
-- T04 viewport-resolution rendering: 3dc4b5c.
-- T05 low-FPS wall sweep / full regression / actual renders: b2ece8b.
-- Progress5/5;48 test files /621 tests, production build, config and whitespace checks passed.
-- [Validation report and actual-screen evidence](./validation/2026-10-28-central-hitbox/report.md).
+- Planning complete0/4; user authorized sequential implementation through completion.
+- Prior central-hitbox plan complete at77228b1; preserve16px damage/56x36 activation and high-resolution renderer.
 
 ## Next Step (IMPORTANT)
-Playtest with npm run dev:16x16 damage body,56x36 special success,70-point VELOCITY speed cap/100 others, AEGIS one laser clears3HP, line lasers exclude top/bottom10%, viewport-sized sharp rendering (DPR<=2,4K pixel ceiling). No remaining Task. Azure deployment remains deferred separately; no DB/auth change.
+ReadT01 and implement fixed+10 actual speed per10 points with shared100-point cap. Then followT02..T04 sequentially, validate and commit each. Azure deployment remains deferred; no DB/auth changes.
