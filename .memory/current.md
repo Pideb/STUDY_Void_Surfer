@@ -7,10 +7,10 @@
 [P01 Runtime](./phases/2026-10-28-dash-boss-flow-refinements/P01-runtime/phase.md)
 
 ## Active Task
-[T01 Dash and Projectile Lifecycle](./phases/2026-10-28-dash-boss-flow-refinements/P01-runtime/T01-dash-projectiles.md)
+[T02-barrier-spacing](./phases/2026-10-28-dash-boss-flow-refinements/P01-runtime/T02-barrier-spacing.md)
 
 ## Status
-- Planning complete. User authorizes sequential plan and execution. 0/5 done.
+- 1/5 done. Latest completed task: T01-dash-projectiles (`ca6a8de`).
 
 ## Next Step (IMPORTANT)
-Read T01 blueprint and implement dash cooldown/input/renderer/projectile lifetime; validate and commit before advancing.
+Read active blueprint, implement and validate, then commit and advance.

@@ -6,6 +6,9 @@ import {
   BOSS_PATTERN_PREVIEW_SECONDS,
   DASH_DURATION_SECONDS,
   DASH_COOLDOWN_SECONDS,
+  SPECIAL_RESPONSE_INTERVAL_SECONDS,
+  OBSTACLE_WIDTH,
+  SPECIAL_OBSTACLE_WIDTH,
   FLIGHT_TRAIL_LIFETIME_SECONDS,
   GAP_CONTINUITY_SCORE,
   GRAVITY,
@@ -48,6 +51,7 @@ import {
 } from './difficulty.js';
 import { createObstacle, getDashBarrierBounds, isDashObstacle, updateObstacle } from './obstacles.js';
 import { advanceScore } from './score.js';
+import { getBarrierSpeedBound } from './barrier-spacing.js';
 import { getBossGeometry } from './boss-geometry.js';
 import { createSignatureAttack, updateSignatureAttack } from './boss-signatures.js';
 import { createPortalTransition, advancePortalTransition } from './portal-transition.js';
@@ -128,6 +132,8 @@ export function createGameEngine(deps = {}) {
   let nextAttackId = 1;
   let currentScrollSpeed = null;
   let speedTransition = null;
+  let totalScrollDistancePx = 0;
+  let lastSpecialBarrierWorldX = null;
 
   function getScore() {
     return scoreSession.score;
@@ -318,6 +324,22 @@ export function createGameEngine(deps = {}) {
     let kind = forceNormal ? 'normal'
       : forceSpecial || shouldSpawnSpecial(rng, difficulty) ? 'special' : 'normal';
     if (kind === 'special' && firstBossCleared && safeRandom(rng) < 0.5) kind = 'hybrid';
+    if (kind !== 'normal' && lastSpecialBarrierWorldX !== null) {
+      const barrierX = getDashBarrierBounds({ x: OBSTACLE_SPAWN_X, kind,
+        width: kind === 'hybrid' ? OBSTACLE_WIDTH : SPECIAL_OBSTACLE_WIDTH }).x;
+      const speedBound = getBarrierSpeedBound({
+        progressionScore: scoreSession.progressionScore,
+        unpassedCount: obstacles.filter(wall => !wall.passed).length,
+        distanceToPlayer: barrierX - player.x,
+        minimumScrollSpeed: Math.min(difficulty.scrollSpeed, getBaseSpeed(scoreSession.progressionScore) * .75 * aircraft.scrollSpeedMultiplier),
+        minimumSpawnInterval: WARNING_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier,
+        aircraftSpeedMultiplier: aircraft.scrollSpeedMultiplier,
+      });
+      if (totalScrollDistancePx + barrierX - lastSpecialBarrierWorldX < speedBound * SPECIAL_RESPONSE_INTERVAL_SECONDS) {
+        if (forceSpecial && !forceNormal) return false;
+        kind = 'normal';
+      }
+    }
     const movingGap = kind === 'normal' && shouldSpawnMovingGap(rng, difficulty);
     const gapMotionCycleSeconds = movingGap
       ? (difficulty.isWarning || difficulty.isBoss
@@ -346,12 +368,14 @@ export function createGameEngine(deps = {}) {
     });
 
     obstacles.push(obstacle);
+    if (isDashObstacle(obstacle)) lastSpecialBarrierWorldX = totalScrollDistancePx + getDashBarrierBounds(obstacle).x;
     previousBaseGapCenter = obstacle.baseGapCenter;
     if (session) {
       session.spawnedCount += 1;
       if (isDashObstacle(obstacle)) session.specialObstacleIds.add(obstacle.id);
       if (isDashObstacle(obstacle)) session.specialSpawnedCount += 1;
     }
+    return true;
   }
 
   function updateSpawning(deltaSeconds, difficulty) {
@@ -363,7 +387,11 @@ export function createGameEngine(deps = {}) {
     while (spawnAccumulatorSeconds >= interval
       && (!warningSession || warningSession.spawnedCount < warningSession.targetCount)) {
       spawnAccumulatorSeconds -= interval;
-      spawnObstacle(activeDifficulty);
+      if (!spawnObstacle(activeDifficulty)) {
+        // Retain the required quota slot, but never accumulate a catch-up burst.
+        spawnAccumulatorSeconds = interval;
+        break;
+      }
       activeDifficulty = getCurrentDifficulty();
       interval = (warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
         * aircraft.spawnIntervalMultiplier;
@@ -455,6 +483,8 @@ export function createGameEngine(deps = {}) {
     nextAttackId = 1;
     currentScrollSpeed = null;
     speedTransition = null;
+    totalScrollDistancePx = 0;
+    lastSpecialBarrierWorldX = null;
     lastUpdateMs = now();
     state = GAME_STATES.PLAYING;
     startWarningIfNeeded();
@@ -788,6 +818,7 @@ export function createGameEngine(deps = {}) {
         if (obstacle.breakEffect.remainingSeconds <= 0) delete obstacle.breakEffect;
       }
     }
+    totalScrollDistancePx += difficulty.scrollSpeed * deltaSeconds;
     const protectedSeconds = player.isDashing ? player.dashRemainingSeconds : 0;
     advanceDash(player, deltaSeconds);
     if (bossEncounter?.hitEffect) {

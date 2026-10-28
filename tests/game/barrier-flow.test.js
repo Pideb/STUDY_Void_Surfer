@@ -1,0 +1,31 @@
+import {describe,it,expect} from 'vitest';
+import {createGameEngine} from '../../src/game/game-engine.js';
+import {getDashBarrierBounds,isDashObstacle} from '../../src/game/obstacles.js';
+
+describe('mandatory response spacing through real flight',()=>{
+  it.each(['default','aegis','velocity'].flatMap(aircraft=>[10,60,150].map(score=>[aircraft,score])))('%s at progression %s preserves cooldown recovery and finite quotas',(aircraftId,initialScore)=>{
+    let time=0;const rng=()=>0;
+    const engine=createGameEngine({now:()=>time,gravity:0,rng,stageRng:rng,guestMode:true,aircraftId,initialScore,invincibilityEnabled:true});
+    engine.start();let previous=engine.getSnapshot(),lastPass=null,count=0,warningVerified=false,bossVerified=false;
+    const seen=new Set();
+    for(let frame=0;frame<6000&&!bossVerified;frame++){
+      if(previous.challenge?.active)for(const key of previous.challenge.sequence)engine.handleChallengeKey(key);
+      time+=20;engine.update(time);const snapshot=engine.getSnapshot();
+      for(const wall of snapshot.obstacles.filter(isDashObstacle)){
+        const prior=previous.obstacles.find(old=>old.id===wall.id);
+        const x=getDashBarrierBounds(wall).x;
+        if(prior&&getDashBarrierBounds(prior).x>snapshot.player.x&&x<=snapshot.player.x&&!seen.has(wall.id)){
+          seen.add(wall.id);const a=getDashBarrierBounds(prior).x;
+          const passage=(time-20)+(a-snapshot.player.x)/(a-x)*20;
+          if(lastPass!==null)expect(passage-lastPass).toBeGreaterThanOrEqual(1200-.01);
+          lastPass=passage;count++;
+        }
+      }
+      if(previous.warning&&!snapshot.warning&&!previous.warning.isBoss){expect(previous.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);warningVerified=true;}
+      if(snapshot.boss?.roar){expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);expect(snapshot.warning.spawnedCount-snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);bossVerified=true;}
+      expect(snapshot.deathEffect).toBeNull();previous=snapshot;
+    }
+    expect(count).toBeGreaterThanOrEqual(5);expect(warningVerified).toBe(true);expect(bossVerified).toBe(true);
+    engine.start();expect(engine.getSnapshot().obstacles).toHaveLength(0);
+  });
+});

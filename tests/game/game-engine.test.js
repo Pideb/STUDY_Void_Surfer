@@ -708,7 +708,7 @@ describe('game engine', () => {
 
   it('runs single lasers and a stage signature before the required challenge', () => {
     const { engine, step } = createRuntimeEngine({
-      initialScore: 60, initialCompletedWarningCount: 3, rng: () => 0,
+      initialScore: 60, initialCompletedWarningCount: 3, rng: () => 0.6,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
@@ -823,11 +823,8 @@ describe('game engine', () => {
   });
 
   it('checks single lasers before a wall wave completes, starting with boss one', () => {
-    // Keep spawn/gap rolls high but make independent activation checks succeed.
-    let n = 0;
-    const runtime = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 1, rng: () => {
-      n++; return n % 9 === 0 ? .3 : .9;
-    } });
+    // Normal selections and successful activation without depending on RNG call counts.
+    const runtime = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 1, rng: () => .6 });
     runtime.engine.setInvincibilityEnabled(true); runtime.engine.start();
     let snapshot;
     for (let i = 0; i < 600; i++) {

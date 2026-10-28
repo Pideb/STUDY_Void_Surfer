@@ -1,6 +1,6 @@
 # Task: T02 Reachable Mandatory Barriers
 
-## Status: pending
+## Status: done
 
 ## Goal
 Preserve ordinary-wall cadence and mandatory special-wall counts while making consecutive required dash responses at least1.2s apart under subsequent acceleration, including VELOCITY.
@@ -32,8 +32,8 @@ getBarrierSpeedBound({ progressionScore, unpassedCount, distanceToPlayer, minimu
 - Ordinary non-special spawn intervals remain2/1.4 times aircraft factor. Do not make projectile scheduling depend on spacing readiness.
 
 ## Acceptance Criteria
-- [ ] Mandatory barriers remain>=1.2s apart across speed changes and encounter transitions.
-- [ ] Wall quotas and ordinary cadence remain valid without burst/stall or existing-wall relocation.
+- [x] Mandatory barriers remain>=1.2s apart across speed changes and encounter transitions.
+- [x] Wall quotas and ordinary cadence remain valid without burst/stall or existing-wall relocation.
 
 ## Validation
 - `npx vitest run tests/game/barrier-spacing.test.js tests/game/barrier-flow.test.js tests/game/game-engine.test.js`
@@ -52,6 +52,6 @@ Task: T02-barrier-spacing
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

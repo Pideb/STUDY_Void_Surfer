@@ -56,4 +56,4 @@ Task: T01-dash-projectiles
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed
-- commit: pending
+- commit: ca6a8de
