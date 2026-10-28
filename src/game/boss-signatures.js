@@ -1,11 +1,11 @@
 import {
-  PLAYER_FRONT_HITBOX_TRIM,
   PLAYER_START_X,
   PLAYER_START_Y,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants.js';
 import { getStageDefinition, STAGE_IDS } from './stages.js';
+import { getPlayerBounds } from './player-geometry.js';
 
 const CHARGE_SECONDS = 1.1;
 const HALF_WIDTH = 8;
@@ -97,12 +97,7 @@ export function createSignatureAttack({
 function playerBounds(player) {
   if (!player || ![player.x, player.y, player.width, player.height].every(Number.isFinite)
     || player.width <= 0 || player.height <= 0) return null;
-  const bounds = {
-    left: player.x - player.width / 2,
-    right: player.x + player.width / 2 - PLAYER_FRONT_HITBOX_TRIM,
-    top: player.y - player.height / 2,
-    bottom: player.y + player.height / 2,
-  };
+  const bounds = getPlayerBounds(player);
   return Object.values(bounds).every(Number.isFinite) && bounds.right >= bounds.left ? bounds : null;
 }
 

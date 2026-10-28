@@ -1016,7 +1016,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     if (!snapshot.deathEffect) drawDashCooldown(ctx, snapshot.player);
     if (showPlayerHitbox && !snapshot.deathEffect && snapshot.player) {
       const b = getPlayerBounds(snapshot.player);
-      if (Object.values(b).every(Number.isFinite)) {
+      if (b && Object.values(b).every(Number.isFinite)) {
         ctx.save(); ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 1.5; ctx.shadowBlur = 0;
         ctx.strokeRect(b.left, b.top, b.right - b.left, b.bottom - b.top); ctx.restore();
       }

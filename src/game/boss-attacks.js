@@ -10,12 +10,13 @@ import {
   BOSS_PROJECTILE_MAX_SPEED_MULTIPLIER,
   BOSS_PROJECTILE_MIN_SPEED_MULTIPLIER,
   BOSS_PROJECTILE_REFLECTION_WINDOW_SECONDS,
-  PLAYER_FRONT_HITBOX_TRIM,
+  PLAYER_HITBOX_SIZE,
   GRAVITY,
   MAX_FRAME_DELTA_SECONDS,
   WORLD_HEIGHT,
   WORLD_WIDTH,
 } from './constants.js';
+import { getPlayerBounds } from './player-geometry.js';
 
 function roll(rng) {
   return Math.min(0.999999, Math.max(0, Number(rng?.()) || 0));
@@ -101,12 +102,8 @@ export function getBossProjectileBodyBounds(projectile) {
 export function intersectsBossProjectilePlayer(projectile, player) {
   if (!projectile || !player) return false;
   const projectileBounds = getBossProjectileBodyBounds(projectile);
-  const playerBounds = {
-    left: player.x - player.width / 2,
-    right: player.x + player.width / 2 - PLAYER_FRONT_HITBOX_TRIM,
-    top: player.y - player.height / 2,
-    bottom: player.y + player.height / 2,
-  };
+  const playerBounds = getPlayerBounds(player);
+  if (!playerBounds) return false;
   return projectileBounds.right >= playerBounds.left
     && projectileBounds.left <= playerBounds.right
     && projectileBounds.bottom >= playerBounds.top
@@ -152,7 +149,7 @@ export function updateBossProjectile(projectile, deltaSeconds, player = null) {
       projectile.hitPlayer = true;
     } else {
       const playerLeft = player
-        ? player.x - player.width / 2
+        ? getPlayerBounds(player)?.left ?? projectile.targetX - PLAYER_HITBOX_SIZE / 2
         : projectile.targetX - 18;
       if (projectile.x + 8 < playerLeft) {
         projectile.state = 'missed';
@@ -193,7 +190,7 @@ function getProtectedGap(gap, worldHeight, margin) {
 }
 
 export function isLaserPathSafe(laserY, {
-  gapCenter, gapHeight, playerHeight = 24, thickness = BOSS_LASER_THICKNESS,
+  gapCenter, gapHeight, playerHeight = PLAYER_HITBOX_SIZE, thickness = BOSS_LASER_THICKNESS,
 } = {}) {
   if (![laserY, gapCenter, gapHeight].every(Number.isFinite) || gapHeight <= 0) return false;
   const margin = thickness / 2 + playerHeight / 2;
@@ -203,7 +200,7 @@ export function isLaserPathSafe(laserY, {
 
 export function findSafeLaserY({
   gaps, gapCenter, gapHeight, worldHeight = WORLD_HEIGHT, rng = Math.random,
-  playerHeight = 24, thickness = BOSS_LASER_THICKNESS,
+  playerHeight = PLAYER_HITBOX_SIZE, thickness = BOSS_LASER_THICKNESS,
 } = {}) {
   const margin = thickness / 2 + playerHeight / 2 + 1; // Keep strict clearance at interval edges.
   const sourceGaps = gaps ?? [{ gapCenter, gapHeight }];
@@ -247,7 +244,7 @@ export function createSingleLaser({ rng = Math.random, styleKey = 'default', lin
   if (lineCount >= 2) {
     const gaps = geometry.gaps ?? [{ gapCenter: geometry.gapCenter, gapHeight: geometry.gapHeight }];
     const second = findSafeLaserY({ ...geometry, rng, gaps: [...gaps, {
-      gapCenter: y, gapHeight: (geometry.thickness ?? BOSS_LASER_THICKNESS) + (geometry.playerHeight ?? 24) + 16,
+      gapCenter: y, gapHeight: (geometry.thickness ?? BOSS_LASER_THICKNESS) + (geometry.playerHeight ?? PLAYER_HITBOX_SIZE) + 16,
     }] });
     if (second !== null) ys.push(second);
   }
@@ -260,7 +257,7 @@ export function createSingleLaser({ rng = Math.random, styleKey = 'default', lin
 
 export function createQuarterLaser({
   rng = Math.random, worldHeight = WORLD_HEIGHT, styleKey = 'default', excludeSafeZone = null,
-  playerY = worldHeight / 2, playerHeight = 24, liftSpeed = 360, gravity = GRAVITY,
+  playerY = worldHeight / 2, playerHeight = PLAYER_HITBOX_SIZE, liftSpeed = 360, gravity = GRAVITY,
 } = {}) {
   const zones = [0, 1, 2, 3].filter((zone) => zone !== excludeSafeZone);
   const safeZone = zones[Math.floor(roll(rng) * zones.length)];

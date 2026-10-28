@@ -7,6 +7,7 @@ import {
   DASH_DURATION_SECONDS,
   DASH_COOLDOWN_SECONDS,
   SPECIAL_RESPONSE_INTERVAL_SECONDS,
+  PLAYER_HITBOX_SIZE,
   OBSTACLE_WIDTH,
   SPECIAL_OBSTACLE_WIDTH,
   FLIGHT_TRAIL_LIFETIME_SECONDS,
@@ -58,6 +59,7 @@ import { advanceScore } from './score.js';
 import { getBarrierSpeedBound } from './barrier-spacing.js';
 import { getBossGeometry } from './boss-geometry.js';
 import { advanceBossWeapon, startBossWeapon } from './boss-weapon.js';
+import { getPlayerBounds } from './player-geometry.js';
 import { createSignatureAttack, updateSignatureAttack } from './boss-signatures.js';
 import { createPortalTransition, advancePortalTransition } from './portal-transition.js';
 import { getAircraftDefinition, isAircraftUnlocked } from './aircraft.js';
@@ -570,7 +572,7 @@ export function createGameEngine(deps = {}) {
     const laser = createQuarterLaser({
       rng, styleKey: getStageDefinition(bossEncounter.stageId).laserStyle,
       excludeSafeZone: bossEncounter.previousSafeZone,
-      playerY: player.y, playerHeight: player.height, liftSpeed: LIFT_VELOCITY * aircraft.liftMultiplier,
+      playerY: player.y, playerHeight: PLAYER_HITBOX_SIZE, liftSpeed: LIFT_VELOCITY * aircraft.liftMultiplier,
       gravity: gravity * aircraft.gravityMultiplier,
     });
     bossEncounter.previousSafeZone = laser.safeZone;
@@ -641,7 +643,7 @@ export function createGameEngine(deps = {}) {
       const normalWalls = obstacles.filter((wall) => wall.kind === 'normal');
       if (normalWalls.length === 0) return;
       const laser = createSingleLaser({
-        gaps: normalWalls, playerHeight: player.height, rng,
+        gaps: normalWalls, playerHeight: PLAYER_HITBOX_SIZE, rng,
         lineCount: safeRandom(rng) < BOSS_DOUBLE_LASER_CHANCE ? 2 : 1,
         styleKey: getStageDefinition(bossEncounter.stageId).laserStyle,
       });
@@ -901,9 +903,10 @@ export function createGameEngine(deps = {}) {
       .filter((obstacle) => isDashObstacle(obstacle) && !obstacle.barrierBroken && !obstacle.passed
         && getDashBarrierBounds(obstacle).x >= player.x)
       .sort((left, right) => getDashBarrierBounds(left).x - getDashBarrierBounds(right).x)[0];
+    const bounds = getPlayerBounds(player);
     const insideGap = !target || target.kind !== 'hybrid'
-      || (player.y - player.height / 2 >= target.gapCenter - target.gapHeight / 2
-        && player.y + player.height / 2 <= target.gapCenter + target.gapHeight / 2);
+      || (bounds.top >= target.gapCenter - target.gapHeight / 2
+        && bounds.bottom <= target.gapCenter + target.gapHeight / 2);
     const isSpecialDash = target && insideGap && isSpecialTimingSuccess({
       playerX: player.x,
       wallX: getDashBarrierBounds(target).x,

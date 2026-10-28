@@ -1,6 +1,6 @@
 # Task: T01 Shared16x16 damage geometry
 
-## Status: pending
+## Status: done
 
 ## Goal
 Shared16x16 damage geometry with observable behavior defined below.
@@ -24,8 +24,8 @@ Shared16x16 damage geometry with observable behavior defined below.
 - Exercise exact boundaries and changed behavior plus existing adjacent regressions. Do not silently delete meaningful checks.
 
 ## Acceptance Criteria
-- [ ] Production behavior matches all stated values/edge cases.
-- [ ] Specified validation passes.
+- [x] Production behavior matches all stated values/edge cases.
+- [x] Specified validation passes.
 
 ## Validation
 - `npm test -- --run tests/game/collision.test.js tests/game/player.test.js tests/game/boss-attacks.test.js tests/game/boss-signatures.test.js tests/game/renderer.test.js` - each command must succeed; semicolon-separated commands run sequentially.
@@ -44,6 +44,6 @@ Task: T01-damage-geometry
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

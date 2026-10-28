@@ -6,6 +6,7 @@ import {
   PLAYER_START_Y,
   PLAYER_WIDTH,
 } from './constants.js';
+import { getPlayerBounds } from './player-geometry.js';
 
 export function createPlayer() {
   return {
@@ -37,6 +38,6 @@ export function updatePlayer(player, deltaSeconds, gravity = GRAVITY) {
 }
 
 export function isOutOfBounds(player, worldHeight) {
-  const halfHeight = player.height / 2;
-  return player.y - halfHeight <= 0 || player.y + halfHeight >= worldHeight;
+  const bounds = getPlayerBounds(player);
+  return !bounds || bounds.top <= 0 || bounds.bottom >= worldHeight;
 }

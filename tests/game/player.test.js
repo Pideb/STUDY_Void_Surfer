@@ -34,10 +34,12 @@ describe('player', () => {
   it('treats touching either boundary as out of bounds', () => {
     const player = createPlayer();
 
-    player.y = player.height / 2;
+    player.y = 8.001;
+    expect(isOutOfBounds(player, WORLD_HEIGHT)).toBe(false);
+    player.y = 8;
     expect(isOutOfBounds(player, WORLD_HEIGHT)).toBe(true);
 
-    player.y = WORLD_HEIGHT - player.height / 2;
+    player.y = WORLD_HEIGHT - 8;
     expect(isOutOfBounds(player, WORLD_HEIGHT)).toBe(true);
   });
 });

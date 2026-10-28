@@ -5,6 +5,9 @@ export const PLAYER_START_X = 240;
 export const PLAYER_START_Y = WORLD_HEIGHT / 2;
 export const PLAYER_WIDTH = 36;
 export const PLAYER_HEIGHT = 24;
+export const PLAYER_HITBOX_SIZE = 16;
+export const PLAYER_SUCCESS_WIDTH = 56;
+export const PLAYER_SUCCESS_HEIGHT = 36;
 export const PLAYER_FRONT_HITBOX_TRIM = 3;
 
 export const GRAVITY = 900;

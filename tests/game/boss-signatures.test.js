@@ -245,20 +245,20 @@ describe('swept contact, harmless misses and engine-owned immunity', () => {
     updateSignatureAttack(attack, 100, player);
     expect(attack).toMatchObject({ state: 'resolved', hitPlayer: true });
     expect(attack.projectiles[0]).toMatchObject({ state: 'resolved', hitPlayer: true });
-    expect(attack.projectiles[0].x).toBeCloseTo(263);
+    expect(attack.projectiles[0].x).toBeCloseTo(256);
   });
 
-  it('honors the front trim instead of hitting the untrimmed aircraft nose', () => {
+  it('allows nose grazes until the projectile touches the central square', () => {
     const attack = centerShot();
-    updateSignatureAttack(attack, 1.1 + (750 - 264) / 220, player);
-    expect(attack.projectiles[0].x).toBeCloseTo(264);
+    updateSignatureAttack(attack, 1.1 + (750 - 257) / 220, player);
+    expect(attack.projectiles[0].x).toBeCloseTo(257);
     expect(attack.hitPlayer).toBe(false);
     updateSignatureAttack(attack, 1.5 / 220, player);
     expect(attack.hitPlayer).toBe(true);
-    expect(attack.projectiles[0].x).toBeCloseTo(263);
+    expect(attack.projectiles[0].x).toBeCloseTo(256);
   });
 
-  it.each([[287.5, true], [287.51, false], [400, false]])(
+  it.each([[283.5, true], [283.51, false], [400, false]])(
     'uses actual vertical body contact at playerY=%s (hit=%s)', (y, hitPlayer) => {
       const attack = centerShot();
       updateSignatureAttack(attack, 100, { ...player, y });

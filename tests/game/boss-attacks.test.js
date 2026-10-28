@@ -106,8 +106,8 @@ describe('boss projectiles', () => {
       left: 222, right: 238, top: 194.5, bottom: 205.5,
     });
     expect(intersectsBossProjectilePlayer(projectile, player)).toBe(true);
-    expect(intersectsBossProjectilePlayer({ x: 230, y: 182.5 }, player)).toBe(true);
-    expect(intersectsBossProjectilePlayer({ x: 230, y: 182.49 }, player)).toBe(false);
+    expect(intersectsBossProjectilePlayer({ x: 230, y: 186.5 }, player)).toBe(true);
+    expect(intersectsBossProjectilePlayer({ x: 230, y: 186.49 }, player)).toBe(false);
   });
 
   it('marks only an actual body overlap as a hit and resolves vertical near-misses', () => {

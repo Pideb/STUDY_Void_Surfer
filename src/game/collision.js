@@ -1,23 +1,15 @@
 import {
   BOSS_LASER_THICKNESS,
   DASH_DURATION_SECONDS,
-  PLAYER_FRONT_HITBOX_TRIM,
   WORLD_HEIGHT,
 } from './constants.js';
 import { getLaserFrontX } from './boss-attacks.js';
 import { getDashBarrierBounds, isDashObstacle } from './obstacles.js';
-
-export function getPlayerBounds(player) {
-  return {
-    left: player.x - player.width / 2,
-    right: player.x + player.width / 2 - PLAYER_FRONT_HITBOX_TRIM,
-    top: player.y - player.height / 2,
-    bottom: player.y + player.height / 2,
-  };
-}
+import { getPlayerBounds } from './player-geometry.js';
+export { getPlayerBounds } from './player-geometry.js';
 
 function overlapsHorizontal(playerBounds, obstacle) {
-  return playerBounds.right > obstacle.x && playerBounds.left < obstacle.x + obstacle.width;
+  return Boolean(playerBounds && playerBounds.right > obstacle.x && playerBounds.left < obstacle.x + obstacle.width);
 }
 
 export function intersectsPlayerObstacle(player, obstacle) {
@@ -70,6 +62,7 @@ export function intersectsPlayerLaser(player, laser, worldHeight = WORLD_HEIGHT)
   }
 
   const bounds = getPlayerBounds(player);
+  if (!bounds) return false;
   if (bounds.right < getLaserFrontX(laser)) return false;
 
   if (laser.kind === 'quarter') {
@@ -79,7 +72,7 @@ export function intersectsPlayerLaser(player, laser, worldHeight = WORLD_HEIGHT)
   }
 
   const thickness = laser.thickness || BOSS_LASER_THICKNESS;
-  return (laser.ys ?? [laser.y]).some(y => Math.abs(player.y - y) <= thickness / 2 + player.height / 2);
+  return (laser.ys ?? [laser.y]).some(y => bounds.top <= y + thickness / 2 && bounds.bottom >= y - thickness / 2);
 }
 
 export function startDash(player, durationSeconds = DASH_DURATION_SECONDS, obstacleId = null, dashKind = 'normal') {

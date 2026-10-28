@@ -47,11 +47,11 @@ describe('renderer', () => {
     expect(c.lineTo).toHaveBeenCalledWith(810, 220);
     expect(player.width).toBe(36); expect(player.height).toBe(24);
   });
-  it('draws the true trimmed hitbox only with the explicit debug render option',()=>{
+  it('draws the central square only with the explicit debug render option',()=>{
     const context=createContext(),canvas=document.createElement('canvas');canvas.getContext=()=>context;
     const renderer=createRenderer(canvas),snapshot={difficulty:{},player:{x:240,y:270,width:36,height:24,velocityY:0}};
     renderer.render(snapshot);expect(context.strokeRect).not.toHaveBeenCalled();
-    renderer.render(snapshot,{showPlayerHitbox:true});expect(context.strokeRect).toHaveBeenCalledWith(222,258,33,24);
+    renderer.render(snapshot,{showPlayerHitbox:true});expect(context.strokeRect).toHaveBeenCalledWith(232,262,16,16);
     renderer.destroy();
   });
   it('draws both warned and fired laser lines using the shared right-to-left sweep', () => {

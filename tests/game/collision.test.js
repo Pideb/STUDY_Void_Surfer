@@ -77,13 +77,16 @@ describe('collision', () => {
     expect(intersectsPlayerObstacle(player, normalWall)).toBe(true);
   });
 
-  it('trims only three pixels from the forward collision edge', () => {
+  it('uses only the central16x16 square, preserving visual dimensions and harmless wing/nose grazes', () => {
     const player = createPlayer();
     const noseOnlyWall = makeObstacle({ x: 256, kind: 'special' });
-    const hullWall = makeObstacle({ x: 254, kind: 'special' });
+    const hullWall = makeObstacle({ x: 247.99, kind: 'special' });
 
     expect(intersectsPlayerObstacle(player, noseOnlyWall)).toBe(false);
     expect(intersectsPlayerObstacle(player, hullWall)).toBe(true);
+    expect(intersectsPlayerObstacle(player, makeObstacle({ x: 248, kind: 'special' }))).toBe(false);
+    expect(intersectsPlayerLaser(player, { kind: 'single', y: 287.01, thickness: 18, telegraphRemainingSeconds: 0, activeRemainingSeconds: 1 })).toBe(false);
+    expect(intersectsPlayerLaser(player, { kind: 'single', y: 287, thickness: 18, telegraphRemainingSeconds: 0, activeRemainingSeconds: 1 })).toBe(true);
     expect(player).toMatchObject({ width: 36, height: 24 });
   });
 
