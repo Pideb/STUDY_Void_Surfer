@@ -1,7 +1,7 @@
 # Decisions: Dash and Boss Flow Refinements
 
 - Date: 2026-10-28 (Asia/Seoul)
-- Status: Confirmed. Interview complete; ready for memory-plan. Production implementation has not started.
+- Status: Implemented and verified 2026-10-28. All five Tasks complete; final verification commit `407ee14`. Interview sections below preserve the approved requirements, including unrestricted projectile firing during special walls.
 - Feature name: `dash-boss-flow-refinements`
 - Prior completed plan: `2026-10-28-boss-combat-evolution`. Preserve its approved art/audio and unaffected mechanics.
 
@@ -79,4 +79,5 @@
 - User choices: cooldown1s with mandatory response spacing1.2s; projectile-only dash immunity;2s/90% laser opportunities with70/30 one/two lines; uniform1..3 volleys per WASD cycle during either ordinary or special walls, with no special-wall timing exclusion; vertically fixed/full-height approaching portal.
 - Direct requests: one activation per press, missed shots fly offscreen, admin hitbox toggle and flight continuing until actual WASD activation.
 - Derived implementation rules are labelled above and follow current timing/input/admin conventions. No additional art/audio redesign or out-of-scope system change is approved here.
-- Next step: `/memory-plan dash-boss-flow-refinements`. No implementation code was changed during the interview.
+- Interview handoff was `/memory-plan dash-boss-flow-refinements`; no implementation code changed during that interview. The user subsequently authorized planning and execution, completed in [this plan](../plans/2026-10-28-dash-boss-flow-refinements.md).
+- [Final verification report](../validation/2026-10-28-dash-boss-flow-refinements/report.md):41 files/556 passing tests, production build/config, repeated real-engine combat and actual-renderer evidence.

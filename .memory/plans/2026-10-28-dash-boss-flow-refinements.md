@@ -9,10 +9,12 @@ Implement confirmed D01..D09 in the actual runtime, including the amended rule t
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | in_progress | One runtime integration milestone, five independently validated Tasks | [P01](../phases/2026-10-28-dash-boss-flow-refinements/P01-runtime/phase.md) |
+| P01 | done | One runtime integration milestone, five independently validated Tasks | [P01](../phases/2026-10-28-dash-boss-flow-refinements/P01-runtime/phase.md) |
 
 ## Task Boundaries
 T01 connects cooldown/input/render/protection as one usable behavior. T02 establishes wall-spacing invariants before scheduler changes. T03 changes the coupled laser/volley/roar state machine together. T04 adds independent admin visualization and portal geometry. T05 validates the integrated flow and closes all pointers. Shared engine changes are sequential, not concurrent.
 
 ## Progress
-- done: 4/5. Active: T05.
+- done: 5/5. Active: none.
+- Completed 2026-10-28. Task commits: `ca6a8de`, `003c23e`, `155ea3d`, `1439fa5`, `407ee14`.
+- [Verification](../validation/2026-10-28-dash-boss-flow-refinements/report.md):556 tests passed, production build/config and actual renderer checks complete.
