@@ -423,6 +423,8 @@ export function createGameEngine(deps = {}) {
     bossEncounter.volleyBudget = 1 + Math.floor(safeRandom(rng) * 3);
     bossEncounter.volleysFired = 0;
     bossEncounter.volleyElapsedSeconds = 0;
+    bossEncounter.signatureBudget = 0;
+    bossEncounter.signaturesFired = 0;
     bossEncounter.wallSpawningPaused = false;
   }
 
@@ -585,37 +587,45 @@ export function createGameEngine(deps = {}) {
     } else beginBossRoar();
   }
 
+  function launchSignatureAttack(wallShot = false) {
+    const muzzle = getBossGeometry(bossEncounter.stageId).muzzle;
+    bossEncounter.attack = createSignatureAttack({
+      id: `boss-attack-${nextAttackId++}`, stageId: bossEncounter.stageId, bossNumber: bossEncounter.number,
+      playerX: player.x, playerY: player.y, bossX: muzzle.x, bossY: muzzle.y, rng,
+      projectileCount: wallShot ? 1 : undefined,
+    });
+    bossEncounter.wallSpawningPaused = !wallShot;
+    bossEncounter.animation = { kind: 'attack', actionId: bossEncounter.attack.id, elapsedSeconds: 0,
+      durationSeconds: bossEncounter.attack.durationSeconds };
+  }
+
   function scheduleBossAttack(deltaSeconds = 0) {
     if (!bossEncounter || bossEncounter.hp <= 0 || !warningSession?.isBoss || bossEncounter.attack || bossEncounter.roar
       || challenge?.active) return;
     if (bossEncounter.entranceRemainingSeconds > 0) return;
-    if (bossEncounter.cyclePhase === 'counterattack') {
-      if (bossEncounter.hitEffect) return;
-      advanceBossEncounter(bossEncounter, 'attack-resolved', elapsedSeconds);
-      bossEncounter.awaitingNextWave = true;
-      startNextBossWallWaveIfNeeded();
+    if (bossEncounter.cyclePhase === 'signature') {
+      if (bossEncounter.signaturesFired < bossEncounter.signatureBudget) {
+        launchSignatureAttack();
+        bossEncounter.signaturesFired++;
+      } else afterSignature();
       return;
     }
     if (bossEncounter.cyclePhase !== 'walls') return;
     bossEncounter.volleyElapsedSeconds += deltaSeconds;
     const wallsFinished = warningSession.waveComplete && obstacles.length === 0;
-    if (bossEncounter.volleysFired < bossEncounter.volleyBudget
-      && bossEncounter.volleyElapsedSeconds + 1e-9 >= BOSS_VOLLEY_INTERVAL_SECONDS) {
-      // Deliberately independent of normal/special wall presence and timing.
-      const muzzle = getBossGeometry(bossEncounter.stageId).muzzle;
-      bossEncounter.attack = createSignatureAttack({
-        id: `boss-attack-${nextAttackId++}`, stageId: bossEncounter.stageId, bossNumber: bossEncounter.number,
-        playerX: player.x, playerY: player.y, bossX: muzzle.x, bossY: muzzle.y, rng,
-      });
-      bossEncounter.volleysFired++;
-      bossEncounter.volleyElapsedSeconds = 0;
-      bossEncounter.wallSpawningPaused = false;
-      bossEncounter.animation = { kind: 'attack', actionId: bossEncounter.attack.id, elapsedSeconds: 0,
-        durationSeconds: bossEncounter.attack.durationSeconds };
+    if (wallsFinished) {
+      bossEncounter.cyclePhase = 'signature';
+      bossEncounter.signatureBudget = 1 + Math.floor(safeRandom(rng) * 3);
+      bossEncounter.signaturesFired = 1;
+      launchSignatureAttack();
       return;
     }
-    if (wallsFinished) {
-      if (bossEncounter.volleysFired === bossEncounter.volleyBudget) afterSignature();
+    if (bossEncounter.volleysFired < bossEncounter.volleyBudget
+      && bossEncounter.volleyElapsedSeconds + 1e-9 >= BOSS_VOLLEY_INTERVAL_SECONDS) {
+      // One shot during wall flight, independent of normal/special presence.
+      launchSignatureAttack(true);
+      bossEncounter.volleysFired++;
+      bossEncounter.volleyElapsedSeconds = 0;
       return;
     }
     if (!warningSession.waveComplete) {
@@ -673,7 +683,7 @@ export function createGameEngine(deps = {}) {
       if (attack.state === 'resolved') {
         bossEncounter.attack = null;
         bossEncounter.animation = { kind: 'idle', actionId: null, elapsedSeconds: 0, durationSeconds: 0 };
-        bossEncounter.wallSpawningPaused = false;
+        bossEncounter.wallSpawningPaused = bossEncounter.cyclePhase === 'signature';
       }
       return;
     }

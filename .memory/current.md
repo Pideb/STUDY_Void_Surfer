@@ -4,13 +4,14 @@
 [Menu Music and Manual Boss Laser](./plans/2026-10-28-menu-music-manual-fire.md)
 
 ## Active Phase
-[P01 Runtime](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/phase.md)
+P01-runtime
 
 ## Active Task
-[T01 Independent manual boss weapon](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T01-manual-weapon.md)
+[Next task](./phases/2026-10-28-menu-music-manual-fire/P01-runtime/T02-projectile-phases.md)
 
 ## Status
-- Plan created; user authorized automatic sequential execution of all6Tasks.
+- T01 completed and verified; commit 033ad4e.
+- Progress 1/6. User authorized sequential completion.
 
 ## Next Step (IMPORTANT)
-Read T01 and implement independent weapon/HP states, validate and commit before T02.
+Read next task blueprint and continue implementation, validation and commit.

@@ -46,4 +46,4 @@ Task: T01-manual-weapon
 ## Progress
 - [x] ?? ??
 - [x] ?? ??
-- commit: pending
+- commit: 033ad4e

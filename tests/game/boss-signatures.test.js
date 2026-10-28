@@ -22,6 +22,13 @@ function expectFiniteTree(value) {
 }
 
 describe('signature creation and six identities', () => {
+  it.each(STAGE_CATALOG.map(stage => stage.id))('%s emits only one announced projectile during wall flight', stageId => {
+    const attack = makeAttack({ stageId, projectileCount: 1 });
+    expect(attack.projectiles).toHaveLength(1);
+    expect(attack.projectiles[0].chargeRemainingSeconds).toBe(1.1);
+    expect(attack.projectiles[0].delaySeconds).toBe(0);
+    expect(attack.projectiles[0].telegraphPoints).toHaveLength(33);
+  });
   it.each(STAGE_CATALOG.map((stage, index) => [stage.id, [5, 3, 3, 3, 3, 4][index], stage.projectileStyle]))(
     '%s creates %i announced shots with its existing %s style', (stageId, count, styleKey) => {
       const attack = makeAttack({ stageId });

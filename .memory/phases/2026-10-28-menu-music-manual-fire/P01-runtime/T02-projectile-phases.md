@@ -1,6 +1,6 @@
 # Task: T02 Separate wall shots and wall-free volleys
 
-## Status: pending
+## Status: done
 
 ## Goal
 Each wall firing has one projectile; every completed wall group gets1..3 complete stage volleys with fresh warnings.
@@ -24,8 +24,8 @@ Each wall firing has one projectile; every completed wall group gets1..3 complet
 - Stage default3..5 vs single1; all6 stages complete wall-free1/2/3 repeats; no walls overlap full volley; fresh telegraph every repeat and eventual challenge even when wall budget unspent.
 
 ## Acceptance Criteria
-- [ ] Observable goal and all approved timings/counts above implemented.
-- [ ] Specified validation passes without replacing meaningful adjacent guarantees.
+- [x] Observable goal and all approved timings/counts above implemented.
+- [x] Specified validation passes without replacing meaningful adjacent guarantees.
 
 ## Validation
 - `npm test -- --run tests/game/boss-signatures.test.js tests/integration/projectile-phases.test.js` ? expected successful exit; run individual commands sequentially when separated above.
@@ -44,6 +44,6 @@ Task: T02-projectile-phases
 ```
 
 ## Progress
-- [ ] ?? ??
-- [ ] ?? ??
+- [x] ?? ??
+- [x] ?? ??
 - commit: pending

@@ -18,6 +18,8 @@ export function createBossEncounter(number, stageId = 'crystal-gates') {
     volleyBudget: 1,
     volleysFired: 0,
     volleyElapsedSeconds: 0,
+    signatureBudget: 0,
+    signaturesFired: 0,
     globalShotsRemaining: 0,
     previousSafeZone: null,
     roar: null,

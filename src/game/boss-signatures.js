@@ -49,7 +49,7 @@ function pattern(stageId, bossNumber) {
 export function createSignatureAttack({
   id = 'signature-1', stageId, bossNumber = 1,
   playerX = PLAYER_START_X, playerY = PLAYER_START_Y,
-  bossX = 750, bossY = 270, rng = Math.random,
+  bossX = 750, bossY = 270, rng = Math.random, projectileCount,
 } = {}) {
   const stage = getStageDefinition(stageId);
   const originX = clamp(finite(bossX, 750), HALF_WIDTH, WORLD_WIDTH);
@@ -58,7 +58,12 @@ export function createSignatureAttack({
   // Shift the whole fan near an edge so announced lanes remain distinct.
   const centerY = clamp(finite(playerY, PLAYER_START_Y), 168, WORLD_HEIGHT - 168);
   const number = Math.max(1, Math.floor(finite(bossNumber, 1)));
-  const projectiles = pattern(stage.id, number).map(({ offset, delay, curve }, index) => {
+  let trajectories = pattern(stage.id, number);
+  if (projectileCount === 1) {
+    const sample = typeof rng === 'function' ? finite(rng(), .5) : .5;
+    trajectories = [{ ...trajectories[Math.floor(clamp(sample, 0, .999999) * trajectories.length)], delay: 0 }];
+  }
+  const projectiles = trajectories.map(({ offset, delay, curve }, index) => {
     const sample = typeof rng === 'function' ? finite(rng(), 0.5) : 0.5;
     const projectile = {
       id: `${id}-${index + 1}`, type: 'projectile', stageId: stage.id,

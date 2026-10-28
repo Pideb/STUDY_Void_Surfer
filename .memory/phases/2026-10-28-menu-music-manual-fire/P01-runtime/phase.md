@@ -3,7 +3,7 @@
 ## Tasks
 | Task | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| T01 | pending | Independent manual boss weapon | [Blueprint](./T01-manual-weapon.md) |
+| T01 | done | Independent manual boss weapon | [Blueprint](./T01-manual-weapon.md) |
 | T02 | pending | Separate wall shots and wall-free volleys | [Blueprint](./T02-projectile-phases.md) |
 | T03 | pending | Manual-fire controls and readable firing feedback | [Blueprint](./T03-fire-ui.md) |
 | T04 | pending | Approved animated ink and glitch penalties | [Blueprint](./T04-failure-effects.md) |
@@ -11,4 +11,4 @@
 | T06 | pending | Final regression and actual renderer evidence | [Blueprint](./T06-integration-review.md) |
 
 ## Progress
-- done: 0/6 (active: T01)
+- done: 1/6 (active: T02)
