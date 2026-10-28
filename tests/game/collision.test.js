@@ -127,6 +127,12 @@ describe('collision', () => {
   });
 
   it('accepts the pre-arrival timing boundary and rejects early or passed walls', () => {
+    const timing = { playerX: 240, wallX: 328, speed: 400, windowSeconds: .15 };
+    expect(isSpecialTimingSuccess(timing)).toBe(true);
+    expect(isSpecialTimingSuccess({ ...timing, playerX: 239.999 })).toBe(false);
+    // A large front already beyond the wall is safe if the actual body is clear.
+    expect(isSpecialTimingSuccess({ ...timing, wallX: 250 })).toBe(true);
+    expect(isSpecialTimingSuccess({ ...timing, wallX: 247.999 })).toBe(false);
     expect(isSpecialTimingSuccess({
       playerX: 240,
       wallX: 300,

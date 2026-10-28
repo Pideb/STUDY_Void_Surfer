@@ -1,6 +1,6 @@
 # Task: T02 Independent success box and interior line lasers
 
-## Status: pending
+## Status: done
 
 ## Goal
 Independent success box and interior line lasers with observable behavior defined below.
@@ -24,8 +24,8 @@ Independent success box and interior line lasers with observable behavior define
 - Exercise exact boundaries and changed behavior plus existing adjacent regressions. Do not silently delete meaningful checks.
 
 ## Acceptance Criteria
-- [ ] Production behavior matches all stated values/edge cases.
-- [ ] Specified validation passes.
+- [x] Production behavior matches all stated values/edge cases.
+- [x] Specified validation passes.
 
 ## Validation
 - `npm test -- --run tests/game/collision.test.js tests/game/laser-safety.test.js tests/game/renderer.test.js tests/integration/central-hitbox.test.js` - each command must succeed; semicolon-separated commands run sequentially.
@@ -44,6 +44,6 @@ Task: T02-activation-lasers
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

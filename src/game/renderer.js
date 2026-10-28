@@ -9,6 +9,7 @@ import {
 } from './visual-theme.js';
 import { getDashBarrierBounds } from './obstacles.js';
 import { getPlayerBounds } from './collision.js';
+import { getSpecialSuccessBounds } from './player-geometry.js';
 import { drawLaser } from './laser-renderer.js';
 import { VISUAL_ASSET_MANIFEST } from './visual-assets.js';
 import { BOSS_RIGS } from './boss-rigs.js';
@@ -268,7 +269,8 @@ function getTimingGuideWidth(obstacle, difficulty) {
 function drawSpecialTimingGuide(ctx, obstacle, difficulty, width, reducedMotion = false) {
   if (width <= 0) return;
   const playerX = Number.isFinite(difficulty?.playerX) ? difficulty.playerX : 240;
-  const progress = Math.max(0, Math.min(1, 1 - (obstacle.x - playerX) / Math.max(1, width)));
+  const leadingEdge = getSpecialSuccessBounds({ x: playerX, y: 0 }).right;
+  const progress = Math.max(0, Math.min(1, 1 - (obstacle.x - leadingEdge) / Math.max(1, width)));
   const elapsed = Number.isFinite(difficulty?.elapsedSeconds) ? difficulty.elapsedSeconds : 0;
   const pulse = reducedMotion ? 0 : Math.sin(elapsed * 6) * 0.04;
   const left = obstacle.x - width;

@@ -5,6 +5,7 @@ import {
   BOSS_QUARTER_LASER_TELEGRAPH_SECONDS,
   BOSS_LASER_TELEGRAPH_SECONDS,
   BOSS_LASER_THICKNESS,
+  BOSS_LINE_LASER_EDGE_FRACTION,
   BOSS_PROJECTILE_CHARGE_SECONDS,
   BOSS_PROJECTILE_DIRECT_CHANCE,
   BOSS_PROJECTILE_MAX_SPEED_MULTIPLIER,
@@ -208,8 +209,10 @@ export function findSafeLaserY({
   if (protectedGaps.some((gap) => !gap)) return null;
   protectedGaps.sort((left, right) => left.top - right.top);
   const intervals = [];
-  let start = thickness / 2;
-  const end = worldHeight - thickness / 2;
+  const excludedEdge = worldHeight * BOSS_LINE_LASER_EDGE_FRACTION;
+  let start = excludedEdge + thickness / 2;
+  const end = worldHeight - excludedEdge - thickness / 2;
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end) return null;
   for (const gap of protectedGaps) {
     if (gap.top > start) intervals.push([start, Math.min(end, gap.top)]);
     start = Math.max(start, gap.bottom);

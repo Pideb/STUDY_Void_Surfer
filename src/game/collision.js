@@ -5,7 +5,7 @@ import {
 } from './constants.js';
 import { getLaserFrontX } from './boss-attacks.js';
 import { getDashBarrierBounds, isDashObstacle } from './obstacles.js';
-import { getPlayerBounds } from './player-geometry.js';
+import { getPlayerBounds, getSpecialSuccessBounds } from './player-geometry.js';
 export { getPlayerBounds } from './player-geometry.js';
 
 function overlapsHorizontal(playerBounds, obstacle) {
@@ -44,8 +44,11 @@ export function isSpecialTimingSuccess({ playerX, wallX, speed, windowSeconds })
     return false;
   }
 
-  const timeUntilWall = (wallX - playerX) / speed;
-  return timeUntilWall >= 0 && timeUntilWall <= windowSeconds;
+  const player = { x: playerX, y: 0 };
+  const damage = getPlayerBounds(player), success = getSpecialSuccessBounds(player);
+  return damage.right <= wallX
+    && success.right >= wallX - speed * windowSeconds
+    && success.left <= wallX;
 }
 
 export function isProjectileReflectionSuccess({ player, projectile }) {

@@ -361,7 +361,7 @@ describe('renderer', () => {
     const approaching = renderGuide(280, 0.5);
     const staticGuide = renderGuide(280, 0.5, true);
     expect(distant.bandAlpha).toBeCloseTo(0.35 + Math.sin(3) * 0.04);
-    expect(approaching.bandAlpha).toBeCloseTo(0.35 + (1 - 40 / 120) * 0.08 + Math.sin(3) * 0.04);
+    expect(approaching.bandAlpha).toBeCloseTo(0.35 + (1 - (40 - 28) / 120) * 0.08 + Math.sin(3) * 0.04);
     expect(staticGuide.bandAlpha).toBe(0.42);
     expect(staticGuide.context.shadowBlur).toBe(0);
   });

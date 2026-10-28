@@ -4,13 +4,14 @@
 [Central Hitbox, Clarity and Aircraft Balance](./plans/2026-10-28-central-hitbox.md)
 
 ## Active Phase
-[P01 Runtime](./phases/2026-10-28-central-hitbox/P01-runtime/phase.md)
+P01-runtime
 
 ## Active Task
-[T01 Shared damage geometry](./phases/2026-10-28-central-hitbox/P01-runtime/T01-damage-geometry.md)
+[Next task](./phases/2026-10-28-central-hitbox/P01-runtime/T02-activation-lasers.md)
 
 ## Status
-- Five detailed Tasks created. User authorized automatic sequential execution.
+- T01 completed and verified; commit 6e1e3f0.
+- Progress 1/5. User authorized sequential completion.
 
 ## Next Step (IMPORTANT)
-Read T01, implement shared16px body without changing sprite size, validate and commit.
+Read next task blueprint and continue implementation, validation and commit.
