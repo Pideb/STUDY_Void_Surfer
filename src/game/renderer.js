@@ -17,6 +17,7 @@ import { getBossGeometry } from './boss-geometry.js';
 import { getPreparedBossRig, getBossPose, drawBossRig, drawBossActionEffects } from './boss-motion.js';
 import { drawPortal, drawTransitionOverlay } from './portal-renderer.js';
 import { drawChallengeFailure } from './challenge-effects.js';
+import { getRenderResolution } from './render-resolution.js';
 
 function getDevicePixelRatio() {
   return Math.max(1, Number(globalThis.devicePixelRatio) || 1);
@@ -957,19 +958,38 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     throw new Error('Canvas 2D context를 사용할 수 없습니다.');
   }
 
-  let pixelRatio = 1;
+  let resolution = null;
+  let lastScene = null;
+  let destroyed = false;
+
+  function syncResolution() {
+    const bounds = canvas.getBoundingClientRect?.();
+    const next = getRenderResolution({ width: bounds?.width, height: bounds?.height, dpr: getDevicePixelRatio() });
+    const changed = !resolution || canvas.width !== next.width || canvas.height !== next.height;
+    resolution = next;
+    if (canvas.width !== next.width) canvas.width = next.width;
+    if (canvas.height !== next.height) canvas.height = next.height;
+    canvas.style.aspectRatio = 'auto';
+    if (changed) {
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.setTransform?.(next.scaleX, 0, 0, next.scaleY, 0, 0);
+    }
+    return changed;
+  }
 
   function resize() {
-    pixelRatio = getDevicePixelRatio();
-    canvas.width = WORLD_WIDTH * pixelRatio;
-    canvas.height = WORLD_HEIGHT * pixelRatio;
-    canvas.style.aspectRatio = 'auto';
-    ctx.setTransform?.(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    if (destroyed || !syncResolution() || !lastScene) return;
+    if (lastScene.kind === 'menu') renderMenuBackground();
+    else render(lastScene.snapshot, lastScene.options);
   }
 
   function render(snapshot, { showPlayerHitbox = false } = {}) {
+    if (destroyed) return;
+    syncResolution();
+    lastScene = { kind: 'game', snapshot, options: { showPlayerHitbox } };
     ctx.save();
-    ctx.setTransform?.(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    ctx.setTransform?.(resolution.scaleX, 0, 0, resolution.scaleY, 0, 0);
     const stage = snapshot.stage ?? { id: 'crystal-gates', mode: 'normal', elapsedSeconds: snapshot.elapsedSeconds ?? 0 };
     const theme = resolveStageTheme(stage.id);
     const elapsed = stage.elapsedSeconds ?? snapshot.elapsedSeconds ?? 0;
@@ -1033,8 +1053,11 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
   }
 
   function renderMenuBackground() {
+    if (destroyed) return;
+    syncResolution();
+    lastScene = { kind: 'menu' };
     ctx.save();
-    ctx.setTransform?.(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    ctx.setTransform?.(resolution.scaleX, 0, 0, resolution.scaleY, 0, 0);
     ctx.clearRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     const background = visualAssets?.get('menuBackground')
       ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.menuBackground);
@@ -1050,12 +1073,17 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
 
   resize();
   globalThis.addEventListener?.('resize', resize);
+  const resizeObserver = typeof globalThis.ResizeObserver === 'function' ? new globalThis.ResizeObserver(resize) : null;
+  resizeObserver?.observe(canvas);
 
   return {
     resize,
     render,
     renderMenuBackground,
     destroy() {
+      destroyed = true;
+      lastScene = null;
+      resizeObserver?.disconnect();
       globalThis.removeEventListener?.('resize', resize);
     },
   };

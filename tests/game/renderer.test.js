@@ -40,6 +40,30 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('uses viewport pixels, preserves logical ship coordinates, and redraws cached scenes on resize', () => {
+    const c=createContext(),canvas=document.createElement('canvas'),bounds={width:1920,height:1080};
+    canvas.getContext=()=>c;canvas.getBoundingClientRect=()=>bounds;
+    const previous=globalThis.ResizeObserver;
+    let notify;const disconnect=vi.fn();
+    globalThis.ResizeObserver=class{constructor(callback){notify=callback;}observe(){}disconnect(){disconnect();}};
+    try{
+      const renderer=createRenderer(canvas);
+      expect(canvas.width).toBe(1920);expect(canvas.height).toBe(1080);
+      expect(c.setTransform).toHaveBeenCalledWith(2,0,0,2,0,0);
+      expect(c.imageSmoothingQuality).toBe('high');
+      const widthSetter=vi.spyOn(canvas,'width','set');
+      const snapshot={player:{x:240,y:270,width:36,height:24,velocityY:0},difficulty:{}};
+      renderer.render(snapshot);renderer.render(snapshot);
+      expect(widthSetter).not.toHaveBeenCalled();expect(c.translate).toHaveBeenCalledWith(240,270);
+      bounds.width=2560;bounds.height=1440;notify();
+      expect(canvas.width).toBe(2560);expect(c.setTransform).toHaveBeenLastCalledWith(2560/960,0,0,1440/540,0,0);
+      renderer.renderMenuBackground();c.drawImage.mockClear();c.fillRect.mockClear();
+      bounds.width=1280;bounds.height=720;notify();expect(c.fillRect).toHaveBeenCalled();
+      renderer.destroy();expect(disconnect).toHaveBeenCalledOnce();
+      c.fillRect.mockClear();bounds.width=1000;notify();expect(c.fillRect).not.toHaveBeenCalled();
+      widthSetter.mockRestore();
+    }finally{globalThis.ResizeObserver=previous;}
+  });
   it('aims the manual beam at the live boss core and supports temporary ship facing', () => {
     const c = createContext(), player = { x: 240, y: 300, width: 36, height: 24, velocityY: 100, facingAngle: -.2 };
     drawShip(c, player); expect(c.rotate).toHaveBeenCalledWith(-.2);

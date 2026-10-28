@@ -1,6 +1,6 @@
 # Task: T04 Crisp viewport-sized rendering
 
-## Status: pending
+## Status: done
 
 ## Goal
 Crisp viewport-sized rendering with observable behavior defined below.
@@ -24,8 +24,8 @@ Crisp viewport-sized rendering with observable behavior defined below.
 - Exercise exact boundaries and changed behavior plus existing adjacent regressions. Do not silently delete meaningful checks.
 
 ## Acceptance Criteria
-- [ ] Production behavior matches all stated values/edge cases.
-- [ ] Specified validation passes.
+- [x] Production behavior matches all stated values/edge cases.
+- [x] Specified validation passes.
 
 ## Validation
 - `npm test -- --run tests/game/render-resolution.test.js tests/game/renderer.test.js tests/game/portal-renderer.test.js tests/app/create-app.test.js` - each command must succeed; semicolon-separated commands run sequentially.
@@ -44,6 +44,6 @@ Task: T04-viewport-resolution
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
