@@ -10,6 +10,9 @@ import {
 import { getDashBarrierBounds } from './obstacles.js';
 import { drawLaser } from './laser-renderer.js';
 import { VISUAL_ASSET_MANIFEST } from './visual-assets.js';
+import { BOSS_RIGS } from './boss-rigs.js';
+import { getBossGeometry } from './boss-geometry.js';
+import { getPreparedBossRig, getBossPose, drawBossRig, drawBossActionEffects } from './boss-motion.js';
 
 function getDevicePixelRatio() {
   return Math.max(1, Number(globalThis.devicePixelRatio) || 1);
@@ -748,20 +751,23 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
   const hitProgress = boss?.hitEffect
     ? Math.max(0, Math.min(1, boss.hitEffect.remainingSeconds / (boss.hitEffect.durationSeconds || 1)))
     : 0;
-  const idleTime = reducedMotion ? 0 : elapsedSeconds;
   const entryProgress = boss?.entranceDurationSeconds
     ? Math.max(0, Math.min(1, 1 - (boss.entranceRemainingSeconds ?? 0) / boss.entranceDurationSeconds)) : 1;
-  const eased = entryProgress * entryProgress * (3 - 2 * entryProgress);
-  const x = (WORLD_WIDTH + 200) + (842 - WORLD_WIDTH - 200) * eased
-    + (Math.sin(idleTime * 1.4) * 4 + hitProgress * 12) * eased;
-  const y = WORLD_HEIGHT / 2 + Math.sin(idleTime * 1.1) * 18;
-  drawBossIdleAccents(ctx, theme.bossStyle, x, y, idleTime, theme, reducedMotion);
-  const image = getStageAsset(visualAssets, stageId, 'boss');
+  const identity = boss?.stageId ?? stageId;
+  const geometry = getBossGeometry(identity, entryProgress);
+  const { x, y } = geometry.center;
+  const image = getStageAsset(visualAssets, identity, 'boss');
+  const rig = BOSS_RIGS[identity] ?? BOSS_RIGS['crystal-gates'];
+  const pose = getBossPose({ animation: boss?.animation, idleElapsedSeconds: elapsedSeconds, reducedMotion });
   if (image) {
     ctx.globalAlpha = 1;
-    setGlow(ctx, theme.boss, 22);
-    ctx.drawImage(image, x - 96, y - 64, 192, 128);
-    resetGlow(ctx);
+    const prepared = getPreparedBossRig(identity, image);
+    if (prepared) drawBossRig(ctx, {
+      rig, prepared, pose, box: geometry.box,
+      projectileImage: getStageAsset(visualAssets, identity, 'projectile'), reducedMotion,
+    });
+    else ctx.drawImage(image, geometry.box.x, geometry.box.y, 192, 128);
+    drawBossActionEffects(ctx, { rig, pose, box: geometry.box, action: boss?.roar, reducedMotion });
     if (hitProgress > 0) {
       ctx.globalAlpha = hitProgress * 0.65;
       ctx.strokeStyle = '#ffffff';
@@ -815,6 +821,12 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
 }
 
 function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null) {
+  if (attack?.type === 'volley') {
+    for (const projectile of attack.projectiles ?? []) {
+      if (projectile.state !== 'resolved') drawProjectile(ctx, projectile, theme, visualAssets, attack.stageId ?? stageId);
+    }
+    return;
+  }
   if (!attack || attack.type !== 'projectile') return;
   const color = theme.projectile;
   ctx.save();
@@ -889,7 +901,19 @@ function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null)
   ctx.restore();
 }
 
-function drawChallengeEffects(ctx, challenge, feedbackEffect) {
+function drawCounterattack(ctx, counterattack, theme) {
+  if (!counterattack) return;
+  const t = Math.max(0, Math.min(1, counterattack.elapsedSeconds / counterattack.durationSeconds));
+  const x = counterattack.fromX + (counterattack.toX - counterattack.fromX) * t;
+  const y = counterattack.fromY + (counterattack.toY - counterattack.fromY) * t;
+  ctx.save(); ctx.strokeStyle = '#f0fcff'; ctx.lineWidth = 5;
+  setGlow(ctx, theme.accent, 20);
+  ctx.beginPath(); ctx.moveTo(x - 42, y); ctx.lineTo(x, y); ctx.stroke();
+  ctx.fillStyle = '#ffffff'; ctx.beginPath(); ctx.arc(x, y, 6, 0, Math.PI * 2); ctx.fill();
+  ctx.restore();
+}
+
+function drawChallengeEffects(ctx, challenge, feedbackEffect, player = null) {
   if (challenge?.active) {
     ctx.save();
     ctx.fillStyle = 'rgba(2, 4, 12, 0.66)';
@@ -910,19 +934,24 @@ function drawChallengeEffects(ctx, challenge, feedbackEffect) {
   if (!feedbackEffect || feedbackEffect.remainingSeconds <= 0) return;
   const progress = Math.max(0, Math.min(1, feedbackEffect.remainingSeconds / (feedbackEffect.durationSeconds || 1)));
   ctx.save();
-  ctx.globalAlpha = progress * 0.58;
+  // Strong early obstruction, tapering without covering the player's immediate corridor.
+  ctx.globalAlpha = Math.min(.84, Math.sqrt(progress) * .84);
+  if (player) {
+    ctx.beginPath(); ctx.rect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    ctx.ellipse(player.x, player.y, 92, 64, 0, 0, Math.PI * 2); ctx.clip('evenodd');
+  }
   if (feedbackEffect.kind === 'ink') {
     ctx.fillStyle = '#05040a';
     for (let index = 0; index < 8; index += 1) {
       const x = (index * 137 + 83) % WORLD_WIDTH;
       const y = (index * 79 + 38) % WORLD_HEIGHT;
-      ctx.beginPath(); ctx.arc(x, y, 34 + (index % 3) * 12, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y, 64 + (index % 3) * 18, 0, Math.PI * 2); ctx.fill();
     }
   } else {
     ctx.fillStyle = '#bafcff';
     for (let index = 0; index < 11; index += 1) {
       const y = (index * 53 + 17) % WORLD_HEIGHT;
-      ctx.fillRect((index * 71) % 460, y, WORLD_WIDTH * (0.25 + (index % 3) * 0.12), 2 + (index % 3));
+      ctx.fillRect((index * 71) % 460, y, WORLD_WIDTH * (0.35 + (index % 3) * 0.12), 4 + (index % 3) * 2);
     }
   }
   ctx.restore();
@@ -968,6 +997,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     drawLaser(ctx, snapshot.boss?.attack);
     drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
     drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id, prefersReducedMotion);
+    drawCounterattack(ctx, snapshot.boss?.counterattack, theme);
     if (!snapshot.deathEffect) {
       drawDashTrail(ctx, snapshot.player, VISUAL_THEME);
       drawDashShockRing(ctx, snapshot.player, VISUAL_THEME);
@@ -978,7 +1008,12 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       drawShipExhaust(ctx, snapshot.player, snapshot.aircraft?.id, elapsed, snapshot.flightTrail);
       drawShip(ctx, snapshot.player, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
     }
-    drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect);
+    drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player);
+    // Keep essential warning geometry readable above failure obstruction.
+    if (snapshot.feedbackEffect) {
+      drawLaser(ctx, snapshot.boss?.attack);
+      drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, snapshot.boss?.stageId ?? stage.id);
+    }
     ctx.restore();
   }
 

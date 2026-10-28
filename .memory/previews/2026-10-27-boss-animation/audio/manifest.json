@@ -1,0 +1,68 @@
+[
+  {
+    "id": "crystal-gates",
+    "name": "수정",
+    "description": "수정판이 떨리며 퍼지는 유리 공명음",
+    "seed": 113,
+    "duration": 0.8,
+    "sampleRate": 44100,
+    "peak": 0.7200000286102295,
+    "rms": 0.19032446395865224,
+    "roughness": 0.02257852085510034
+  },
+  {
+    "id": "industrial-void",
+    "name": "산업",
+    "description": "기어 회전 · 금속 진동 · 유압 배출",
+    "seed": 227,
+    "duration": 0.8,
+    "sampleRate": 44100,
+    "peak": 0.7200000286102295,
+    "rms": 0.2655284846989003,
+    "roughness": 0.1104029666289815
+  },
+  {
+    "id": "signal-monoliths",
+    "name": "신호",
+    "description": "순차 전자 펄스 · 무선 신호 간섭음",
+    "seed": 331,
+    "duration": 0.8,
+    "sampleRate": 44100,
+    "peak": 0.7200000286102295,
+    "rms": 0.2583870158228774,
+    "roughness": 0.03927863651191219
+  },
+  {
+    "id": "gravity-well",
+    "name": "중력",
+    "description": "공간이 안으로 빨려 드는 저음과 회전 공명",
+    "seed": 449,
+    "duration": 0.8,
+    "sampleRate": 44100,
+    "peak": 0.7200000286102295,
+    "rms": 0.2969455560707906,
+    "roughness": 0.041441873501018855
+  },
+  {
+    "id": "abyssal-beast",
+    "name": "심해",
+    "description": "거친 숨과 목울림이 섞인 생물 포효",
+    "seed": 557,
+    "duration": 0.8,
+    "sampleRate": 44100,
+    "peak": 0.7200000286102295,
+    "rms": 0.25167087229397117,
+    "roughness": 0.09103596559268903
+  },
+  {
+    "id": "solar-forge",
+    "name": "태양",
+    "description": "과열되는 코어 · 점화 · 고열 분출",
+    "seed": 661,
+    "duration": 0.8,
+    "sampleRate": 44100,
+    "peak": 0.7200000286102295,
+    "rms": 0.2401648020919162,
+    "roughness": 0.14923333158319232
+  }
+]

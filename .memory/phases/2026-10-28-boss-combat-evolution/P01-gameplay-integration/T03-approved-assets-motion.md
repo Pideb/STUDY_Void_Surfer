@@ -1,6 +1,6 @@
 # Task: T03 Approved assets and articulated boss rendering
 
-## Status: pending
+## Status: done
 
 ## Goal
 Deploy the exact approved four replacement bosses/six portal ornaments/six roar sounds and make real-game bosses articulate like the accepted preview.
@@ -54,7 +54,7 @@ Task: T03-approved-assets-motion
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete — exact approved production assets, bounded articulated-rig cache, volley/counterattack/roar rendering.
+- [x] Validation passed — asset builder, 4 files / 86 tests, production build.
 - commit: pending
 

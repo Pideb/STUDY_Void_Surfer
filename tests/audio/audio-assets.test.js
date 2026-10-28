@@ -4,8 +4,23 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { MUSIC_TRACKS } from '../../src/audio/music-manifest.js';
 import { createBossEntryBuffer } from '../../src/audio/boss-entry-siren.js';
+import { ROAR_PROFILES, synthesizeBossRoar } from '../../src/audio/boss-roar-synth.js';
 
 describe('approved audio assets', () => {
+  it('reproduces all six approved .8-second boss roar recordings', () => {
+    const hashes = new Set();
+    for (const profile of ROAR_PROFILES) {
+      const wav = readFileSync(`public/assets/audio/roar/${profile.id}.wav`);
+      const samples = synthesizeBossRoar(profile.id, 44100);
+      expect(samples.length).toBe(35280);
+      expect(wav.length).toBe(44 + samples.length * 2);
+      let error = 0;
+      for (let i = 0; i < samples.length; i++) error = Math.max(error, Math.abs(samples[i] - wav.readInt16LE(44 + i * 2) / 32767));
+      expect(error).toBeLessThan(2 / 32767);
+      hashes.add(createHash('sha256').update(wav).digest('hex'));
+    }
+    expect(hashes.size).toBe(6);
+  });
   it('ships twelve distinct exact-bar stereo loops without silent tails or a large seam jump', () => {
     const hashes = new Set();
     expect(Object.keys(MUSIC_TRACKS)).toHaveLength(6);

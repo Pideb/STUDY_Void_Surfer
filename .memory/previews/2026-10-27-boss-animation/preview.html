@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VOID SURFER · 보스 동작 시안</title>
+<style>
+:root{color-scheme:dark;font-family:system-ui,'Malgun Gothic',sans-serif;background:#090d15;color:#eef4ff}*{box-sizing:border-box}body{margin:0;padding:28px}main{max-width:1120px;margin:auto}header p{color:#9cabc1;font-size:14px;line-height:1.7}h1{font-size:27px;margin:8px 0}small{letter-spacing:.17em;color:#80b9e9}nav,.controls{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}button{font:inherit;background:#172131;color:#dbe8f9;border:1px solid #35465d;border-radius:7px;padding:10px 15px;cursor:pointer}button:hover{background:#253650}button[aria-pressed=true]{background:#d5e9ff;color:#071427;border-color:#d5e9ff}button:focus-visible{outline:3px solid #5ff;outline-offset:3px}.stage{border:1px solid #344356;border-radius:12px;overflow:hidden;background:#03070e;position:relative}canvas{display:block;width:100%;aspect-ratio:16/9}#loading{position:absolute;inset:0;display:grid;place-items:center;background:#080e19d9}#loading[hidden]{display:none}.meta{display:flex;justify-content:space-between;gap:12px;margin:15px 0 0}#detail{color:#becde0;line-height:1.7;font-size:14px}.note{font-size:13px;color:#96a7be;line-height:1.7}.progress{height:3px;background:#253349}.progress div{height:100%;background:#80c9ff;width:0}footer{border-top:1px solid #263346;margin-top:20px;padding-top:12px}#status{color:#a5e5f9}label{display:flex;align-items:center;gap:7px;font-size:14px}input{accent-color:#8bd7ff}@media(max-width:650px){body{padding:14px}h1{font-size:21px}button{padding:9px 11px}.meta{flex-direction:column}}
+</style></head><body><main>
+<header><small>VOID SURFER / MOTION APPROVED · SOUND STUDY 02</small><h1>6보스 · 디자인별 울부짖음 소리</h1><p>디자인과 동작은 확정되었습니다. 산업·중력은 기존 디자인, 나머지 네 보스는 새 디자인입니다.<br>이번에는 보스마다 다른 재질과 특성을 담은 소리를 확인하세요. 게임 적용 전 미리보기입니다.</p></header>
+<nav id="bosses" aria-label="보스 선택"></nav>
+<div class="stage"><canvas id="scene" width="960" height="540" aria-label="선택한 보스의 동작 애니메이션"></canvas><div id="loading" role="status">이미지 준비 중…</div><div class="progress"><div id="progress"></div></div></div>
+<div class="meta"><strong id="name"></strong><span id="status" aria-live="polite"></span></div><p id="detail"></p>
+<div class="controls" id="actions" aria-label="동작 선택">
+<button data-action="auto" aria-pressed="true">전체 동작 반복</button><button data-action="idle" aria-pressed="false">대기</button><button data-action="attack" aria-pressed="false">충전 · 발사</button><button data-action="roar" aria-pressed="false">울부짖음</button><button data-action="hit" aria-pressed="false">피격</button>
+</div>
+<div class="controls"><button id="pause">일시정지</button><button id="sound">울부짖음 + 소리 듣기</button><label><input type="checkbox" id="actual">게임 표시 크기로 보기</label></div>
+<p class="note"><strong>소리 방향:</strong> <span id="sound-detail"></span></p>
+<div class="controls"><audio id="audio-preview" controls preload="none" aria-label="선택한 보스의 울부짖음 소리"></audio><a id="download-audio" download style="color:#b6dfff;align-self:center">WAV 파일 열기 / 저장</a></div>
+<footer class="note">자동 재생은 무음입니다. 소리는 듣기 버튼을 누를 때만 재생됩니다. 울부짖음은 0.8초 동작이며, 여기에는 WASD 입력·충돌·밸런스가 구현되어 있지 않습니다. 발사체와 반격 빛은 동작을 확인하기 위한 예시입니다.<br>파일을 다운로드하지 않아도 이 HTML을 브라우저로 열면 동작합니다.</footer>
+<script src="rigs.js"></script><script src="roar-synthesis.js"></script><script src="animation.js"></script>
+</main></body></html>

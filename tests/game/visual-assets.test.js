@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createVisualAssetLoader, VISUAL_ASSET_MANIFEST } from '../../src/game/visual-assets.js';
 
 describe('visual asset loader', () => {
@@ -6,8 +8,8 @@ describe('visual asset loader', () => {
     expect(VISUAL_ASSET_MANIFEST.menuTitle).toBe('/assets/game/menu/void-surfer-wordmark.png');
   });
 
-  it('declares a complete seven-asset pack for every stage', () => {
-    const expectedAssets = ['background', 'bossBackground', 'normalWall', 'specialWall', 'boss', 'projectile', 'laser'];
+  it('declares a complete eight-asset pack including destination ornaments for every stage', () => {
+    const expectedAssets = ['background', 'bossBackground', 'normalWall', 'specialWall', 'boss', 'projectile', 'laser', 'portalOrnaments'];
     expect(Object.keys(VISUAL_ASSET_MANIFEST.stages)).toEqual([
       'crystal-gates', 'industrial-void', 'signal-monoliths', 'gravity-well', 'abyssal-beast', 'solar-forge',
     ]);
@@ -15,6 +17,18 @@ describe('visual asset loader', () => {
       expect(Object.keys(stage)).toEqual(expectedAssets);
       for (const path of Object.values(stage)) expect(path).toMatch(/^\/assets\/game\/stages\/.+\.png$/);
     }
+  });
+
+  it('ships the exact approved assets and keeps the two original boss paths', () => {
+    const manifest = JSON.parse(readFileSync('public/assets/game/combat-assets.json', 'utf8'));
+    expect(manifest.assets).toHaveLength(16);
+    for (const entry of manifest.assets) {
+      const bytes = readFileSync(entry.file);
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(entry.sha256);
+      expect(bytes.equals(readFileSync(entry.source))).toBe(true);
+    }
+    expect(VISUAL_ASSET_MANIFEST.stages['industrial-void'].boss).toBe('/assets/game/stages/industrial-void/boss.png');
+    expect(VISUAL_ASSET_MANIFEST.stages['gravity-well'].boss).toBe('/assets/game/stages/gravity-well/boss.png');
   });
 
   it('loads each unique URL once and resolves assets by key or URL', async () => {

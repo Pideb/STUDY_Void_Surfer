@@ -1,0 +1,74 @@
+[
+  {
+    "id": "crystal-gates",
+    "width": 960,
+    "height": 540,
+    "frames": 126,
+    "lastTime": 5.281,
+    "elapsed": 5.481,
+    "sampled": true,
+    "mean": 27.925990226337568,
+    "variance": 1325.2968845218656,
+    "error": null
+  },
+  {
+    "id": "industrial-void",
+    "width": 960,
+    "height": 540,
+    "frames": 126,
+    "lastTime": 5.284392,
+    "elapsed": 5.493,
+    "sampled": true,
+    "mean": 26.09715792181069,
+    "variance": 989.093076627653,
+    "error": null
+  },
+  {
+    "id": "signal-monoliths",
+    "width": 960,
+    "height": 540,
+    "frames": 126,
+    "lastTime": 5.279885,
+    "elapsed": 5.493,
+    "sampled": true,
+    "mean": 26.563400205761326,
+    "variance": 1143.191582265773,
+    "error": null
+  },
+  {
+    "id": "gravity-well",
+    "width": 960,
+    "height": 540,
+    "frames": 125,
+    "lastTime": 5.32515,
+    "elapsed": 5.514,
+    "sampled": true,
+    "mean": 26.639724794238813,
+    "variance": 1095.3051940600772,
+    "error": null
+  },
+  {
+    "id": "abyssal-beast",
+    "width": 960,
+    "height": 540,
+    "frames": 121,
+    "lastTime": 5.32419,
+    "elapsed": 5.521,
+    "sampled": true,
+    "mean": 25.933063271604897,
+    "variance": 995.4153797281621,
+    "error": null
+  },
+  {
+    "id": "solar-forge",
+    "width": 960,
+    "height": 540,
+    "frames": 125,
+    "lastTime": 5.281322,
+    "elapsed": 5.5,
+    "sampled": true,
+    "mean": 28.202417695473226,
+    "variance": 1412.074167680111,
+    "error": null
+  }
+]

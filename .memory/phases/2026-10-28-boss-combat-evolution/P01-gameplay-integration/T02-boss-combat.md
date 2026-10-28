@@ -54,5 +54,5 @@ Task: T02-boss-combat
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed — 5 files / 138 tests, including seeded retries and global sequence safety.
-- commit: pending
+- commit: 0964493
 

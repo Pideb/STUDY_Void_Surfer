@@ -7,7 +7,7 @@
 [P01 Gameplay Integration](./phases/2026-10-28-boss-combat-evolution/P01-gameplay-integration/phase.md)
 
 ## Active Task
-[T02 Stage-specific combat and safe laser scheduling](./phases/2026-10-28-boss-combat-evolution/P01-gameplay-integration/T02-boss-combat.md)
+[T03 Approved assets and articulated boss rendering](./phases/2026-10-28-boss-combat-evolution/P01-gameplay-integration/T03-approved-assets-motion.md)
 
 ## Status
 - Current plan: T01 done (`d2018b6`), 3 files / 66 tests passed. Active: T02. Older entries below are the previous plan history.
@@ -19,4 +19,4 @@
 - Approved review sources preserved in .memory/previews; production audio rebuild: `node scripts/build-game-audio.mjs`.
 
 ## Next Step (IMPORTANT)
-Read active T02 blueprint; implement signature hazards, safe laser sequences, frozen roar and visible automatic counterattack. Continue through T06 automatically as authorized.
+T02 validated with 5 files / 138 tests and committed. Read active T03 blueprint; package exact approved art/audio and connect articulated boss rendering to production. Continue through T06 automatically.

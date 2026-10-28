@@ -1,0 +1,85 @@
+{
+  "approved": "2026-10-28",
+  "assets": [
+    {
+      "source": ".memory/previews/2026-10-27-boss-redesign/crystal-gates-candidate.png",
+      "file": "public/assets/game/stages/crystal-gates/boss-evolved.png",
+      "sha256": "b2d20df2fae2b7ffdbe5931bcca0184936f1bffee10ffe9cb4717b7faa91b49b"
+    },
+    {
+      "source": ".memory/previews/2026-10-28-portal-destination-ornaments/crystal-gates-ornaments.png",
+      "file": "public/assets/game/stages/crystal-gates/portal-ornaments.png",
+      "sha256": "33abd99334d7a3d33aaf98d61614d67f28d80ae80aa193eed813ae53aa419a11"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-animation/audio/crystal-gates-roar.wav",
+      "file": "public/assets/audio/roar/crystal-gates.wav",
+      "sha256": "9467a710b3bd602e145bb05cf2bac453e3513e193cddc39cea7573d3376cc181"
+    },
+    {
+      "source": ".memory/previews/2026-10-28-portal-destination-ornaments/industrial-void-ornaments.png",
+      "file": "public/assets/game/stages/industrial-void/portal-ornaments.png",
+      "sha256": "78615c9122a11bcd6d188bb93e2eee4f8c189cfe176697824b648370f4f72c2e"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-animation/audio/industrial-void-roar.wav",
+      "file": "public/assets/audio/roar/industrial-void.wav",
+      "sha256": "d8a3d7c5a633d1c7ec21780c8a5691cd225b4c09e709d6333bbfacbc279507cf"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-redesign/signal-monoliths-candidate.png",
+      "file": "public/assets/game/stages/signal-monoliths/boss-evolved.png",
+      "sha256": "f23a58b78a5b7e74c613af08d44f3b3a1e0bfc4cb1cb0df88d4b6c32cb3f762a"
+    },
+    {
+      "source": ".memory/previews/2026-10-28-portal-destination-ornaments/signal-monoliths-ornaments.png",
+      "file": "public/assets/game/stages/signal-monoliths/portal-ornaments.png",
+      "sha256": "46a20f8435d53b6b0257aba4b5272df2517e833f7267b15b114e2d21fa0c32d6"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-animation/audio/signal-monoliths-roar.wav",
+      "file": "public/assets/audio/roar/signal-monoliths.wav",
+      "sha256": "523d91ffffac4713c33d438693d4e803c13f7be74344f8439d02f64e9c2975bc"
+    },
+    {
+      "source": ".memory/previews/2026-10-28-portal-destination-ornaments/gravity-well-ornaments.png",
+      "file": "public/assets/game/stages/gravity-well/portal-ornaments.png",
+      "sha256": "75240ebdccd2053be6aec2edb72ccc6ed1a73fcf1e15270e0fe16bcde54a6c2a"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-animation/audio/gravity-well-roar.wav",
+      "file": "public/assets/audio/roar/gravity-well.wav",
+      "sha256": "d7d4ccd6a3267f0c6a65170a22a32c8ac78d7c45c52cacaac3fb9f3cb686ba75"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-redesign/abyssal-beast-candidate.png",
+      "file": "public/assets/game/stages/abyssal-beast/boss-evolved.png",
+      "sha256": "416bcf0bb4e9b34ceba0252e1f0047e073bc76a32476ab4bbca4a5866d0b9e24"
+    },
+    {
+      "source": ".memory/previews/2026-10-28-portal-destination-ornaments/abyssal-beast-ornaments.png",
+      "file": "public/assets/game/stages/abyssal-beast/portal-ornaments.png",
+      "sha256": "deec3c435b83f37bc924b169f6ca82c1f0e575bdb1a5cda1c78ed4118c0524e3"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-animation/audio/abyssal-beast-roar.wav",
+      "file": "public/assets/audio/roar/abyssal-beast.wav",
+      "sha256": "008140e75de0daa44db421456575f7a4478c5078ee7b383c9bbe06bb0ec5384d"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-redesign/solar-forge-candidate.png",
+      "file": "public/assets/game/stages/solar-forge/boss-evolved.png",
+      "sha256": "c3dc1bbf123a160fd094d43e27dcef5b80bb0c62d290399413d807960c085100"
+    },
+    {
+      "source": ".memory/previews/2026-10-28-portal-destination-ornaments/solar-forge-ornaments.png",
+      "file": "public/assets/game/stages/solar-forge/portal-ornaments.png",
+      "sha256": "47ad152d445b3f44c152a33672c2f822075dea474fcf2a35990eb30a51290d1e"
+    },
+    {
+      "source": ".memory/previews/2026-10-27-boss-animation/audio/solar-forge-roar.wav",
+      "file": "public/assets/audio/roar/solar-forge.wav",
+      "sha256": "5ed90c94a32ef634a1213796eaa157d8004c98e36b55f59102adf449c54a68d2"
+    }
+  ]
+}
