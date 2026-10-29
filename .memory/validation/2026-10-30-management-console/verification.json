@@ -1,0 +1,133 @@
+{
+  "viewports": [
+    {
+      "panel": "elements",
+      "width": 1440,
+      "scroll": 1425,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "panel": "lab",
+      "width": 1440,
+      "scroll": 1425,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "panel": "history",
+      "width": 1440,
+      "scroll": 1425,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "panel": "elements",
+      "width": 768,
+      "scroll": 753,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "panel": "lab",
+      "width": 768,
+      "scroll": 753,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "panel": "history",
+      "width": 768,
+      "scroll": 753,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "panel": "elements",
+      "width": 375,
+      "scroll": 360,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "panel": "lab",
+      "width": 375,
+      "scroll": 360,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "panel": "history",
+      "width": 375,
+      "scroll": 360,
+      "main": 1,
+      "missing": 0,
+      "overflow": [
+        "A.skip-link"
+      ]
+    }
+  ],
+  "interactions": {
+    "proposal": {
+      "schemaVersion": 1,
+      "baselineVersion": "0.01-b",
+      "gameFingerprint": "b3597a5c9047f3c3719efa031ae55b63131152b65342e30af35a86b1a023a5c0",
+      "previewOnly": true,
+      "hit": {
+        "speed": 240,
+        "windowSeconds": 0.3,
+        "hitbox": 16,
+        "successWidth": 56,
+        "successHeight": 36,
+        "wallX": 360,
+        "playerY": 270,
+        "gapHeight": 180,
+        "craft": "default",
+        "kind": "special",
+        "mode": "normal"
+      },
+      "physics": {
+        "gravity": 900,
+        "lift": 251.99999999999997,
+        "interval": 0.36,
+        "craft": "aegis"
+      }
+    }
+  },
+  "print": {
+    "panels": 3,
+    "stages": 6,
+    "menu": "none"
+  },
+  "offline": {
+    "ready": true,
+    "chart": false,
+    "fallback": true,
+    "missing": 0
+  },
+  "errors": []
+}

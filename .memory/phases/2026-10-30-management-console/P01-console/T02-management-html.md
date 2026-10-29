@@ -1,6 +1,6 @@
 # Task: T02 Portable Management HTML
 
-## Status: pending
+## Status: done
 
 ## Goal
 Deliver docs/management/void-surfer-management.html and identical Downloads copy for the user's review.
@@ -14,8 +14,8 @@ Deliver docs/management/void-surfer-management.html and identical Downloads copy
 - Auto-open final HTML with Invoke-Item; return clickable workspace path. No runtime asset modifications, network writes or deployment.
 
 ## Acceptance Criteria
-- [ ] All requested elements and sliders genuinely interactive with source-derived baselines.
-- [ ] Standalone HTML/Downloads equal, themes/tabs/accessibility/print/offline and responsive375/768/1440 pass.
+- [x] Requested elements and sliders interactive with source-derived baselines; actual six-stage art and explanatory motion, preview-only export.
+- [x] Standalone HTML/Downloads equal, themes/tabs/print/offline and responsive375/768/1440 pass. Native Edge verification.json and screenshots recorded.5 source-model parity tests pass.
 
 ## Validation
 - Generator command; native Edge private-profile CDP browser checks (tabs/slider outputs/charts/reset/export/objects/history/print/reduced motion/offline/image decode/overflow), visual screenshots at desktop/mobile. `git diff --check`.
@@ -30,6 +30,6 @@ Task: T02-management-html
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit:pending

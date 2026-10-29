@@ -7,7 +7,7 @@
 [P01 Console](./phases/2026-10-30-management-console/P01-console/phase.md).
 
 ## Active Task
-[T01 Catalog and Model](./phases/2026-10-30-management-console/P01-console/T01-catalog-model.md).
+[T02 Management HTML](./phases/2026-10-30-management-console/P01-console/T02-management-html.md).
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -22,4 +22,4 @@
 - Fullscreen rendering now bounded1920×1080 with nativeRAF/logical960×540 retained. Music-ready preparation freezes the initialized run until readiness or10s; then silent fallback/late same-track. Menu/synth bleed and stale/double starts covered. Actual Azure4K viewport/FHD buffer and clean music start verified.
 
 ## Next Step (IMPORTANT)
-Build separate management HTML with current elements, preview sliders and version tabs; implement shared release-doc generation/automatic future version advance. Current0.01-b and old0.01v preserved. User requests a review draft now: local commits only, no push/deployment or actual balance/settings changes.
+T01 `317b818` passed5 parity tests and actual source/asset catalog initialized. Build T02 separate management HTML with preview sliders/version tabs, then T03 release sync/QA. Current0.01-b and old0.01v preserved. Review draft only: no push/deployment or balance/settings changes.
