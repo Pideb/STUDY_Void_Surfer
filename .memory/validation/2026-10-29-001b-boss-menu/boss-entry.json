@@ -1,0 +1,16 @@
+{
+  "id": "boss-entry",
+  "failedAssets": [],
+  "score": 20,
+  "clearedBossCount": 0,
+  "isWarning": false,
+  "isBoss": false,
+  "bossNumber": null,
+  "preview": {
+    "warningIndex": 1,
+    "pattern": "fast",
+    "remainingSeconds": 2.4
+  },
+  "obstacles": [],
+  "fixture": "Actual engine/render/HUD; synthetic initial score20, gravity0, invincible; no account or DB mutation."
+}

@@ -1,6 +1,6 @@
 # Task: T03 Version HTML and Final Evidence
 
-## Status: pending
+## Status: done
 
 ## Implementation
 - `README.md`: current boss-only rules and first-gesture menu audio/motion behavior; archive link, exact public version0.01-b.
@@ -16,9 +16,9 @@
 - Runtime/HTML verification harness; old0.01v hash unchanged; Downloads copy equal; `git diff --check`; clean final local tree.
 
 ## Acceptance Criteria
-- [ ] Four requirements implemented and actual evidence reviewed; WARNING recoverable from archive.
-- [ ] New0.01-b HTML/history complete and old snapshot intact.
-- [ ] Full suite/build/config pass, all tasks committed and pointers complete; local versus deployed status explicit.
+- [x] Four requirements implemented and actual evidence reviewed; WARNING recoverable from archive.
+- [x] New0.01-b HTML/history complete and old snapshot intact.
+- [x] Full suite/build/config pass; local versus deployed status explicit. Commit and pointer finalization follows below.
 
 ## Commit Message
 ```text
@@ -33,6 +33,10 @@ Task: T03-version-evidence
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit:pending
+
+## Evidence
+- `.memory/validation/2026-10-29-001b-boss-menu/report.md`: full716, build/config, menu gesture/motion comparison, first20 boss runtime and HTML1440/768/375/offline/print checks.
+-0.01v SHA unchanged, Downloads copy equal; only embedded asset change is the actual new menu screenshot. Version-copy action contains3928989 and local-not-deployed status.

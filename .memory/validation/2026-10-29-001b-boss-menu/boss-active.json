@@ -1,0 +1,22 @@
+{
+  "id": "boss-active",
+  "failedAssets": [],
+  "score": 20,
+  "clearedBossCount": 0,
+  "isWarning": false,
+  "isBoss": true,
+  "bossNumber": 1,
+  "preview": null,
+  "obstacles": [
+    {
+      "bossNumber": 1
+    },
+    {
+      "bossNumber": 1
+    },
+    {
+      "bossNumber": 1
+    }
+  ],
+  "fixture": "Actual engine/render/HUD; synthetic initial score20, gravity0, invincible; no account or DB mutation."
+}

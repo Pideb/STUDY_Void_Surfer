@@ -1,6 +1,6 @@
 {
   "product": "VOID SURFER",
-  "currentVersion": "0.01v",
+  "currentVersion": "0.01-b",
   "versionPolicy": "Increment the documented public label for each reviewed release; preserve previous snapshots.",
   "releases": [
     {
@@ -54,6 +54,45 @@
         ".memory/validation/2026-10-29-flight-performance-lasers-siren/report.md"
       ],
       "document": "void-surfer-0.01v.html"
+    },
+    {
+      "product": "VOID SURFER",
+      "version": "0.01-b",
+      "baselineDate": "2026-10-29",
+      "sourceCommit": "3928989",
+      "status": "validated-local-not-deployed",
+      "document": "void-surfer-0.01-b.html",
+      "format": "single-file-html",
+      "workflow": [
+        "grill-me",
+        "memory-plan",
+        "memory-execute"
+      ],
+      "aircraft": [
+        "NOVA",
+        "AEGIS",
+        "VELOCITY"
+      ],
+      "verification": {
+        "testFiles": 57,
+        "tests": 716,
+        "build": "passed",
+        "configuration": "passed",
+        "strictAutoplayMenuLoopVerified": true,
+        "realProductionLogin": "user-confirmed for previous deployment",
+        "newVersionDeployed": false,
+        "physicalGpuFpsMeasured": false
+      },
+      "feedbackCases": 25,
+      "changes": [
+        "독립 WARNING 대신 매번 보스전",
+        "WARNING은 향후 재설계를 위해 보관",
+        "게임에 들어갔다 나와야 소리가 나던 문제",
+        "메인 기체의 부유 모션이 끊기던 문제"
+      ],
+      "warningArchive": ".memory/archive/2026-10-29-warning-0.01v.md",
+      "productionUrl": "https://proud-grass-03a132e00.6.azurestaticapps.net",
+      "previousVersion": "0.01v"
     }
   ]
 }

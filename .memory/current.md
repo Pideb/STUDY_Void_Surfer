@@ -7,7 +7,7 @@
 [P01 Runtime](./phases/2026-10-29-001b-boss-menu/P01-runtime/phase.md)
 
 ## Active Task
-[T02 Menu Audio and Motion](./phases/2026-10-29-001b-boss-menu/P01-runtime/T02-menu-audio-motion.md)
+[T03 Version Evidence](./phases/2026-10-29-001b-boss-menu/P01-runtime/T03-version-evidence.md)
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -17,4 +17,4 @@
 - New0.01-b work authorized: boss-only encounters, dormant WARNING archive, menu sound and motion, HTML release update.
 
 ## Next Step (IMPORTANT)
-T01 1ae7524 passed155 targeted cases. Implement T02, then T03 sequentially. Keep old0.01v HTML and recorded WARNING design. New local commits must not be described as a production deployment.
+T01 1ae7524 passed155 targeted cases. T02 3928989 passed105 targeted cases and native first-gesture/repaint checks. Complete T03. Keep old0.01v HTML and recorded WARNING design. New local commits must not be described as a production deployment.

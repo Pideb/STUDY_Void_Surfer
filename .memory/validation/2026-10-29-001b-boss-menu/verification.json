@@ -1,0 +1,150 @@
+{
+  "source": "docs/releases/void-surfer-0.01-b.html",
+  "version": "0.01-b",
+  "viewports": [
+    {
+      "width": 1440,
+      "documentWidth": 1425,
+      "height": 17552,
+      "missingImages": [],
+      "mainCount": 1,
+      "h1": 100.8,
+      "h2": 44.64,
+      "h3": 25.6,
+      "theme": "theme-dark",
+      "chartLoaded": true,
+      "canvasChart": 1,
+      "overflowElements": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "width": 768,
+      "documentWidth": 753,
+      "height": 22980,
+      "missingImages": [],
+      "mainCount": 1,
+      "h1": 72,
+      "h2": 32,
+      "h3": 25.6,
+      "theme": "theme-dark",
+      "chartLoaded": true,
+      "canvasChart": 1,
+      "overflowElements": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "width": 375,
+      "documentWidth": 360,
+      "height": 25873,
+      "missingImages": [],
+      "mainCount": 1,
+      "h1": 60,
+      "h2": 32,
+      "h3": 25.6,
+      "theme": "theme-dark",
+      "chartLoaded": true,
+      "canvasChart": 1,
+      "overflowElements": [
+        "A.skip-link"
+      ]
+    }
+  ],
+  "interactions": {
+    "beforeTheme": "dark",
+    "afterTheme": "light",
+    "menuEscape": true,
+    "stage": [
+      "5"
+    ],
+    "combatFilter": 9,
+    "search": 1,
+    "copyStatus": "버전 정보를 복사했습니다.",
+    "copiedVersion": "VOID SURFER 0.01-b\n기준일: 2026-10-29\n게임 소스: 3928989\n일반-보스 반복 / 첫 메뉴 소리 / 기체 모션 개선\n상태: 로컬 검증 완료, 미배포"
+  },
+  "chart": {
+    "count": 1,
+    "fallbackDisplay": "none"
+  },
+  "audio": {
+    "duration": 2.4,
+    "ready": 4
+  },
+  "print": {
+    "visibleStages": 6,
+    "openDetails": 35,
+    "allDetails": 35,
+    "menuDisplay": "none"
+  },
+  "offline": {
+    "mainCount": 1,
+    "chartPresent": false,
+    "fallbackVisible": true,
+    "imagesMissing": 0,
+    "feedbackItems": 25,
+    "embeddedAudio": true
+  },
+  "metadata": {
+    "product": "VOID SURFER",
+    "version": "0.01-b",
+    "baselineDate": "2026-10-29",
+    "sourceCommit": "3928989",
+    "status": "validated-local-not-deployed",
+    "document": "void-surfer-0.01-b.html",
+    "format": "single-file-html",
+    "workflow": [
+      "grill-me",
+      "memory-plan",
+      "memory-execute"
+    ],
+    "aircraft": [
+      "NOVA",
+      "AEGIS",
+      "VELOCITY"
+    ],
+    "verification": {
+      "testFiles": 57,
+      "tests": 716,
+      "build": "passed",
+      "configuration": "passed",
+      "strictAutoplayMenuLoopVerified": true,
+      "realProductionLogin": "user-confirmed for previous deployment",
+      "newVersionDeployed": false,
+      "physicalGpuFpsMeasured": false
+    },
+    "feedbackCases": 25,
+    "changes": [
+      "독립 WARNING 대신 매번 보스전",
+      "WARNING은 향후 재설계를 위해 보관",
+      "게임에 들어갔다 나와야 소리가 나던 문제",
+      "메인 기체의 부유 모션이 끊기던 문제"
+    ],
+    "warningArchive": ".memory/archive/2026-10-29-warning-0.01v.md",
+    "productionUrl": "https://proud-grass-03a132e00.6.azurestaticapps.net",
+    "previousVersion": "0.01v"
+  },
+  "historicalLabels": {
+    "archive": "PRESERVED DESIGN / NOT ACTIVEWARNING은 보관 중입니다.완전히 잊거나 삭제한 기능이 아닙니다. 나중에 다른 형태로 다시 기획할 수 있도록 당시 규칙과 구현 지점을 남겼습니다.0.01v의 독립 WARNING 규칙 펼치기일반 → WARNING → 일반 → BOSS. WARNING 벽 5개·특수벽 최소 2개, 특수벽 확률 50%, 구멍 135px, 생성 1.4초, 타이밍 0.15초였습니다. 붉은 분위기·중앙 알림·별도 경고음을 사용했고 일반 WARNING 벽은 점수를 주었습니다.0.01-b에서는 이 독립 구간에 보스전을 배치했습니다. 복원할 때는 실제 보스 횟수와 다른 사건을 다시 섞지 않도록 별도 규칙을 설계할 예정입니다. 새 부활 방식은 아직 결정하지 않았습니다..memory/archive/2026-10-29-warning-0.01v.md",
+    "history": "“재미있다”에서 끝내지 않고, 무엇이 왜 불편한지 전달하며 반복했습니다. 아래는 실제 대화와 변경 기록을 정리한 기록입니다. 위쪽 4건은 이번 0.01-b의 변경이며, 뒤의 21건은 0.01v 당시의 개선 이력입니다. 과거 규칙은 현재 규칙과 구분해 읽어 주세요."
+  },
+  "errors": [],
+  "networkFailures": [
+    {
+      "error": "net::ERR_INTERNET_DISCONNECTED",
+      "canceled": false
+    },
+    {
+      "error": "net::ERR_INTERNET_DISCONNECTED",
+      "canceled": false
+    },
+    {
+      "error": "net::ERR_INTERNET_DISCONNECTED",
+      "canceled": false
+    },
+    {
+      "error": "net::ERR_INTERNET_DISCONNECTED",
+      "canceled": false
+    }
+  ]
+}

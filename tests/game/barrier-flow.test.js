@@ -12,9 +12,9 @@ describe('mandatory response spacing through real flight',()=>{
   it.each(['default','aegis','velocity'].flatMap(aircraft=>[10,60,150].map(score=>[aircraft,score])))('%s at progression %s preserves cooldown recovery and finite quotas',(aircraftId,initialScore)=>{
     let time=0;const rng=()=>0;
     const engine=createGameEngine({now:()=>time,gravity:0,rng,stageRng:rng,guestMode:false,accountBestScore:100,aircraftId,initialScore,invincibilityEnabled:true});
-    engine.start();let previous=engine.getSnapshot(),lastPass=null,count=0,warningVerified=false,bossVerified=false;
+    engine.start();let previous=engine.getSnapshot(),lastPass=null,count=0,bossVerified=false;
     const seen=new Set();
-    for(let frame=0;frame<6000&&!bossVerified;frame++){
+    for(let frame=0;frame<6000&&(!bossVerified||count<5);frame++){
       if(previous.challenge?.active)for(const key of previous.challenge.sequence)engine.handleChallengeKey(key);
       time+=20;engine.update(time);const snapshot=engine.getSnapshot();
       for(const wall of snapshot.obstacles.filter(isDashObstacle)){
@@ -27,11 +27,11 @@ describe('mandatory response spacing through real flight',()=>{
           lastPass=passage;count++;
         }
       }
-      if(previous.warning&&!snapshot.warning&&previous.warning.index%2===1){expect(previous.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);warningVerified=true;}
-      if(snapshot.boss&&snapshot.warning.spawnedCount===snapshot.warning.targetCount){expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);expect(snapshot.warning.spawnedCount-snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);bossVerified=true;}
+      expect(snapshot.difficulty.isWarning).toBe(false);
+      if(snapshot.boss&&snapshot.warning.spawnedCount===snapshot.warning.targetCount&&snapshot.warning.remainingSpecials===0){expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);expect(snapshot.warning.spawnedCount-snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);bossVerified=true;}
       expect(snapshot.deathEffect).toBeNull();previous=snapshot;
     }
-    expect(count).toBeGreaterThanOrEqual(5);expect(warningVerified).toBe(true);expect(bossVerified).toBe(true);
+    expect(count).toBeGreaterThanOrEqual(5);expect(bossVerified).toBe(true);
     engine.start();expect(engine.getSnapshot().obstacles).toHaveLength(0);
   });
 });
