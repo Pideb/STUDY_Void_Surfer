@@ -7,11 +7,11 @@
 [P01 Runtime](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/phase.md)
 
 ## Active Task
-[Next task](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/T03-render-density.md)
+[Next task](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/T04-boss-siren.md)
 
 ## Status
-- T02 complete and verified; commit 7ff44ed.
-- Progress 2/6; sequential completion authorized.
+- T03 complete and verified; commit 8f29888.
+- Progress 3/6; sequential completion authorized.
 
 ## Next Step (IMPORTANT)
 Read next blueprint, implement, validate, commit and advance.

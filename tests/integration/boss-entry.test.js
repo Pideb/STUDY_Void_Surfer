@@ -17,7 +17,7 @@ describe('drained dark boss entry',()=>{
     expect(s.obstacles).toHaveLength(0);expect(s.bossEntry.phase).toBe('darkening');
     const dark=[];while(!s.bossPreview){dark.push(s.bossEntry.darkness);expect(s.boss).toBeNull();s=tick();}
     expect(dark.every((v,i)=>i===0||v>=dark[i-1])).toBe(true);expect(s.bossEntry.darkness).toBe(1);
-    expect(s.bossPreview.remainingSeconds).toBe(1.5);
+    expect(s.bossPreview.remainingSeconds).toBe(2.4);
     while(!s.boss)s=tick();expect(s.bossEntry).toMatchObject({phase:'entering',darkness:1});
     const fade=[];while(s.bossEntry){fade.push(s.bossEntry.darkness);expect(s.obstacles).toHaveLength(0);expect(s.boss.attack).toBeNull();s=tick();}
     expect(fade.every((v,i)=>i===0||v<=fade[i-1])).toBe(true);expect(s.boss.entranceRemainingSeconds).toBe(0);

@@ -1007,7 +1007,7 @@ describe('game engine', () => {
     expect(snapshot.obstacles.every((wall) => !wall.movingGap)).toBe(true);
   });
 
-  it('previews a cached boss pattern for 1.5 seconds while normal play continues', () => {
+  it('previews a cached boss pattern for 2.4 seconds while normal play continues', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60,
       initialCompletedWarningCount: 1,
@@ -1017,20 +1017,20 @@ describe('game engine', () => {
     while (!engine.getSnapshot().bossPreview) step();
     const preview = engine.getSnapshot();
     const previewElapsed = preview.elapsedSeconds;
-    expect(preview.bossPreview).toMatchObject({ warningIndex: 2, pattern: 'fast', remainingSeconds: 1.5 });
+    expect(preview.bossPreview).toMatchObject({ warningIndex: 2, pattern: 'fast', remainingSeconds: 2.4 });
     expect(preview.warning).toBeNull();
     expect(preview.boss).toBeNull();
     expect(preview.difficulty).toMatchObject({ isWarning: false, isBoss: false, speedMultiplier: 1 });
 
     let duringPreview;
     for (let frame = 0; frame < 5; frame += 1) duringPreview = step(100);
-    expect(duringPreview.bossPreview.remainingSeconds).toBeCloseTo(1.0);
+    expect(duringPreview.bossPreview.remainingSeconds).toBeCloseTo(1.9);
     expect(duringPreview.elapsedSeconds).toBeCloseTo(previewElapsed + 0.5);
     expect(duringPreview.warning).toBeNull();
     expect(duringPreview.boss).toBeNull();
     expect(duringPreview.difficulty.isBoss).toBe(false);
 
-    for (let frame = 0; frame < 10; frame += 1) step(100);
+    for (let frame = 0; frame < 19; frame += 1) step(100);
     const activated = engine.getSnapshot();
     expect(activated.bossPreview).toBeNull();
     expect(activated.warning).toMatchObject({ index: 2, targetCount: 7 });

@@ -4,9 +4,19 @@ import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { MUSIC_TRACKS } from '../../src/audio/music-manifest.js';
 import { createBossEntryBuffer } from '../../src/audio/boss-entry-siren.js';
+import {synthesizeBossEntrySiren} from '../../src/audio/boss-entry-synth.js';
 import { ROAR_PROFILES, synthesizeBossRoar } from '../../src/audio/boss-roar-synth.js';
 
 describe('approved audio assets', () => {
+  it('matches the selected WAV hash and remains safe at native browser sample rates',()=>{
+    const wav=readFileSync('public/assets/audio/boss-entry.wav');
+    expect(createHash('sha256').update(wav).digest('hex')).toBe('925ffc1b9ef079dd9dca52260398af72b9224ff633479a7b3111b6d50efb18b2');
+    for(const rate of [24000,44100,48000,NaN]){
+      const sound=synthesizeBossEntrySiren(rate);expect(sound.channels[0].length/sound.sampleRate).toBe(2.4);expect(sound.peak).toBeLessThan(.72);
+      expect(sound.onsets).toEqual([0,.85,1.7]);
+      for(const [from,to]of [[.7,.85],[1.55,1.7]])expect(sound.channels.every(ch=>ch.subarray(Math.round(from*sound.sampleRate),Math.round(to*sound.sampleRate)).every(v=>v===0))).toBe(true);
+    }
+  });
   it('reproduces all six approved .8-second boss roar recordings', () => {
     const hashes = new Set();
     for (const profile of ROAR_PROFILES) {
@@ -50,13 +60,13 @@ describe('approved audio assets', () => {
 
   it('reproduces the approved three-pulse entrance siren at runtime', () => {
     const wav = readFileSync(path.resolve('public/assets/audio/boss-entry.wav'));
-    const channels = [new Float32Array(36000), new Float32Array(36000)];
+    const channels = [new Float32Array(57600), new Float32Array(57600)];
     createBossEntryBuffer({ sampleRate: 24000, createBuffer: () => ({ getChannelData: (index) => channels[index] }) });
-    expect(wav.length).toBe(44 + 36000 * 4);
+    expect(wav.length).toBe(44 + 57600 * 4);
     let error = 0;
-    for (let frame = 0; frame < 36000; frame += 1) {
+    for (let frame = 0; frame < 57600; frame += 1) {
       error = Math.max(error, Math.abs(channels[0][frame] - wav.readInt16LE(44 + frame * 4) / 32767));
-      expect(channels[0][frame]).toBe(channels[1][frame]);
+      error = Math.max(error, Math.abs(channels[1][frame] - wav.readInt16LE(46 + frame * 4) / 32767));
     }
     expect(error).toBeLessThan(2 / 32767);
   });

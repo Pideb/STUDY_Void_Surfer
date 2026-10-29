@@ -1,3 +1,4 @@
+import {BOSS_ENTRY_DURATION_SECONDS} from './boss-entry-synth.js';
 import { createStageMusicPlayer } from './stage-music-player.js';
 import { createBossEntryBuffer } from './boss-entry-siren.js';
 import { createBossRoarBuffer } from './boss-roar.js';
@@ -288,7 +289,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
     entryVoice = null;
     entryPaused = retainOffset && Boolean(voice);
     if (voice) {
-      if (retainOffset) entryOffset = Math.min(1.5, voice.offset + context.currentTime - voice.startedAt);
+      if (retainOffset) entryOffset = Math.min(BOSS_ENTRY_DURATION_SECONDS, voice.offset + context.currentTime - voice.startedAt);
       try { voice.source.stop(); } catch { /* Already ended. */ }
       voice.source.disconnect?.();
     }
@@ -296,7 +297,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
   }
 
   function playEntry() {
-    if (!context?.createBufferSource || !context?.createBuffer || musicPaused || entryOffset >= 1.5) return;
+    if (!context?.createBufferSource || !context?.createBuffer || musicPaused || entryOffset >= BOSS_ENTRY_DURATION_SECONDS) return;
     entryBuffer ??= createBossEntryBuffer(context);
     const source = context.createBufferSource();
     source.buffer = entryBuffer;

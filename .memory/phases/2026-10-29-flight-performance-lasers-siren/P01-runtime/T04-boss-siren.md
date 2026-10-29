@@ -1,6 +1,6 @@
 # Task: T04 Approved Boss Entry Siren
 
-## Status: pending
+## Status: done
 
 ## Goal
 Play the approved broad low three-pulse siren for2.4s, synchronized with boss alert, pause/resume and BGM ducking.
@@ -38,8 +38,8 @@ Play the approved broad low three-pulse siren for2.4s, synchronized with boss al
 - Entryintegration uses variableactualdurations rather than arbitrarylegacyfixedticks. Validate boundary2.399/2.4, ambient/wall drain prerequisites, pausefreeze and rightentrance afteralert.
 
 ## Acceptance Criteria
-- [ ] Packaged sound matches approvedhash and runtime synthesis reproduces it.
-- [ ] Alert, ducking, pause/resume and entry transition agree on2.4s without truncation or duplicateplayback.
+- [x] Packaged sound matches approvedhash and runtime synthesis reproduces it.
+- [x] Alert, ducking, pause/resume and entry transition agree on2.4s without truncation or duplicateplayback.
 
 ## Validation
 - `npm test -- --run tests/audio/audio-assets.test.js tests/audio/audio-manager.test.js tests/ui/app-controller.test.js tests/integration/boss-entry.test.js tests/game/game-engine.test.js`
@@ -59,6 +59,6 @@ Task: T04-boss-siren
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

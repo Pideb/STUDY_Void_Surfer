@@ -249,7 +249,7 @@ describe('roar and explosion lifecycle', () => {
     const entry = context.createBufferSource.mock.results[0].value;
     manager.play('bossRoar', { id: 'roar1', stageId: 'abyssal-beast' });
     const roar = context.createBufferSource.mock.results[1].value;
-    expect(entry.buffer.duration).toBe(1.5);
+    expect(entry.buffer.duration).toBe(2.4);
     expect(roar.buffer.duration).toBe(.8);
     expect(entry.stop).toHaveBeenCalledOnce();
     manager.play('bossEntry', { id: 'entry2' });
@@ -298,6 +298,15 @@ describe('roar and explosion lifecycle', () => {
 });
 
 describe('audio manager', () => {
+  it('resumes the approved siren inside its third pulse without an old voice resetting the offset',async()=>{
+    const manager=createAudioManager(MockAudioContext);await manager.unlock();const ctx=MockAudioContext.instances[0];
+    manager.setMusicDucked(true);manager.play('bossEntry',{id:'late-pause'});const first=ctx.createBufferSource.mock.results[0].value;
+    ctx.currentTime=1.8;manager.pauseMusic();ctx.currentTime=5;manager.resumeMusic();
+    expect(ctx.createBufferSource.mock.results[1].value.start).toHaveBeenCalledWith(5,1.8);
+    first.onended();ctx.currentTime=5.2;manager.pauseMusic();ctx.currentTime=9;manager.resumeMusic();
+    const third=ctx.createBufferSource.mock.results[2].value;expect(third.start.mock.calls[0][1]).toBeCloseTo(2);
+    expect(third.buffer.duration).toBe(2.4);manager.destroy();
+  });
   it('plays decoded scene loops through the shared mute path and retains position across pause', async () => {
     vi.useFakeTimers();
     class DecodedContext extends MockAudioContext {
