@@ -1,0 +1,106 @@
+{
+  "source": "docs/releases/void-surfer-0.01v.html",
+  "version": "0.01v",
+  "viewports": [
+    {
+      "width": 1440,
+      "documentWidth": 1425,
+      "height": 16065,
+      "missingImages": [],
+      "mainCount": 1,
+      "h1": 100.8,
+      "h2": 44.64,
+      "h3": 25.6,
+      "theme": "theme-dark",
+      "chartLoaded": true,
+      "canvasChart": 1,
+      "overflowElements": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "width": 768,
+      "documentWidth": 753,
+      "height": 21231,
+      "missingImages": [],
+      "mainCount": 1,
+      "h1": 72,
+      "h2": 32,
+      "h3": 25.6,
+      "theme": "theme-dark",
+      "chartLoaded": true,
+      "canvasChart": 1,
+      "overflowElements": [
+        "A.skip-link"
+      ]
+    },
+    {
+      "width": 375,
+      "documentWidth": 360,
+      "height": 23778,
+      "missingImages": [],
+      "mainCount": 1,
+      "h1": 60,
+      "h2": 32,
+      "h3": 25.6,
+      "theme": "theme-dark",
+      "chartLoaded": true,
+      "canvasChart": 1,
+      "overflowElements": [
+        "A.skip-link"
+      ]
+    }
+  ],
+  "interactions": {
+    "beforeTheme": "dark",
+    "afterTheme": "light",
+    "menuEscape": true,
+    "stage": [
+      "5"
+    ],
+    "combatFilter": 7,
+    "search": 1,
+    "copyStatus": "VOID SURFER 0.01v · 2026-10-29 · f69a166"
+  },
+  "chart": {
+    "count": 1,
+    "fallbackDisplay": "none"
+  },
+  "audio": {
+    "duration": 2.4,
+    "ready": 4
+  },
+  "print": {
+    "visibleStages": 6,
+    "openDetails": 30,
+    "allDetails": 30,
+    "menuDisplay": "none"
+  },
+  "offline": {
+    "mainCount": 1,
+    "chartPresent": false,
+    "fallbackVisible": true,
+    "imagesMissing": 0,
+    "feedbackItems": 21,
+    "embeddedAudio": true
+  },
+  "errors": [],
+  "networkFailures": [
+    {
+      "error": "net::ERR_INTERNET_DISCONNECTED",
+      "canceled": false
+    },
+    {
+      "error": "net::ERR_INTERNET_DISCONNECTED",
+      "canceled": false
+    },
+    {
+      "error": "net::ERR_INTERNET_DISCONNECTED",
+      "canceled": false
+    },
+    {
+      "error": "net::ERR_INTERNET_DISCONNECTED",
+      "canceled": false
+    }
+  ]
+}

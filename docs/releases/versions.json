@@ -1,0 +1,59 @@
+{
+  "product": "VOID SURFER",
+  "currentVersion": "0.01v",
+  "versionPolicy": "Increment the documented public label for each reviewed release; preserve previous snapshots.",
+  "releases": [
+    {
+      "product": "VOID SURFER",
+      "version": "0.01v",
+      "baselineDate": "2026-10-29",
+      "sourceCommit": "f69a166a4eeee4cbbc09c5cb20abcea53d2b502f",
+      "status": "pre-deployment-baseline",
+      "format": "single-file-html",
+      "workflow": [
+        "grill-me",
+        "memory-plan",
+        "memory-execute"
+      ],
+      "aircraft": [
+        "NOVA",
+        "AEGIS",
+        "VELOCITY"
+      ],
+      "stages": [
+        "CRYSTAL GATES",
+        "INDUSTRIAL VOID",
+        "SIGNAL MONOLITHS",
+        "GRAVITY WELL",
+        "ABYSSAL BEAST",
+        "SOLAR FORGE"
+      ],
+      "verification": {
+        "testFiles": 55,
+        "tests": 699,
+        "build": "passed",
+        "configuration": "passed",
+        "runtimeCaptureCases": 11,
+        "remoteAccountVerified": false,
+        "physicalGpuFpsMeasured": false
+      },
+      "feedbackCases": 21,
+      "nextVersionLabel": "0.02v",
+      "notes": [
+        "Public document version; npm package version unchanged.",
+        "No deployment, remote DB change or Git tag is performed by generating this document."
+      ],
+      "sourceFiles": [
+        "README.md",
+        "src/game/constants.js",
+        "src/game/aircraft.js",
+        "src/game/difficulty.js",
+        "src/game/game-engine.js",
+        "src/game/stages.js",
+        "src/game/visual-assets.js",
+        ".memory/validation/2026-10-29-flight-performance-lasers-siren/report.md"
+      ],
+      "document": "void-surfer-0.01v.html"
+    }
+  ]
+}
