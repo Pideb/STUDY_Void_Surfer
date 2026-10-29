@@ -179,7 +179,7 @@ export function renderMenuScreen(model, handlers) {
   return menu;
 }
 
-export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'default', bestScore = 0, recordLabel = '계정 최고 기록', loading = false, error = false } = {}, handlers = {}) {
+export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'default', bestScore = 0, recordLabel = '계정 최고 기록', guestMode = false, loading = false, error = false } = {}, handlers = {}) {
   const screen = document.createElement('section');
   screen.className = 'hangar-screen';
   screen.setAttribute('aria-labelledby', 'hangar-title');
@@ -192,7 +192,8 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
     ? `${recordLabel} 불러오는 중…`
     : `${recordLabel} ${bestScore}점`;
   score.setAttribute('aria-live', 'polite');
-  screen.append(heading, score);
+  screen.append(heading);
+  if(!guestMode)screen.append(score);
   if (error) {
     const status = createMessage('최고 기록을 불러오지 못해 기본 기체만 사용할 수 있습니다.', 'screen-message');
     status.setAttribute('role', 'status');
@@ -229,7 +230,8 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
     lock.className = 'aircraft-lock-reason';
     lock.textContent = loading && !craft.unlocked
       ? '계정 기록 확인 중'
-      : unlocked ? (selected ? '현재 선택' : '선택 가능') : `최고 점수 ${craft.unlockBestScore}점에서 해금`;
+      : guestMode && !unlocked ? '로그인 후 계정 기록으로 해금'
+        : unlocked ? (selected ? '현재 선택' : '선택 가능') : `최고 점수 ${craft.unlockBestScore}점에서 해금`;
     button.append(preview, title, description, performance, lock);
     list.append(button);
   }
@@ -303,7 +305,7 @@ export function renderGameOverScreen(model, handlers) {
   } else if (model.submitError) {
     panel.append(createMessage(model.submitErrorMessage || '점수를 저장하지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message'));
   }
-  panel.append(renderLeaderboardPanel(model.leaderboard, handlers.retryLeaderboard));
+  panel.append(renderLeaderboardPanel({...model.leaderboard,hideNeighborhood:Boolean(model.guestMode)}, handlers.retryLeaderboard));
   return panel;
 }
 
@@ -353,7 +355,9 @@ export function renderPilotRankingScreen(model = {}, handlers = {}) {
   const personalHeading = document.createElement('h2');
   personalHeading.textContent = '내 최고 기록';
   personal.append(personalHeading);
-  if (model.personalLoading) {
+  if (model.guestMode) {
+    personal.append(createMessage('로그인하면 내 최고 기록을 확인할 수 있습니다.'));
+  } else if (model.personalLoading) {
     personal.append(createMessage('개인 기록을 불러오는 중…'));
   } else if (model.personalError) {
     const error = createMessage('개인 기록을 불러오지 못했습니다.', 'screen-message error-message');
@@ -366,12 +370,7 @@ export function renderPilotRankingScreen(model = {}, handlers = {}) {
     const record = createMessage(
       `${rank ? `${rank}위` : guest ? '전역 순위 없음' : '미등록'} · ${displayName} · ${aircraft.name} · ${bestScore}점`,
     );
-    if (guest) {
-      const localOnly = createMessage('이 기록은 이 브라우저에만 저장됩니다.');
-      personal.append(record, localOnly);
-    } else {
-      personal.append(record);
-    }
+    personal.append(record);
   }
   screen.append(personal);
   screen.append(createButton('돌아가기', handlers.back, { className: 'secondary-button' }));

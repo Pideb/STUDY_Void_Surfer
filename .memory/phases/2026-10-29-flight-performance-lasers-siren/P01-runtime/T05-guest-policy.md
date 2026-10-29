@@ -1,6 +1,6 @@
 # Task: T05 NOVA-only Guests Without Saved Records
 
-## Status: pending
+## Status: done
 
 ## Goal
 Guests can fly NOVA only and see only transient current-run scores; no guest best is saved/read/shown or submitted, while signed-in account scores/unlocks remain intact.
@@ -50,8 +50,8 @@ Guests can fly NOVA only and see only transient current-run scores; no guest bes
 - Verify oldkeydeleted, unrelatedsessionsettings untouched, no subsequentguestsetItem, localStorageunavailable works, no bestdisplay inhangar/ranking/results, currentrunscorestillvisible, publicrankingpaginationworks, no privateRPC/submission forguest and existing accountscore/save/unlock/retry tests stillpass.
 
 ## Acceptance Criteria
-- [ ] Guest cannot select/flynondefault through UI, engineconstructor, setters or fresh-run options.
-- [ ] Guest records are neither persisted nor displayed; onlyold dedicatedkey is retired, account/admin behavior preserved.
+- [x] Guest cannot select/flynondefault through UI, engineconstructor, setters or fresh-run options.
+- [x] Guest records are neither persisted nor displayed; onlyold dedicatedkey is retired, account/admin behavior preserved.
 
 ## Validation
 - `npm test -- --run tests/services/guest-record-service.test.js tests/game/aircraft.test.js tests/game/game-engine.test.js tests/ui/app-controller.test.js tests/ui/screens.test.js tests/ui/accessibility.test.js tests/integration/central-hitbox.test.js tests/integration/manual-boss-fire.test.js tests/integration/combat-evolution.test.js tests/integration/dash-boss-flow.test.js tests/game/barrier-flow.test.js`
@@ -71,6 +71,6 @@ Task: T05-guest-policy
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

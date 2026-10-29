@@ -6,7 +6,7 @@ const cases=['default','aegis','velocity'].flatMap(aircraft=>[60,150].flatMap(sc
 describe('dash, mixed walls and distributed boss cycles',()=>{
   it.each(cases)('%s score=%s pattern-roll=%s completes retries, clears and portals without losing spacing',(aircraftId,initialScore,roll)=>{
     let time=0;const engine=createGameEngine({now:()=>time,gravity:0,rng:()=>roll,stageRng:()=>.5,
-      aircraftId,guestMode:true,initialScore,initialCompletedWarningCount:1,invincibilityEnabled:true});
+      aircraftId,guestMode:false,accountBestScore:100,initialScore,initialCompletedWarningCount:1,invincibilityEnabled:true});
     engine.start();let snapshot=engine.getSnapshot(),clears=0,portals=0,failed=false,lastPass=null;
     const seenPasses=new Set(),volleyIds=new Map(),checkedCycles=new Set();
     let specialOverlap=false,roarTicks=0;

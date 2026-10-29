@@ -4,7 +4,7 @@ import { createGameEngine } from '../../src/game/game-engine.js';
 function setup(extra = {}) {
   let time = 0;
   const engine = createGameEngine({ now: () => time, gravity: 0, rng: () => .9, stageRng: () => .5,
-    initialScore: 60, initialCompletedWarningCount: 1, guestMode: true, invincibilityEnabled: true, ...extra });
+    initialScore: 60, initialCompletedWarningCount: 1, guestMode: false, accountBestScore: 100, invincibilityEnabled: true, ...extra });
   engine.start();
   const tick = (dt = .05) => { time += dt * 1000; engine.update(time); return engine.getSnapshot(); };
   const until = predicate => { for (let i = 0; i < 6000; i++) { const s = engine.getSnapshot(); if (predicate(s)) return s; tick(); } throw new Error('Timed out'); };

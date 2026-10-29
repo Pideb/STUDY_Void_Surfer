@@ -1,6 +1,6 @@
 import { getAuthErrorMessage } from '../services/auth-errors.js';
-import { readGuestRecord, writeGuestRecord } from '../services/guest-record-service.js';
-import { AIRCRAFT_CATALOG, getUnlockedAircraftIds } from '../game/aircraft.js';
+import { clearLegacyGuestRecord } from '../services/guest-record-service.js';
+import { AIRCRAFT_CATALOG, getUnlockedAircraftIds, canSelectAircraft } from '../game/aircraft.js';
 import { announce } from './components.js';
 import { createGameHud } from './game-hud.js';
 import {
@@ -60,10 +60,9 @@ function isValidScoreSubmission(result, submittedScore, expectedUserId) {
 }
 
 function getHangarAircraft(bestScore, guest = false) {
-  const unlocked = new Set(getUnlockedAircraftIds(bestScore));
   return AIRCRAFT_CATALOG.map((craft) => ({
     ...craft,
-    unlocked: guest || unlocked.has(craft.id),
+    unlocked: canSelectAircraft(craft.id,{guestMode:guest,bestScore}),
     description: craft.id === 'velocity'
       ? '최고 속도로 돌파하는 고속 기체'
       : craft.id === 'aegis' ? '무겁지만 정밀한 조작이 가능한 기체' : '균형 잡힌 기본 기체',
@@ -90,7 +89,6 @@ export function createAppController(deps) {
     muted: Boolean(audioManager.isMuted?.()), snapshot: null, leaderboard: null,
     submitError: false, submitErrorMessage: null, gameOverRequest: 0, selectedAircraftId: 'default',
     accountBestScore: 0, accountBestScoreLoading: false, accountBestScoreError: false,
-    guestBestRecord: readGuestRecord(deps.guestRecordStorage),
     rankingRows: [], rankingOffset: 0, rankingHasMore: false, rankingLoading: false,
     rankingError: null, rankingPersonalRecord: null, rankingPersonalLoading: false,
     rankingPersonalError: null, rankingReturnScreen: 'menu',
@@ -181,10 +179,11 @@ export function createAppController(deps) {
     }
     if (state.screen === 'hangar') {
       root.replaceChildren(renderHangarScreen({
-        aircraft: getHangarAircraft(state.user ? state.accountBestScore : state.guestBestRecord.bestScore, !state.user),
+        aircraft: getHangarAircraft(state.user ? state.accountBestScore : 0, !state.user),
         selectedAircraftId: state.selectedAircraftId,
-        bestScore: state.user ? state.accountBestScore : state.guestBestRecord.bestScore,
-        recordLabel: state.user ? '계정 최고 기록' : '게스트 최고 기록',
+        bestScore: state.user ? state.accountBestScore : 0,
+        guestMode: !state.user,
+        recordLabel: '계정 최고 기록',
         loading: Boolean(state.user) && state.accountBestScoreLoading,
         error: Boolean(state.user) && state.accountBestScoreError,
       }, {
@@ -209,6 +208,7 @@ export function createAppController(deps) {
     }
     if (state.screen === 'game-over') {
       root.replaceChildren(renderGameOverScreen({
+        guestMode: !state.user,
         score: state.snapshot?.finalScore ?? state.snapshot?.score ?? 0,
         baseScore: state.snapshot?.baseScore ?? state.snapshot?.score ?? 0,
         scoreMultiplier: state.snapshot?.scoreMultiplier ?? state.snapshot?.aircraft?.scoreMultiplier ?? 1,
@@ -229,6 +229,7 @@ export function createAppController(deps) {
     }
     if (state.screen === 'pilot-ranking') {
       const rankingScreen = renderPilotRankingScreen({
+        guestMode: !state.user,
         rows: state.rankingRows,
         loading: state.rankingLoading,
         hasMore: state.rankingHasMore,
@@ -351,6 +352,7 @@ export function createAppController(deps) {
       setScreen('menu');
     } catch (error) {
       state.user = null;
+      state.selectedAircraftId = 'default';
       gameEngine.setGuestMode?.(true);
       accountRequestId += 1;
       state.accountBestScore = 0;
@@ -431,6 +433,7 @@ export function createAppController(deps) {
     try {
       await authService.signOut();
       state.user = null;
+      state.selectedAircraftId = 'default';
       state.adminModeEnabled = false;
       state.invincibilityEnabled = false;
       state.showPlayerHitbox = false;
@@ -644,7 +647,7 @@ export function createAppController(deps) {
     gameEngine.setInvincibilityEnabled?.(isDesignatedAdmin(state.user) && state.invincibilityEnabled);
     gameEngine.setAccountBestScore?.(state.accountBestScore);
     gameEngine.setAircraft?.(state.selectedAircraftId);
-    gameEngine.start();
+    gameEngine.start({aircraftId:state.user?state.selectedAircraftId:'default',guestMode:!state.user,accountBestScore:state.user?state.accountBestScore:0});
     state.snapshot = gameEngine.getSnapshot();
     lastStageId = state.snapshot?.stage?.id ?? null;
     if (lastStageId) audioManager.setMusicScene?.(lastStageId);
@@ -666,14 +669,6 @@ export function createAppController(deps) {
     const score = state.snapshot?.finalScore ?? state.snapshot?.score ?? 0;
     const displayName = getDisplayName(state.user);
     const aircraftId = state.snapshot?.aircraft?.id ?? 'default';
-    if (!state.user) {
-      const savedRecord = writeGuestRecord({
-        bestScore: score,
-        aircraftId,
-        achievedAt: new Date().toISOString(),
-      }, deps.guestRecordStorage);
-      if (savedRecord) state.guestBestRecord = savedRecord;
-    }
     const adminRun = Boolean(isDesignatedAdmin(state.user) && state.adminModeEnabled);
     const shouldSubmitScore = Boolean(submitScore && state.user && !adminRun);
     state.leaderboard = {
@@ -715,7 +710,7 @@ export function createAppController(deps) {
     try {
       const [topResult, neighborhoodResult] = await Promise.all([
         leaderboardService.fetchTopScores(),
-        leaderboardService.fetchPlayerNeighborhood(),
+        state.user ? leaderboardService.fetchPlayerNeighborhood() : Promise.resolve({rows:[],error:null}),
       ]);
       if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
       state.submitError = shouldSubmitScore
@@ -792,13 +787,7 @@ export function createAppController(deps) {
     rankingPersonalRequestId += 1;
     const requestId = rankingPersonalRequestId;
     if (!state.user) {
-      state.rankingPersonalRecord = {
-        rank: null,
-        displayName: 'GUEST',
-        aircraftId: state.guestBestRecord.aircraftId,
-        bestScore: state.guestBestRecord.bestScore,
-        guest: true,
-      };
+      state.rankingPersonalRecord = null;
       state.rankingPersonalLoading = false;
       state.rankingPersonalError = null;
       paint();
@@ -890,7 +879,7 @@ export function createAppController(deps) {
         break;
       case 'SELECT_AIRCRAFT':
         if (state.screen === 'hangar'
-          && (!state.user || getUnlockedAircraftIds(state.accountBestScore).includes(event.aircraftId))) {
+          && canSelectAircraft(event.aircraftId,{guestMode:!state.user,bestScore:state.accountBestScore})) {
           state.selectedAircraftId = event.aircraftId;
           paint();
           announce(liveRegion, `${AIRCRAFT_CATALOG.find(({ id }) => id === event.aircraftId)?.name ?? '기체'} 선택됨.`);
@@ -1000,6 +989,7 @@ export function createAppController(deps) {
   function mount() {
     if (mounted) return;
     mounted = true;
+    clearLegacyGuestRecord(deps.guestRecordStorage);
     paint();
     pointerTarget = deps.canvas ?? root.querySelector('canvas');
     handlePointerDown = (event) => {
@@ -1016,6 +1006,7 @@ export function createAppController(deps) {
         if (!user) {
           accountRequestId += 1;
           state.user = null;
+      state.selectedAircraftId = 'default';
           state.adminModeEnabled = false;
           state.invincibilityEnabled = false;
           state.showPlayerHitbox = false;

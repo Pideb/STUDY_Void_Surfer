@@ -79,3 +79,7 @@ export function isAircraftUnlocked(id, bestScore = 0) {
   return getUnlockedAircraftIds(bestScore).includes(getAircraftDefinition(id).id)
     && getAircraftDefinition(id).id === id;
 }
+
+export function canSelectAircraft(id,{guestMode=false,bestScore=0}={}){
+  return AIRCRAFT_CATALOG.some(craft=>craft.id===id) && (guestMode ? id==='default' : isAircraftUnlocked(id,bestScore));
+}

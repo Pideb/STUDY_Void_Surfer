@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAppController } from '../../src/ui/app-controller.js';
-import { GUEST_RECORD_STORAGE_KEY, readGuestRecord } from '../../src/services/guest-record-service.js';
+import { GUEST_RECORD_STORAGE_KEY } from '../../src/services/guest-record-service.js';
 
 const pilot = { id: 'pilot-1', email: 'pilot@example.com', user_metadata: { name: 'Pilot' } };
 
@@ -275,22 +275,22 @@ describe('app controller product flow', () => {
     expect(harness.authService.signInWithMicrosoft).toHaveBeenCalledOnce();
   });
 
-  it('lets guests select all aircraft and labels their hangar score as browser-local', async () => {
+  it('restricts guests to NOVA and omits their saved-record display', async () => {
     harness = makeHarness({ user: null });
     harness.controller.mount();
     await settle();
     expect(harness.gameEngine.setGuestMode).toHaveBeenCalledWith(true);
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '기체 선택').click();
 
-    expect(harness.root.querySelector('.hangar-best-score').textContent).toBe('게스트 최고 기록 0점');
+    expect(harness.root.querySelector('.hangar-best-score')).toBeNull();
     const aircraftButtons = [...harness.root.querySelectorAll('.aircraft-option')];
     expect(aircraftButtons).toHaveLength(3);
-    expect(aircraftButtons.every((button) => !button.disabled)).toBe(true);
+    expect(aircraftButtons.map(button=>button.disabled)).toEqual([false,true,true]);
     aircraftButtons.find((button) => button.getAttribute('aria-label').startsWith('VELOCITY')).click();
-    expect(harness.root.querySelector('.aircraft-option.is-selected')?.getAttribute('aria-label')).toContain('VELOCITY');
+    expect(harness.root.querySelector('.aircraft-option.is-selected')?.getAttribute('aria-label')).toContain('NOVA');
   });
 
-  it('stores a guest final best locally and never transfers it after sign-in', async () => {
+  it('does not persist a guest run or transfer it after sign-in', async () => {
     harness = makeHarness({ user: null });
     harness.controller.mount();
     await settle();
@@ -302,17 +302,17 @@ describe('app controller product flow', () => {
     harness.controller.dispatch('GAME_OVER');
     await settle();
 
-    expect(readGuestRecord()).toMatchObject({ bestScore: 44, aircraftId: 'velocity' });
+    expect(localStorage.getItem(GUEST_RECORD_STORAGE_KEY)).toBeNull();
     expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
 
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '로그인').click();
     await settle();
-    expect(readGuestRecord()).toMatchObject({ bestScore: 44, aircraftId: 'velocity' });
+    expect(localStorage.getItem(GUEST_RECORD_STORAGE_KEY)).toBeNull();
     expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
   });
 
-  it('loads ranking pages from the menu and pins the guest-local best below the table', async () => {
+  it('loads public ranking pages for guests without a saved personal best', async () => {
     localStorage.setItem(GUEST_RECORD_STORAGE_KEY, JSON.stringify({
       version: 1, bestScore: 28, aircraftId: 'aegis', achievedAt: '2026-09-29T00:00:00.000Z',
     }));
@@ -338,7 +338,7 @@ describe('app controller product flow', () => {
     expect(harness.leaderboardService.fetchLeaderboardPage).toHaveBeenCalledWith({ limit: 50, offset: 0 });
     expect(harness.root.querySelectorAll('.pilot-ranking-table tbody tr')).toHaveLength(50);
     expect(harness.root.querySelector('.ranking-personal-record').textContent)
-      .toContain('전역 순위 없음 · GUEST · AEGIS · 28점');
+      .toContain('로그인하면 내 최고 기록을 확인할 수 있습니다.');
     expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
 
     harness.root.querySelector('.ranking-load-more').click();

@@ -117,19 +117,19 @@ describe('product flow screens', () => {
     expect(select).toHaveBeenCalledWith('aegis');
   });
 
-  it('labels the guest-local best record distinctly and can render every guest aircraft unlocked', () => {
+  it('omits a stored guest best and shows only NOVA as selectable', () => {
     const screen = renderHangarScreen({
       bestScore: 27,
-      recordLabel: '게스트 최고 기록',
+      guestMode: true,
       aircraft: [
         { id: 'default', name: 'NOVA', unlocked: true },
-        { id: 'aegis', name: 'AEGIS', unlocked: true },
-        { id: 'velocity', name: 'VELOCITY', unlocked: true },
+        { id: 'aegis', name: 'AEGIS', unlocked: false },
+        { id: 'velocity', name: 'VELOCITY', unlocked: false },
       ],
     }, { select: vi.fn(), back: vi.fn() });
 
-    expect(screen.querySelector('.hangar-best-score').textContent).toBe('게스트 최고 기록 27점');
-    expect([...screen.querySelectorAll('.aircraft-option')].every((button) => !button.disabled)).toBe(true);
+    expect(screen.querySelector('.hangar-best-score')).toBeNull();
+    expect([...screen.querySelectorAll('.aircraft-option')].map(button=>button.disabled)).toEqual([false,true,true]);
   });
 
   it('shows an explicit account-score loading state before unlock decisions settle', () => {

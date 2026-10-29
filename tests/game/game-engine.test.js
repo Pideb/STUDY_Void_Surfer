@@ -37,7 +37,7 @@ describe('game engine', () => {
   it.each([['default',240,460],['aegis',240,460],['velocity',480,700]])(
     'applies identical actual +10 steps and the220-point cap to %s', (aircraftId,start,ceiling) => {
       for (const [score,increment] of [[0,0],[9,0],[10,10],[20,20],[99,90],[100,100],[109,100],[199,190],[200,200],[219,210],[220,220],[10000,220]]) {
-        const {engine}=createRuntimeEngine({initialScore:score,aircraftId,guestMode:true});
+        const {engine}=createRuntimeEngine({initialScore:score,aircraftId,guestMode:false,accountBestScore:100});
         engine.start();const snapshot=engine.getSnapshot();
         expect(snapshot.difficulty.scrollSpeed).toBe(start+increment);
         expect(snapshot.difficulty.targetScrollSpeed).toBe(start+increment);
@@ -69,7 +69,7 @@ describe('game engine', () => {
     engine.start(); expect(engine.getSnapshot().player.dashCooldownRemainingSeconds).toBe(0);
   });
   it.each(['default', 'aegis', 'velocity'])('keeps the capped aircraft speed after pause deductions (%s)', (aircraftId) => {
-    const { engine } = createRuntimeEngine({ initialScore: 200, aircraftId, guestMode: true });
+    const { engine } = createRuntimeEngine({ initialScore: 200, aircraftId, guestMode: false, accountBestScore: 100 });
     engine.start();
     const ceiling = getBaseSpeed(200, aircraftId) * (aircraftId === 'velocity' ? 2 : 1);
     expect(engine.getSnapshot().difficulty.scrollSpeed).toBeCloseTo(ceiling);
@@ -118,7 +118,7 @@ describe('game engine', () => {
   it.each(['default', 'velocity'])('suspends new walls through every portal phase and resumes without a burst (%s)', (aircraftId) => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60, initialCompletedWarningCount: 1, rng: () => 0.5,
-      aircraftId, guestMode: true,
+      aircraftId, guestMode: false, accountBestScore: 100,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
@@ -524,36 +524,29 @@ describe('game engine', () => {
     const engine = createGameEngine({ now: () => 1000, accountBestScore: 0 });
 
     expect(engine.setAircraft('aegis')).toBe(false);
-    expect(engine.setAircraft('unknown')).toBe('default');
+    expect(engine.setAircraft('unknown')).toBe(false);
     engine.start();
     expect(engine.setAircraft('default')).toBe(false);
   });
 
-  it('allows every catalog aircraft in guest mode but restores account unlock rules on sign-in', () => {
-    const engine = createGameEngine({ now: () => 1000, accountBestScore: 0 });
-    engine.setGuestMode(true);
-    expect(engine.setAircraft('aegis')).toBe('aegis');
-    expect(engine.setAircraft('velocity')).toBe('velocity');
-
-    engine.setGuestMode(false);
-    expect(engine.setAircraft('velocity')).toBe(false);
-    expect(engine.setAircraft('aegis')).toBe(false);
-    expect(engine.setAircraft('default')).toBe('default');
+  it('restricts guests to NOVA even with a high best score and restores account unlock rules',()=>{
+    const engine=createGameEngine({guestMode:true,accountBestScore:10000,aircraftId:'velocity'});
+    expect(engine.getSnapshot().aircraft.id).toBe('default');
+    expect(engine.setAircraft('aegis')).toBe(false);expect(engine.setAircraft('velocity')).toBe(false);
+    engine.setGuestMode(false);expect(engine.setAircraft('velocity')).toBe('velocity');
+    engine.setGuestMode(true);expect(engine.getSnapshot().aircraft.id).toBe('default');
   });
-
-  it('freezes guest mode and selected aircraft through play and pause', () => {
-    const { engine } = createRuntimeEngine({ accountBestScore: 0 });
-    engine.setGuestMode(true);
-    expect(engine.setAircraft('velocity')).toBe('velocity');
-    engine.start();
-
-    expect(engine.setGuestMode(false)).toBe(true);
-    expect(engine.setAircraft('default')).toBe(false);
-    expect(engine.getSnapshot()).toMatchObject({ aircraft: { id: 'velocity' } });
-
-    engine.pause();
-    expect(engine.setGuestMode(false)).toBe(true);
-    expect(engine.getSnapshot()).toMatchObject({ state: GAME_STATES.PAUSED, aircraft: { id: 'velocity' } });
+  it('freezes guest mode and NOVA selection through play and pause',()=>{
+    const {engine}=createRuntimeEngine();engine.setGuestMode(true);expect(engine.setAircraft('velocity')).toBe(false);engine.start();
+    expect(engine.setGuestMode(false)).toBe(true);expect(engine.setAircraft('aegis')).toBe(false);
+    engine.pause();expect(engine.setGuestMode(false)).toBe(true);expect(engine.getSnapshot().aircraft.id).toBe('default');
+  });
+  it('atomically applies fresh auth configuration without midflight aircraft mutation',()=>{
+    const engine=createGameEngine({accountBestScore:100,aircraftId:'velocity'});engine.start();expect(engine.getSnapshot().aircraft.id).toBe('velocity');
+    engine.setGuestMode(true);expect(engine.getSnapshot().aircraft.id).toBe('velocity');
+    engine.start({guestMode:true,accountBestScore:10000,aircraftId:'aegis'});expect(engine.getSnapshot().aircraft.id).toBe('default');
+    engine.start({guestMode:false,accountBestScore:50,aircraftId:'aegis'});expect(engine.getSnapshot().aircraft.id).toBe('aegis');
+    engine.start({guestMode:false,accountBestScore:NaN,aircraftId:'velocity'});expect(engine.getSnapshot().aircraft.id).toBe('default');
   });
 
   it('freezes account mode and aircraft through play and pause', () => {

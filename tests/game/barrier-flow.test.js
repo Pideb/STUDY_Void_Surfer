@@ -4,14 +4,14 @@ import {getDashBarrierBounds,isDashObstacle} from '../../src/game/obstacles.js';
 
 describe('mandatory response spacing through real flight',()=>{
   it.each([['default',2000],['velocity',1000]])('keeps ordinary non-special wall cadence for %s',(aircraftId,interval)=>{
-    let time=0;const engine=createGameEngine({now:()=>time,gravity:0,guestMode:true,aircraftId,rng:()=>.99});engine.start();
+    let time=0;const engine=createGameEngine({now:()=>time,gravity:0,guestMode:false,accountBestScore:100,aircraftId,rng:()=>.99});engine.start();
     const spawned=[],seen=new Set();
     for(let i=0;i<70;i++){time+=100;engine.update(time);for(const wall of engine.getSnapshot().obstacles)if(!seen.has(wall.id)){seen.add(wall.id);spawned.push(time);}}
     for(let i=2;i<spawned.length;i++)expect(spawned[i]-spawned[i-1]).toBe(interval);
   });
   it.each(['default','aegis','velocity'].flatMap(aircraft=>[10,60,150].map(score=>[aircraft,score])))('%s at progression %s preserves cooldown recovery and finite quotas',(aircraftId,initialScore)=>{
     let time=0;const rng=()=>0;
-    const engine=createGameEngine({now:()=>time,gravity:0,rng,stageRng:rng,guestMode:true,aircraftId,initialScore,invincibilityEnabled:true});
+    const engine=createGameEngine({now:()=>time,gravity:0,rng,stageRng:rng,guestMode:false,accountBestScore:100,aircraftId,initialScore,invincibilityEnabled:true});
     engine.start();let previous=engine.getSnapshot(),lastPass=null,count=0,warningVerified=false,bossVerified=false;
     const seen=new Set();
     for(let frame=0;frame<6000&&!bossVerified;frame++){

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canSelectAircraft,
   AIRCRAFT_CATALOG,
   getAircraftDefinition,
   getUnlockedAircraftIds,
@@ -7,6 +8,13 @@ import {
 } from '../../src/game/aircraft.js';
 
 describe('aircraft catalog', () => {
+  it('keeps guest availability independent of account thresholds',()=>{
+    for(const bestScore of [0,50,100,10000]){
+      expect(AIRCRAFT_CATALOG.filter(craft=>canSelectAircraft(craft.id,{guestMode:true,bestScore})).map(craft=>craft.id)).toEqual(['default']);
+    }
+    expect(canSelectAircraft('unknown',{guestMode:true})).toBe(false);
+    expect(canSelectAircraft('aegis',{bestScore:50})).toBe(true);
+  });
   it('defines the three balanced profiles with the approved thresholds', () => {
     expect(AIRCRAFT_CATALOG.map(({ id }) => id)).toEqual(['default', 'aegis', 'velocity']);
     expect(getAircraftDefinition('velocity')).toMatchObject({

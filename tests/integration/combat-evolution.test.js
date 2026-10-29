@@ -6,7 +6,7 @@ describe('approved boss evolution across complete stage cycles', () => {
   it.each(['default', 'aegis', 'velocity'])('completes six distinct stage bosses with retries and portals (%s)', aircraftId => {
     let time = 0, seed = 108;
     const rng = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 4294967296; };
-    const engine = createGameEngine({ now: () => time, gravity: 0, rng, stageRng: rng, initialScore: 60, initialCompletedWarningCount: 1, aircraftId, guestMode: true, invincibilityEnabled: true });
+    const engine = createGameEngine({ now: () => time, gravity: 0, rng, stageRng: rng, initialScore: 60, initialCompletedWarningCount: 1, aircraftId, guestMode: false, accountBestScore: 100, invincibilityEnabled: true });
     engine.start();
     const identities = new Set(), failed = new Set(), signatureStages = new Set(), portalStages = new Set();
     let clears = 0, completedPortals = 0, roarFrames = 0, counterattacks = 0, snapshot = engine.getSnapshot();

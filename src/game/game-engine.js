@@ -64,7 +64,7 @@ import { intersectsBossBeam } from './boss-beam.js';
 import { getPlayerBounds } from './player-geometry.js';
 import { createSignatureAttack, updateSignatureAttack } from './boss-signatures.js';
 import { createPortalTransition, advancePortalTransition } from './portal-transition.js';
-import { getAircraftDefinition, isAircraftUnlocked } from './aircraft.js';
+import { getAircraftDefinition, canSelectAircraft } from './aircraft.js';
 import { createStageShuffleBag, getStageDefinition } from './stages.js';
 import {
   advanceBossEncounter,
@@ -111,6 +111,7 @@ export function createGameEngine(deps = {}) {
   let guestMode = Boolean(deps.guestMode);
   let invincibilityEnabled = Boolean(deps.invincibilityEnabled);
   let aircraft = getAircraftDefinition(deps.aircraftId);
+  if(!canSelectAircraft(aircraft.id,{guestMode,bestScore:accountBestScore}))aircraft=getAircraftDefinition();
 
   let state = GAME_STATES.MENU;
   let player = createPlayer();
@@ -542,7 +543,12 @@ export function createGameEngine(deps = {}) {
     obstacles = obstacles.filter((obstacle) => obstacle.x + obstacle.width >= 0);
   }
 
-  function start() {
+  function start(runOptions = {}) {
+    const config=runOptions&&typeof runOptions==='object'?runOptions:{};
+    if(Object.hasOwn(config,'guestMode'))guestMode=Boolean(config.guestMode);
+    if(Object.hasOwn(config,'accountBestScore'))accountBestScore=Number.isFinite(Number(config.accountBestScore))?Math.max(0,Number(config.accountBestScore)):0;
+    if(Object.hasOwn(config,'aircraftId'))aircraft=getAircraftDefinition(config.aircraftId);
+    if(!canSelectAircraft(aircraft.id,{guestMode,bestScore:accountBestScore}))aircraft=getAircraftDefinition();
     player = createPlayer();
     scoreSession = { score: initialScore, progressionScore: initialScore, passedObstacleIds: new Set() };
     elapsedSeconds = 0;
@@ -838,7 +844,7 @@ export function createGameEngine(deps = {}) {
       return accountBestScore;
     }
     accountBestScore = Math.max(0, Number(bestScore) || 0);
-    if (!guestMode && !isAircraftUnlocked(aircraft.id, accountBestScore)) {
+    if (!canSelectAircraft(aircraft.id,{guestMode,bestScore:accountBestScore})) {
       aircraft = getAircraftDefinition('default');
     }
     return accountBestScore;
@@ -849,7 +855,7 @@ export function createGameEngine(deps = {}) {
       return false;
     }
     const definition = getAircraftDefinition(id);
-    if (!guestMode && !isAircraftUnlocked(definition.id, accountBestScore)) return false;
+    if (!canSelectAircraft(id,{guestMode,bestScore:accountBestScore})) return false;
     aircraft = definition;
     return aircraft.id;
   }
@@ -859,7 +865,7 @@ export function createGameEngine(deps = {}) {
       return guestMode;
     }
     guestMode = Boolean(enabled);
-    if (!guestMode && !isAircraftUnlocked(aircraft.id, accountBestScore)) {
+    if (!canSelectAircraft(aircraft.id,{guestMode,bestScore:accountBestScore})) {
       aircraft = getAircraftDefinition('default');
     }
     return guestMode;
