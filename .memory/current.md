@@ -1,21 +1,17 @@
 # Current Context
 
 ## Active Plan
-None. 2026-10-29-cooldown-speed-boss-tuning complete.
+[Boss Motion, Aiming and Random Patterns](./plans/2026-10-29-boss-motion-aim-patterns.md)
 
 ## Active Phase
-None.
+[P01 Runtime](./phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/phase.md)
 
 ## Active Task
-None. All four tasks complete.
+[T01 Entry and Basics](./phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/T01-entry-and-basics.md)
 
 ## Status
-- T01 fixed actual speed increments/cap:eac7e76.
-- T02 small cooldown marker/.70s firing/UI:60611a7.
-- T03 random3..6 volleys/15% laser margins:bccbed6.
-- T04 complete integration and actual-screen validation:6f95ba1.
-- Progress4/4;48 test files/650 tests, production build, config and eight actual-render fixtures passed.
-- [Validation report](./validation/2026-10-29-cooldown-speed-boss-tuning/report.md).
+- Plan ready0/6; user authorized implementation through final Task.
+- Previous cooldown-speed-boss-tuning complete at33c16e2; preserve unrelated behavior.
 
 ## Next Step (IMPORTANT)
-Playtest with npm run dev: all craft+10 actual speed/10 points, cap100; NOVA/AEGIS240->340,VELOCITY480->580. Upper-left16px Space marker; player firing.50s charge+.20s recovery; wall-free3..6 shots; line lasers exclude15% each edge; aircraft/tutorial wording updated. No remaining Task. Azure deployment remains deferred; no DB/auth change.
+Read active T01, implement, validate and commit; continue sequentially throughT06. No auth/DB/deployment changes.

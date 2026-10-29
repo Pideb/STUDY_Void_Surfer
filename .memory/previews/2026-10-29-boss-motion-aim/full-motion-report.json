@@ -1,0 +1,1 @@
+{"stage":"crystal-gates","world":{"width":960,"height":540},"minimumCenterY":150,"maximumCenterY":390,"periodSeconds":6,"nominalArtHeight":128,"nominalArtMinY":86,"nominalArtMaxY":454,"reactorDiameter":80,"loadedAssets":53,"failedAssets":[],"fixture":"Preview using production scene and art; candidate movement only, no collision simulation."}
