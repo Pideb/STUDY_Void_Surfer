@@ -1,0 +1,190 @@
+{
+  "label": "final",
+  "reports": [
+    {
+      "scenario": "normal",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "buffer": {
+        "width": 1920,
+        "height": 1080
+      },
+      "layers": {
+        "background": {
+          "width": 960,
+          "height": 540,
+          "density": 0.5,
+          "available": true
+        },
+        "walls": {
+          "width": 1440,
+          "height": 810,
+          "density": 0.75,
+          "available": true
+        }
+      },
+      "frames": 90,
+      "medianFrameMs": 16.699999999999932,
+      "p95FrameMs": 33.299999999999955,
+      "over33ms": 1,
+      "medianDrawAndHudMs": 4.0999999940395355,
+      "p95DrawAndHudMs": 6,
+      "failedAssets": [],
+      "player": {
+        "x": 240,
+        "y": 270
+      },
+      "nativeRaf": true,
+      "simulationStepMs": 16.666666666666668,
+      "method": "Actual engine/art/renderer/HUD; deterministic gravity0/invincible, fixed benchmark simulation step, private Edge headless --disable-gpu. Baseline pins prior resolution policy; not physical-GPU FPS."
+    },
+    {
+      "scenario": "boss",
+      "viewport": {
+        "width": 1920,
+        "height": 1080,
+        "dpr": 1
+      },
+      "buffer": {
+        "width": 1920,
+        "height": 1080
+      },
+      "layers": {
+        "background": {
+          "width": 960,
+          "height": 540,
+          "density": 0.5,
+          "available": true
+        },
+        "walls": {
+          "width": 1440,
+          "height": 810,
+          "density": 0.75,
+          "available": true
+        },
+        "projectiles": {
+          "width": 960,
+          "height": 540,
+          "density": 0.5,
+          "available": true
+        },
+        "lasers": {
+          "width": 672,
+          "height": 378,
+          "density": 0.35,
+          "available": true
+        }
+      },
+      "frames": 90,
+      "medianFrameMs": 33.30000000000018,
+      "p95FrameMs": 50,
+      "over33ms": 36,
+      "medianDrawAndHudMs": 5.0999999940395355,
+      "p95DrawAndHudMs": 7.0999999940395355,
+      "failedAssets": [],
+      "player": {
+        "x": 240,
+        "y": 270
+      },
+      "nativeRaf": true,
+      "simulationStepMs": 16.666666666666668,
+      "method": "Actual engine/art/renderer/HUD; deterministic gravity0/invincible, fixed benchmark simulation step, private Edge headless --disable-gpu. Baseline pins prior resolution policy; not physical-GPU FPS."
+    },
+    {
+      "scenario": "normal",
+      "viewport": {
+        "width": 3840,
+        "height": 2160,
+        "dpr": 1
+      },
+      "buffer": {
+        "width": 1920,
+        "height": 1080
+      },
+      "layers": {
+        "background": {
+          "width": 960,
+          "height": 540,
+          "density": 0.5,
+          "available": true
+        },
+        "walls": {
+          "width": 1440,
+          "height": 810,
+          "density": 0.75,
+          "available": true
+        }
+      },
+      "frames": 90,
+      "medianFrameMs": 16.700000000000045,
+      "p95FrameMs": 33.39999999999998,
+      "over33ms": 5,
+      "medianDrawAndHudMs": 5.699999988079071,
+      "p95DrawAndHudMs": 6.700000017881393,
+      "failedAssets": [],
+      "player": {
+        "x": 240,
+        "y": 270
+      },
+      "nativeRaf": true,
+      "simulationStepMs": 16.666666666666668,
+      "method": "Actual engine/art/renderer/HUD; deterministic gravity0/invincible, fixed benchmark simulation step, private Edge headless --disable-gpu. Baseline pins prior resolution policy; not physical-GPU FPS."
+    },
+    {
+      "scenario": "boss",
+      "viewport": {
+        "width": 3840,
+        "height": 2160,
+        "dpr": 1
+      },
+      "buffer": {
+        "width": 1920,
+        "height": 1080
+      },
+      "layers": {
+        "background": {
+          "width": 960,
+          "height": 540,
+          "density": 0.5,
+          "available": true
+        },
+        "walls": {
+          "width": 1440,
+          "height": 810,
+          "density": 0.75,
+          "available": true
+        },
+        "projectiles": {
+          "width": 960,
+          "height": 540,
+          "density": 0.5,
+          "available": true
+        },
+        "lasers": {
+          "width": 672,
+          "height": 378,
+          "density": 0.35,
+          "available": true
+        }
+      },
+      "frames": 90,
+      "medianFrameMs": 33.30000000000018,
+      "p95FrameMs": 50,
+      "over33ms": 34,
+      "medianDrawAndHudMs": 5.799999982118607,
+      "p95DrawAndHudMs": 7,
+      "failedAssets": [],
+      "player": {
+        "x": 240,
+        "y": 270
+      },
+      "nativeRaf": true,
+      "simulationStepMs": 16.666666666666668,
+      "method": "Actual engine/art/renderer/HUD; deterministic gravity0/invincible, fixed benchmark simulation step, private Edge headless --disable-gpu. Baseline pins prior resolution policy; not physical-GPU FPS."
+    }
+  ],
+  "errors": []
+}

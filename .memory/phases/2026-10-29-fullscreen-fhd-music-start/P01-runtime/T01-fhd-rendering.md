@@ -1,6 +1,6 @@
 # Task: T01 FHD Rendering
 
-## Status: pending
+## Status: done
 
 ## Goal
 Keep fullscreen geometry/native RAF while reducing actual rendering buffer to at most1920×1080.
@@ -16,8 +16,8 @@ Keep fullscreen geometry/native RAF while reducing actual rendering buffer to at
 - `.memory/validation/2026-10-29-fullscreen-fhd-music-start/`: actual engine/art/render/HUD fixture for matched normal and active boss at1920×1080 and3840×2160,DPR1. Before editing run baseline; afterward repeat same seeds/state/RAF count. Record backing/layer dimensions, median/p95/slow-frame count/render time and screenshots, label software-headless/GPU limits. Helpers may use a private Edge CDP profile; leave user browser/devserver alone.
 
 ## Acceptance Criteria
-- [ ] New FHD bounding cap, aspect/input geometry and normal/high-DPR resize tests pass.
-- [ ] Baseline/final matched evidence, native RAF retained and no unrelated renderer changes.
+- [x] New FHD bounding cap, aspect/input geometry and normal/high-DPR resize tests pass.
+- [x] Baseline/final matched evidence, native RAF retained and no unrelated renderer changes.
 
 ## Validation
 - `npm test -- --run tests/game/render-resolution.test.js tests/game/renderer.test.js tests/game/render-layers.test.js tests/game/central-hitbox.test.js` (use actual hitbox path if under integration).
@@ -36,6 +36,6 @@ Task: T01-fhd-rendering
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit:pending

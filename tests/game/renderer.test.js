@@ -100,7 +100,8 @@ describe('renderer', () => {
       renderer.render(snapshot);renderer.render(snapshot);
       expect(widthSetter).not.toHaveBeenCalled();expect(c.translate).toHaveBeenCalledWith(240,270);
       bounds.width=2560;bounds.height=1440;notify();
-      expect(canvas.width).toBe(2560);expect(c.setTransform).toHaveBeenLastCalledWith(2560/960,0,0,1440/540,0,0);
+      expect(canvas.width).toBe(1920);expect(canvas.height).toBe(1080);
+      expect(c.setTransform).toHaveBeenLastCalledWith(2,0,0,2,0,0);
       renderer.renderMenuBackground();c.drawImage.mockClear();c.fillRect.mockClear();
       bounds.width=1280;bounds.height=720;notify();expect(c.fillRect).toHaveBeenCalled();
       renderer.destroy();expect(disconnect).toHaveBeenCalledOnce();
