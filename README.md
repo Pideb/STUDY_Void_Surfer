@@ -1,6 +1,8 @@
 # VOID SURFER
 
-현재 로컬 작업 버전은 **0.01-b**입니다. 일반 비행과 보스전이 번갈아 이어지며, 이전 독립 WARNING 규칙은 [보관 문서](./.memory/archive/2026-10-29-warning-0.01v.md)에 남겨 향후 재설계에 사용할 수 있습니다. 버전 자료는 [릴리스 목록](./docs/releases/README.md)에서 확인합니다.
+현재 배포 버전은 **0.01-b**입니다. 일반 비행과 보스전이 번갈아 이어지며, 이전 독립 WARNING 규칙은 [보관 문서](./.memory/archive/2026-10-29-warning-0.01v.md)에 남겨 향후 재설계에 사용할 수 있습니다. 버전 자료는 [릴리스 목록](./docs/releases/README.md)에서 확인합니다.
+
+0.01-b는 2026-10-29 Azure에 배포했습니다. [바로 플레이](https://proud-grass-03a132e00.6.azurestaticapps.net) — 설치 없이 게스트로 시작하거나 Microsoft 계정으로 로그인할 수 있습니다.
 
 ## Guest, ranking, and administrator test modes
 

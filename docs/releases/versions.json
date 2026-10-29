@@ -59,8 +59,8 @@
       "product": "VOID SURFER",
       "version": "0.01-b",
       "baselineDate": "2026-10-29",
-      "sourceCommit": "3928989",
-      "status": "validated-local-not-deployed",
+      "sourceCommit": "e0eaacf",
+      "status": "deployed-verified",
       "document": "void-surfer-0.01-b.html",
       "format": "single-file-html",
       "workflow": [
@@ -73,7 +73,7 @@
         "AEGIS",
         "VELOCITY"
       ],
-      "sourceRevisionNote": "3928989 + T04 follow-up: boss re-entry15..20 after full portal completion",
+      "sourceRevisionNote": "e0eaacf: includes the T04 boss re-entry cadence follow-up",
       "runtimeFingerprint": {
         "algorithm": "sha256",
         "files": [
@@ -90,7 +90,7 @@
         "configuration": "passed",
         "strictAutoplayMenuLoopVerified": true,
         "realProductionLogin": "user-confirmed for previous deployment",
-        "newVersionDeployed": false,
+        "newVersionDeployed": true,
         "physicalGpuFpsMeasured": false
       },
       "feedbackCases": 25,
@@ -105,7 +105,15 @@
       "previousVersion": "0.01v",
       "followUpChanges": [
         "Next boss threshold: full next-stage arrival score + random15..20; first boss20 unchanged"
-      ]
+      ],
+      "deployment": {
+        "headSha": "435bc6e5b3fd9fd95d7893938d0a2daacfc9528f",
+        "runId": 40836282096,
+        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/40836282096",
+        "completedAtUtc": "2026-10-29T07:35:50Z",
+        "bundleSha256": "78e71b913f237048eb13b5a7f820ffe443f92187bcb3b685beba7dcddb102658",
+        "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
+      }
     }
   ]
 }

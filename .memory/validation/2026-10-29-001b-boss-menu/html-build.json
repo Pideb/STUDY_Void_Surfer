@@ -1,13 +1,13 @@
 {
   "document": "docs\\releases\\void-surfer-0.01-b.html",
-  "bytes": 5805334,
-  "sha256": "68d73093cb8e56df0ad3b7aef2d0e2b59ae32693e9cc8809fefae2d9b138c8b8",
+  "bytes": 5805827,
+  "sha256": "7f85df32817e7d1d61f2ec7dcf66448e918fd9ad6aded643972790b514f8bdf1",
   "oldSnapshotSha256": "42704308b359b173044a658af44201ed05467070fc24c1cc0ca2cf9e9ce15d34",
   "oldSnapshotUnchanged": true,
   "downloadsCopyEqual": true,
   "feedbackCases": 25,
-  "sourceCommit": "3928989",
-  "sourceRevisionNote": "3928989 + T04 follow-up: boss re-entry15..20 after full portal completion",
+  "sourceCommit": "e0eaacf",
+  "sourceRevisionNote": "e0eaacf: includes the T04 boss re-entry cadence follow-up",
   "runtimeFingerprint": "71372f7881ca402d8e4ccd57ffd7d3f5a1085228da987bf74c3916bf7d17821c",
-  "deployed": false
+  "deployed": true
 }

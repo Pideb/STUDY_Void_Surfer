@@ -9,4 +9,4 @@
 
 ## Progress
 - done:4/4; no active task. Commits: T01 `1ae7524`, T02 `3928989`, T03 `7e7b15a`, T04 `e0eaacf`.
-- Latest718 tests/build/config and updated HTML evidence pass. Local0.01-b only; production unchanged.
+- Latest718 tests/build/config and updated HTML evidence pass. Subsequent explicit deployment request completed in Actions40836282096; live artifact matches local validated build.

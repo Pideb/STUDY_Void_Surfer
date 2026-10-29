@@ -1,10 +1,10 @@
 from pathlib import Path
-import re
+import json, re, sys
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
 source = (ROOT / '.memory/validation/2026-10-29-release-overview/verify-overview.mjs').read_text(encoding='utf-8')
-source = source.replace('2026-10-29-release-overview', '2026-10-29-001b-boss-menu').replace(':9421', ':9424')
+source = source.replace('2026-10-29-release-overview', '2026-10-29-001b-boss-menu').replace(':9421', ':'+(sys.argv[1] if len(sys.argv)>1 else '9424'))
 source = source.replace('void-surfer-0.01v.html', 'void-surfer-0.01-b.html').replace("version:'0.01v'", "version:'0.01-b'")
 source = source.replace('<21', '<25').replace('feedbackItems,21', 'feedbackItems,25')
 source = source.replace("await send('Page.enable');", "await send('Page.enable');await send('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1});", 1)
@@ -24,6 +24,12 @@ results.interactions.copiedVersion=await evaluate('window.__copiedVersion');
 assert.ok(results.interactions.copiedVersion.includes('3928989 + T04'));assert.ok(results.interactions.copiedVersion.includes('미배포'));
 assert.ok(!results.interactions.copiedVersion.includes('f69a166'));
 await evaluate(`document.getElementById('release').scrollIntoView({behavior:'instant',block:'start'})`);await screenshot('release-desktop');""")
+releases=json.loads((ROOT/'docs/releases/versions.json').read_text(encoding='utf-8'))
+current=next(r for r in releases['releases'] if r['version']=='0.01-b')
+if current['status']=='deployed-verified':
+    source=source.replace("assert.equal(results.metadata.status,'validated-local-not-deployed')", "assert.equal(results.metadata.status,'deployed-verified')")
+    source=source.replace("copiedVersion.includes('3928989 + T04')", "copiedVersion.includes('e0eaacf')")
+    source=source.replace("copiedVersion.includes('미배포')", "copiedVersion.includes('Azure 배포')")
 (HERE / 'verify-overview.mjs').write_text(source, encoding='utf-8', newline='\n')
 log = HERE / 't04-full-tests.log'
 raw = log.read_bytes()

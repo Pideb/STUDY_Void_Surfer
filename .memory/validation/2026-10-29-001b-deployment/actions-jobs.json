@@ -1,0 +1,65 @@
+{
+  "jobs": [
+    {
+      "id": 123321703843,
+      "name": "Build and Deploy Job",
+      "status": "completed",
+      "conclusion": "success",
+      "run_id": 40836282096,
+      "logs_url": null,
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1
+        },
+        {
+          "name": "Build Azure/static-web-apps-deploy@v1",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2
+        },
+        {
+          "name": "Run actions/checkout@v3",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3
+        },
+        {
+          "name": "Check public build configuration",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4
+        },
+        {
+          "name": "Build And Deploy",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5
+        },
+        {
+          "name": "Post Run actions/checkout@v3",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 10
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11
+        }
+      ]
+    },
+    {
+      "id": 123321704339,
+      "name": "Close Pull Request Job",
+      "status": "completed",
+      "conclusion": "skipped",
+      "run_id": 40836282096,
+      "logs_url": null,
+      "steps": null
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "remote": "https://github.com/Pideb/STUDY_Void_Surfer.git",
+  "outgoingCommits": 7,
+  "outgoingBlobs": 112,
+  "textBlobsChecked": 91,
+  "largestBlobBytes": 5805334,
+  "trackedPrivateConfiguration": [],
+  "highConfidenceCredentialFindings": [],
+  "limitation": "Heuristic scan, not proof of absence of every possible secret. Public publishable/anon keys are not classified as server credentials.",
+  "sentHead": "435bc6e5b3fd9fd95d7893938d0a2daacfc9528f"
+}

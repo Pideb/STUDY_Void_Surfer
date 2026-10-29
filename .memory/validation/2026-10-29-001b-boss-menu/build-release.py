@@ -95,6 +95,31 @@ metadata={
  'productionUrl':'https://proud-grass-03a132e00.6.azurestaticapps.net','previousVersion':'0.01v',
  'followUpChanges':['Next boss threshold: full next-stage arrival score + random15..20; first boss20 unchanged'],
 }
+
+# Record publication only after matching Azure-run and public-bundle evidence.
+deployment_dir = ROOT/'.memory/validation/2026-10-29-001b-deployment'
+deployed = False
+if (deployment_dir/'actions-run.json').exists() and (deployment_dir/'live-checks.json').exists():
+    run = json.loads((deployment_dir/'actions-run.json').read_text(encoding='utf-8'))
+    live = json.loads((deployment_dir/'live-checks.json').read_text(encoding='utf-8'))
+    assert run['status']=='completed' and run['conclusion']=='success'
+    assert run['head_sha']==live['deploymentHead'] and live['bundle']['matchesLocalValidatedBuild']
+    deployed = True
+    runtime_commit = live['codeCommit']
+    metadata['sourceCommit'] = runtime_commit
+    metadata['sourceRevisionNote'] = 'e0eaacf: includes the T04 boss re-entry cadence follow-up'
+    metadata['status'] = 'deployed-verified'
+    metadata['verification']['newVersionDeployed'] = True
+    metadata['deployment'] = {'headSha':run['head_sha'],'runId':run['id'],'runUrl':run['html_url'],
+      'completedAtUtc':run['updated_at'],'bundleSha256':live['bundle']['sha256'],'origin':live['origin']}
+    doc = doc.replace('3928989 + T04', runtime_commit)
+    doc = doc.replace('CURRENT LOCAL WORK', 'CURRENT DEPLOYED VERSION')
+    doc = doc.replace('현재 게임 코드는 e0eaacf 재등장 간격 후속 수정입니다.', '현재 게임 코드 기준은 e0eaacf이며 재등장 간격 후속 수정을 포함합니다.')
+    doc = doc.replace('아래는 이번 로컬 작업의 결과이며 운영 서버에 새 버전을 배포했다는 뜻은 아닙니다.', '로컬 검증 후 Azure 배포를 완료했고 운영 파일이 검증한 빌드와 일치하는지 확인했습니다.')
+    doc = doc.replace('로컬 검증 완료 · 미배포', 'Azure 배포 · 공개 파일 검증 완료')
+    doc = doc.replace('상태: 로컬 검증 완료, 미배포', '상태: Azure 배포 및 공개 파일 검증 완료')
+    doc = doc.replace('로컬 커밋으로 정리한 버전입니다. 현재 공유 중인 Azure 주소는 기존 배포를 유지합니다.', '2026.10.29 Azure 배포를 완료했습니다. 공유 중인 주소에서 0.01-b를 플레이할 수 있습니다. 로그인 콜백·공개 랭킹 조회·실제 첫 메뉴 입력의 음악 시작을 확인했습니다.')
+    doc = doc.replace('WARNING 보관, 미배포 상태를 새 HTML로 기록.', 'WARNING 보관, Azure 배포 및 공개 파일 검증을 새 HTML로 기록.')
 doc=re.sub(r'<script type="application/json" id="releaseMetadata">[\s\S]*?</script>',lambda _:'<script type="application/json" id="releaseMetadata">'+json.dumps(metadata,ensure_ascii=False)+'</script>',doc,count=1)
 doc='\n'.join(line.rstrip() for line in doc.splitlines())+'\n'
 out=ROOT/'docs/releases/void-surfer-0.01-b.html';out.write_bytes(doc.encode('utf-8'))
@@ -105,6 +130,6 @@ registry.write_text(json.dumps(history,ensure_ascii=False,indent=2)+'\n',encodin
 assert BASE.read_bytes()==OLD_BYTES
 assert len(re.findall(r'class="feedback-item"',doc))==25
 assert '0.01v 当' not in doc
-report={'document':str(out.relative_to(ROOT)),'bytes':out.stat().st_size,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'oldSnapshotSha256':OLD_HASH,'oldSnapshotUnchanged':True,'downloadsCopyEqual':out.read_bytes()==copy.read_bytes(),'feedbackCases':25,'sourceCommit':runtime_commit,'sourceRevisionNote':metadata['sourceRevisionNote'],'runtimeFingerprint':runtime_fingerprint,'deployed':False}
+report={'document':str(out.relative_to(ROOT)),'bytes':out.stat().st_size,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'oldSnapshotSha256':OLD_HASH,'oldSnapshotUnchanged':True,'downloadsCopyEqual':out.read_bytes()==copy.read_bytes(),'feedbackCases':25,'sourceCommit':runtime_commit,'sourceRevisionNote':metadata['sourceRevisionNote'],'runtimeFingerprint':runtime_fingerprint,'deployed':deployed}
 (HERE/'html-build.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(report))

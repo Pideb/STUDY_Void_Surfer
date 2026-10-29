@@ -1,0 +1,64 @@
+{
+  "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net",
+  "version": "0.01-b",
+  "codeCommit": "e0eaacf",
+  "deploymentHead": "435bc6e5b3fd9fd95d7893938d0a2daacfc9528f",
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "appHtml": true
+    },
+    {
+      "path": "/auth/callback",
+      "status": 200,
+      "appHtml": true
+    },
+    {
+      "path": "/assets/audio/menu/orbit-run.wav",
+      "status": 200,
+      "bytes": 1512044
+    },
+    {
+      "path": "/assets/game/aircraft/default.png",
+      "status": 200,
+      "bytes": 1527828
+    },
+    {
+      "path": "/assets/game/stages/crystal-gates/background.png",
+      "status": 200,
+      "bytes": 2218798
+    },
+    {
+      "path": "/assets/game/stages/crystal-gates/boss-evolved.png",
+      "status": 200,
+      "bytes": 2332663
+    },
+    {
+      "path": "/assets/audio/boss-entry.wav",
+      "status": 200,
+      "bytes": 230444
+    }
+  ],
+  "bundle": {
+    "path": "/assets/index-6Nle5Si8.js",
+    "status": 200,
+    "projectUrlPresent": true,
+    "publishableKeyPresent": true,
+    "sha256": "78e71b913f237048eb13b5a7f820ffe443f92187bcb3b685beba7dcddb102658",
+    "matchesLocalValidatedBuild": true
+  },
+  "publicRanking": {
+    "status": 200,
+    "rowsRead": 1,
+    "writePerformed": false,
+    "azureOriginAllowedByCors": true
+  },
+  "authProvider": {
+    "status": 200,
+    "azureEnabled": true,
+    "realLoginVerified": false,
+    "previousProductionLogin": "user-confirmed"
+  },
+  "remainingOperatorStep": "New real-account score-write test not performed; no settings change required by this deployment."
+}
