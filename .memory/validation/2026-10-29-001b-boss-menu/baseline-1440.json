@@ -1,0 +1,28 @@
+{
+  "label": "baseline",
+  "width": 1440,
+  "method": "Edge headless --disable-gpu; real RAF; strict autoplay; 180 measured intervals after 1.2s warmup. Not physical GPU FPS.",
+  "frames": 180,
+  "medianFrameMs": 16.699999999999818,
+  "p95FrameMs": 16.700000000000273,
+  "over33ms": 0,
+  "taskDurationMs": 72.38899999999998,
+  "paintEvents": 0,
+  "paintDurationMs": 0,
+  "yRange": [
+    292.765625,
+    298.765625
+  ],
+  "nodeStable": true,
+  "beforeGesture": {
+    "contexts": 0,
+    "bufferStarts": 0
+  },
+  "afterGesture": {
+    "contexts": [],
+    "starts": [],
+    "screen": "menu",
+    "audioRequests": []
+  },
+  "errors": []
+}
