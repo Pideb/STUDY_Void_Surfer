@@ -1,0 +1,13 @@
+# Rendering Validation
+
+The original production renderer was preserved as `baseline-renderer.mjs` before density edits, with source commit7ff44ed and SHA in `baseline-provenance.json`. Initial desktop baseline loaded the original module before editing; later mobile baseline uses this immutable bundle. All comparison runs use the same actual engine snapshots and53 production visual assets.
+
+The final density profile preserves native primary resolution/foreground; backgrounds.5, walls.75, projectiles.5 and lasers.35 scale both raster dimensions. Actual raster work is reused across frames; thin white projectile paths, special timing-band edges, safe-lane boundaries/chevrons and warning dashes are composed at native resolution. Two resampled source tiles bound background memory; this cache contains image resampling only and cannot freeze scrolling or a scene snapshot.
+
+Initial layered measurements exposed costly high-quality resampling. Bilinear sampling is now confined to the reduced layers; native ship/boss sampling remains unchanged. Laser blur radius is scaled with raster density. No physics/input interval, collision size, sound, HP or game object size was reduced. Intermediate measurements are preserved under balanced-desktop/final-desktop/final-v2-desktop; final-v3-desktop and final-mobile are the final before/after pairs.
+
+Desktop forced-raster median times (ms), original → final: walls7→11.8, volley16.2→20, global605.7→44.5, failure15.5→15.1. Mobile: walls3→2.6, volley5→4.9, global73.1→10.6, failure3.6→4.5. The largest benefit is the expensive global laser. Desktop light scenes can pay a few extra milliseconds for layer composition; this is reported rather than described as a universal speedup. Observed desktop walls remain around16.6ms RAF interval under this harness.
+
+Method:60 warmup and180 measured RAF draws per scene;1px synchronous readback forces raster completion. `drawMs`, `flushedMs` and RAF intervals are separate. Headless Edge with `--disable-gpu` is a software-rendering comparison, not a physical GPU FPS prediction. Browser/viewport/DPR and per-scene source snapshots are in eachJSON. Final comparison script checks identical snapshots, actual density dimensions and original/full-reference/optimized provenance.
+
+`dpr2-desktop` is a one-sample visual/dimension check only, not a matched benchmark. Native final layout screenshots may resize the viewport after load; raw canvas PNGs/JSON contain the measured pre-screenshot buffer dimensions. The static benchmark includes no artificial HUD; actual HUD/menu/guest screens are validated separately in the integration task.

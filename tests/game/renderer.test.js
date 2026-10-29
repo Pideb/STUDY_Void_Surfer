@@ -40,6 +40,26 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('keeps the ship on the primary context while wall textures use their own raster surface',()=>{
+    const primary=createContext(),canvas=document.createElement('canvas'),surfaces=[];canvas.getContext=()=>primary;
+    const ship={width:300,height:160},wall={width:1024,height:1536};
+    const renderer=createRenderer(canvas,{visualAssets:{get:key=>key==='aircraft.default'?ship:key==='stages.crystal-gates.normalWall'?wall:null},
+      layerCanvasFactory:()=>{const ctx=createContext(),surface={width:1,height:1,getContext:()=>ctx};surfaces.push({surface,ctx});return surface;}});
+    renderer.render({stage:{id:'crystal-gates'},difficulty:{scrollSpeed:240},player:{x:240,y:270,width:36,height:24,velocityY:0},obstacles:[{x:500,width:72,kind:'normal',stageId:'crystal-gates',gapCenter:270,gapHeight:180}]});
+    expect(primary.drawImage.mock.calls.some(([image])=>image===ship)).toBe(true);
+    expect(primary.drawImage.mock.calls.some(([image])=>image===wall)).toBe(false);
+    expect(surfaces.some(({ctx})=>ctx.drawImage.mock.calls.some(([image])=>image===wall))).toBe(true);
+    expect(renderer.getLayerStats().walls.density).toBe(.75);renderer.destroy();
+  });
+  it('draws ambient laser warnings and passed timing-band edges on the primary context',()=>{
+    const primary=createContext(),canvas=document.createElement('canvas');canvas.getContext=()=>primary;
+    const renderer=createRenderer(canvas,{layerCanvasFactory:()=>{const ctx=createContext();return {width:1,height:1,getContext:()=>ctx};}});
+    renderer.render({difficulty:{scrollSpeed:500,timingWindowSeconds:.15},player:{x:240,y:270,width:36,height:24,velocityY:0},
+      obstacles:[{kind:'special',x:100,width:24,showTimingGuide:true,passed:true,timingGuideWidthPx:75,gapCenter:270,gapHeight:180}],
+      ambientAttack:{type:'laser',kind:'single',y:200,ys:[200],telegraphRemainingSeconds:.7,telegraphDurationSeconds:.7,activeRemainingSeconds:1,fadeRemainingSeconds:.15}});
+    expect(primary.lineTo).toHaveBeenCalledWith(960,200);expect(primary.moveTo).toHaveBeenCalledWith(25,0);
+    expect(renderer.getLayerStats().lasers.density).toBe(.35);renderer.destroy();
+  });
   it('anchors boss background vertically and keeps seam geometry tied to captured speed',()=>{
     const context=createContext(),canvas=document.createElement('canvas'),background={width:960,height:540};canvas.getContext=()=>context;
     const renderer=createRenderer(canvas,{visualAssets:{get:key=>key==='stages.crystal-gates.bossBackground'?background:null}});

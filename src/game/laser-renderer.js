@@ -18,7 +18,7 @@ function charge(ctx, y, radius, strength) {
   ctx.restore();
 }
 
-function beam(ctx, y, height, front, time, opacity = 1) {
+function beam(ctx, y, height, front, time, opacity = 1, rasterScale = 1) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   ctx.lineCap = 'round';
@@ -32,7 +32,7 @@ function beam(ctx, y, height, front, time, opacity = 1) {
     ctx.globalAlpha = opacity * alpha * shimmer;
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
-    ctx.filter = blur > 0 ? `blur(${blur}px)` : 'none';
+    ctx.filter = blur > 0 ? `blur(${blur * rasterScale}px)` : 'none';
     ctx.beginPath();
     ctx.moveTo(W + height * 2, centerY);
     ctx.lineTo(tip + width / 2 + offset, centerY);
@@ -58,7 +58,7 @@ function beam(ctx, y, height, front, time, opacity = 1) {
 
   // Fine highlights stream left within the glow rather than outlining a box.
   ctx.shadowColor = cyan;
-  ctx.shadowBlur = 8;
+  ctx.shadowBlur = 8 * rasterScale;
   ctx.filter = 'none';
   for (let index = 0; index < (broad ? 22 : 10); index += 1) {
     const x = ((index * 103 - time * 980) % (W + 180) + W + 180) % (W + 180) - 90;
@@ -132,10 +132,10 @@ function dangerLanes(ctx,safeZone,zoneHeight,warning,opacity) {
   ctx.restore();
 }
 
-export function drawLaser(ctx, attack) {
+export function drawLaser(ctx, attack, {guidance = true, rasterScale = 1} = {}) {
   if (!attack || attack.type !== 'laser') return;
   if (attack.kind === 'single' && attack.ys?.length > 1) {
-    for (const y of attack.ys) drawLaser(ctx, { ...attack, y, ys: undefined });
+    for (const y of attack.ys) drawLaser(ctx, { ...attack, y, ys: undefined }, {guidance,rasterScale});
     return;
   }
   const warning = attack.telegraphRemainingSeconds > 0;
@@ -148,27 +148,31 @@ export function drawLaser(ctx, attack) {
   ctx.save();
   if (attack.kind === 'single') {
     if (warning) {
+      if (guidance) {
       ctx.strokeStyle = '#8defff'; ctx.globalAlpha = 0.65;
       ctx.setLineDash([12, 12]); ctx.lineWidth = 2;
       ctx.beginPath(); ctx.moveTo(0, attack.y); ctx.lineTo(W, attack.y); ctx.stroke();
       ctx.setLineDash([]);
+      }
       charge(ctx, attack.y, 24 + 17 * warningProgress, 0.5 + 0.4 * warningProgress);
     } else {
-      beam(ctx, attack.y, attack.thickness ?? 18, front, time, opacity);
+      beam(ctx, attack.y, attack.thickness ?? 18, front, time, opacity, rasterScale);
       charge(ctx, attack.y, 48, opacity);
     }
   } else if (attack.kind === 'quarter') {
     const zoneHeight = attack.zoneHeight ?? H / 4;
-    dangerLanes(ctx,attack.safeZone,zoneHeight,warning,warning?1:opacity);
+    if (guidance) dangerLanes(ctx,attack.safeZone,zoneHeight,warning,warning?1:opacity);
     if (warning) {
       for (let zone = 0; zone < 4; zone += 1) {
         if (zone === attack.safeZone) continue;
         ctx.save();
+        if (guidance) {
         ctx.strokeStyle = 'rgba(99,226,255,0.25)'; ctx.setLineDash([14, 16]);
         ctx.lineWidth = 1;
         for (const fraction of [0.2, 0.5, 0.8]) {
           const y = (zone + fraction) * zoneHeight;
           ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        }
         }
         ctx.restore();
         charge(ctx, (zone + 0.5) * zoneHeight, 28, 0.3 + warningProgress * 0.44);
@@ -183,13 +187,31 @@ export function drawLaser(ctx, attack) {
       ctx.clip();
       for (let zone = 0; zone < 4; zone += 1) {
         if (zone === attack.safeZone) continue;
-        beam(ctx, (zone + 0.5) * zoneHeight, zoneHeight - 8, front, time, opacity);
+        beam(ctx, (zone + 0.5) * zoneHeight, zoneHeight - 8, front, time, opacity, rasterScale);
         charge(ctx, (zone + 0.5) * zoneHeight, 60, opacity);
       }
       ctx.restore();
     }
     // Draw the boundaries last so the safe route stays readable over the bloom.
-    safeLane(ctx, attack.safeZone, time, warning);
+    if (guidance) safeLane(ctx, attack.safeZone, time, warning);
+  }
+  ctx.restore();
+}
+
+export function drawLaserGuidance(ctx,attack){
+  if(!attack||attack.type!=='laser')return;
+  const warning=attack.telegraphRemainingSeconds>0;
+  if(!warning&&attack.activeRemainingSeconds<=0&&!(attack.fadeRemainingSeconds>0))return;
+  ctx.save();
+  if(attack.kind==='single'&&warning){ctx.strokeStyle='#8defff';ctx.globalAlpha=.65;ctx.setLineDash([12,12]);ctx.lineWidth=2;
+    for(const y of attack.ys??[attack.y]){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}ctx.setLineDash([]);
+  }else if(attack.kind==='quarter'){
+    const opacity=warning||attack.activeRemainingSeconds>0?1:Math.max(0,attack.fadeRemainingSeconds/BOSS_LASER_FADE_SECONDS);
+    dangerLanes(ctx,attack.safeZone,attack.zoneHeight??H/4,warning,opacity);
+    if(warning){ctx.strokeStyle='rgba(99,226,255,.25)';ctx.setLineDash([14,16]);ctx.lineWidth=1;
+      for(let zone=0;zone<4;zone++)if(zone!==attack.safeZone)for(const f of [.2,.5,.8]){ctx.beginPath();ctx.moveTo(0,(zone+f)*(attack.zoneHeight??H/4));ctx.lineTo(W,(zone+f)*(attack.zoneHeight??H/4));ctx.stroke();}ctx.setLineDash([]);
+    }
+    safeLane(ctx,attack.safeZone,attack.elapsedSeconds??0,warning);
   }
   ctx.restore();
 }

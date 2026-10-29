@@ -1,0 +1,5 @@
+{
+  "commit": "7ff44ed",
+  "bundleSha256": "64a060c530662c6a9a2166d506cae4e8c8f4e0162b4c3a1f39e1876f2487f52e",
+  "note": "Original production renderer bundled before density changes; includes its original laser implementation. Actual public snapshots/asset loader are shared."
+}

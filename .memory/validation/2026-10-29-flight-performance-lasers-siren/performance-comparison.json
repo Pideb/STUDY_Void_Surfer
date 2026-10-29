@@ -1,0 +1,109 @@
+{
+  "method": "Headless software rasterization; identical public-engine snapshots,60 warmup/180 measured RAF renders per scene. Includes1px synchronous readback. Not a hardware FPS guarantee.",
+  "comparisons": [
+    {
+      "device": "desktop",
+      "scene": "walls",
+      "beforeMs": 7,
+      "afterMs": 11.800000011920929,
+      "changePercent": 68.57142874172754,
+      "beforeP95": 9.199999988079071,
+      "afterP95": 15.300000011920929,
+      "beforeDrawMs": 0.30000001192092896,
+      "afterDrawMs": 4.0999999940395355,
+      "beforeFrameInterval": 16.599999994039536,
+      "afterFrameInterval": 16.599999994039536
+    },
+    {
+      "device": "desktop",
+      "scene": "volley",
+      "beforeMs": 16.19999998807907,
+      "afterMs": 20,
+      "changePercent": 23.45679021430369,
+      "beforeP95": 20.100000023841858,
+      "afterP95": 29.900000005960464,
+      "beforeDrawMs": 0.30000001192092896,
+      "afterDrawMs": 2.9000000059604645,
+      "beforeFrameInterval": 16.69999998807907,
+      "afterFrameInterval": 20.700000017881393
+    },
+    {
+      "device": "desktop",
+      "scene": "global",
+      "beforeMs": 605.7000000178814,
+      "afterMs": 44.5,
+      "changePercent": -92.65312861174075,
+      "beforeP95": 674.9000000059605,
+      "afterP95": 59.5,
+      "beforeDrawMs": 0.7000000178813934,
+      "afterDrawMs": 26.900000005960464,
+      "beforeFrameInterval": 605.7999999821186,
+      "afterFrameInterval": 45.19999998807907
+    },
+    {
+      "device": "desktop",
+      "scene": "failure",
+      "beforeMs": 15.5,
+      "afterMs": 15.099999994039536,
+      "changePercent": -2.5806451997449353,
+      "beforeP95": 18.30000001192093,
+      "afterP95": 21.69999998807907,
+      "beforeDrawMs": 0.30000001192092896,
+      "afterDrawMs": 1.800000011920929,
+      "beforeFrameInterval": 16.5,
+      "afterFrameInterval": 16.700000017881393
+    },
+    {
+      "device": "mobile",
+      "scene": "walls",
+      "beforeMs": 3,
+      "afterMs": 2.5999999940395355,
+      "changePercent": -13.333333532015478,
+      "beforeP95": 4.700000017881393,
+      "afterP95": 3.4000000059604645,
+      "beforeDrawMs": 0.30000001192092896,
+      "afterDrawMs": 1.300000011920929,
+      "beforeFrameInterval": 16.599999994039536,
+      "afterFrameInterval": 16.600000023841858
+    },
+    {
+      "device": "mobile",
+      "scene": "volley",
+      "beforeMs": 5,
+      "afterMs": 4.9000000059604645,
+      "changePercent": -1.999999880790715,
+      "beforeP95": 6.800000011920929,
+      "afterP95": 6.4000000059604645,
+      "beforeDrawMs": 0.5,
+      "afterDrawMs": 1.4000000059604645,
+      "beforeFrameInterval": 16.69999998807907,
+      "afterFrameInterval": 16.69999998807907
+    },
+    {
+      "device": "mobile",
+      "scene": "global",
+      "beforeMs": 73.09999999403954,
+      "afterMs": 10.600000023841858,
+      "changePercent": -85.49931597167419,
+      "beforeP95": 76.7000000178814,
+      "afterP95": 13.800000011920929,
+      "beforeDrawMs": 0.5999999940395355,
+      "afterDrawMs": 7.200000017881393,
+      "beforeFrameInterval": 73.5,
+      "afterFrameInterval": 16.899999976158142
+    },
+    {
+      "device": "mobile",
+      "scene": "failure",
+      "beforeMs": 3.5999999940395355,
+      "afterMs": 4.5,
+      "changePercent": 25.000000206960582,
+      "beforeP95": 7.5,
+      "afterP95": 5.4000000059604645,
+      "beforeDrawMs": 0.4000000059604645,
+      "afterDrawMs": 1.100000023841858,
+      "beforeFrameInterval": 16.69999998807907,
+      "afterFrameInterval": 16.69999998807907
+    }
+  ]
+}

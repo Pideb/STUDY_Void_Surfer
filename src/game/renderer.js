@@ -1,3 +1,4 @@
+import { createRenderLayers } from './render-layers.js';
 import {
   DASH_DURATION_SECONDS, DASH_COOLDOWN_SECONDS, WORLD_HEIGHT, WORLD_WIDTH,
 } from './constants.js';
@@ -10,7 +11,7 @@ import {
 import { getDashBarrierBounds } from './obstacles.js';
 import { getPlayerBounds } from './collision.js';
 import { getSpecialSuccessBounds } from './player-geometry.js';
-import { drawLaser } from './laser-renderer.js';
+import { drawLaser, drawLaserGuidance } from './laser-renderer.js';
 import { VISUAL_ASSET_MANIFEST } from './visual-assets.js';
 import { BOSS_RIGS } from './boss-rigs.js';
 import { getBossGeometry } from './boss-geometry.js';
@@ -323,9 +324,9 @@ function drawClippedWallAsset(ctx, image, obstacle, y, height, sourceXRatio, sou
   ctx.restore();
 }
 
-export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = null, visualAssets = null, reducedMotion = false) {
+export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = null, visualAssets = null, reducedMotion = false, {guidance = true} = {}) {
   if (obstacle.kind === 'hybrid') {
-    drawObstacle(ctx, { ...obstacle, kind: 'normal', showTimingGuide: false, breakEffect: null }, theme, difficulty, visualAssets, reducedMotion);
+    drawObstacle(ctx, { ...obstacle, kind: 'normal', showTimingGuide: false, breakEffect: null }, theme, difficulty, visualAssets, reducedMotion, {guidance});
     const barrier = getDashBarrierBounds(obstacle);
     ctx.save();
     ctx.beginPath();
@@ -333,7 +334,7 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
     ctx.clip();
     const breakEffect = obstacle.breakEffect ?? (obstacle.barrierBroken
       ? { centerY: obstacle.barrierBreakY, remainingSeconds: 0, durationSeconds: 1, seed: 0 } : null);
-    drawObstacle(ctx, { ...obstacle, ...barrier, kind: 'special', breakEffect }, theme, difficulty, visualAssets, reducedMotion);
+    drawObstacle(ctx, { ...obstacle, ...barrier, kind: 'special', breakEffect }, theme, difficulty, visualAssets, reducedMotion, {guidance});
     ctx.restore();
     return;
   }
@@ -474,8 +475,23 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
     }
   }
 
-  if (timingGuideWidth > 0) drawSpecialTimingGuide(ctx, obstacle, difficulty, timingGuideWidth, reducedMotion);
+  if (guidance && timingGuideWidth > 0) drawSpecialTimingGuide(ctx, obstacle, difficulty, timingGuideWidth, reducedMotion);
   ctx.restore();
+}
+
+// Cache only source resampling, never a scene/frame: camera travel and clipping
+// remain live. Two tiles bound memory while allowing current/next scenery.
+const stageTiles=[];
+function getStageTile(ctx,image,width,height){
+  if(typeof ctx.getTransform!=='function')return image;
+  const matrix=ctx.getTransform(),w=Math.max(1,Math.ceil(width*Math.abs(matrix.a))),h=Math.max(1,Math.ceil(height*Math.abs(matrix.d)));
+  const cached=stageTiles.find(tile=>tile.image===image&&tile.w===w&&tile.h===h);if(cached)return cached.canvas;
+  try{
+    const canvas=typeof OffscreenCanvas==='function'?new OffscreenCanvas(w,h):typeof document!=='undefined'?document.createElement('canvas'):null;
+    if(!canvas)return image;canvas.width=w;canvas.height=h;const tileCtx=canvas.getContext('2d');if(!tileCtx?.drawImage)return image;
+    tileCtx.imageSmoothingEnabled=true;tileCtx.imageSmoothingQuality='low';tileCtx.drawImage(image,0,0,w,h);
+    stageTiles.push({image,w,h,canvas});if(stageTiles.length>2){const old=stageTiles.shift();old.canvas.width=1;old.canvas.height=1;}return canvas;
+  }catch{return image;}
 }
 
 function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = false, scrollDistancePx = 0, scrollSpeed = 240, stableVertical = false) {
@@ -484,16 +500,17 @@ function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = f
   const width = WORLD_WIDTH * scale;
   const height = WORLD_HEIGHT * scale;
   const overflowY = height - WORLD_HEIGHT;
+  const tile=getStageTile(ctx,background,width,height);
   const offsetY = overflowY / 2 + ((reducedMotion || stableVertical) ? 0 : Math.sin(elapsedSeconds * 0.12) * Math.min(overflowY * 0.18, 7));
   if (reducedMotion) {
-    ctx.drawImage(background, -(width - WORLD_WIDTH) / 2, -offsetY, width, height);
+    ctx.drawImage(tile, -(width - WORLD_WIDTH) / 2, -offsetY, width, height);
   } else {
     const overlap = Math.min(width * 0.12, Math.max(12, scrollSpeed * 0.25 * 0.35));
     const period = width - overlap;
     const phase = ((scrollDistancePx % period) + period) % period;
     const firstX = -phase;
     const nextX = period - phase;
-    ctx.drawImage(background, firstX, -offsetY, width, height);
+    ctx.drawImage(tile, firstX, -offsetY, width, height);
 
     // Crossfade the repeated image over the overlap so its edge is never a hard seam.
     const strips = 8;
@@ -505,14 +522,14 @@ function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = f
       ctx.rect(stripX, 0, stripWidth, WORLD_HEIGHT);
       ctx.clip();
       ctx.globalAlpha = sceneAlpha * (index + 1) / strips;
-      ctx.drawImage(background, nextX, -offsetY, width, height);
+      ctx.drawImage(tile, nextX, -offsetY, width, height);
       ctx.restore();
     }
     ctx.save();
     ctx.beginPath();
     ctx.rect(nextX + overlap, 0, WORLD_WIDTH - nextX - overlap, WORLD_HEIGHT);
     ctx.clip();
-    ctx.drawImage(background, nextX, -offsetY, width, height);
+    ctx.drawImage(tile, nextX, -offsetY, width, height);
     ctx.restore();
   }
   ctx.fillStyle = 'rgba(2, 6, 18, 0.34)';
@@ -804,55 +821,30 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
   ctx.restore();
 }
 
-function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null) {
+function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null, pass = 'all') {
   if (attack?.type === 'volley') {
     for (const projectile of attack.projectiles ?? []) {
-      if (projectile.state !== 'resolved') drawProjectile(ctx, projectile, theme, visualAssets, attack.stageId ?? stageId);
+      if (projectile.state !== 'resolved') drawProjectile(ctx, projectile, theme, visualAssets, attack.stageId ?? stageId, pass);
     }
     return;
   }
   if (!attack || attack.type !== 'projectile') return;
   const color = theme.projectile;
   ctx.save();
-  if (attack.state === 'charging' && attack.telegraphPoints?.length > 1) {
-    ctx.globalAlpha = 0.92;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 4;
-    setGlow(ctx, color, 16);
-    ctx.beginPath();
-    attack.telegraphPoints.forEach((point, index) => {
-      if (index === 0) ctx.moveTo(point.x, point.y);
-      else ctx.lineTo(point.x, point.y);
-    });
-    ctx.stroke();
-    resetGlow(ctx);
-    ctx.globalAlpha = 0.9;
-    ctx.strokeStyle = '#f4ffff';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    attack.telegraphPoints.forEach((point, index) => {
-      if (index === 0) ctx.moveTo(point.x, point.y);
-      else ctx.lineTo(point.x, point.y);
-    });
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    attack.telegraphPoints.forEach((point) => {
-      ctx.beginPath(); ctx.arc(point.x, point.y, 4, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
-      ctx.beginPath(); ctx.arc(point.x, point.y, 2, 0, Math.PI * 2); ctx.fillStyle = '#f4ffff'; ctx.fill();
-    });
-  } else if (attack.state === 'charging') {
-    ctx.globalAlpha = 0.9;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 4;
-    setGlow(ctx, color, 16);
-    ctx.beginPath(); ctx.moveTo(attack.bossX, attack.bossY); ctx.lineTo(attack.targetX, attack.targetY); ctx.stroke();
-    resetGlow(ctx);
-    ctx.globalAlpha = 0.9;
-    ctx.strokeStyle = '#f4ffff';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(attack.bossX, attack.bossY); ctx.lineTo(attack.targetX, attack.targetY); ctx.stroke();
+  if (attack.state === 'charging') {
+    const points=attack.telegraphPoints?.length>1?attack.telegraphPoints:[{x:attack.bossX,y:attack.bossY},{x:attack.targetX,y:attack.targetY}];
+    const path=()=>{ctx.beginPath();points.forEach((point,index)=>{if(index===0)ctx.moveTo(point.x,point.y);else ctx.lineTo(point.x,point.y);});ctx.stroke();};
+    if(pass!=='guidance'){
+      ctx.globalAlpha=.92;ctx.strokeStyle=color;ctx.lineWidth=4;setGlow(ctx,color,pass==='body'?8:16);path();resetGlow(ctx);
+      if(attack.telegraphPoints?.length>1)for(const point of points){ctx.beginPath();ctx.arc(point.x,point.y,4,0,Math.PI*2);ctx.fillStyle=color;ctx.fill();}
+    }
+    if(pass!=='body'){
+      ctx.globalAlpha=.9;ctx.strokeStyle='#f4ffff';ctx.lineWidth=1.5;path();
+      if(attack.telegraphPoints?.length>1)for(const point of points){ctx.beginPath();ctx.arc(point.x,point.y,2,0,Math.PI*2);ctx.fillStyle='#f4ffff';ctx.fill();}
+    }
+    ctx.globalAlpha=1;
   }
-  if (attack.state !== 'charging') {
+  if (pass !== 'guidance' && attack.state !== 'charging') {
     ctx.globalAlpha = attack.state === 'returning' ? 1 : 0.92;
     ctx.strokeStyle = color;
     ctx.lineWidth = 3;
@@ -942,12 +934,13 @@ export function drawDashCooldown(ctx, player) {
   ctx.restore();
 }
 
-export function createRenderer(canvas, { visualAssets = null, reducedMotion = null } = {}) {
+export function createRenderer(canvas, { visualAssets = null, reducedMotion = null, layerCanvasFactory, renderDensities } = {}) {
   const ctx = canvas.getContext('2d');
   if (!ctx) {
     throw new Error('Canvas 2D context를 사용할 수 없습니다.');
   }
 
+  const layers = createRenderLayers({canvasFactory:layerCanvasFactory,densities:renderDensities});
   let resolution = null;
   let lastScene = null;
   let destroyed = false;
@@ -957,6 +950,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     const next = getRenderResolution({ width: bounds?.width, height: bounds?.height, dpr: getDevicePixelRatio() });
     const changed = !resolution || canvas.width !== next.width || canvas.height !== next.height;
     resolution = next;
+    layers.resize(next);
     if (canvas.width !== next.width) canvas.width = next.width;
     if (canvas.height !== next.height) canvas.height = next.height;
     canvas.style.aspectRatio = 'auto';
@@ -986,10 +980,11 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     const prefersReducedMotion = resolveReducedMotion(reducedMotion);
     const backgroundScroll = snapshot.backgroundScrollDistancePx ?? elapsed * (snapshot.difficulty?.scrollSpeed ?? 240) * 0.25;
     const scrollSpeed = snapshot.backgroundScrollSpeed ?? snapshot.difficulty?.scrollSpeed ?? 240;
-    drawBackgroundTransition(ctx, stage, elapsed, visualAssets, reducedMotion, backgroundScroll, scrollSpeed);
-    drawStageAtmosphere(ctx, stage.mode, elapsed);
+    layers.paint(ctx,'background',layerCtx=>{
+    drawBackgroundTransition(layerCtx, stage, elapsed, visualAssets, reducedMotion, backgroundScroll, scrollSpeed);
+    drawStageAtmosphere(layerCtx, stage.mode, elapsed);
     if (stage.transition?.kind === 'portal') {
-      drawPortal(ctx, {
+      drawPortal(layerCtx, {
         transition: stage.transition,
         destinationBackground: getStageAsset(visualAssets, stage.transition.destinationStageId, 'background'),
         ornamentImage: getStageAsset(visualAssets, stage.transition.destinationStageId, 'portalOrnaments'),
@@ -997,21 +992,33 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       });
     }
 
-    for (const obstacle of snapshot.obstacles ?? []) {
-      const stageObstacle = obstacle.stageId ? obstacle : { ...obstacle, stageId: stage.id };
-      drawObstacle(ctx, stageObstacle, theme, {
-        ...snapshot.difficulty,
-        playerX: snapshot.player?.x ?? 240,
-        elapsedSeconds: snapshot.elapsedSeconds ?? elapsed,
-      }, visualAssets, prefersReducedMotion);
+    });
+
+    const obstacleDifficulty={...snapshot.difficulty,playerX:snapshot.player?.x??240,elapsedSeconds:snapshot.elapsedSeconds??elapsed};
+    if(snapshot.obstacles?.length){
+      layers.paint(ctx,'walls',layerCtx=>{for(const obstacle of snapshot.obstacles){
+        drawObstacle(layerCtx,obstacle.stageId?obstacle:{...obstacle,stageId:stage.id},theme,obstacleDifficulty,visualAssets,prefersReducedMotion,{guidance:false});
+      }});
+      for(const obstacle of snapshot.obstacles){const width=getTimingGuideWidth(obstacle,obstacleDifficulty);if(width>0){
+        const wall=obstacle.kind==='hybrid'?{...obstacle,...getDashBarrierBounds(obstacle)}:obstacle;
+        ctx.save();if(obstacle.kind==='hybrid'){ctx.beginPath();ctx.rect(0,obstacle.gapCenter-obstacle.gapHeight/2,WORLD_WIDTH,obstacle.gapHeight);ctx.clip();}
+        drawSpecialTimingGuide(ctx,wall,obstacleDifficulty,width,prefersReducedMotion);ctx.restore();
+      }}
     }
 
     if (snapshot.bossEntry?.darkness > 0) {
       ctx.save(); ctx.fillStyle = `rgba(0, 0, 0, ${snapshot.bossEntry.darkness})`;
       ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT); ctx.restore();
     }
-    drawLaser(ctx, snapshot.boss?.attack ?? snapshot.ambientAttack);
-    drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
+    const enemyAttack=snapshot.boss?.attack??snapshot.ambientAttack;
+    const drawEnemy=()=>{
+      if(enemyAttack?.type==='laser'){layers.paint(ctx,'lasers',layerCtx=>drawLaser(layerCtx,enemyAttack,{guidance:false,rasterScale:layerCtx===ctx?1:layers.getStats().lasers.density}));drawLaserGuidance(ctx,enemyAttack);}
+      if(enemyAttack&&enemyAttack.type!=='laser'){
+        layers.paint(ctx,'projectiles',layerCtx=>drawProjectile(layerCtx,enemyAttack,theme,visualAssets,stage.id,'body'));
+        drawProjectile(ctx,enemyAttack,theme,visualAssets,stage.id,'guidance');
+      }
+    };
+    drawEnemy();
     drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id, prefersReducedMotion);
     drawCounterattack(ctx, snapshot.boss?.counterattack, theme);
     if (!snapshot.deathEffect) {
@@ -1025,7 +1032,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       const shot = snapshot.boss?.weapon?.firing;
       const facing = shot ? { ...snapshot.player, facingAngle: 0 } : snapshot.player;
       drawShip(ctx, facing, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
-      drawManualLaser(ctx, shot, snapshot.player, theme);
+      if(shot)layers.paint(ctx,'lasers',layerCtx=>drawManualLaser(layerCtx,shot,snapshot.player,theme));
     }
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player, prefersReducedMotion);
     if (!snapshot.deathEffect) drawDashCooldown(ctx, snapshot.player);
@@ -1038,8 +1045,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     }
     // Keep essential warning geometry readable above failure obstruction.
     if (snapshot.feedbackEffect) {
-      drawLaser(ctx, snapshot.boss?.attack ?? snapshot.ambientAttack);
-      drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, snapshot.boss?.stageId ?? stage.id);
+      drawEnemy();
     }
     drawTransitionOverlay(ctx, { transition: stage.transition, reducedMotion: prefersReducedMotion });
     ctx.restore();
@@ -1052,15 +1058,17 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     ctx.save();
     ctx.setTransform?.(resolution.scaleX, 0, 0, resolution.scaleY, 0, 0);
     ctx.clearRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+    layers.paint(ctx,'background',layerCtx=>{
     const background = visualAssets?.get('menuBackground')
       ?? visualAssets?.get(VISUAL_ASSET_MANIFEST.menuBackground);
     if (background) {
-      ctx.drawImage(background, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+      layerCtx.drawImage(background, 0, 0, WORLD_WIDTH, WORLD_HEIGHT);
     } else {
-      drawBackground(ctx, VISUAL_THEME);
-      drawMenuNebula(ctx, VISUAL_THEME);
-      drawMenuDepthLines(ctx, VISUAL_THEME);
+      drawBackground(layerCtx, VISUAL_THEME);
+      drawMenuNebula(layerCtx, VISUAL_THEME);
+      drawMenuDepthLines(layerCtx, VISUAL_THEME);
     }
+    });
     ctx.restore();
   }
 
@@ -1073,8 +1081,11 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     resize,
     render,
     renderMenuBackground,
+    getLayerStats: layers.getStats,
     destroy() {
       destroyed = true;
+      layers.destroy();
+      for(const tile of stageTiles.splice(0)){tile.canvas.width=1;tile.canvas.height=1;}
       lastScene = null;
       resizeObserver?.disconnect();
       globalThis.removeEventListener?.('resize', resize);

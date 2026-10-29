@@ -1,6 +1,6 @@
 # Task: T03 Measured Render Density Layers
 
-## Status: pending
+## Status: done
 
 ## Goal
 Reduce non-critical raster work at the approved densities, keep ships/boss/UI sharp and warning geometry clear, and produce honest matched before/after performance evidence.
@@ -52,8 +52,8 @@ Reduce non-critical raster work at the approved densities, keep ships/boss/UI sh
 - Compare background/wall/projectile/laser pixel budgets: respectively25%,56.25%,25%,12.25% of old dimensions' pixel area before rounding. Ship/UI unchanged. Report observed timing ranges and caveats. If composition regresses or excessive overdraw remains, improve reuse/skip empty passes/cache safe effects while preserving approved look; do not claim unmeasured FPS gains or silently abandon required density ordering.
 
 ## Acceptance Criteria
-- [ ] Actual layer dimensions match selected profile and native player/boss/UI retain original clarity.
-- [ ] No guidance/collision/order regression; surfaces reused and cleaned; matched baseline/post evidence recorded honestly.
+- [x] Actual layer dimensions match selected profile and native player/boss/UI retain original clarity.
+- [x] No guidance/collision/order regression; surfaces reused and cleaned; matched baseline/post evidence recorded honestly.
 
 ## Validation
 - `npm test -- --run tests/game/render-layers.test.js tests/game/render-resolution.test.js tests/game/renderer.test.js tests/game/portal-renderer.test.js tests/game/laser-safety.test.js tests/integration/central-hitbox.test.js tests/integration/mobile-input.test.js`
@@ -73,6 +73,6 @@ Task: T03-render-density
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
