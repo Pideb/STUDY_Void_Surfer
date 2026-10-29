@@ -54,26 +54,30 @@ describe('difficulty', () => {
     expect(shouldSpawnSpecial(() => 0.2, difficulty)).toBe(false);
   });
 
-  it('starts warning at twenty points and every ten points after completion', () => {
+  it('starts boss one at twenty points and honors the supplied next threshold', () => {
     expect(getDifficulty(19, 0, 0).isWarning).toBe(false);
     expect(getDifficulty(20, 0, 0)).toMatchObject({
-      isWarning: true,
+      isWarning: false,
+      isBoss: true,
       warningIndex: 1,
       specialChance: 0.5,
       gapHeight: 135,
       timingWindowSeconds: 0.15,
     });
-    expect(getDifficulty(20, 0, 1, Math.random, null, 30).isWarning).toBe(false);
+    expect(getDifficulty(20, 0, 1, Math.random, null, 30).isBoss).toBe(false);
     expect(getDifficulty(30, 0, 1).warningIndex).toBe(2);
   });
 
-  it('alternates regular WARNING first and BOSS second', () => {
+  it('counts consecutive real bosses without a standalone WARNING phase', () => {
     const first = getDifficulty(20, 0, 0, () => 0.5);
     const difficulty = getDifficulty(30, 0, 1, () => 0.5);
 
-    expect(first).toMatchObject({ isWarning: true, isBoss: false, warningIndex: 1 });
+    expect(first).toMatchObject({ isWarning: false, isBoss: true, warningIndex: 1 });
     expect(difficulty.isBoss).toBe(true);
     expect(difficulty.warningIndex).toBe(2);
+    for (let cleared = 0; cleared < 10; cleared += 1) {
+      expect(getDifficulty(100, 0, cleared)).toMatchObject({ isWarning: false, isBoss: true, warningIndex: cleared + 1 });
+    }
     expect(Object.values(BOSS_PATTERNS)).toContain(difficulty.bossPattern);
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.SLOW)).toBe(0.75);
     expect(getBossSpeedMultiplier(BOSS_PATTERNS.FAST)).toBe(1.25);

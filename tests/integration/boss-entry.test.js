@@ -6,7 +6,7 @@ function until(engine,tick,predicate){for(let i=0;i<3000;i++){const s=engine.get
 
 describe('drained dark boss entry',()=>{
   it('stops ordinary spawns, drains every old wall and keeps normal factors before the alert',()=>{
-    const {engine,tick}=setup({initialScore:29,initialCompletedWarningCount:1});
+    const {engine,tick}=setup({initialScore:19});
     let s=until(engine,tick,s=>s.bossEntry?.phase==='draining');
     expect(s.obstacles.length).toBeGreaterThan(0);const ids=new Set(s.obstacles.map(w=>w.id));
     while(s.bossEntry?.phase==='draining'){
@@ -29,11 +29,11 @@ describe('drained dark boss entry',()=>{
     expect(engine.getSnapshot().bossEntry).toBeNull();engine.start();
     expect(engine.getSnapshot().bossEntry.phase).toBe('draining');expect(engine.getSnapshot().bossPreview).toBeNull();
   });
-  it('captures timing-guide width before passage starts WARNING and preserves it behind the player',()=>{
+  it('captures timing-guide width before boss draining and preserves it behind the player',()=>{
     const {engine,tick}=setup({initialScore:19,rng:()=>0});
     const s=until(engine,tick,s=>s.obstacles.some(w=>w.passed&&w.timingGuideWidthPx!==null));
     const wall=s.obstacles.find(w=>w.passed&&w.timingGuideWidthPx!==null);
-    expect(wall.timingGuideWidthPx).toBeCloseTo(75);expect(s.difficulty.timingWindowSeconds).toBe(.15);
+    expect(wall.timingGuideWidthPx).toBeCloseTo(75);expect(s.difficulty.timingWindowSeconds).toBe(.30);
     const later=tick().obstacles.find(w=>w.id===wall.id);
     expect(later.timingGuideWidthPx).toBe(wall.timingGuideWidthPx);expect(later.x).toBeLessThan(wall.x);
   });

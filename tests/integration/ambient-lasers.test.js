@@ -9,8 +9,8 @@ describe('ambient line lasers',()=>{
   it.each([0,2])('does not unlock after%s completed warnings',initialCompletedWarningCount=>{
     const {tick}=setup({initialCompletedWarningCount});for(let i=0;i<200;i++)expect(tick().ambientAttack).toBeNull();
   });
-  it.each([10,60])('attempts at3s in normal/WARNING flight score%s and freezes on pause',initialScore=>{
-    const {engine,tick}=setup({initialScore});let s;
+  it.each([10,60])('attempts at3s in low/high-score normal flight score%s and freezes on pause',initialScore=>{
+    const {engine,tick}=setup({initialScore,initialNextBossScore:1000});let s;
     for(let i=0;i<59;i++){s=tick();expect(s.ambientAttack).toBeNull();}
     s=tick();expect(s.ambientAttack?.type).toBe('laser');expect(s.boss).toBeNull();expect(s.clearedBossCount).toBe(2);
     expect(s.ambientAttack.telegraphRemainingSeconds).toBe(.7);
@@ -29,7 +29,7 @@ describe('ambient line lasers',()=>{
     expect(engine.getSnapshot().boss).toBeNull();
   });
   it('drains ambient warning/fire/fade before dark boss entry',()=>{
-    const {engine,tick}=setup({initialScore:72});let s,seen=false;
+    const {engine,tick}=setup({initialScore:72,initialNextBossScore:80});let s,seen=false;
     for(let i=0;i<2500;i++){
       s=tick();if(s.ambientAttack){seen=true;expect(s.boss).toBeNull();expect(s.bossEntry?.phase??'draining').toBe('draining');}
       if(s.bossEntry&&s.bossEntry.phase!=='draining'){expect(s.ambientAttack).toBeNull();expect(s.obstacles).toHaveLength(0);break;}

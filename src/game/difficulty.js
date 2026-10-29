@@ -9,7 +9,7 @@ import { getAircraftDefinition } from './aircraft.js';
 
 function normalizeScore(score) { return Number.isFinite(score) ? Math.max(0, Math.trunc(score)) : 0; }
 function normalizeElapsed(value) { return Number.isFinite(value) ? Math.max(0, value) : 0; }
-function normalizeWarningCount(value) { return Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0; }
+function normalizeBossCount(value) { return Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0; }
 function roll(rng) { return Math.min(0.999999, Math.max(0, Number(rng()) || 0)); }
 
 export function getBaseSpeed(progressionScore, aircraftId = 'default') {
@@ -32,17 +32,19 @@ export function getBossSpeedMultiplier(pattern, elapsedSeconds = 0) {
   if (pattern === BOSS_PATTERNS.FAST) return BOSS_FAST_MULTIPLIER;
   return Math.floor(normalizeElapsed(elapsedSeconds) / 2) % 2 === 0 ? BOSS_SLOW_MULTIPLIER : BOSS_FAST_MULTIPLIER;
 }
-export function getDifficulty(score, elapsedSeconds, warningCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score, firstBossCleared = false, aircraftId = 'default') {
+export function getDifficulty(score, elapsedSeconds, completedBossCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score, firstBossCleared = false, aircraftId = 'default') {
   const safeScore = normalizeScore(score);
-  const activeWarningIndex = normalizeWarningCount(warningCount) + 1;
+  const activeBossNumber = normalizeBossCount(completedBossCount) + 1;
   const warningThreshold = normalizeScore(nextWarningScore);
-  const isWarning = safeScore >= warningThreshold;
-  const isBoss = isWarning && activeWarningIndex % 2 === 0;
+  // Standalone WARNING is archived for a future redesign; every threshold now
+  // starts a real boss. The legacy warningIndex field is the actual boss number.
+  const isWarning = false;
+  const isBoss = safeScore >= warningThreshold;
   const bossPattern = isBoss ? (bossPatternOverride ?? chooseBossPattern(rng)) : null;
   const speedMultiplier = isBoss ? getBossSpeedMultiplier(bossPattern, elapsedSeconds) : 1;
   const warningMode = isWarning || isBoss;
   return {
-    score: safeScore, progressionScore: normalizeScore(progressionScore), elapsedSeconds: normalizeElapsed(elapsedSeconds), warningIndex: isWarning ? activeWarningIndex : 0,
+    score: safeScore, progressionScore: normalizeScore(progressionScore), elapsedSeconds: normalizeElapsed(elapsedSeconds), warningIndex: isBoss ? activeBossNumber : 0,
     isWarning, isBoss, bossPattern, baseSpeed: getBaseSpeed(progressionScore, aircraftId), speedMultiplier,
     scrollSpeed: getBaseSpeed(progressionScore, aircraftId) * speedMultiplier,
     gapHeight: warningMode ? BASE_GAP_HEIGHT * WARNING_GAP_MULTIPLIER : BASE_GAP_HEIGHT,

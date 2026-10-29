@@ -5,7 +5,7 @@ import { getPlayerBounds, getSpecialSuccessBounds } from '../../src/game/player-
 
 describe('separate central damage and aircraft-sized activation', () => {
   it('does not tunnel through a special wall at a low-frame-rate VELOCITY cap', () => {
-    let time=0;const e=createGameEngine({now:()=>time,gravity:0,rng:()=>0,guestMode:false,accountBestScore:100,aircraftId:'velocity',initialScore:70});
+    let time=0;const e=createGameEngine({now:()=>time,gravity:0,rng:()=>0,guestMode:false,accountBestScore:100,aircraftId:'velocity',initialScore:220,initialNextBossScore:1000});
     e.start();let s;
     for(let i=0;i<100;i++){time+=100;e.update(time);s=e.getSnapshot();if(s.deathEffect)break;}
     expect(s.deathEffect?.reason).toBe('obstacle');

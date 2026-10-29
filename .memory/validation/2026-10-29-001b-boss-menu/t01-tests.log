@@ -1,0 +1,12 @@
+
+> void-surfer@0.1.0 test
+> vitest --run tests/game/difficulty.test.js tests/game/game-engine.test.js tests/integration
+
+
+ RUN  v5.0.1 C:/WorkSpace/DEX/Study/Vibe
+
+
+ Test Files  15 passed (15)
+      Tests  155 passed (155)
+   Start at  15:56:32
+   Duration  3.45s (environment 58%, tests 25%, transform 9%, import 6%, setup 1%, worker 1%)

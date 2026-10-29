@@ -105,6 +105,11 @@ export function createGameEngine(deps = {}) {
   const gravity = deps.gravity ?? GRAVITY;
   const initialScore = Math.max(0, Math.trunc(deps.initialScore ?? 0));
   const initialCompletedWarningCount = Math.max(0, Math.trunc(deps.initialCompletedWarningCount ?? 0));
+  // Compatibility for old replay/test fixtures: two old warning events were one
+  // cleared boss. New fixtures use an explicit count of actual cleared bosses.
+  const initialClearedBossCount = Math.max(0, Math.trunc(deps.initialClearedBossCount ?? Math.floor(initialCompletedWarningCount / 2)));
+  const initialNextBossScore = Number.isFinite(deps.initialNextBossScore)
+    ? Math.max(0, deps.initialNextBossScore) : WARNING_START_SCORE + initialClearedBossCount * 20;
   const rng = deps.rng ?? Math.random;
   const stageRng = deps.stageRng ?? Math.random;
   let accountBestScore = Math.max(0, Number(deps.accountBestScore) || 0);
@@ -123,7 +128,6 @@ export function createGameEngine(deps = {}) {
   let obstacles = [];
   let nextObstacleId = 1;
   let spawnAccumulatorSeconds = 0;
-  let completedWarningCount = 0;
   let clearedBossCount = 0;
   let ambientLaserElapsedSeconds = 0;
   let ambientAttack = null;
@@ -157,14 +161,14 @@ export function createGameEngine(deps = {}) {
   function getTargetDifficulty() {
     if (!warningSession) {
       const warningThreshold = bossEntry || bossPreview ? Number.MAX_SAFE_INTEGER : nextWarningScore;
-      const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, warningThreshold, scoreSession.progressionScore, firstBossCleared, aircraft.id);
+      const base = getDifficulty(getScore(), elapsedSeconds, clearedBossCount, rng, null, warningThreshold, scoreSession.progressionScore, firstBossCleared, aircraft.id);
       return applyAircraftDifficulty(base);
     }
 
     const base = getDifficulty(
       getScore(),
       elapsedSeconds,
-      completedWarningCount,
+      clearedBossCount,
       rng,
       warningSession.bossPattern, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id,
     );
@@ -182,7 +186,7 @@ export function createGameEngine(deps = {}) {
       ...base,
       baseSpeed,
       warningIndex: warningSession.index,
-      isWarning: true,
+      isWarning: !warningSession.isBoss,
       isBoss: warningSession.isBoss,
       bossPattern: warningSession.bossPattern,
       speedMultiplier,
@@ -276,20 +280,13 @@ export function createGameEngine(deps = {}) {
   function startWarningIfNeeded() {
     if (warningSession || bossEntry || bossPreview || stageTransition || pendingStageAdvance) return;
 
-    const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id);
-    if (!candidate.isWarning) return;
-
-    const isBoss = candidate.warningIndex % 2 === 0;
-    if (isBoss) {
-      bossEntry = {
-        phase: 'draining', elapsedSeconds: 0,
-        warningIndex: candidate.warningIndex,
-        pattern: candidate.bossPattern ?? chooseBossPattern(rng),
-      };
-      return;
-    }
-
-    beginWarningSession(candidate.warningIndex, false, null);
+    const candidate = getDifficulty(getScore(), elapsedSeconds, clearedBossCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id);
+    if (!candidate.isBoss) return;
+    bossEntry = {
+      phase: 'draining', elapsedSeconds: 0,
+      warningIndex: candidate.warningIndex,
+      pattern: candidate.bossPattern ?? chooseBossPattern(rng),
+    };
   }
 
   function beginWarningSession(warningIndex, isBoss, bossPattern) {
@@ -306,7 +303,7 @@ export function createGameEngine(deps = {}) {
       laserPlan: undefined,
     };
     bossEncounter = isBoss
-      ? createBossEncounter(Math.max(1, Math.floor(warningIndex / 2)), getStageState().definition.id)
+      ? createBossEncounter(warningIndex, getStageState().definition.id)
       : null;
     if (bossEncounter) {
       const entrySpeed = Number.isFinite(currentScrollSpeed) && currentScrollSpeed > 0
@@ -427,6 +424,7 @@ export function createGameEngine(deps = {}) {
       rng,
     });
 
+    obstacle.bossNumber = session?.isBoss ? bossEncounter.number : null;
     obstacles.push(obstacle);
     if (isDashObstacle(obstacle)) lastSpecialBarrierWorldX = totalScrollDistancePx + getDashBarrierBounds(obstacle).x;
     previousBaseGapCenter = obstacle.baseGapCenter;
@@ -509,7 +507,7 @@ export function createGameEngine(deps = {}) {
         obstacle.timingGuideWidthPx = displayedDifficulty.scrollSpeed * displayedDifficulty.timingWindowSeconds;
       }
       obstacle.passed = true;
-      const wasBossWall = obstacle.warningIndex > 0 && obstacle.warningIndex % 2 === 0;
+      const wasBossWall = obstacle.bossNumber !== null && obstacle.bossNumber !== undefined;
       if (!warningSession?.isBoss && !wasBossWall) advanceScore(scoreSession, obstacle.id);
       // Boss walls still resolve the wave even though they no longer award points.
       if (bossEncounter && obstacle.warningIndex === warningSession?.index) {
@@ -527,7 +525,6 @@ export function createGameEngine(deps = {}) {
       && warningSession.spawnedCount === warningSession.targetCount
       && warningSession.specialObstacleIds.size === 0
       && !warningSession.isBoss) {
-      completedWarningCount += 1;
       nextWarningScore = getScore() + chooseWarningScoreStep(rng);
       warningSession = null;
       spawnAccumulatorSeconds = 0;
@@ -557,15 +554,14 @@ export function createGameEngine(deps = {}) {
     obstacles = [];
     nextObstacleId = 1;
     spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier;
-    completedWarningCount = initialCompletedWarningCount;
-    clearedBossCount = Math.floor(initialCompletedWarningCount / 2);
+    clearedBossCount = initialClearedBossCount;
     ambientLaserElapsedSeconds = 0;
     ambientAttack = null;
     warningSession = null;
     bossPreview = null;
     bossEntry = null;
-    nextWarningScore = WARNING_START_SCORE + initialCompletedWarningCount * 10;
-    firstBossCleared = initialCompletedWarningCount >= 2;
+    nextWarningScore = initialNextBossScore;
+    firstBossCleared = initialClearedBossCount >= 1;
     previousBaseGapCenter = null;
     flightTrail = [];
     stageOrder = createStageShuffleBag(stageRng);
@@ -824,7 +820,6 @@ export function createGameEngine(deps = {}) {
     if (bossEncounter.number === 1) firstBossCleared = true;
     scoreSession.score += 10;
     scoreSession.progressionScore += 10;
-    completedWarningCount += 1;
     nextWarningScore = getScore() + chooseWarningScoreStep(rng);
     advanceStage();
     warningSession = null;

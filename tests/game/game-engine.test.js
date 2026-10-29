@@ -186,7 +186,7 @@ describe('game engine', () => {
     while (!engine.getSnapshot().boss) step();
     const initial = engine.getSnapshot();
     const nextStageId = initial.stage.order[1];
-    expect(initial.warning.index).toBe(2);
+    expect(initial.warning.index).toBe(1);
     expect(initial.specialTimingGuideActive).toBe(true);
     let snapshot = initial;
     let cleared = false;
@@ -236,7 +236,7 @@ describe('game engine', () => {
         expect(snapshot.stage.id).toBe(initial.stage.id);
       }
       if (before.warning?.spawnedCount === 7 && snapshot.warning?.spawnedCount === 0) bossWavesCompleted += 1;
-      if (snapshot.warning?.spawnedCount === 7 && before.warning?.spawnedCount !== 7 && snapshot.warning.index === 2) {
+      if (snapshot.warning?.spawnedCount === 7 && before.warning?.spawnedCount !== 7 && snapshot.warning.index === 1) {
         specialCounts.push(snapshot.warning.specialSpawnedCount);
       }
       const transition = snapshot.stage.transition;
@@ -428,7 +428,7 @@ describe('game engine', () => {
     for (let frame = 0; frame < 500; frame += 1) {
       snapshot = step(100);
       for (const wall of snapshot.obstacles) {
-        if (wall.passed && wall.warningIndex === 2) passedBossWalls.add(wall.id);
+        if (wall.passed && wall.bossNumber === 1) passedBossWalls.add(wall.id);
       }
     }
 
@@ -584,37 +584,40 @@ describe('game engine', () => {
     expect(snapshot.obstacles[0].stageId).toBe(snapshot.stage.id);
   });
 
-  it('scores each passed normal obstacle once and starts WARNING at score twenty', () => {
+  it('scores normal walls once and drains into boss one at score twenty', () => {
     const { engine, step } = createRuntimeEngine();
     engine.start();
     let snapshot;
-    for (let frame = 0; frame < 460; frame += 1) snapshot = step();
+    for (let frame = 0; frame < 1000; frame += 1) {
+      snapshot = step();
+      expect(snapshot.difficulty.isWarning).toBe(false);
+      if (snapshot.bossEntry) break;
+    }
 
     expect(snapshot.score).toBeGreaterThanOrEqual(20);
-    expect(snapshot.warning).toMatchObject({
-      index: 1,
-      targetCount: 5,
-      requiredSpecials: 2,
-    });
+    expect(snapshot.bossEntry).toMatchObject({ phase: 'draining', warningIndex: 1 });
+    expect(snapshot.warning).toBeNull();
     const before = snapshot.score;
     for (let frame = 0; frame < 5; frame += 1) snapshot = step();
     expect(snapshot.score).toBeGreaterThanOrEqual(before);
   });
 
-  it('uses the shorter warning cadence and guarantees two special walls', () => {
-    const { engine, step } = createRuntimeEngine();
+  it('uses the shorter boss cadence and guarantees three special walls', () => {
+    const { engine, step } = createRuntimeEngine({ initialScore: 20, invincibilityEnabled: true, rng: () => .6 });
     engine.start();
     let snapshot;
-    for (let frame = 0; frame < 460; frame += 1) snapshot = step();
-    for (let frame = 0; frame < 75; frame += 1) snapshot = step();
+    for (let frame = 0; frame < 300; frame += 1) {
+      snapshot = step();
+      if (snapshot.warning?.spawnedCount === 7) break;
+    }
 
-    expect(snapshot.warning?.spawnedCount).toBe(5);
-    expect(snapshot.warning?.specialSpawnedCount).toBeGreaterThanOrEqual(2);
+    expect(snapshot.warning?.spawnedCount).toBe(7);
+    expect(snapshot.warning?.specialSpawnedCount).toBeGreaterThanOrEqual(3);
     expect(snapshot.obstacles.filter((obstacle) => obstacle.warningIndex === 1)
       .every((obstacle) => obstacle.gapHeight === 135)).toBe(true);
   });
 
-  it('runs the second WARNING as a boss segment with seven walls and three specials', () => {
+  it('runs the first threshold as a boss segment with seven walls and three specials', () => {
     const { engine, step } = createRuntimeEngine({
       initialScore: 60,
       initialCompletedWarningCount: 1,
@@ -622,8 +625,8 @@ describe('game engine', () => {
     engine.start();
     while (!engine.getSnapshot().boss) step(100);
     const initial = engine.getSnapshot();
-    expect(initial.difficulty).toMatchObject({ isWarning: true, isBoss: true, bossPattern: 'fast' });
-    expect(initial.warning).toMatchObject({ index: 2, targetCount: 7, requiredSpecials: 3 });
+    expect(initial.difficulty).toMatchObject({ isWarning: false, isBoss: true, bossPattern: 'fast' });
+    expect(initial.warning).toMatchObject({ index: 1, targetCount: 7, requiredSpecials: 3 });
     expect(initial.obstacles.filter(({ kind }) => kind === 'special').every(({ showTimingGuide }) => showTimingGuide)).toBe(true);
 
     let snapshot;
@@ -635,7 +638,7 @@ describe('game engine', () => {
         engine.dash();
       }
       snapshot = step();
-      if (snapshot.warning?.index === 2 && snapshot.warning.spawnedCount === 7) {
+      if (snapshot.warning?.index === 1 && snapshot.warning.spawnedCount === 7) {
         completedSegmentSnapshot = snapshot;
       }
     }
@@ -819,7 +822,7 @@ describe('game engine', () => {
       snapshot = step(100);
     }
 
-    expect(snapshot.warning).toMatchObject({ index: 6, spawnedCount: 7, targetCount: 7 });
+    expect(snapshot.warning).toMatchObject({ index: 3, spawnedCount: 7, targetCount: 7 });
     expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);
     expect(snapshot.warning.spawnedCount - snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);
   });
@@ -899,13 +902,14 @@ describe('game engine', () => {
   });
 
   it('unlocks hybrid barriers only after the first boss and times the recessed barrier', () => {
-    const before = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 0, rng: () => 0.45 });
+    const before = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 0, initialNextBossScore: 1000, rng: () => 0.45 });
     before.engine.setInvincibilityEnabled(true);
     before.engine.start();
     let snapshot;
     for (let frame = 0; frame < 50; frame += 1) snapshot = before.step();
     expect(snapshot.obstacles.some((wall) => wall.kind === 'hybrid')).toBe(false);
-    const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 2, rng: () => 0.45 });
+    let hybridRoll = 0;
+    const { engine, step } = createRuntimeEngine({ initialScore: 60, initialClearedBossCount: 1, initialNextBossScore: 1000, rng: () => [.1,.1,.5][hybridRoll++ % 3] });
     engine.setInvincibilityEnabled(true);
     engine.start();
     let target;
@@ -922,16 +926,15 @@ describe('game engine', () => {
     expect(snapshot.obstacles.find((wall) => wall.id === target.id)).toMatchObject({ barrierBroken: true, barrierBreakY: 270 });
   });
 
-  it('starts normal dashes early and grants targeted immunity only near a special wall', () => {
-    const { engine, step } = createRuntimeEngine();
+  it('keeps early dashes normal while the special wall is outside its success band', () => {
+    const { engine, step } = createRuntimeEngine({ initialScore: 10, initialNextBossScore: 1000, invincibilityEnabled: true, rng: () => 0 });
     engine.start();
     expect(engine.dash()).toBe(true);
     expect(engine.getSnapshot().player).toMatchObject({ dashKind: 'normal', dashTargetId: null });
 
     let snapshot;
-    for (let frame = 0; frame < 460; frame += 1) snapshot = step();
-    for (let frame = 0; frame < 70 && snapshot.warning?.spawnedCount < 4; frame += 1) snapshot = step();
-    const target = snapshot.obstacles.find((obstacle) => obstacle.warningIndex === 1 && obstacle.kind === 'special');
+    for (let frame = 0; frame < 40; frame += 1) snapshot = step();
+    const target = snapshot.obstacles.find((obstacle) => !obstacle.passed && obstacle.kind === 'special');
     expect(target).toBeDefined();
     expect(engine.dash()).toBe(true);
     expect(engine.getSnapshot().player).toMatchObject({ dashKind: 'normal', dashTargetId: null });
@@ -971,19 +974,22 @@ describe('game engine', () => {
     });
   });
 
-  it('uses the slower moving-gap cycle for warning spawns', () => {
-    let randomCall = 0;
+  it('uses the slower moving-gap cycle for boss spawns', () => {
+    let spawnMode = false, randomCall = 0;
     const { engine, step } = createRuntimeEngine({
       initialScore: 50,
-      initialCompletedWarningCount: 2,
-      rng: () => {
-        const values = [0.9, 0.1, 0.5, 0.5];
-        return values[randomCall++ % values.length];
-      },
+      initialClearedBossCount: 1,
+      rng: () => spawnMode ? [.9,.1,.5,.5][randomCall++ % 4] : .6,
+      invincibilityEnabled: true,
     });
     engine.start();
-    const snapshot = step(100);
-    const warningMovingWall = snapshot.obstacles.find((obstacle) => obstacle.warningIndex === 3);
+    while (!engine.getSnapshot().boss) step(100);
+    spawnMode = true;
+    let snapshot, warningMovingWall;
+    for (let frame = 0; frame < 300 && !warningMovingWall; frame += 1) {
+      snapshot = step(100);
+      warningMovingWall = snapshot.obstacles.find((obstacle) => obstacle.bossNumber === 2 && obstacle.movingGap);
+    }
 
     expect(warningMovingWall).toMatchObject({
       kind: 'normal',
@@ -1010,7 +1016,7 @@ describe('game engine', () => {
     while (!engine.getSnapshot().bossPreview) step();
     const preview = engine.getSnapshot();
     const previewElapsed = preview.elapsedSeconds;
-    expect(preview.bossPreview).toMatchObject({ warningIndex: 2, pattern: 'fast', remainingSeconds: 2.4 });
+    expect(preview.bossPreview).toMatchObject({ warningIndex: 1, pattern: 'fast', remainingSeconds: 2.4 });
     expect(preview.warning).toBeNull();
     expect(preview.boss).toBeNull();
     expect(preview.difficulty).toMatchObject({ isWarning: false, isBoss: false, speedMultiplier: 1 });
@@ -1026,9 +1032,9 @@ describe('game engine', () => {
     for (let frame = 0; frame < 19; frame += 1) step(100);
     const activated = engine.getSnapshot();
     expect(activated.bossPreview).toBeNull();
-    expect(activated.warning).toMatchObject({ index: 2, targetCount: 7 });
+    expect(activated.warning).toMatchObject({ index: 1, targetCount: 7 });
     expect(activated.boss).not.toBeNull();
-    expect(activated.difficulty).toMatchObject({ isWarning: true, isBoss: true, bossPattern: 'fast' });
+    expect(activated.difficulty).toMatchObject({ isWarning: false, isBoss: true, bossPattern: 'fast' });
   });
 
   it('holds new boss walls during entrance and freezes that clock while paused', () => {
