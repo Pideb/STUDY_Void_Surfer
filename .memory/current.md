@@ -1,13 +1,13 @@
 # Current Context
 
 ## Active Plan
-None. Completed: [Fullscreen FHD and Music-Ready Start](./plans/2026-10-29-fullscreen-fhd-music-start.md).
+[Management Console](./plans/2026-10-30-management-console.md).
 
 ## Active Phase
-None. P01 complete3/3.
+[P01 Console](./phases/2026-10-30-management-console/P01-console/phase.md).
 
 ## Active Task
-None. T03 `d245fee` complete.
+[T01 Catalog and Model](./phases/2026-10-30-management-console/P01-console/T01-catalog-model.md).
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -22,4 +22,4 @@ None. T03 `d245fee` complete.
 - Fullscreen rendering now bounded1920×1080 with nativeRAF/logical960×540 retained. Music-ready preparation freezes the initialized run until readiness or10s; then silent fallback/late same-track. Menu/synth bleed and stale/double starts covered. Actual Azure4K viewport/FHD buffer and clean music start verified.
 
 ## Next Step (IMPORTANT)
-No remaining task. Publication of the final documentation/memory commits uses the same existing Azure workflow and is checked before handoff. Accept playtest feedback; no physicalGPU FPS guarantee or new real-account score-write claim. Old user Vite4186 was left untouched; owned verification server4187 can be stopped after checks.
+Build separate management HTML with current elements, preview sliders and version tabs; implement shared release-doc generation/automatic future version advance. Current0.01-b and old0.01v preserved. User requests a review draft now: local commits only, no push/deployment or actual balance/settings changes.
