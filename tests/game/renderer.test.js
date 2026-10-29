@@ -79,11 +79,11 @@ describe('renderer', () => {
       widthSetter.mockRestore();
     }finally{globalThis.ResizeObserver=previous;}
   });
-  it('aims the manual beam at the live boss core and supports temporary ship facing', () => {
+  it('fires the manual beam horizontally regardless of boss core and supports temporary ship facing', () => {
     const c = createContext(), player = { x: 240, y: 300, width: 36, height: 24, velocityY: 100, facingAngle: -.2 };
     drawShip(c, player); expect(c.rotate).toHaveBeenCalledWith(-.2);
     drawManualLaser(c, { elapsedSeconds: .22, chargeSeconds: .2, toX: 750, toY: 270 }, player, { accent: '#67dfff' }, { x: 810, y: 220 });
-    expect(c.lineTo).toHaveBeenCalledWith(810, 220);
+    expect(c.lineTo).toHaveBeenCalledWith(960, 300);
     expect(player.width).toBe(36); expect(player.height).toBe(24);
   });
   it('draws the central square only with the explicit debug render option',()=>{
@@ -121,7 +121,7 @@ describe('renderer', () => {
     drawManualLaser(c,{...shot,elapsedSeconds:.499},player,theme);
     expect(c.createRadialGradient).toHaveBeenCalled();expect(c.lineTo).not.toHaveBeenCalled();
     drawManualLaser(c,{...shot,elapsedSeconds:.5},player,theme);
-    expect(c.lineTo).toHaveBeenCalledWith(750,270);
+    expect(c.lineTo).toHaveBeenCalledWith(960,270);
   });
   it('renders each live projectile of the stage volley and the player counterattack', () => {
     const canvas = document.createElement('canvas'), context = createContext();

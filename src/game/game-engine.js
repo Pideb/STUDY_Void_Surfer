@@ -60,6 +60,7 @@ import { getBarrierSpeedBound } from './barrier-spacing.js';
 import { getBossGeometry } from './boss-geometry.js';
 import { getBossPose, getBossRecoil } from './boss-motion.js';
 import { advanceBossWeapon, startBossWeapon } from './boss-weapon.js';
+import { intersectsBossBeam } from './boss-beam.js';
 import { getPlayerBounds } from './player-geometry.js';
 import { createSignatureAttack, updateSignatureAttack } from './boss-signatures.js';
 import { createPortalTransition, advancePortalTransition } from './portal-transition.js';
@@ -704,10 +705,16 @@ export function createGameEngine(deps = {}) {
     }
   }
 
-  function updateBossAttack(deltaSeconds, protectedSeconds = 0, weaponDeltaSeconds = deltaSeconds) {
+  function updateBossWeapon(weaponDeltaSeconds, deltaSeconds) {
     if (bossEncounter?.hp > 0 && bossEncounter.entranceRemainingSeconds <= 0) {
       const shotId = bossEncounter.weapon.firing?.id;
-      if (advanceBossWeapon(bossEncounter.weapon, weaponDeltaSeconds)) {
+      const motionEnd = bossEncounter.motionSeconds;
+      if (advanceBossWeapon(bossEncounter.weapon, weaponDeltaSeconds, ({shot,fromOffset,toOffset}) => intersectsBossBeam({
+        shot,stageId:bossEncounter.stageId,
+        fromMotionSeconds:motionEnd-weaponDeltaSeconds+fromOffset,
+        toMotionSeconds:motionEnd-weaponDeltaSeconds+toOffset,
+        poseAt:time=>getLiveBossPose(time,time-motionEnd),
+      }))) {
         advanceBossEncounter(bossEncounter, 'laser-hit', aircraft.bossLaserDamage);
         bossEncounter.hitEffect = { remainingSeconds: .38, durationSeconds: .38 };
         bossEncounter.animation = { kind: 'hit', actionId: shotId, elapsedSeconds: 0, durationSeconds: .38 };
@@ -721,6 +728,9 @@ export function createGameEngine(deps = {}) {
     } else if (bossEncounter?.weapon.firing) {
       advanceBossWeapon(bossEncounter.weapon, deltaSeconds);
     }
+  }
+
+  function updateBossAttack(deltaSeconds, protectedSeconds = 0) {
     if (!bossEncounter?.attack) return;
     const attack = bossEncounter.attack;
     if (attack.type === 'volley') {
@@ -896,7 +906,7 @@ export function createGameEngine(deps = {}) {
     }
     const weaponDeltaSeconds = bossEncounter === previousBossEncounter
       ? Math.max(0, deltaSeconds - previousEntranceSeconds) : 0;
-    updateBossAttack(deltaSeconds, protectedSeconds, weaponDeltaSeconds);
+    updateBossAttack(deltaSeconds, protectedSeconds);
     if (deathEffect) return;
     if (feedbackEffect) {
       feedbackEffect.remainingSeconds = Math.max(0, feedbackEffect.remainingSeconds - deltaSeconds);
@@ -915,6 +925,7 @@ export function createGameEngine(deps = {}) {
       return;
     }
 
+    updateBossWeapon(weaponDeltaSeconds, deltaSeconds);
     processPassedObstacles();
     completeBossIfReady();
     scheduleBossAttack(deltaSeconds);
@@ -985,9 +996,8 @@ export function createGameEngine(deps = {}) {
   function fire() {
     if (state !== GAME_STATES.PLAYING || deathEffect || challenge?.active || !bossEncounter
       || bossEncounter.hp <= 0 || bossEncounter.entranceRemainingSeconds > 0) return false;
-    const core = getBossGeometry(bossEncounter.stageId).core;
     return startBossWeapon(bossEncounter.weapon, {
-      id: `player-laser-${nextAttackId++}`, fromX: player.x, fromY: player.y, toX: core.x, toY: core.y,
+      id: `player-laser-${nextAttackId++}`, fromX: player.x, fromY: player.y, toX: WORLD_WIDTH, toY: player.y,
     });
   }
 

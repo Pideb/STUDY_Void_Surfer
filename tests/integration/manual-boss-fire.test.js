@@ -12,6 +12,8 @@ function setup(extra = {}) {
   return { engine, tick, until, finishChallenge };
 }
 
+const aimable=s=>s.boss && Math.abs(270+162*Math.sin((s.boss.motionSeconds+.5)*Math.PI/3)-s.player.y)<30;
+
 describe('manual boss laser in real engine', () => {
   it.each([['default',3],['aegis',1],['velocity',3]])('%s starts with3HP and clears in%s actual impacts', (aircraftId,hits) => {
     const { engine,tick,until,finishChallenge } = setup({aircraftId});
@@ -20,7 +22,7 @@ describe('manual boss laser in real engine', () => {
     for(let i=0;i<hits;i++){
       for(let frame=0;frame<6000;frame++){
         const s=engine.getSnapshot();if(s.challenge?.active)finishChallenge();
-        if(s.boss?.weapon.ready&&!s.challenge?.active)break;tick();
+        if(s.boss?.weapon.ready&&!s.challenge?.active&&aimable(s))break;tick();
       }
       const before=engine.getSnapshot();expect(engine.fire()).toBe(true);
       tick(.1);expect(engine.getSnapshot().boss.hp).toBe(before.boss.hp);
@@ -71,7 +73,7 @@ describe('manual boss laser in real engine', () => {
     for (let i = 0; i < 6000 && engine.getSnapshot().boss?.hp !== 0; i++) {
       const s = engine.getSnapshot();
       if (s.challenge?.active) finishChallenge();
-      if (s.boss?.weapon.ready && engine.fire()) shots++;
+      if (s.boss?.weapon.ready && aimable(s) && engine.fire()) shots++;
       const after = tick();
       if (after.boss) { expect(after.boss.hp).toBeLessThanOrEqual(lastHp); lastHp = after.boss.hp; }
       if (shots === 3 && after.boss?.hp === 0) break;
@@ -83,7 +85,7 @@ describe('manual boss laser in real engine', () => {
   });
   it('holds ship during charge while walls move, and pauses recharge in the pause screen', () => {
     const { engine, tick, until } = setup();
-    until(s => s.boss?.weapon.ready && s.obstacles.length > 0 && !s.challenge?.active);
+    until(s => s.boss?.weapon.ready && s.obstacles.length > 0 && !s.challenge?.active && aimable(s));
     const before = engine.getSnapshot();
     expect(engine.fire()).toBe(true);
     expect(engine.lift()).toBe(false); expect(engine.dash()).toBe(false);

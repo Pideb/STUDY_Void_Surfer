@@ -51,4 +51,4 @@ Task: T02-motion-and-projectiles
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed
-- commit: pending
+- commit: fe43080

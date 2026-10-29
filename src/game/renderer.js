@@ -898,11 +898,10 @@ function drawCounterattack(ctx, counterattack, theme) {
   ctx.restore();
 }
 
-export function drawManualLaser(ctx, shot, player, theme, core) {
+export function drawManualLaser(ctx, shot, player, theme, _core) {
   if (!shot || !player) return;
-  const target = core ?? { x: shot.toX, y: shot.toY };
-  const angle = Math.atan2(target.y - player.y, target.x - player.x);
-  const x = player.x + Math.cos(angle) * 28, y = player.y + Math.sin(angle) * 28;
+  const x = (shot.fromX ?? player.x) + 28, y = shot.fromY ?? player.y;
+  const target = { x: WORLD_WIDTH, y };
   ctx.save(); setGlow(ctx, theme.accent, 24);
   if (shot.elapsedSeconds < shot.chargeSeconds) {
     const progress = shot.elapsedSeconds / shot.chargeSeconds;
@@ -1036,10 +1035,9 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     } else {
       drawShipExhaust(ctx, snapshot.player, snapshot.aircraft?.id, elapsed, snapshot.flightTrail);
       const shot = snapshot.boss?.weapon?.firing;
-      const core = snapshot.boss ? getBossGeometry(snapshot.boss.stageId).core : null;
-      const facing = shot && core ? { ...snapshot.player, facingAngle: Math.atan2(core.y - snapshot.player.y, core.x - snapshot.player.x) } : snapshot.player;
+      const facing = shot ? { ...snapshot.player, facingAngle: 0 } : snapshot.player;
       drawShip(ctx, facing, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
-      drawManualLaser(ctx, shot, snapshot.player, theme, core);
+      drawManualLaser(ctx, shot, snapshot.player, theme);
     }
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player, prefersReducedMotion);
     if (!snapshot.deathEffect) drawDashCooldown(ctx, snapshot.player);

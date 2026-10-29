@@ -1,6 +1,6 @@
 # Task: T03 Aimed Horizontal Player Beam
 
-## Status: pending
+## Status: done
 
 ## Goal
 Player faces right, charges.5s, fires a horizontal beam for.2s and damages the moving whole boss at most once on real contact; misses do not damage.
@@ -23,8 +23,8 @@ Player faces right, charges.5s, fires a horizontal beam for.2s and damages the m
 - Existing auto-hit fixture loops must aim using public live boss geometry/ship lift in deterministic test harness; do not bypass production hit detection or shrink movement.
 
 ## Acceptance Criteria
-- [ ] Horizontal art/physics agree and real misses preserve boss HP.
-- [ ] All damage/clear/input/recharge invariants pass with swept full-body hit tests.
+- [x] Horizontal art/physics agree and real misses preserve boss HP.
+- [x] All damage/clear/input/recharge invariants pass with swept full-body hit tests.
 
 ## Validation
 - `npm test -- --run tests/game/boss-beam.test.js tests/game/boss-weapon.test.js tests/integration/manual-boss-fire.test.js tests/game/renderer.test.js`
@@ -43,6 +43,6 @@ Task: T03-aimed-beam
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

@@ -11,16 +11,21 @@ export function startBossWeapon(weapon, shot) {
   return true;
 }
 
-// Return a one-time impact event; the caller owns boss damage and effects.
-export function advanceBossWeapon(weapon, deltaSeconds) {
+// Contact is tested throughout the active beam, never during charge or recovery
+// after expiry. A miss remains eligible later in this same beam, without homing.
+export function advanceBossWeapon(weapon, deltaSeconds, hitTest = () => false) {
   if (!weapon || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) return false;
   weapon.chargeSeconds = Math.min(weapon.rechargeSeconds, weapon.chargeSeconds + deltaSeconds);
   weapon.ready = weapon.chargeSeconds + 1e-9 >= weapon.rechargeSeconds;
   let impact = false;
   if (weapon.firing) {
     const shot = weapon.firing;
+    const previousElapsed = shot.elapsedSeconds;
     shot.elapsedSeconds = Math.min(shot.durationSeconds, shot.elapsedSeconds + deltaSeconds);
-    if (!shot.impacted && shot.elapsedSeconds + 1e-9 >= shot.chargeSeconds) {
+    const fromOffset = Math.max(0, shot.chargeSeconds - previousElapsed);
+    const toOffset = Math.min(deltaSeconds, shot.durationSeconds - previousElapsed);
+    if (!shot.impacted && previousElapsed < shot.durationSeconds && shot.elapsedSeconds + 1e-9 >= shot.chargeSeconds
+      && fromOffset <= toOffset + 1e-9 && hitTest({shot,fromOffset,toOffset:Math.max(fromOffset,toOffset)})) {
       shot.impacted = true;
       impact = true;
     }
