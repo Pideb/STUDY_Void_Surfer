@@ -6,7 +6,7 @@ Implement the [confirmed decisions](../decisions/2026-10-29-cooldown-speed-boss-
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | in_progress | Runtime tuning, UI and regression evidence | [P01](../phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/phase.md) |
+| P01 | done | Runtime tuning, UI and regression evidence | [P01](../phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/phase.md) |
 
 ## Execution Order
 1. T01 fixed speed and shared100-point cap; prove actual aircraft targets and future spacing.
@@ -22,3 +22,8 @@ Implement the [confirmed decisions](../decisions/2026-10-29-cooldown-speed-boss-
 - Stage trajectory identity must survive count randomization; wall-flight remains one projectile.
 - Final build must finish before `verify:config`, which reads dist.
 - No unrelated adjacent issue has been identified during planning.
+
+## Completion
+- All four tasks complete and committed2026-10-29. T01:eac7e76;T02:60611a7;T03:bccbed6;T04:6f95ba1.
+-48 files/650 tests, build, configuration, actual-render evidence and whitespace checks passed.
+- [Validation report](../validation/2026-10-29-cooldown-speed-boss-tuning/report.md). No active task remains.

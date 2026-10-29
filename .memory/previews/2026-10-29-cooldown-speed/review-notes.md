@@ -1,7 +1,7 @@
 # Cooldown / speed / boss firing review
 
 - Date: 2026-10-29
-- Status: Interview complete. Confirmed decisions: ../../decisions/2026-10-29-cooldown-speed-boss-tuning.md. No production changes yet.
+- Status: Implemented and verified2026-10-29;4/4 Tasks complete at6f95ba1. Confirmed decisions: ../../decisions/2026-10-29-cooldown-speed-boss-tuning.md. Actual renderer evidence: ../../validation/2026-10-29-cooldown-speed-boss-tuning/report.md.
 - Use grill-me: one question at a time, inline choices.
 
 ## Accepted requests

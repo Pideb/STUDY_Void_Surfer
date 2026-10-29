@@ -1,7 +1,7 @@
 # Decisions: Cooldown, Speed and Boss Tuning
 
 - Date: 2026-10-29 (Asia/Seoul)
-- Status: Confirmed; implementation not started.
+- Status: Implemented and verified 2026-10-29. All four Tasks complete; final validation commit6f95ba1. [Actual-screen evidence and report](../validation/2026-10-29-cooldown-speed-boss-tuning/report.md).
 - Feature name: `cooldown-speed-boss-tuning`
 - Interview: [review notes](../previews/2026-10-29-cooldown-speed/review-notes.md).
 - Approved visual: [cooldown comparison option1](../previews/2026-10-29-cooldown-speed/comparison.png).

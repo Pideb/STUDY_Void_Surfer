@@ -38,4 +38,4 @@
 - T01 fixed speed:eac7e76
 - T02 marker/weapon/UI:60611a7
 - T03 volleys/laser:bccbed6
-- T04 and final pointer-sync hashes are recorded in the task/current documents.
+- T04 actual-render/full regression:6f95ba1. Final pointer-sync commit follows this report and is visible in git history.
