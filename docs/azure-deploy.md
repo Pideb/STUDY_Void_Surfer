@@ -2,6 +2,8 @@
 
 회사 Azure에 게임 화면을 배포하고, 기존 Supabase Auth·Microsoft Entra 로그인·리더보드를 유지한다. Azure 내장 로그인을 추가로 켜는 구성은 아니다. 공개 자료 버전은 `0.01v`를 유지한다.
 
+실제 생성된 원본 주소는 **https://proud-grass-03a132e00.6.azurestaticapps.net** 이다. 자동 생성 워크플로는 `.github/workflows/azure-static-web-apps-proud-grass-03a132e00.yml`이며 기존 배포 토큰 참조를 유지한다. 생성 직후 첫 배포는 성공했지만, 이것만으로 실제 계정 로그인·점수 저장이 검증된 것은 아니다.
+
 ## 1. 포털에서 확인한 값
 
 | 항목 | 값 |
@@ -41,6 +43,8 @@ GitHub 저장소 → Settings → Secrets and variables → Actions → Variable
 
 두 값은 브라우저에 포함되는 공개 설정이다. service-role 키·Entra client secret을 사용하지 않는다. 저장소 변수를 생성하는 것만으로 빌드에 들어가지는 않으므로, 자동 생성된 워크플로의 **upload 단계**에 아래 `env`를 추가한다.
 
+현재 저장소 워크플로에는 같은 값이 빌드 job의 `env`로 연결되어 upload 단계가 상속한다. 값이 비어 있으면 이름만 표시하고 빌드를 중단하며, 빌드 후 배포 설정 검사도 실행한다. 기존 Git 인증이 있는 운영자는 `python scripts/configure-github-public-env.py`로 로컬의 공개 설정 두 개만 등록하고 읽기 결과를 비교할 수 있다. 이 도구는 토큰과 설정값을 출력하거나 저장하지 않는다.
+
 ```yaml
 # Existing Azure/static-web-apps-deploy@v1 upload step
 env:
@@ -63,6 +67,13 @@ Supabase → Authentication → URL Configuration:
 - Site URL: 공유할 실제 Azure 원본 주소
 - Redirect URLs: `<실제 Azure 원본 주소>/auth/callback`
 - 로컬 테스트를 유지하려면 기존 `http://localhost:5173/auth/callback`도 유지
+
+이 사이트의 입력값:
+
+```text
+Site URL: https://proud-grass-03a132e00.6.azurestaticapps.net
+Redirect URL: https://proud-grass-03a132e00.6.azurestaticapps.net/auth/callback
+```
 
 Entra 앱은 기존 **Web** 플랫폼과 Supabase의 `https://<project-ref>.supabase.co/auth/v1/callback`을 유지한다. Azure 원본을 Entra의 직접 SPA 콜백으로 바꾸지 않는다. 현재 구조에서는 Entra → Supabase → Azure의 게임 콜백 순서로 돌아온다. URL allow-list 변경은 저장 후 실제 계정으로 확인한다.
 
