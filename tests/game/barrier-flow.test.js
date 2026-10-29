@@ -27,8 +27,8 @@ describe('mandatory response spacing through real flight',()=>{
           lastPass=passage;count++;
         }
       }
-      if(previous.warning&&!snapshot.warning&&!previous.warning.isBoss){expect(previous.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);warningVerified=true;}
-      if(snapshot.boss?.roar){expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);expect(snapshot.warning.spawnedCount-snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);bossVerified=true;}
+      if(previous.warning&&!snapshot.warning&&previous.warning.index%2===1){expect(previous.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);warningVerified=true;}
+      if(snapshot.boss&&snapshot.warning.spawnedCount===snapshot.warning.targetCount){expect(snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(3);expect(snapshot.warning.spawnedCount-snapshot.warning.specialSpawnedCount).toBeGreaterThanOrEqual(2);bossVerified=true;}
       expect(snapshot.deathEffect).toBeNull();previous=snapshot;
     }
     expect(count).toBeGreaterThanOrEqual(5);expect(warningVerified).toBe(true);expect(bossVerified).toBe(true);

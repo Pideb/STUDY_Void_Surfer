@@ -1,6 +1,6 @@
 # Task: T06 Integration and Actual Runtime Evidence
 
-## Status: pending
+## Status: done
 
 ## Goal
 Prove all approved changes in complete actual encounters/real renderer, finish regressions/build/config and close memory accurately.
@@ -19,8 +19,8 @@ Prove all approved changes in complete actual encounters/real renderer, finish r
 - MarkT06 done/commit, advancephase6/6,plan done,current no active. Final sync commit records final task hash and updates decisions/review status to implemented with report link.
 
 ## Acceptance Criteria
-- [ ] Full suite/build/config pass; actual runtime visual evidence reviewed.
-- [ ] All13 decisions covered and final working tree clean.
+- [x] Full suite/build/config pass; actual runtime visual evidence reviewed.
+- [x] All13 decisions covered and final working tree clean.
 
 ## Validation
 - `npm test -- --run`
@@ -41,6 +41,6 @@ Task: T06-integration-evidence
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

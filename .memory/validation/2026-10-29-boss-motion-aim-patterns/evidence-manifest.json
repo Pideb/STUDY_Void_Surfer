@@ -1,0 +1,208 @@
+{
+  "checkedModes": 14,
+  "artifacts": [
+    {
+      "name": "desktop.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1863413,
+      "sha256": "a8c03d86fa5e1c24203c00b44453efcb423a569a31a6aaa6efa7f53eaca5c667"
+    },
+    {
+      "name": "desktop-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1463043,
+      "sha256": "9e3af16c7f49e3df28fcf243114d5cac3e1bfbc93256a3bf2eea0ff9ecbb0842"
+    },
+    {
+      "name": "mobile.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 399778,
+      "sha256": "7a1e2b6fa3b473d53875c3bdad186296453fc1230e720d769fb1d96f71026de4"
+    },
+    {
+      "name": "mobile-layout.png",
+      "width": 700,
+      "height": 400,
+      "bytes": 370185,
+      "sha256": "a9754e2f9bafb28d208a22b987562eeb437821ad10e07596808a46ba9508d609"
+    },
+    {
+      "name": "drain.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1950732,
+      "sha256": "c3218129d535f04f9d99f910bb94c2066113d8fc604a223c98cb0532b7969316"
+    },
+    {
+      "name": "drain-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1526734,
+      "sha256": "15e56edb55e213f7d2080b343cbe4843c949bf9bf63b62f91db313c4705f18a7"
+    },
+    {
+      "name": "intro.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 46196,
+      "sha256": "f6aaf9aad81e3154dcb6fb457d06b066fc046c0af2ae570c5aa6a8d988764634"
+    },
+    {
+      "name": "intro-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 38788,
+      "sha256": "cbd4285e781e3a2cbe62934401c904a394e6bb335188f33c6f3313021252274a"
+    },
+    {
+      "name": "entrance.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1317137,
+      "sha256": "99ee02c84005682121d82b4e5c7b25e84b2f731a004e410ff799bae3e6094cf3"
+    },
+    {
+      "name": "entrance-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 934526,
+      "sha256": "fa8c8b8734af543a354d5ca8dc18bf9fca76cb74b1ad38cd2c0f5862f297551d"
+    },
+    {
+      "name": "warning.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1924378,
+      "sha256": "36f7d8535c793ba5971bb64f89e099384d7542d2411c7361958877a42121961c"
+    },
+    {
+      "name": "warning-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1466742,
+      "sha256": "863120edb563be1f80ecd87ff209927d244bac08b99aa60ba0cd6d59fb9dd340"
+    },
+    {
+      "name": "warning-bottom.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1907176,
+      "sha256": "898868bfac94a1494db9ad261d3fd7fcad3839d872abf4adf2e4b14736b880e3"
+    },
+    {
+      "name": "warning-bottom-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1460312,
+      "sha256": "398402a1a8719c514b0e1a3b1984be5c1081f48349184fe3789ac0510cedf3bf"
+    },
+    {
+      "name": "active.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1818312,
+      "sha256": "a87a8232435bd6483afe31dabf8edd05f225535b5f7b8d17974d9e10d27d3f06"
+    },
+    {
+      "name": "active-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1402769,
+      "sha256": "ee9bb0c5deb51949d23295e05e864d990060cc9401d5d90e86c06c719f00cf81"
+    },
+    {
+      "name": "challenge.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1251362,
+      "sha256": "6911782db022042c2feec035712f43dd3f079c0f443171746b61af8878758f45"
+    },
+    {
+      "name": "challenge-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 503433,
+      "sha256": "fe1e5853f045fe2b623d1d35a0e2251c0cfa86f7ce7ba29aa1f794a820051fe7"
+    },
+    {
+      "name": "hit.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1870244,
+      "sha256": "1046a23dbff731a43e1831127322c7199689f71e5440d491526be38de80f17df"
+    },
+    {
+      "name": "hit-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1444899,
+      "sha256": "cee69010c88269c03b746fb6f530709a0a62e4d760b04410c20c434ef58524c2"
+    },
+    {
+      "name": "miss.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1841682,
+      "sha256": "79805754c8f2a6a106e736f56981fa6bdda339e79bf8204622bda0234d7c9857"
+    },
+    {
+      "name": "miss-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1428797,
+      "sha256": "2817710979f09078cf4a352f2579139f99d91480b4d04af807bb5054856842f3"
+    },
+    {
+      "name": "aegis-hit.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1845387,
+      "sha256": "0262fdb064e75920687b854a1c112419ead0ff56c38cb2349c205b4e1964d493"
+    },
+    {
+      "name": "aegis-hit-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1430736,
+      "sha256": "ba0df3085b3c7e3eeba103e48f98c6c889588394a647a8e31db221000548e436"
+    },
+    {
+      "name": "passed.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1860738,
+      "sha256": "0381b281c7420010e86ca6a89518e681c36c79b9ab1f428f96126fe790d7de54"
+    },
+    {
+      "name": "passed-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1445757,
+      "sha256": "966e4e5067572d07f7747d45676f531632469003debad2d2058f259877122797"
+    },
+    {
+      "name": "motion.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 2109711,
+      "sha256": "7a6975281492d502d8ad0baa6be43fbc798e60d9ee1afe51c921c0525ba28c23"
+    },
+    {
+      "name": "motion-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1630789,
+      "sha256": "629f0d424dd8fecd901ea87b52daa2af24d0abac295dbf1c6702bec9399d6381"
+    },
+    {
+      "name": "boss-actions-actual.png",
+      "width": 1440,
+      "height": 1536,
+      "bytes": 3996072,
+      "sha256": "8f746f90b7073d4a48860e508ffc4540b66377af0a10e6d3e144d10f1512f41a"
+    }
+  ]
+}

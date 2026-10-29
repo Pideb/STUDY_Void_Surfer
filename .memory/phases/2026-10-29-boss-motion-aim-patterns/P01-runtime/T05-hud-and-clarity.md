@@ -51,4 +51,4 @@ Task: T05-hud-and-clarity
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed
-- commit: pending
+- commit: 61a5bb9

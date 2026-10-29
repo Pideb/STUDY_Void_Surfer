@@ -15,6 +15,18 @@ function setup(extra = {}) {
 const aimable=s=>s.boss && Math.abs(270+162*Math.sin((s.boss.motionSeconds+.5)*Math.PI/3)-s.player.y)<30;
 
 describe('manual boss laser in real engine', () => {
+  it('spends a genuinely missed horizontal shot without damaging or refunding',()=>{
+    const {engine,tick,until}=setup();
+    const before=until(s=>s.boss?.weapon.ready&&!s.challenge?.active&&Math.abs(Math.sin((s.boss.motionSeconds+.6)*Math.PI/3))>.96);
+    expect(engine.fire()).toBe(true);
+    const shot=engine.getSnapshot().boss.weapon.firing;
+    expect(shot.toX).toBe(960);expect(shot.toY).toBe(before.player.y);
+    for(let i=0;i<7;i++)tick(.1);
+    const after=engine.getSnapshot();
+    expect(after.boss.hp).toBe(3);expect(after.boss.laserHits).toBe(0);
+    expect(after.boss.weapon.ready).toBe(false);expect(after.boss.weapon.firing).toBeNull();
+    expect(after.boss.weapon.chargeSeconds).toBeCloseTo(.7);
+  });
   it.each([['default',3],['aegis',1],['velocity',3]])('%s starts with3HP and clears in%s actual impacts', (aircraftId,hits) => {
     const { engine,tick,until,finishChallenge } = setup({aircraftId});
     const entry=until(s=>s.boss);
@@ -53,6 +65,9 @@ describe('manual boss laser in real engine', () => {
     let s;
     for (let i = 0; i < 10; i++) { s = tick(.05); if (s.deathEffect) break; }
     expect(s.deathEffect?.reason).toBe('obstacle');
+    expect(s.boss.hp).toBe(3);
+    for(let i=0;i<20;i++)tick(.1);
+    expect(engine.getSnapshot().boss.laserHits).toBe(0);
   });
   it('WASD neither damages nor adds charge, freezes charging while active and restarts waves', () => {
     const { engine, tick, until, finishChallenge } = setup();
