@@ -1,5 +1,5 @@
 from pathlib import Path
-import base64, hashlib, html, json, re
+import base64, hashlib, html, importlib.util, json, re, sys
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
@@ -120,6 +120,16 @@ if (deployment_dir/'actions-run.json').exists() and (deployment_dir/'live-checks
     doc = doc.replace('상태: 로컬 검증 완료, 미배포', '상태: Azure 배포 및 공개 파일 검증 완료')
     doc = doc.replace('로컬 커밋으로 정리한 버전입니다. 현재 공유 중인 Azure 주소는 기존 배포를 유지합니다.', '2026.10.29 Azure 배포를 완료했습니다. 공유 중인 주소에서 0.01-b를 플레이할 수 있습니다. 로그인 콜백·공개 랭킹 조회·실제 첫 메뉴 입력의 음악 시작을 확인했습니다.')
     doc = doc.replace('WARNING 보관, 미배포 상태를 새 HTML로 기록.', 'WARNING 보관, Azure 배포 및 공개 파일 검증을 새 HTML로 기록.')
+
+extension = ROOT/'.memory/validation/2026-10-29-fullscreen-fhd-music-start/extend-release.py'
+if extension.exists():
+    sys.dont_write_bytecode = True
+    spec = importlib.util.spec_from_file_location('fullscreen_release', extension)
+    followup = importlib.util.module_from_spec(spec); spec.loader.exec_module(followup)
+    doc, metadata = followup.extend(doc, metadata, ROOT)
+    runtime_commit = metadata['sourceCommit']
+    runtime_fingerprint = metadata['runtimeFingerprint']['value']
+    deployed = metadata['verification']['newVersionDeployed']
 doc=re.sub(r'<script type="application/json" id="releaseMetadata">[\s\S]*?</script>',lambda _:'<script type="application/json" id="releaseMetadata">'+json.dumps(metadata,ensure_ascii=False)+'</script>',doc,count=1)
 doc='\n'.join(line.rstrip() for line in doc.splitlines())+'\n'
 out=ROOT/'docs/releases/void-surfer-0.01-b.html';out.write_bytes(doc.encode('utf-8'))

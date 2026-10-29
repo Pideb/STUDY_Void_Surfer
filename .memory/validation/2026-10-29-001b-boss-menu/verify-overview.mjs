@@ -4,7 +4,7 @@ import {pathToFileURL} from 'node:url';
 import assert from 'node:assert/strict';
 
 const root=process.cwd(), output=path.join(root,'.memory/validation/2026-10-29-001b-boss-menu');
-const tabs=await fetch('http://127.0.0.1:9425/json/list').then(r=>r.json());
+const tabs=await fetch('http://127.0.0.1:9430/json/list').then(r=>r.json());
 const tab=tabs.find(t=>t.type==='page');
 const socket=new WebSocket(tab.webSocketDebuggerUrl);
 await new Promise((resolve,reject)=>{socket.onopen=resolve;socket.onerror=reject;});
@@ -44,7 +44,7 @@ await evaluate(`document.querySelector('[data-filter="전체"]').click();documen
 await evaluate(`document.getElementById('feedbackSearch').value='';document.getElementById('feedbackSearch').dispatchEvent(new Event('input',{bubbles:true}));document.getElementById('feedback').scrollIntoView({behavior:'instant',block:'start'})`);await screenshot('feedback-light');
 await evaluate(`Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async function(text){window.__copiedVersion=text;}}});document.getElementById('copyVersion').click()`);await new Promise(r=>setTimeout(r,200));results.interactions.copyStatus=await evaluate(`document.getElementById('copyStatus').textContent`);assert.ok(results.interactions.copyStatus.length>0);
 results.interactions.copiedVersion=await evaluate('window.__copiedVersion');
-assert.ok(results.interactions.copiedVersion.includes('e0eaacf'));assert.ok(results.interactions.copiedVersion.includes('Azure 배포'));
+assert.ok(results.interactions.copiedVersion.includes("e90bb76"));assert.ok(results.interactions.copiedVersion.includes('Azure 배포'));
 assert.ok(!results.interactions.copiedVersion.includes('f69a166'));
 await evaluate(`document.getElementById('release').scrollIntoView({behavior:'instant',block:'start'})`);await screenshot('release-desktop');
 await send('Emulation.setEmulatedMedia',{media:'print'});await evaluate(`window.dispatchEvent(new Event('beforeprint'))`);results.print=await evaluate(`({visibleStages:Array.from(document.querySelectorAll('[data-stage-panel]')).filter(function(p){return getComputedStyle(p).display!=='none';}).length,openDetails:document.querySelectorAll('details[open]').length,allDetails:document.querySelectorAll('details').length,menuDisplay:getComputedStyle(document.querySelector('.viz-menu')).display})`);assert.equal(results.print.visibleStages,6);assert.equal(results.print.openDetails,results.print.allDetails);assert.equal(results.print.menuDisplay,'none');
@@ -57,8 +57,8 @@ await send('Network.emulateNetworkConditions',{offline:false,latency:0,downloadT
 
 results.metadata=await evaluate(`JSON.parse(document.getElementById('releaseMetadata').textContent)`);
 assert.equal(results.metadata.version,'0.01-b');assert.equal(results.metadata.status,'deployed-verified');
-assert.equal(results.metadata.verification.tests,718);
-assert.ok(results.metadata.sourceRevisionNote.includes('T04'));
+assert.equal(results.metadata.verification.tests,741);
+assert.equal(results.metadata.sourceCommit,"e90bb76");
 results.cadence=await evaluate(`document.getElementById('rules').textContent`);
 assert.ok(results.cadence.includes('15~20'));assert.ok(results.cadence.includes('포털 전환이 완전히 끝난'));
 results.historicalLabels=await evaluate(`({archive:document.getElementById('warning-archive').textContent,history:document.querySelector('#feedback .lede').textContent})`);

@@ -1,0 +1,144 @@
+{
+  "reports": [
+    {
+      "mode": "ready",
+      "loops": [
+        {
+          "url": "/assets/audio/menu/orbit-run.wav",
+          "loop": true,
+          "at": 272.09999999403954,
+          "state": "menu"
+        },
+        {
+          "url": "/assets/audio/gameplay/crystal-gates.wav",
+          "loop": true,
+          "at": 1342.0999999940395,
+          "state": "playing"
+        }
+      ],
+      "notes": [
+        223.5
+      ],
+      "stops": [
+        {
+          "url": "/assets/audio/menu/orbit-run.wav",
+          "scheduled": 0.04,
+          "now": 0.04,
+          "at": 288.59999999403954
+        }
+      ],
+      "departedAt": 284.69999998807907,
+      "stage": "crystal-gates",
+      "buffer": {
+        "width": 1920,
+        "height": 1080
+      },
+      "entered": {
+        "afterMs": 1267.5999999940395,
+        "gameLoops": 1
+      },
+      "state": "playing",
+      "cachedRestartSameRequestCount": true
+    },
+    {
+      "mode": "timeout",
+      "loops": [
+        {
+          "url": "/assets/audio/menu/orbit-run.wav",
+          "loop": true,
+          "at": 188.40000000596046,
+          "state": "menu"
+        },
+        {
+          "url": "/assets/audio/gameplay/crystal-gates.wav",
+          "loop": true,
+          "at": 11549.09999999404,
+          "state": "playing"
+        }
+      ],
+      "notes": [
+        149.90000000596046
+      ],
+      "stops": [
+        {
+          "url": "/assets/audio/menu/orbit-run.wav",
+          "scheduled": 0.08,
+          "now": 0.08,
+          "at": 215.09999999403954
+        }
+      ],
+      "departedAt": 210.40000000596046,
+      "stage": "crystal-gates",
+      "buffer": {
+        "width": 1920,
+        "height": 1080
+      },
+      "entered": {
+        "afterMs": 10059.40000000596,
+        "gameLoops": 0
+      },
+      "state": "playing"
+    },
+    {
+      "mode": "late-menu",
+      "loops": [
+        {
+          "url": "/assets/audio/gameplay/crystal-gates.wav",
+          "loop": true,
+          "at": 342.39999997615814,
+          "state": "playing"
+        }
+      ],
+      "notes": [
+        95.59999999403954
+      ],
+      "stops": [],
+      "departedAt": 103.89999997615814,
+      "stage": "crystal-gates",
+      "buffer": {
+        "width": 1920,
+        "height": 1080
+      },
+      "entered": {
+        "afterMs": 1220.5,
+        "gameLoops": 1
+      },
+      "state": "playing"
+    },
+    {
+      "mode": "failure",
+      "loops": [
+        {
+          "url": "/assets/audio/menu/orbit-run.wav",
+          "loop": true,
+          "at": 197.7000000178814,
+          "state": "menu"
+        }
+      ],
+      "notes": [
+        149.60000002384186
+      ],
+      "stops": [
+        {
+          "url": "/assets/audio/menu/orbit-run.wav",
+          "scheduled": 0.072,
+          "now": 0.072,
+          "at": 211.90000000596046
+        }
+      ],
+      "departedAt": 209.60000002384186,
+      "stage": "crystal-gates",
+      "buffer": {
+        "width": 1920,
+        "height": 1080
+      },
+      "entered": {
+        "afterMs": 10072.09999999404,
+        "gameLoops": 0
+      },
+      "state": "playing"
+    }
+  ],
+  "errors": [],
+  "cancellationVerified": true
+}

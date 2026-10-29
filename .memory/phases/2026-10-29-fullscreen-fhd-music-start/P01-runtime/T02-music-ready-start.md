@@ -50,7 +50,7 @@ Task: T02-music-ready-start
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed
-- commit:pending
+- commit:e90bb76
 
 ## Evidence
 - Targeted9 files126 tests passed. New tests use real engine plus scoped fake timers and native-audio-like deferred loaders; actual browser delayed-request evidence follows inT03.

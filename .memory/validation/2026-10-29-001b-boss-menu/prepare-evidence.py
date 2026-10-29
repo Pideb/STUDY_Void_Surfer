@@ -26,6 +26,9 @@ assert.ok(!results.interactions.copiedVersion.includes('f69a166'));
 await evaluate(`document.getElementById('release').scrollIntoView({behavior:'instant',block:'start'})`);await screenshot('release-desktop');""")
 releases=json.loads((ROOT/'docs/releases/versions.json').read_text(encoding='utf-8'))
 current=next(r for r in releases['releases'] if r['version']=='0.01-b')
+source=source.replace('metadata.verification.tests,718',f"metadata.verification.tests,{current['verification']['tests']}")
+source=source.replace("assert.ok(results.metadata.sourceRevisionNote.includes('T04'))",f"assert.equal(results.metadata.sourceCommit,{json.dumps(current['sourceCommit'])})")
+source=source.replace("copiedVersion.includes('3928989 + T04')",f"copiedVersion.includes({json.dumps(current['sourceCommit'])})")
 if current['status']=='deployed-verified':
     source=source.replace("assert.equal(results.metadata.status,'validated-local-not-deployed')", "assert.equal(results.metadata.status,'deployed-verified')")
     source=source.replace("copiedVersion.includes('3928989 + T04')", "copiedVersion.includes('e0eaacf')")

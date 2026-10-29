@@ -7,7 +7,7 @@
 [P01 Runtime](./phases/2026-10-29-fullscreen-fhd-music-start/P01-runtime/phase.md).
 
 ## Active Task
-[T02 Music-Ready Start](./phases/2026-10-29-fullscreen-fhd-music-start/P01-runtime/T02-music-ready-start.md).
+[T03 Validation and Deployment](./phases/2026-10-29-fullscreen-fhd-music-start/P01-runtime/T03-validation-deployment.md).
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -21,4 +21,4 @@
 - New HTML: `docs/releases/void-surfer-0.01-b.html`, identical Downloads copy, deployed-verified status. Old0.01v SHA unchanged. Deployment evidence: `.memory/validation/2026-10-29-001b-deployment/report.md`.
 
 ## Next Step (IMPORTANT)
-T01 complete `dda1732`,67 targeted tests and matched render evidence. Implement T02 frozen audio gate, then fullchecks/docs/deployT03. Preserve nativeRAF,0.01-b label and old0.01v; no DB/paidresources or unverified real-account write claim.
+T01 `dda1732` passed67 targeted tests/matched render evidence; T02 `e90bb76` passed126 targeted tests. Complete T03: fulltests, native delayedaudio, docs/build/config, publish andverifyAzure. Preserve nativeRAF,0.01-b/old0.01v; no DB/paidresources or unverified real-account write claim.

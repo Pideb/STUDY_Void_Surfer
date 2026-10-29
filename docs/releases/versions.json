@@ -59,7 +59,7 @@
       "product": "VOID SURFER",
       "version": "0.01-b",
       "baselineDate": "2026-10-29",
-      "sourceCommit": "e0eaacf",
+      "sourceCommit": "e90bb76",
       "status": "deployed-verified",
       "document": "void-surfer-0.01-b.html",
       "format": "single-file-html",
@@ -73,19 +73,24 @@
         "AEGIS",
         "VELOCITY"
       ],
-      "sourceRevisionNote": "e0eaacf: includes the T04 boss re-entry cadence follow-up",
+      "sourceRevisionNote": "e90bb76: FHD bounding buffer, native RAF and10s music-ready preparation",
       "runtimeFingerprint": {
         "algorithm": "sha256",
         "files": [
-          "src/game/constants.js",
-          "src/game/difficulty.js",
-          "src/game/game-engine.js"
+          "src/game/render-resolution.js",
+          "src/game/renderer.js",
+          "src/game/game-state.js",
+          "src/game/game-engine.js",
+          "src/audio/audio-manager.js",
+          "src/audio/stage-music-player.js",
+          "src/ui/app-controller.js",
+          "src/ui/screens.js"
         ],
-        "value": "71372f7881ca402d8e4ccd57ffd7d3f5a1085228da987bf74c3916bf7d17821c"
+        "value": "911ac5d7952b6104293690d74f1240e802a3e3e97ba9b4a422723f67d843cf81"
       },
       "verification": {
-        "testFiles": 57,
-        "tests": 718,
+        "testFiles": 60,
+        "tests": 741,
         "build": "passed",
         "configuration": "passed",
         "strictAutoplayMenuLoopVerified": true,
@@ -104,14 +109,16 @@
       "productionUrl": "https://proud-grass-03a132e00.6.azurestaticapps.net",
       "previousVersion": "0.01v",
       "followUpChanges": [
-        "Next boss threshold: full next-stage arrival score + random15..20; first boss20 unchanged"
+        "Next boss threshold: full next-stage arrival score + random15..20; first boss20 unchanged",
+        "Global1920x1080 render cap; preserve native display RAF",
+        "Stage music-ready start; frozen preparation;10s silent fallback and late same-track playback"
       ],
       "deployment": {
-        "headSha": "435bc6e5b3fd9fd95d7893938d0a2daacfc9528f",
-        "runId": 40836282096,
-        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/40836282096",
-        "completedAtUtc": "2026-10-29T07:35:50Z",
-        "bundleSha256": "78e71b913f237048eb13b5a7f820ffe443f92187bcb3b685beba7dcddb102658",
+        "headSha": "e90bb76ccc072aef086941e2b6aa9b4a38485a50",
+        "runId": 40841808122,
+        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/40841808122",
+        "completedAtUtc": "2026-10-29T08:25:17Z",
+        "bundleSha256": "a1ceebf2d0c90c3ddf7e9a86231a8a3c8d02999bf2704cdea5d68e31ceb9d9b7",
         "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
       }
     }

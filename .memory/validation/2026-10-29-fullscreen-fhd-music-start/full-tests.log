@@ -1,0 +1,16 @@
+
+> void-surfer@0.1.0 test
+> vitest --run
+
+
+ RUN  v5.0.1 C:/WorkSpace/DEX/Study/Vibe
+
+
+ Test Files  60 passed (60)
+      Tests  741 passed (741)
+   Start at  17:11:56
+   Duration  8.06s (environment 66%, tests 26%, transform 4%, import 3%, worker 1%, setup 1%)
+
+Environment  jsdom was created 60 times · 62.53s total, 66% of tracked time
+             create it once per worker with pool: 'vmThreads' (keeps per-file isolation) or isolate: false (shares it across files)
+             learn more: https://vitest.dev/guide/improving-performance#test-environments

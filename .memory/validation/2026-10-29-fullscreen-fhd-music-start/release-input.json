@@ -1,0 +1,24 @@
+{
+  "version": "0.01-b",
+  "sourceCommit": "e90bb76",
+  "testFiles": 60,
+  "tests": 741,
+  "deployment": {
+    "headSha": "e90bb76ccc072aef086941e2b6aa9b4a38485a50",
+    "runId": 40841808122,
+    "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/40841808122",
+    "completedAtUtc": "2026-10-29T08:25:17Z",
+    "bundleSha256": "a1ceebf2d0c90c3ddf7e9a86231a8a3c8d02999bf2704cdea5d68e31ceb9d9b7",
+    "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
+  },
+  "runtimeFiles": [
+    "src/game/render-resolution.js",
+    "src/game/renderer.js",
+    "src/game/game-state.js",
+    "src/game/game-engine.js",
+    "src/audio/audio-manager.js",
+    "src/audio/stage-music-player.js",
+    "src/ui/app-controller.js",
+    "src/ui/screens.js"
+  ]
+}

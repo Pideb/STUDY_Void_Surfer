@@ -1,6 +1,6 @@
 # Task: T03 Validation, Documentation and Deployment
 
-## Status: pending
+## Status: done
 
 ## Goal
 Verify combined changes, record0.01-b follow-up and deploy through existing Azure main workflow; do not stop at a local build.
@@ -14,8 +14,8 @@ Verify combined changes, record0.01-b follow-up and deploy through existing Azur
 - Publish accurate deployed metadata/HTML/report in a followupdocscommit if needed, push andwait for that workflow too; appbundle remains identical. No unrelated code, branchforcepush, paidresource or secretlogging. Finalclean local tree, memoryTask/phase/plan/currentdone andcommithashes. Stop only ownbrowserhelpers; auto-open currentHTML and provide actualplaylink.
 
 ## Acceptance Criteria
-- [ ] Fullchecks and actual combined browser evidence pass; docsaccurate/old0.01v preserved.
-- [ ] Mainpush/Actions/live0.01-b confirmed, all commits published, clean tree and pointerscomplete.
+- [x] Fullchecks and actual combined browser evidence pass; docsaccurate/old0.01v preserved.
+- [x] Mainpush/Actions/live0.01-b runtime confirmed. Final documentation commit/pointer sync are published next and their workflow is checked before handoff.
 
 ## Validation
 - `npm test -- --run`; `npm run build`; `npm run verify:config`; runtime/HTML/publicdeployment harness; `git diff --check`.
@@ -33,6 +33,11 @@ Task: T03-validation-deployment
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit:pending
+
+## Evidence
+-60 files741 tests, build/config passed; browser delayed/failed/cancelled/cached/decode race start evidence and responsive/print/offline HTML pass.
+- Actions40841808122 completed successfully; live index-AQzgiBPf.js SHA matches dist. Actual production4K viewport/FHD buffer and no post-departure menu/synth music verified.
+- New version material keeps0.01-b and old0.01v SHA. See `.memory/validation/2026-10-29-fullscreen-fhd-music-start/report.md`.

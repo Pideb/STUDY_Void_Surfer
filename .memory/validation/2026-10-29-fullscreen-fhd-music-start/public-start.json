@@ -1,0 +1,31 @@
+{
+  "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net",
+  "viewport": [
+    3840,
+    2160
+  ],
+  "buffer": [
+    1920,
+    1080
+  ],
+  "departure": 6231.4000000059605,
+  "observedPlayingAt": 6447.0999999940395,
+  "loops": [
+    {
+      "url": "/assets/audio/menu/orbit-run.wav",
+      "loop": true,
+      "at": 6230.5999999940395
+    },
+    {
+      "url": "/assets/audio/gameplay/solar-forge.wav",
+      "loop": true,
+      "at": 6418.700000017881
+    }
+  ],
+  "notes": [
+    6009.700000017881
+  ],
+  "score": null,
+  "errors": [],
+  "readOnlyGuestRun": true
+}
