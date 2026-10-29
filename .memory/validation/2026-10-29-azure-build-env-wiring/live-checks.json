@@ -1,0 +1,55 @@
+{
+  "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net",
+  "codeCommit": "a60634857fbe749b7d724271791b13e0bcafefd6",
+  "http": [
+    {
+      "path": "/",
+      "status": 200,
+      "appHtml": true
+    },
+    {
+      "path": "/auth/callback",
+      "status": 200,
+      "appHtml": true
+    },
+    {
+      "path": "/assets/game/aircraft/default.png",
+      "status": 200,
+      "bytes": 1527828
+    },
+    {
+      "path": "/assets/game/stages/crystal-gates/background.png",
+      "status": 200,
+      "bytes": 2218798
+    },
+    {
+      "path": "/assets/game/stages/crystal-gates/boss-evolved.png",
+      "status": 200,
+      "bytes": 2332663
+    },
+    {
+      "path": "/assets/audio/boss-entry.wav",
+      "status": 200,
+      "bytes": 230444
+    }
+  ],
+  "bundle": {
+    "path": "/assets/index-D5YLbpGp.js",
+    "status": 200,
+    "projectUrlPresent": true,
+    "publishableKeyPresent": true,
+    "sha256": "0f8e608de61fc4a626f8f058088521acc67d3b3ab1fed2a745b737386d20b880"
+  },
+  "publicRanking": {
+    "status": 200,
+    "rowsRead": 1,
+    "writePerformed": false,
+    "azureOriginAllowedByCors": true
+  },
+  "authProvider": {
+    "status": 200,
+    "azureEnabled": true,
+    "realLoginVerified": false
+  },
+  "remainingOperatorStep": "Confirm Supabase Site URL and exact Azure /auth/callback allow-list, then real login and score-save smoke test."
+}

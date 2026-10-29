@@ -2,7 +2,7 @@
 
 | Task | Status | Blueprint |
 | --- | --- | --- |
-| T01 | pending | [Public build settings and live evidence](./T01-public-build-env.md) |
+| T01 | done | [Public build settings and live evidence](./T01-public-build-env.md) |
 
 ## Progress
-- done: 0/1 (active: T01)
+- done: 1/1 (active: none)

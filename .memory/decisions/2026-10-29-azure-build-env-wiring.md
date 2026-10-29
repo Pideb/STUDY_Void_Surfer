@@ -1,7 +1,7 @@
 # Decisions: Azure Build Environment Wiring
 
 - Date: 2026-10-29
-- Status: Confirmed; continues the authorized Azure deployment.
+- Status: Implemented; matching Actions run and deployed artifact/API reads verified. Real account login awaits the Supabase URL-configuration operator step.
 - Actual origin: `https://proud-grass-03a132e00.6.azurestaticapps.net`
 - Azure generated commit `673a9de` was fast-forwarded locally. First run40827799290 succeeded; live root and `/auth/callback` both returned200/app HTML.
 

@@ -1,18 +1,19 @@
 # Current Context
 
 ## Active Plan
-[Azure Build Environment Wiring](./plans/2026-10-29-azure-build-env-wiring.md)
+None. 2026-10-29-azure-build-env-wiring complete.
 
 ## Active Phase
-[P01 Build](./phases/2026-10-29-azure-build-env-wiring/P01-build/phase.md)
+None.
 
 ## Active Task
-[T01 Public Build Settings](./phases/2026-10-29-azure-build-env-wiring/P01-build/T01-public-build-env.md)
+None. Public build settings and hosted artifact/API checks complete.
 
 ## Status
-- T01 9b72d23: Azure callback/config checks, Node floor and deployment guide verified.
-- T02 d9698e0: normal source push confirmed; preparation report records actual remote status.
-- Azure resource created; origin https://proud-grass-03a132e00.6.azurestaticapps.net responds200. First auto-deployment succeeded without public build settings; wiring them is active.
+- Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
+- Implementation a606348; Actions run40828446428 completed successfully.
+- Live root/callback/assets/public configuration and anonymous ranking verified.
+- Supabase administrative URL settings, real login and score submission are not yet verified.
 
 ## Next Step (IMPORTANT)
-Read T01, connect public build variables, preserve the generated deployment token, commit/push and verify the matching live run. Then guide the exact Supabase URL allow-list and real login verification; never claim those operator steps done without evidence.
+Operator opens Supabase Authentication > URL Configuration. Site URL is the actual Azure origin; add that origin plus /auth/callback to Redirect URLs while preserving local callbacks. After saving, verify real organization login, account best, score submission, logout and re-entry. Do not claim those tests complete without the user or an authenticated surface confirming them.
