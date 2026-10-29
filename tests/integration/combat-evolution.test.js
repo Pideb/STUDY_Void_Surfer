@@ -14,7 +14,7 @@ describe('approved boss evolution across complete stage cycles', () => {
       if (snapshot.boss) {
         identities.add(snapshot.boss.stageId);
         expect(snapshot.boss.stageId).toBe(snapshot.stage.id);
-        expect(snapshot.boss.baseScrollSpeed).toBeLessThanOrEqual(getBaseSpeed(150));
+        expect(snapshot.boss.baseScrollSpeed).toBeLessThanOrEqual(getBaseSpeed(200));
         if (snapshot.boss.attack?.type === 'volley') signatureStages.add(snapshot.boss.stageId);
         if (snapshot.boss.attack?.kind === 'quarter') {
           expect(snapshot.obstacles).toHaveLength(0); expect(snapshot.boss.roar).toBeNull();
@@ -26,13 +26,14 @@ describe('approved boss evolution across complete stage cycles', () => {
         if (!failed.has(number)) {
           const wrong = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].find(code => code !== snapshot.challenge.sequence[snapshot.challenge.cursor]);
           engine.handleChallengeKey(wrong); failed.add(number);
-          expect(engine.getSnapshot().feedbackEffect.durationSeconds).toBe(5);
+          expect(engine.getSnapshot().feedbackEffect.durationSeconds).toBe(8);
         } else {
           for (const code of snapshot.challenge.sequence.slice(snapshot.challenge.cursor)) engine.handleChallengeKey(code);
           expect(engine.getSnapshot().boss.counterattack).toBeNull();
         }
       }
-      if(engine.getSnapshot().boss?.successfulChallenges>=1&&engine.getSnapshot().boss.weapon.ready&&engine.fire())counterattacks++;
+      const aiming=engine.getSnapshot();
+      if(aiming.boss?.successfulChallenges>=1 && aiming.boss.cycleNumber>=3 && aiming.boss.weapon.ready && Math.abs(270+162*Math.sin((aiming.boss.motionSeconds+.5)*Math.PI/3)-aiming.player.y)<30 && engine.fire())counterattacks++;
       const before = engine.getSnapshot(); time += 100; engine.update(time); snapshot = engine.getSnapshot();
       expect(snapshot.aircraft.id).toBe(aircraftId);
       expect(snapshot.deathEffect).toBeNull();

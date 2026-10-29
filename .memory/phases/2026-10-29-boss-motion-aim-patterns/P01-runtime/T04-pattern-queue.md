@@ -1,6 +1,6 @@
 # Task: T04 Random Pattern Queue
 
-## Status: pending
+## Status: done
 
 ## Goal
 Use every eligible boss block once per shuffled round, with walls included and global lasers always included boss2+, without deadlocks or invalid overlap.
@@ -25,8 +25,8 @@ Use every eligible boss block once per shuffled round, with walls included and g
 - Old tests assuming first-cycle WASD is last must observe full round or identify actual block completion rather than weakening count/safety assertions.
 
 ## Acceptance Criteria
-- [ ] Shuffled complete rounds/encounters cannot stall; all safety/count rules retained.
-- [ ] Boss2+ global included each full round, boss1 excluded, no adjacent repeat across rounds.
+- [x] Shuffled complete rounds/encounters cannot stall; all safety/count rules retained.
+- [x] Boss2+ global included each full round, boss1 excluded, no adjacent repeat across rounds.
 
 ## Validation
 - `npm test -- --run tests/game/boss-patterns.test.js tests/integration/projectile-phases.test.js tests/game/game-engine.test.js tests/integration/combat-evolution.test.js tests/integration/dash-boss-flow.test.js`
@@ -45,6 +45,6 @@ Task: T04-pattern-queue
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

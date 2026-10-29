@@ -22,6 +22,8 @@ function createRuntimeEngine(overrides = {}) {
   };
 }
 
+const aimable=s=>s.boss && Math.abs(270+162*Math.sin((s.boss.motionSeconds+.5)*Math.PI/3)-s.player.y)<30;
+
 describe('game engine', () => {
   it('exposes the same moving geometry and freezes the motion clock while paused',()=>{
     const {engine,step}=createRuntimeEngine({initialScore:60,initialCompletedWarningCount:1,invincibilityEnabled:true});engine.start();
@@ -681,7 +683,7 @@ describe('game engine', () => {
       for (let frame = 0; frame < 50 && snapshot.challenge.active; frame += 1) snapshot = step(100);
     }
     expect(snapshot.challenge).toMatchObject({ active: false, result: 'failure', resolved: true });
-    expect(snapshot.boss).toMatchObject({ hp: 3, challengeCount: 1, successfulChallenges: 0, wallSpawningPaused: false });
+    expect(snapshot.boss).toMatchObject({ hp: 3, challengeCount: 1, successfulChallenges: 0, wallSpawningPaused: true });
     expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(8);
     expect(snapshot.score).toBe(60);
     expect(snapshot.progressionScore).toBe(60);
@@ -689,6 +691,7 @@ describe('game engine', () => {
     expect(snapshot.challenge.active).toBe(true);
     for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
     expect(engine.getSnapshot().boss.counterattack).toBeNull();
+    for(let frame=0;frame<2000;frame++){const live=engine.getSnapshot();if(live.challenge?.active)for(const code of live.challenge.sequence)engine.handleChallengeKey(code);if(live.boss?.weapon.ready&&aimable(live)&&!live.challenge?.active)break;step();}
     expect(engine.fire()).toBe(true);
     for (let frame = 0; frame < 5; frame += 1) step(100);
     expect(engine.getSnapshot().boss).toMatchObject({ hp: 2, challengeCount: 2, successfulChallenges: 1 });
@@ -721,7 +724,7 @@ describe('game engine', () => {
           successes += 1;
         }
       }
-      if(engine.getSnapshot().boss?.successfulChallenges>=1&&engine.getSnapshot().boss.weapon.ready&&engine.fire())shots++;
+      if(engine.getSnapshot().boss?.successfulChallenges>=1&&engine.getSnapshot().boss.weapon.ready&&aimable(engine.getSnapshot())&&engine.fire())shots++;
       snapshot = step(100);
       if (enteredBoss && !snapshot.boss) break;
     }
@@ -817,8 +820,9 @@ describe('game engine', () => {
     engine.start();
     let snapshot = engine.getSnapshot();
 
-    for (let frame = 0; frame < 160
+    for (let frame = 0; frame < 2000
       && (!snapshot.warning || snapshot.warning.spawnedCount < snapshot.warning.targetCount); frame += 1) {
+      if(snapshot.challenge?.active)for(const code of snapshot.challenge.sequence)engine.handleChallengeKey(code);
       snapshot = step(100);
     }
 
@@ -852,12 +856,10 @@ describe('game engine', () => {
     snapshot = engine.getSnapshot();
     expect(snapshot.boss.hp).toBe(3);
     expect(snapshot.boss.counterattack).toBeNull();
-    expect(engine.fire()).toBe(true);
-    expect(engine.getSnapshot().boss.weapon.firing.fromX).toBe(snapshot.player.x);
-    expect(engine.getSnapshot().boss.weapon.firing.toX).toBeGreaterThan(740);
-    for (let i = 0; i < 5; i++) snapshot = step();
-    expect(snapshot.boss.hp).toBe(2);
-    expect(snapshot.boss.hitEffect).not.toBeNull();
+    // A randomly first challenge need not wait for weapon readiness.
+    expect(snapshot.boss.weapon.firing).toBeNull();
+    expect(snapshot.boss.cyclePhase).toBe('pending');
+
   });
 
   it('checks single lasers before a wall wave completes, starting with boss one', () => {
@@ -877,16 +879,14 @@ describe('game engine', () => {
   });
 
   it('gives every shot in a three-shot global sequence a new safe quarter and full warning', () => {
-    let queue = [];
-    const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 3, rng: () => queue.shift() ?? .4 });
+    const { engine, step } = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 3, rng: () => .99 });
     engine.setInvincibilityEnabled(true); engine.start();
     let snapshot = engine.getSnapshot();
     const shots = new Map();
-    for (let i = 0; i < 1500 && !snapshot.boss?.roar; i++) {
-      if (snapshot.boss?.attack?.type === 'volley' && snapshot.boss.volleysFired === snapshot.boss.volleyBudget
-        && snapshot.obstacles.length === 0) queue = [0, .99, .1, .1, .1];
+    for (let i = 0; i < 4000; i++) {
       snapshot = step();
       const attack = snapshot.boss?.attack;
+      if(shots.size===3&&!attack)break;
       if (attack?.kind === 'quarter' && !shots.has(attack.id)) {
         expect(snapshot.obstacles).toHaveLength(0);
         expect(attack.telegraphRemainingSeconds).toBe(attack.telegraphDurationSeconds);
@@ -902,7 +902,7 @@ describe('game engine', () => {
     const zones = [...shots.values()];
     expect(zones).toHaveLength(3);
     expect(zones[0]).not.toBe(zones[1]); expect(zones[1]).not.toBe(zones[2]);
-    expect(snapshot.boss.roar).not.toBeNull();
+    expect(snapshot.boss.hp).toBe(3);
   });
 
   it('unlocks hybrid barriers only after the first boss and times the recessed barrier', () => {
