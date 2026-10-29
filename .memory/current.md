@@ -1,17 +1,17 @@
 # Current Context
 
 ## Active Plan
-None. 2026-10-29-flight-performance-lasers-siren complete.
+[Azure Static Web Apps Preparation](./plans/2026-10-29-azure-static-web-apps-preparation.md)
 
 ## Active Phase
-None.
+[P01 Hosting](./phases/2026-10-29-azure-static-web-apps-preparation/P01-hosting/phase.md)
 
 ## Active Task
-None. All six tasks complete.
+[T01 Hosting Configuration](./phases/2026-10-29-azure-static-web-apps-preparation/P01-hosting/T01-hosting-configuration.md)
 
 ## Status
-- T06 complete and verified; commit 72a625e.
-- Progress 6/6; sequential completion authorized.
+- Prior gameplay plan complete. User is at Azure Review + create.
+- Hosting source preparation is now active; source publication precedes resource creation.
 
 ## Next Step (IMPORTANT)
-Review final report and playtest; deployment/DB remain outside scope.
+Implement and validate T01, commit, then publish the validated source via T02. The generated workflow and site origin will be configured after portal creation.
