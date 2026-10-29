@@ -1,0 +1,39 @@
+[
+  {
+    "id": "01-broad-wail",
+    "file": "01-broad-wail.wav",
+    "durationSeconds": 1.5,
+    "sampleRate": 24000,
+    "channels": 2,
+    "peak": 0.47024712979881067,
+    "rms": 0.23,
+    "sha256": "57341d8b5f098df0d69599d70f734d509525f2a6c0f3917d348234eb87d83370"
+  },
+  {
+    "id": "02-metal-wail",
+    "file": "02-metal-wail.wav",
+    "durationSeconds": 1.5,
+    "sampleRate": 24000,
+    "channels": 2,
+    "peak": 0.48579243819305945,
+    "rms": 0.23,
+    "sha256": "4b3856825bc447e8eb065d3d2dba56f4dc1afe7f41062743d1190ba74b905655"
+  },
+  {
+    "id": "03-broad-triple",
+    "file": "03-broad-triple.wav",
+    "durationSeconds": 2.4,
+    "pulseSeconds": 0.7,
+    "gapSeconds": 0.15,
+    "onsets": [
+      0,
+      0.85,
+      1.7
+    ],
+    "sampleRate": 24000,
+    "channels": 2,
+    "peak": 0.5152209401130676,
+    "rms": 0.2151452997408159,
+    "sha256": "925ffc1b9ef079dd9dca52260398af72b9224ff633479a7b3111b6d50efb18b2"
+  }
+]
