@@ -1,13 +1,13 @@
 # Current Context
 
 ## Active Plan
-None. Completed: [VOID SURFER 0.01-b](./plans/2026-10-29-001b-boss-menu.md), including T04 cadence follow-up.
+[Fullscreen FHD and Music-Ready Start](./plans/2026-10-29-fullscreen-fhd-music-start.md).
 
 ## Active Phase
-None. P01 complete (4/4).
+[P01 Runtime](./phases/2026-10-29-fullscreen-fhd-music-start/P01-runtime/phase.md).
 
 ## Active Task
-None. T04 complete: `e0eaacf`.
+[T01 FHD Rendering](./phases/2026-10-29-fullscreen-fhd-music-start/P01-runtime/T01-fhd-rendering.md).
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -21,4 +21,4 @@ None. T04 complete: `e0eaacf`.
 - New HTML: `docs/releases/void-surfer-0.01-b.html`, identical Downloads copy, deployed-verified status. Old0.01v SHA unchanged. Deployment evidence: `.memory/validation/2026-10-29-001b-deployment/report.md`.
 
 ## Next Step (IMPORTANT)
-No remaining active game task.0.01-b including T04 is deployed at the Azure origin. Accept playtest feedback; preserve old0.01v and dormant WARNING design. Do not claim a new real-account score write from read-only deployment checks.
+User authorized plan/execution/commits/deployment through completion. Capture fullscreen before/afterT01, implementT02 frozen audio gate, fullchecks/docs/deployT03. Preserve nativeRAF,0.01-b label and old0.01v; no DB/paidresources or unverified real-account write claim.
