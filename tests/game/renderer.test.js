@@ -272,7 +272,7 @@ describe('renderer', () => {
     });
 
     expect(context.fillRect).toHaveBeenCalled();
-    expect(context.fillText).toHaveBeenCalledWith('BOSS: FAST', 840, 392);
+    expect(context.fillText).not.toHaveBeenCalledWith('BOSS: FAST', 840, 392);
     expect(context.fillText).not.toHaveBeenCalledWith('BOSS WARNING', 480, 64);
     expect(context.arc).toHaveBeenCalled();
     renderer.destroy();
@@ -623,8 +623,8 @@ describe('renderer', () => {
       },
       challenge: { active: true, sequence: ['KeyW', 'KeyA', 'KeyD'], cursor: 1 },
     });
-    expect(context.fillText).toHaveBeenCalledWith('W', expect.any(Number), 258);
-    expect(context.fillText).toHaveBeenCalledWith('BOSS: SIGNAL', expect.any(Number), 392);
+    expect(context.fillText).not.toHaveBeenCalledWith('W', expect.any(Number), 258);
+    expect(context.fillText).not.toHaveBeenCalledWith('BOSS: SIGNAL', expect.any(Number), 392);
     expect(context.arc.mock.calls.map((call) => call[2])).toContain(4);
     expect(context.arc.mock.calls.map((call) => call[2])).toContain(2);
     renderer.destroy();
@@ -757,17 +757,20 @@ describe('renderer', () => {
     expect(context.strokeRect).not.toHaveBeenCalled();
     updateLaser(attack, 2.1);
     context.rect.mockClear();
-    context.fillRect.mockClear();
+    context.fillRect.mockClear(); context.clip.mockClear();
     drawLaser(context, attack);
     const safeTop = attack.safeZone * 135;
     for (const [, top, , height] of context.rect.mock.calls) {
       expect(top + height <= safeTop || top >= safeTop + 135).toBe(true);
     }
-    expect(context.clip).toHaveBeenCalledTimes(1);
+    expect(context.clip).toHaveBeenCalledTimes(4);
     expect(context.createLinearGradient).toHaveBeenCalled();
-    // Only the subtle safe-lane tint may fill the full width; danger is rendered as light.
-    expect(context.fillRect.mock.calls.filter(([, , width]) => width === WORLD_WIDTH))
-      .toEqual([[0, safeTop, WORLD_WIDTH, 135]]);
+    // Three clipped hatch zones and one safe tint; no danger enters the safe lane.
+    const zones=context.fillRect.mock.calls.filter(([, , width])=>width===WORLD_WIDTH);
+    expect(zones).toHaveLength(4);
+    expect(zones.at(-1)).toEqual([0,safeTop,WORLD_WIDTH,135]);
+    for(const [,top,,height] of zones.slice(0,3))expect(top+height<=safeTop||top>=safeTop+135).toBe(true);
+    expect(context.fillText).not.toHaveBeenCalled();
     expect(context.strokeRect).not.toHaveBeenCalled();
     expect(context.save.mock.calls.length).toBe(context.restore.mock.calls.length);
   });

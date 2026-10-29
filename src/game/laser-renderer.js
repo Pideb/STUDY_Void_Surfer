@@ -98,7 +98,7 @@ function beam(ctx, y, height, front, time, opacity = 1) {
 function safeLane(ctx, zone, time, warning) {
   const top = zone * H / 4, height = H / 4;
   ctx.save();
-  ctx.fillStyle = warning ? 'rgba(28,223,181,0.05)' : 'rgba(5,30,36,0.14)';
+  ctx.fillStyle = warning ? 'rgba(69,242,211,0.14)' : 'rgba(5,30,36,0.22)';
   ctx.fillRect(0, top, W, height);
   ctx.strokeStyle = '#7effd7'; ctx.lineWidth = warning ? 3 : 2;
   ctx.shadowColor = '#7effd7'; ctx.shadowBlur = warning ? 9 : 3;
@@ -107,13 +107,30 @@ function safeLane(ctx, zone, time, warning) {
   ctx.moveTo(0, top + height - 3); ctx.lineTo(W, top + height - 3);
   ctx.stroke();
   ctx.fillStyle = '#7effd7';
-  ctx.beginPath();
-  ctx.moveTo(22 + Math.sin(time * 3) * 3, top + height / 2);
-  ctx.lineTo(38, top + height / 2 - 10); ctx.lineTo(38, top + height / 2 + 10);
-  ctx.closePath(); ctx.fill();
+  for (const x of [28,W-28]) {
+    const direction=x<W/2?1:-1;
+    ctx.beginPath();
+    ctx.moveTo(x+direction*10,top+height/2);
+    ctx.lineTo(x-direction*5,top+height/2-10);ctx.lineTo(x-direction*5,top+height/2+10);
+    ctx.closePath();ctx.fill();
+  }
   ctx.restore();
 }
 
+function dangerLanes(ctx,safeZone,zoneHeight,warning,opacity) {
+  ctx.save();ctx.globalAlpha=opacity;
+  for(let zone=0;zone<4;zone++){
+    if(zone===safeZone)continue;
+    const top=zone*zoneHeight;
+    ctx.save();ctx.beginPath();ctx.rect(0,top,W,zoneHeight);ctx.clip();
+    ctx.fillStyle=warning?'rgba(255,54,83,.11)':'rgba(255,54,83,.06)';ctx.fillRect(0,top,W,zoneHeight);
+    ctx.strokeStyle=warning?'rgba(255,102,118,.32)':'rgba(255,102,118,.18)';ctx.lineWidth=1;
+    ctx.beginPath();
+    for(let x=-zoneHeight;x<W+zoneHeight;x+=38){ctx.moveTo(x,top+zoneHeight);ctx.lineTo(x+zoneHeight,top);}
+    ctx.stroke();ctx.restore();
+  }
+  ctx.restore();
+}
 
 export function drawLaser(ctx, attack) {
   if (!attack || attack.type !== 'laser') return;
@@ -142,6 +159,7 @@ export function drawLaser(ctx, attack) {
     }
   } else if (attack.kind === 'quarter') {
     const zoneHeight = attack.zoneHeight ?? H / 4;
+    dangerLanes(ctx,attack.safeZone,zoneHeight,warning,warning?1:opacity);
     if (warning) {
       for (let zone = 0; zone < 4; zone += 1) {
         if (zone === attack.safeZone) continue;

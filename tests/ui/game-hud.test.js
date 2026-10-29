@@ -8,6 +8,20 @@ function makeHud() {
 }
 
 describe('game HUD', () => {
+  it('uses a real eighty-pixel reactor arc and keeps only one visible key sequence',()=>{
+    const hud=makeHud(),weapon={chargeSeconds:7.2,rechargeSeconds:10,ready:false,firing:null};
+    hud.update({boss:{hp:3,weapon},challenge:{active:true,sequence:['KeyW','KeyA','KeyS','KeyD'],remainingSeconds:4,timeLimitSeconds:5}});
+    expect(hud.element.querySelector('.weapon-hud').dataset.diameter).toBe('80');
+    expect(Number(hud.element.querySelector('.reactor-progress').getAttribute('stroke-dashoffset'))).toBeCloseTo(28);
+    expect(hud.element.querySelector('.reactor-state').textContent).toBe('72%');
+    expect(hud.element.querySelector('.weapon-keys').textContent).toBe('SHIFT / CTRL');
+    expect(hud.element.querySelector('.wasd-challenge-overlay h2')).toBeNull();
+    expect(hud.element.querySelectorAll('.challenge-sequence')).toHaveLength(1);
+    hud.update({boss:{hp:3,weapon:{...weapon,ready:true,chargeSeconds:10}}});
+    expect(hud.element.querySelector('.reactor-state').textContent).toBe('READY');
+    hud.update({boss:{hp:3,weapon:{...weapon,ready:false,firing:{elapsedSeconds:.1}}}});
+    expect(hud.element.querySelector('.reactor-state').textContent).toBe('FIRE');
+  });
   it('shows charge and ready state and uses a separate mobile fire button', () => {
     const fire = vi.fn();
     const hud = createGameHud({ getMuted: () => false }, { fire });
@@ -51,7 +65,7 @@ describe('game HUD', () => {
     }
   });
 
-  it('shows laser cues and the WASD sequence and hides controls after the challenge', () => {
+  it('removes enemy laser text and keeps one WASD sequence and hides controls after the challenge', () => {
     const hud = makeHud();
     hud.update({
       score: 42,
@@ -65,7 +79,7 @@ describe('game HUD', () => {
       },
       feedbackEffect: { kind: 'glitch', remainingSeconds: 0.5, durationSeconds: 0.75 },
     });
-    expect(hud.element.querySelector('.hud-combat-status').textContent).toContain('3번 구역');
+    expect(hud.element.querySelector('.hud-combat-status')).toBeNull();
     expect(hud.element.querySelector('.wasd-challenge-overlay').hidden).toBe(false);
     expect([...hud.element.querySelectorAll('.challenge-sequence li')].map((item) => item.textContent))
       .toEqual(['W', 'A', 'D']);

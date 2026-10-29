@@ -1037,12 +1037,24 @@ button:focus-visible {
 }
 
 /* Independent boss weapon: gauge on every device, separate touch-only fire. */
-.weapon-hud { position:absolute; bottom:max(1rem, env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:min(36vw, 320px); padding:.5rem .7rem; border:1px solid #6ad9fa66; border-radius:.5rem; background:#071322dc; color:#c6efff; font-size:clamp(.65rem,1.5vw,.85rem); text-align:center; }
+/* 80 logical-pixel reactor arc with a 104px tick envelope. */
+.weapon-hud { position:absolute; bottom:max(10px, env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); width:clamp(68px,10.833333vw,208px); color:#8be9ff; text-align:center; pointer-events:none; }
 .weapon-hud[hidden], .game-hud .mobile-fire-button[hidden] { display:none; }
-.weapon-gauge { height:.5rem; margin-top:.3rem; border-radius:1rem; overflow:hidden; background:#243c52; }
-.weapon-gauge span { display:block; height:100%; background:#76e9ff; box-shadow:0 0 10px #57cfff; }
-.weapon-hud.is-ready { border-color:#edfcff; box-shadow:0 0 18px #69ddff77; color:#fff; }
-.weapon-hud.is-ready .weapon-gauge span { background:#fff; }
+.weapon-gauge { width:100%; aspect-ratio:1; }
+.weapon-reactor { display:block; width:100%; height:100%; overflow:visible; }
+.reactor-backing { fill:#02091399; }
+.reactor-track,.reactor-progress { fill:none; stroke-width:4; stroke-linecap:round; }
+.reactor-track { stroke:#294a5d; }
+.reactor-progress { stroke:currentColor; filter:drop-shadow(0 0 3px #8be9ff88); }
+.reactor-tick { fill:none; stroke:#93b7cb; stroke-width:1; }
+.reactor-state,.reactor-caption { fill:currentColor; text-anchor:middle; font-family:system-ui,sans-serif; font-weight:700; }
+.reactor-state { font-size:23px; }
+.reactor-caption { font-size:10px; letter-spacing:1px; }
+.weapon-keys { display:block; width:max-content; max-width:140%; margin:-9% auto 0; padding:2px 6px; border:1px solid #7ba6bd88; background:#020913b3; color:#d5eeff; font-size:clamp(9px,1.04vw,20px); white-space:nowrap; }
+.weapon-hud.is-ready { color:#fff3c8; }
+.weapon-hud.is-ready .reactor-progress { filter:drop-shadow(0 0 7px #fff3c899); }
+.weapon-hud.is-ready .reactor-state,.weapon-hud.is-firing .reactor-state { font-size:17px; }
+.weapon-hud.is-firing { color:#fff; }
 .mobile-fire-button { position:absolute; right:max(1rem, env(safe-area-inset-right)); bottom:max(5.5rem, calc(env(safe-area-inset-bottom) + 5rem)); min-width:7rem; min-height:3.2rem; touch-action:manipulation; }
 @media (pointer:coarse), (hover:none), (max-width:700px) { .game-hud .mobile-fire-button { display:inline-flex; pointer-events:auto; } }
 @media (pointer:coarse), (hover:none) { .game-hud .mobile-space-button { display:inline-flex; pointer-events:auto; } }

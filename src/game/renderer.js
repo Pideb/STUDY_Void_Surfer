@@ -801,7 +801,6 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
 
   ctx.font = '700 18px system-ui, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(`BOSS: ${(difficulty.bossPattern ?? 'shift').toUpperCase()}`, x - 2, WORLD_HEIGHT / 2 + 122);
   ctx.restore();
 }
 
@@ -924,17 +923,6 @@ function drawChallengeEffects(ctx, challenge, feedbackEffect, player = null, red
     ctx.save();
     ctx.fillStyle = 'rgba(2, 4, 12, 0.66)';
     ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
-    ctx.textAlign = 'center';
-    ctx.fillStyle = '#e8fbff';
-    ctx.font = '700 24px system-ui, sans-serif';
-    ctx.fillText('INPUT SEQUENCE', WORLD_WIDTH / 2, 168);
-    const sequence = challenge.sequence ?? [];
-    const size = Math.min(46, 420 / Math.max(1, sequence.length));
-    ctx.font = `700 ${size}px system-ui, sans-serif`;
-    sequence.forEach((key, index) => {
-      ctx.fillStyle = index < (challenge.cursor ?? 0) ? '#55f6e5' : '#ffffff';
-      ctx.fillText(key.slice(-1).toUpperCase(), WORLD_WIDTH / 2 + (index - (sequence.length - 1) / 2) * (size + 18), 258);
-    });
     ctx.restore();
   }
   drawChallengeFailure(ctx, feedbackEffect, player, { reducedMotion });

@@ -25,11 +25,6 @@ export function createGameHud(model, handlers) {
   let muteButton = createMuteButton(muted, handlers.toggleMute);
   const pauseButton = createButton('일시정지', handlers.pause);
   actions.append(muteButton, pauseButton);
-  const status = document.createElement('p');
-  status.className = 'hud-combat-status';
-  status.setAttribute('role', 'status');
-  status.setAttribute('aria-live', 'polite');
-  status.setAttribute('aria-atomic', 'true');
   const speedIndicator = document.createElement('p');
   speedIndicator.className = 'speed-change-indicator';
   speedIndicator.setAttribute('role', 'status');
@@ -37,7 +32,7 @@ export function createGameHud(model, handlers) {
   speedIndicator.setAttribute('aria-atomic', 'true');
   speedIndicator.hidden = true;
   let speedDirection = null;
-  topBar.append(score, status, speedIndicator, actions);
+  topBar.append(score, speedIndicator, actions);
 
   const bossHealth = document.createElement('section');
   bossHealth.className = 'boss-health';
@@ -59,8 +54,6 @@ export function createGameHud(model, handlers) {
   challengeOverlay.hidden = true;
   challengeOverlay.setAttribute('role', 'group');
   challengeOverlay.setAttribute('aria-label', '보스 키보드 챌린지');
-  const challengeTitle = document.createElement('h2');
-  challengeTitle.textContent = '순서대로 입력';
   const challengeSequence = document.createElement('ol');
   challengeSequence.className = 'challenge-sequence';
   const challengeTimer = document.createElement('div');
@@ -89,7 +82,7 @@ export function createGameHud(model, handlers) {
     challengeControls.append(button);
     return button;
   });
-  challengeOverlay.append(challengeTitle, challengeSequence, challengeTimer, challengeTimeText, challengeControls, challengeStatus);
+  challengeOverlay.append(challengeSequence, challengeTimer, challengeTimeText, challengeControls, challengeStatus);
   const failureEffect = document.createElement('div');
   failureEffect.className = 'challenge-failure-effect';
   failureEffect.hidden = true;
@@ -108,15 +101,35 @@ export function createGameHud(model, handlers) {
   weaponHud.className = 'weapon-hud';
   weaponHud.hidden = true;
   const weaponLabel = document.createElement('span');
-  weaponLabel.className = 'weapon-label';
+  weaponLabel.className = 'weapon-label sr-only';
   const weaponGauge = document.createElement('div');
   weaponGauge.className = 'weapon-gauge';
   weaponGauge.setAttribute('role', 'progressbar');
   weaponGauge.setAttribute('aria-label', '레이저 충전');
   weaponGauge.setAttribute('aria-valuemin', '0');
-  const weaponFill = document.createElement('span');
-  weaponGauge.append(weaponFill);
-  weaponHud.append(weaponLabel, weaponGauge);
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svgNode = (name, attributes) => {
+    const node = document.createElementNS(svgNS, name);
+    for (const [key,value] of Object.entries(attributes)) node.setAttribute(key,String(value));
+    return node;
+  };
+  const reactor = svgNode('svg',{viewBox:'0 0 104 104','aria-hidden':'true',class:'weapon-reactor'});
+  const arc = 'M19.64 75.51 A40 40 0 1 1 84.36 75.51';
+  reactor.append(svgNode('circle',{cx:52,cy:52,r:37,class:'reactor-backing'}),
+    svgNode('path',{d:arc,class:'reactor-track'}));
+  const weaponFill = svgNode('path',{d:arc,class:'reactor-progress',pathLength:100,'stroke-dasharray':100,'stroke-dashoffset':100});
+  reactor.append(weaponFill);
+  for(let k=0;k<=10;k++){
+    const angle=Math.PI*.8+Math.PI*1.4*k/10;
+    reactor.append(svgNode('path',{d:`M${52+Math.cos(angle)*46} ${52+Math.sin(angle)*46} L${52+Math.cos(angle)*49} ${52+Math.sin(angle)*49}`,class:'reactor-tick'}));
+  }
+  const weaponState=svgNode('text',{x:52,y:56,class:'reactor-state'});
+  const weaponCaption=svgNode('text',{x:52,y:72,class:'reactor-caption'});weaponCaption.textContent='LASER';
+  reactor.append(weaponState,weaponCaption);
+  weaponGauge.append(reactor);
+  const weaponKeys=document.createElement('span');weaponKeys.className='weapon-keys';weaponKeys.textContent='SHIFT / CTRL';
+  weaponHud.dataset.diameter='80';
+  weaponHud.append(weaponLabel,weaponGauge,weaponKeys);
   const mobileFire = createButton('레이저 발사', () => handlers.fire?.(), { className: 'mobile-fire-button', ariaLabel: '보스 레이저 발사' });
   mobileFire.addEventListener('pointerdown', event => { event.preventDefault(); event.stopPropagation(); });
   mobileFire.addEventListener('click', event => event.stopPropagation());
@@ -137,7 +150,9 @@ export function createGameHud(model, handlers) {
       weaponGauge.setAttribute('aria-valuemax', String(limit));
       weaponGauge.setAttribute('aria-valuenow', String(charged));
       weaponGauge.setAttribute('aria-valuetext', ready ? '레이저 발사 가능' : `레이저 충전 ${Math.floor(charged / limit * 100)}%`);
-      weaponFill.style.width = `${charged / limit * 100}%`;
+      weaponFill.setAttribute('stroke-dashoffset', String(100-charged/limit*100));
+      weaponState.textContent = weapon.firing ? 'FIRE' : ready ? 'READY' : `${Math.floor(charged/limit*100)}%`;
+      weaponHud.classList.toggle('is-firing', Boolean(weapon.firing));
       weaponLabel.textContent = weapon.firing ? '레이저 발사 중' : ready ? 'LASER READY · SHIFT / CTRL' : `LASER · ${(limit - charged).toFixed(1)}초`;
     }
     bossHealth.hidden = !boss;
@@ -159,15 +174,6 @@ export function createGameHud(model, handlers) {
       }
       [...bossGauge.children].forEach((segment, index) => segment.classList.toggle('is-active', index < remaining));
     }
-
-    const attack = boss?.attack;
-    let combatMessage = '';
-    if (attack?.type === 'laser') {
-      if (attack.kind === 'quarter') combatMessage = `레이저 안전 구역: ${attack.safeZone + 1}번 구역`;
-      else combatMessage = attack.telegraphRemainingSeconds > 0 ? '레이저 조준 중 · 세로 위치 확인' : '레이저 발사 중';
-    }
-    status.textContent = combatMessage;
-    status.hidden = !combatMessage;
 
     const nextSpeedDirection = [
       'up', 'down',

@@ -6,9 +6,9 @@
 | T01 | done | Stable guides, drained/dark entry, cap/WASD tuning | [T01](./T01-entry-and-basics.md) |
 | T02 | done | Shared boss motion/articulation and moving telegraphs | [T02](./T02-motion-and-projectiles.md) |
 | T03 | done | Horizontal player beam with full-body swept hits | [T03](./T03-aimed-beam.md) |
-| T04 | pending | Shuffled boss blocks and full lifecycle | [T04](./T04-pattern-queue.md) |
+| T04 | done | Shuffled boss blocks and full lifecycle | [T04](./T04-pattern-queue.md) |
 | T05 | pending | Reactor HUD, global safety and exact text cleanup | [T05](./T05-hud-and-clarity.md) |
 | T06 | pending | Complete regression and actual runtime evidence | [T06](./T06-integration-evidence.md) |
 
 ## Progress
-- done: 3/6 (active: T04)
+- done: 4/6 (active: T05)

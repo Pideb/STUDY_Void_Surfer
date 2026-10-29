@@ -1,6 +1,6 @@
 # Task: T05 HUD and Visual Clarity
 
-## Status: pending
+## Status: done
 
 ## Goal
 Actual HUD uses approved80px reactor, global safe/danger graphics are obvious, and only approved clutter text is removed.
@@ -29,8 +29,8 @@ Actual HUD uses approved80px reactor, global safe/danger graphics are obvious, a
 - Draw call ordering/clipping and actual screenshot evidence establish global treatment, without UI labels returning from failure-effect redraw path.
 
 ## Acceptance Criteria
-- [ ] Reactor matches80px selected design; approved text set only.
-- [ ] Global safe/danger clear with no unapproved wording or timing/collision change.
+- [x] Reactor matches80px selected design; approved text set only.
+- [x] Global safe/danger clear with no unapproved wording or timing/collision change.
 
 ## Validation
 - `npm test -- --run tests/ui/game-hud.test.js tests/ui/app-controller.test.js tests/integration/mobile-input.test.js tests/game/renderer.test.js tests/game/laser-safety.test.js`
@@ -49,6 +49,6 @@ Task: T05-hud-and-clarity
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
