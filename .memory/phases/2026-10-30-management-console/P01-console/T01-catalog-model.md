@@ -1,6 +1,6 @@
 # Task: T01 Catalog and Lab Model
 
-## Status: pending
+## Status: done
 
 ## Goal
 Produce authoritative current configuration and shared tunable simulation math without changing the game.
@@ -13,8 +13,8 @@ Produce authoritative current configuration and shared tunable simulation math w
 - New targeted `tests/docs/management-model.test.js`: parity against actual getBaseSpeed/aircraft multipliers, isSpecialTimingSuccess over boundaries/speeds, gravity/lift discrete updates; version increment helper tested later. Do not mirror DOM implementation tests.
 
 ## Acceptance Criteria
-- [ ] Actual module values and source refs captured; preview math matches production defaults/boundaries.
-- [ ] Release history accurate and original presentation hashes intact; assets derived from actual files.
+- [x] Actual module values and source refs captured; preview math matches production defaults/boundaries.
+- [x] Release history accurate and original presentation hashes intact; assets derived from actual files.
 
 ## Validation
 - `npm test -- --run tests/docs/management-model.test.js`; source snapshot generation; `git diff --check`.
@@ -29,6 +29,6 @@ Task: T01-catalog-model
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit:pending

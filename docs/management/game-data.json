@@ -1,0 +1,923 @@
+{
+  "schemaVersion": 1,
+  "constants": {
+    "AEGIS_GRAVITY_MULTIPLIER": 1.3,
+    "AEGIS_LIFT_MULTIPLIER": 0.7,
+    "AIRCRAFT_AEGIS_UNLOCK_SCORE": 50,
+    "AIRCRAFT_DEFAULT_UNLOCK_SCORE": 0,
+    "AIRCRAFT_VELOCITY_UNLOCK_SCORE": 100,
+    "AMBIENT_LASER_CHANCE": 0.7,
+    "AMBIENT_LASER_INTERVAL_SECONDS": 3,
+    "AMBIENT_LASER_UNLOCK_BOSSES": 2,
+    "BASE_GAP_HEIGHT": 180,
+    "BASE_SCROLL_SPEED": 240,
+    "BOSS_ATTACK_NORMAL_WALL_COOLDOWN": 2,
+    "BOSS_CHALLENGE_TIME_LIMIT_SECONDS": 5,
+    "BOSS_COUNTERATTACK_SECONDS": 0.3,
+    "BOSS_DOUBLE_LASER_CHANCE": 0.3,
+    "BOSS_ENTRANCE_SECONDS": 1,
+    "BOSS_FAST_MULTIPLIER": 1.25,
+    "BOSS_GLOBAL_LASER_CHANCE": 1,
+    "BOSS_LASER_ACTIVE_SECONDS": 1,
+    "BOSS_LASER_FADE_SECONDS": 0.15,
+    "BOSS_LASER_FOLLOW_UP_SECONDS": 0.35,
+    "BOSS_LASER_SWEEP_SECONDS": 0.4,
+    "BOSS_LASER_TELEGRAPH_SECONDS": 0.7,
+    "BOSS_LASER_THICKNESS": 18,
+    "BOSS_LASER_UNLOCK_NUMBER": 2,
+    "BOSS_LATER_CHALLENGE_TIME_LIMIT_SECONDS": 2.8,
+    "BOSS_LINE_LASER_EDGE_FRACTION": 0.15,
+    "BOSS_MIN_SPECIALS": 3,
+    "BOSS_OBSTACLE_COUNT": 7,
+    "BOSS_PATTERNS": {
+      "SLOW": "slow",
+      "FAST": "fast",
+      "SHIFT": "shift"
+    },
+    "BOSS_PATTERN_PREVIEW_SECONDS": 2.4,
+    "BOSS_PROJECTILE_CHARGE_SECONDS": 0.6,
+    "BOSS_PROJECTILE_DIRECT_CHANCE": 0.6,
+    "BOSS_PROJECTILE_MAX_SPEED_MULTIPLIER": 1.6,
+    "BOSS_PROJECTILE_MIN_SPEED_MULTIPLIER": 0.7,
+    "BOSS_PROJECTILE_REFLECTION_WINDOW_SECONDS": 0.18,
+    "BOSS_QUARTER_LASER_TELEGRAPH_SECONDS": 2,
+    "BOSS_REENTRY_SCORE_MAX": 20,
+    "BOSS_REENTRY_SCORE_MIN": 15,
+    "BOSS_REQUIRED_CHALLENGES": 3,
+    "BOSS_RESPONSE_COOLDOWN_SECONDS": 1,
+    "BOSS_ROAR_SECONDS": 0.8,
+    "BOSS_SINGLE_LASER_CHANCE": 0.9,
+    "BOSS_SINGLE_LASER_INTERVAL_SECONDS": 2,
+    "BOSS_SLOW_MULTIPLIER": 0.75,
+    "BOSS_VOLLEY_INTERVAL_SECONDS": 3,
+    "CHALLENGE_FAILURE_EFFECT_SECONDS": 8,
+    "DASH_COOLDOWN_SECONDS": 0.7,
+    "DASH_DURATION_SECONDS": 0.6,
+    "FLIGHT_TRAIL_LIFETIME_SECONDS": 1.2,
+    "GAP_CONTINUITY_SCORE": 60,
+    "GRAVITY": 900,
+    "LIFT_VELOCITY": 360,
+    "MAX_FRAME_DELTA_SECONDS": 0.1,
+    "MAX_GAP_CENTER_SHIFT_FACTOR": 0.7,
+    "MOVING_GAP_AMPLITUDE": 90,
+    "MOVING_GAP_CHANCE": 0.5,
+    "NORMAL_MOVING_GAP_CYCLE_SECONDS": 4.8,
+    "NORMAL_SPAWN_INTERVAL_SECONDS": 2,
+    "NORMAL_SPECIAL_CHANCE": 0.2,
+    "NORMAL_TIMING_WINDOW_SECONDS": 0.3,
+    "OBSTACLE_SPAWN_X": 1032,
+    "OBSTACLE_WIDTH": 72,
+    "PAUSE_SCORE_PENALTY": 10,
+    "PLAYER_DEATH_EFFECT_SECONDS": 0.5,
+    "PLAYER_FRONT_HITBOX_TRIM": 3,
+    "PLAYER_HEIGHT": 24,
+    "PLAYER_HITBOX_SIZE": 16,
+    "PLAYER_START_X": 240,
+    "PLAYER_START_Y": 270,
+    "PLAYER_SUCCESS_HEIGHT": 36,
+    "PLAYER_SUCCESS_WIDTH": 56,
+    "PLAYER_WIDTH": 36,
+    "SPECIAL_BREAK_DURATION_SECONDS": 0.65,
+    "SPECIAL_OBSTACLE_WIDTH": 24,
+    "SPECIAL_RESPONSE_INTERVAL_SECONDS": 1.2,
+    "SPECIAL_UNLOCK_SCORE": 10,
+    "SPEED_CAP_SCORE": 220,
+    "SPEED_STEP_INCREMENT": 10,
+    "SPEED_STEP_SCORE_POINTS": 10,
+    "SPEED_TRANSITION_SECONDS": 2,
+    "STAGE_TRANSITION_SECONDS": 1.5,
+    "VELOCITY_FAST_BOSS_SPEED_MULTIPLIER": 0.88,
+    "VELOCITY_MOVEMENT_MULTIPLIER": 2,
+    "VELOCITY_SCORE_MULTIPLIER": 1.5,
+    "VELOCITY_SPAWN_INTERVAL_MULTIPLIER": 0.5,
+    "VELOCITY_SPEED_CAP_SCORE": 220,
+    "WARNING_GAP_MULTIPLIER": 0.75,
+    "WARNING_MIN_SPECIALS": 2,
+    "WARNING_MOVING_GAP_CYCLE_SECONDS": 3.2,
+    "WARNING_OBSTACLE_COUNT": 5,
+    "WARNING_SCORE_STEP_MAX": 8,
+    "WARNING_SCORE_STEP_MIN": 5,
+    "WARNING_SPAWN_INTERVAL_SECONDS": 1.4,
+    "WARNING_SPECIAL_CHANCE": 0.5,
+    "WARNING_START_SCORE": 20,
+    "WARNING_TIMING_WINDOW_SECONDS": 0.15,
+    "WORLD_HEIGHT": 540,
+    "WORLD_WIDTH": 960
+  },
+  "crafts": [
+    {
+      "id": "default",
+      "name": "NOVA",
+      "unlockBestScore": 0,
+      "scoreMultiplier": 1,
+      "scrollSpeedMultiplier": 1,
+      "spawnIntervalMultiplier": 1,
+      "gravityMultiplier": 1,
+      "liftMultiplier": 1,
+      "visualKey": "default",
+      "speedCapScore": 220,
+      "bossLaserDamage": 1,
+      "gravity": 900,
+      "lift": 360,
+      "startingSpeed": 240,
+      "ceiling": 460,
+      "normalSpawn": 2,
+      "bossSpawn": 1.4,
+      "speedRows": [
+        {
+          "score": 0,
+          "normal": 240,
+          "slow": 180,
+          "fast": 300
+        },
+        {
+          "score": 10,
+          "normal": 250,
+          "slow": 187.5,
+          "fast": 312.5
+        },
+        {
+          "score": 20,
+          "normal": 260,
+          "slow": 195,
+          "fast": 325
+        },
+        {
+          "score": 30,
+          "normal": 270,
+          "slow": 202.5,
+          "fast": 337.5
+        },
+        {
+          "score": 40,
+          "normal": 280,
+          "slow": 210,
+          "fast": 350
+        },
+        {
+          "score": 50,
+          "normal": 290,
+          "slow": 217.5,
+          "fast": 362.5
+        },
+        {
+          "score": 60,
+          "normal": 300,
+          "slow": 225,
+          "fast": 375
+        },
+        {
+          "score": 70,
+          "normal": 310,
+          "slow": 232.5,
+          "fast": 387.5
+        },
+        {
+          "score": 80,
+          "normal": 320,
+          "slow": 240,
+          "fast": 400
+        },
+        {
+          "score": 90,
+          "normal": 330,
+          "slow": 247.5,
+          "fast": 412.5
+        },
+        {
+          "score": 100,
+          "normal": 340,
+          "slow": 255,
+          "fast": 425
+        },
+        {
+          "score": 110,
+          "normal": 350,
+          "slow": 262.5,
+          "fast": 437.5
+        },
+        {
+          "score": 120,
+          "normal": 360,
+          "slow": 270,
+          "fast": 450
+        },
+        {
+          "score": 130,
+          "normal": 370,
+          "slow": 277.5,
+          "fast": 462.5
+        },
+        {
+          "score": 140,
+          "normal": 380,
+          "slow": 285,
+          "fast": 475
+        },
+        {
+          "score": 150,
+          "normal": 390,
+          "slow": 292.5,
+          "fast": 487.5
+        },
+        {
+          "score": 160,
+          "normal": 400,
+          "slow": 300,
+          "fast": 500
+        },
+        {
+          "score": 170,
+          "normal": 410,
+          "slow": 307.5,
+          "fast": 512.5
+        },
+        {
+          "score": 180,
+          "normal": 420,
+          "slow": 315,
+          "fast": 525
+        },
+        {
+          "score": 190,
+          "normal": 430,
+          "slow": 322.5,
+          "fast": 537.5
+        },
+        {
+          "score": 200,
+          "normal": 440,
+          "slow": 330,
+          "fast": 550
+        },
+        {
+          "score": 210,
+          "normal": 450,
+          "slow": 337.5,
+          "fast": 562.5
+        },
+        {
+          "score": 220,
+          "normal": 460,
+          "slow": 345,
+          "fast": 575
+        }
+      ]
+    },
+    {
+      "id": "aegis",
+      "name": "AEGIS",
+      "unlockBestScore": 50,
+      "scoreMultiplier": 1,
+      "scrollSpeedMultiplier": 1,
+      "spawnIntervalMultiplier": 1,
+      "gravityMultiplier": 1.3,
+      "liftMultiplier": 0.7,
+      "visualKey": "aegis",
+      "speedCapScore": 220,
+      "bossLaserDamage": 3,
+      "gravity": 1170,
+      "lift": 251.99999999999997,
+      "startingSpeed": 240,
+      "ceiling": 460,
+      "normalSpawn": 2,
+      "bossSpawn": 1.4,
+      "speedRows": [
+        {
+          "score": 0,
+          "normal": 240,
+          "slow": 180,
+          "fast": 300
+        },
+        {
+          "score": 10,
+          "normal": 250,
+          "slow": 187.5,
+          "fast": 312.5
+        },
+        {
+          "score": 20,
+          "normal": 260,
+          "slow": 195,
+          "fast": 325
+        },
+        {
+          "score": 30,
+          "normal": 270,
+          "slow": 202.5,
+          "fast": 337.5
+        },
+        {
+          "score": 40,
+          "normal": 280,
+          "slow": 210,
+          "fast": 350
+        },
+        {
+          "score": 50,
+          "normal": 290,
+          "slow": 217.5,
+          "fast": 362.5
+        },
+        {
+          "score": 60,
+          "normal": 300,
+          "slow": 225,
+          "fast": 375
+        },
+        {
+          "score": 70,
+          "normal": 310,
+          "slow": 232.5,
+          "fast": 387.5
+        },
+        {
+          "score": 80,
+          "normal": 320,
+          "slow": 240,
+          "fast": 400
+        },
+        {
+          "score": 90,
+          "normal": 330,
+          "slow": 247.5,
+          "fast": 412.5
+        },
+        {
+          "score": 100,
+          "normal": 340,
+          "slow": 255,
+          "fast": 425
+        },
+        {
+          "score": 110,
+          "normal": 350,
+          "slow": 262.5,
+          "fast": 437.5
+        },
+        {
+          "score": 120,
+          "normal": 360,
+          "slow": 270,
+          "fast": 450
+        },
+        {
+          "score": 130,
+          "normal": 370,
+          "slow": 277.5,
+          "fast": 462.5
+        },
+        {
+          "score": 140,
+          "normal": 380,
+          "slow": 285,
+          "fast": 475
+        },
+        {
+          "score": 150,
+          "normal": 390,
+          "slow": 292.5,
+          "fast": 487.5
+        },
+        {
+          "score": 160,
+          "normal": 400,
+          "slow": 300,
+          "fast": 500
+        },
+        {
+          "score": 170,
+          "normal": 410,
+          "slow": 307.5,
+          "fast": 512.5
+        },
+        {
+          "score": 180,
+          "normal": 420,
+          "slow": 315,
+          "fast": 525
+        },
+        {
+          "score": 190,
+          "normal": 430,
+          "slow": 322.5,
+          "fast": 537.5
+        },
+        {
+          "score": 200,
+          "normal": 440,
+          "slow": 330,
+          "fast": 550
+        },
+        {
+          "score": 210,
+          "normal": 450,
+          "slow": 337.5,
+          "fast": 562.5
+        },
+        {
+          "score": 220,
+          "normal": 460,
+          "slow": 345,
+          "fast": 575
+        }
+      ]
+    },
+    {
+      "id": "velocity",
+      "name": "VELOCITY",
+      "unlockBestScore": 100,
+      "scoreMultiplier": 1.5,
+      "scrollSpeedMultiplier": 2,
+      "spawnIntervalMultiplier": 0.5,
+      "gravityMultiplier": 1,
+      "liftMultiplier": 1,
+      "visualKey": "velocity",
+      "speedCapScore": 220,
+      "bossLaserDamage": 1,
+      "gravity": 900,
+      "lift": 360,
+      "startingSpeed": 480,
+      "ceiling": 700,
+      "normalSpawn": 1,
+      "bossSpawn": 0.7,
+      "speedRows": [
+        {
+          "score": 0,
+          "normal": 480,
+          "slow": 360,
+          "fast": 528
+        },
+        {
+          "score": 10,
+          "normal": 490,
+          "slow": 367.5,
+          "fast": 539
+        },
+        {
+          "score": 20,
+          "normal": 500,
+          "slow": 375,
+          "fast": 550
+        },
+        {
+          "score": 30,
+          "normal": 510,
+          "slow": 382.5,
+          "fast": 561
+        },
+        {
+          "score": 40,
+          "normal": 520,
+          "slow": 390,
+          "fast": 572
+        },
+        {
+          "score": 50,
+          "normal": 530,
+          "slow": 397.5,
+          "fast": 583
+        },
+        {
+          "score": 60,
+          "normal": 540,
+          "slow": 405,
+          "fast": 594
+        },
+        {
+          "score": 70,
+          "normal": 550,
+          "slow": 412.5,
+          "fast": 605
+        },
+        {
+          "score": 80,
+          "normal": 560,
+          "slow": 420,
+          "fast": 616
+        },
+        {
+          "score": 90,
+          "normal": 570,
+          "slow": 427.5,
+          "fast": 627
+        },
+        {
+          "score": 100,
+          "normal": 580,
+          "slow": 435,
+          "fast": 638
+        },
+        {
+          "score": 110,
+          "normal": 590,
+          "slow": 442.5,
+          "fast": 649
+        },
+        {
+          "score": 120,
+          "normal": 600,
+          "slow": 450,
+          "fast": 660
+        },
+        {
+          "score": 130,
+          "normal": 610,
+          "slow": 457.5,
+          "fast": 671
+        },
+        {
+          "score": 140,
+          "normal": 620,
+          "slow": 465,
+          "fast": 682
+        },
+        {
+          "score": 150,
+          "normal": 630,
+          "slow": 472.5,
+          "fast": 693
+        },
+        {
+          "score": 160,
+          "normal": 640,
+          "slow": 480,
+          "fast": 704
+        },
+        {
+          "score": 170,
+          "normal": 650,
+          "slow": 487.5,
+          "fast": 715
+        },
+        {
+          "score": 180,
+          "normal": 660,
+          "slow": 495,
+          "fast": 726
+        },
+        {
+          "score": 190,
+          "normal": 670,
+          "slow": 502.5,
+          "fast": 737
+        },
+        {
+          "score": 200,
+          "normal": 680,
+          "slow": 510,
+          "fast": 748
+        },
+        {
+          "score": 210,
+          "normal": 690,
+          "slow": 517.5,
+          "fast": 759
+        },
+        {
+          "score": 220,
+          "normal": 700,
+          "slow": 525,
+          "fast": 770
+        }
+      ]
+    }
+  ],
+  "stages": [
+    {
+      "id": "crystal-gates",
+      "name": "CRYSTAL GATES",
+      "backgroundKey": "crystal-gates",
+      "bossBackgroundKey": "crystal-gates-boss",
+      "obstacleStyle": "crystal",
+      "specialObstacleStyle": "crystal-blade",
+      "bossStyle": "crystal-guardian",
+      "projectileStyle": "crystal-shard",
+      "laserStyle": "prism-beam",
+      "palette": {
+        "background": "#08132d",
+        "primary": "#8bd7ff",
+        "accent": "#b78cff",
+        "warning": "#ff496f"
+      }
+    },
+    {
+      "id": "industrial-void",
+      "name": "INDUSTRIAL VOID",
+      "backgroundKey": "industrial-void",
+      "bossBackgroundKey": "industrial-void-boss",
+      "obstacleStyle": "industrial",
+      "specialObstacleStyle": "industrial-blade",
+      "bossStyle": "orbital-factory",
+      "projectileStyle": "industrial-bolt",
+      "laserStyle": "scan-beam",
+      "palette": {
+        "background": "#171313",
+        "primary": "#ffad58",
+        "accent": "#ff6f43",
+        "warning": "#ff496f"
+      }
+    },
+    {
+      "id": "signal-monoliths",
+      "name": "SIGNAL MONOLITHS",
+      "backgroundKey": "signal-monoliths",
+      "bossBackgroundKey": "signal-monoliths-boss",
+      "obstacleStyle": "monolith",
+      "specialObstacleStyle": "monolith-blade",
+      "bossStyle": "signal-sentinel",
+      "projectileStyle": "signal-pulse",
+      "laserStyle": "wave-beam",
+      "palette": {
+        "background": "#100b2d",
+        "primary": "#df70ff",
+        "accent": "#5c9dff",
+        "warning": "#ff496f"
+      }
+    },
+    {
+      "id": "gravity-well",
+      "name": "GRAVITY WELL",
+      "backgroundKey": "gravity-well",
+      "bossBackgroundKey": "gravity-well-boss",
+      "obstacleStyle": "gravity",
+      "specialObstacleStyle": "gravity-blade",
+      "bossStyle": "gravity-crescent",
+      "projectileStyle": "gravity-orb",
+      "laserStyle": "lensing-beam",
+      "palette": {
+        "background": "#0b071b",
+        "primary": "#b992ff",
+        "accent": "#714dff",
+        "warning": "#ff496f"
+      }
+    },
+    {
+      "id": "abyssal-beast",
+      "name": "ABYSSAL BEAST",
+      "backgroundKey": "abyssal-beast",
+      "bossBackgroundKey": "abyssal-beast-boss",
+      "obstacleStyle": "abyssal",
+      "specialObstacleStyle": "abyssal-tendril",
+      "bossStyle": "abyssal-leviathan",
+      "projectileStyle": "abyssal-organic",
+      "laserStyle": "ripple-beam",
+      "palette": {
+        "background": "#041c25",
+        "primary": "#62f1ee",
+        "accent": "#1aa7bd",
+        "warning": "#ff496f"
+      }
+    },
+    {
+      "id": "solar-forge",
+      "name": "SOLAR FORGE",
+      "backgroundKey": "solar-forge",
+      "bossBackgroundKey": "solar-forge-boss",
+      "obstacleStyle": "solar",
+      "specialObstacleStyle": "solar-blade",
+      "bossStyle": "solar-machine",
+      "projectileStyle": "solar-ember",
+      "laserStyle": "heat-beam",
+      "palette": {
+        "background": "#241006",
+        "primary": "#ffb24f",
+        "accent": "#ff643c",
+        "warning": "#ff496f"
+      }
+    }
+  ],
+  "assets": {
+    "menuBackground": "/assets/game/menu/space-background.png",
+    "menuTitle": "/assets/game/menu/void-surfer-wordmark.png",
+    "aircraft": {
+      "default": "/assets/game/aircraft/default.png",
+      "velocity": "/assets/game/aircraft/velocity.png",
+      "aegis": "/assets/game/aircraft/aegis.png"
+    },
+    "stages": {
+      "crystal-gates": {
+        "background": "/assets/game/stages/crystal-gates/background.png",
+        "bossBackground": "/assets/game/stages/crystal-gates/boss-background.png",
+        "normalWall": "/assets/game/stages/crystal-gates/normal-wall.png",
+        "specialWall": "/assets/game/stages/crystal-gates/special-wall.png",
+        "boss": "/assets/game/stages/crystal-gates/boss-evolved.png",
+        "projectile": "/assets/game/stages/crystal-gates/projectile.png",
+        "laser": "/assets/game/stages/crystal-gates/laser.png",
+        "portalOrnaments": "/assets/game/stages/crystal-gates/portal-ornaments.png"
+      },
+      "industrial-void": {
+        "background": "/assets/game/stages/industrial-void/background.png",
+        "bossBackground": "/assets/game/stages/industrial-void/boss-background.png",
+        "normalWall": "/assets/game/stages/industrial-void/normal-wall.png",
+        "specialWall": "/assets/game/stages/industrial-void/special-wall.png",
+        "boss": "/assets/game/stages/industrial-void/boss.png",
+        "projectile": "/assets/game/stages/industrial-void/projectile.png",
+        "laser": "/assets/game/stages/industrial-void/laser.png",
+        "portalOrnaments": "/assets/game/stages/industrial-void/portal-ornaments.png"
+      },
+      "signal-monoliths": {
+        "background": "/assets/game/stages/signal-monoliths/background.png",
+        "bossBackground": "/assets/game/stages/signal-monoliths/boss-background.png",
+        "normalWall": "/assets/game/stages/signal-monoliths/normal-wall.png",
+        "specialWall": "/assets/game/stages/signal-monoliths/special-wall.png",
+        "boss": "/assets/game/stages/signal-monoliths/boss-evolved.png",
+        "projectile": "/assets/game/stages/signal-monoliths/projectile.png",
+        "laser": "/assets/game/stages/signal-monoliths/laser.png",
+        "portalOrnaments": "/assets/game/stages/signal-monoliths/portal-ornaments.png"
+      },
+      "gravity-well": {
+        "background": "/assets/game/stages/gravity-well/background.png",
+        "bossBackground": "/assets/game/stages/gravity-well/boss-background.png",
+        "normalWall": "/assets/game/stages/gravity-well/normal-wall.png",
+        "specialWall": "/assets/game/stages/gravity-well/special-wall.png",
+        "boss": "/assets/game/stages/gravity-well/boss.png",
+        "projectile": "/assets/game/stages/gravity-well/projectile.png",
+        "laser": "/assets/game/stages/gravity-well/laser.png",
+        "portalOrnaments": "/assets/game/stages/gravity-well/portal-ornaments.png"
+      },
+      "abyssal-beast": {
+        "background": "/assets/game/stages/abyssal-beast/background.png",
+        "bossBackground": "/assets/game/stages/abyssal-beast/boss-background.png",
+        "normalWall": "/assets/game/stages/abyssal-beast/normal-wall.png",
+        "specialWall": "/assets/game/stages/abyssal-beast/special-wall.png",
+        "boss": "/assets/game/stages/abyssal-beast/boss-evolved.png",
+        "projectile": "/assets/game/stages/abyssal-beast/projectile.png",
+        "laser": "/assets/game/stages/abyssal-beast/laser.png",
+        "portalOrnaments": "/assets/game/stages/abyssal-beast/portal-ornaments.png"
+      },
+      "solar-forge": {
+        "background": "/assets/game/stages/solar-forge/background.png",
+        "bossBackground": "/assets/game/stages/solar-forge/boss-background.png",
+        "normalWall": "/assets/game/stages/solar-forge/normal-wall.png",
+        "specialWall": "/assets/game/stages/solar-forge/special-wall.png",
+        "boss": "/assets/game/stages/solar-forge/boss-evolved.png",
+        "projectile": "/assets/game/stages/solar-forge/projectile.png",
+        "laser": "/assets/game/stages/solar-forge/laser.png",
+        "portalOrnaments": "/assets/game/stages/solar-forge/portal-ornaments.png"
+      }
+    }
+  },
+  "world": {
+    "width": 960,
+    "height": 540
+  },
+  "render": {
+    "maxWidth": 1920,
+    "maxHeight": 1080,
+    "nativeRaf": true
+  },
+  "weapon": {
+    "chargeSeconds": 0,
+    "rechargeSeconds": 10,
+    "ready": false,
+    "firing": null,
+    "chargeBeforeFire": 0.5,
+    "lockedSeconds": 0.7,
+    "activeSeconds": 0.2,
+    "hp": 3
+  },
+  "challenges": [
+    {
+      "boss": 1,
+      "min": 4,
+      "max": 4,
+      "seconds": 5
+    },
+    {
+      "boss": 2,
+      "min": 4,
+      "max": 5,
+      "seconds": 2.8
+    },
+    {
+      "boss": 3,
+      "min": 4,
+      "max": 6,
+      "seconds": 2.8
+    },
+    {
+      "boss": 4,
+      "min": 5,
+      "max": 7,
+      "seconds": 2.8
+    },
+    {
+      "boss": 5,
+      "min": 6,
+      "max": 8,
+      "seconds": 2.8
+    },
+    {
+      "boss": 6,
+      "min": 6,
+      "max": 8,
+      "seconds": 2.8
+    },
+    {
+      "boss": 7,
+      "min": 6,
+      "max": 8,
+      "seconds": 2.8
+    },
+    {
+      "boss": 8,
+      "min": 6,
+      "max": 8,
+      "seconds": 2.8
+    }
+  ],
+  "unlocks": [
+    {
+      "id": "guest",
+      "trigger": "처음부터",
+      "group": "시작",
+      "title": "GUEST · NOVA",
+      "body": "로그인 없이 시작. 게스트 최고 기록은 저장하지 않고 공개 랭킹만 조회합니다."
+    },
+    {
+      "id": "special",
+      "trigger": "10점",
+      "group": "점수",
+      "title": "특수벽 후보",
+      "body": "일반20% / 보스50%. 생성 간격·최소 할당·대시 대응 간격에 따라 보정됩니다."
+    },
+    {
+      "id": "boss1",
+      "trigger": "20점",
+      "group": "점수",
+      "title": "첫 BOSS",
+      "body": "기존 벽을 모두 보낸 뒤 암전·사이렌·보스 입장. 독립 WARNING은 현재 비활성입니다."
+    },
+    {
+      "id": "aegis",
+      "trigger": "계정 최고 50점",
+      "group": "계정",
+      "title": "AEGIS 해금",
+      "body": "게스트는 최고 기록과 무관하게 NOVA만 선택합니다."
+    },
+    {
+      "id": "velocity",
+      "trigger": "계정 최고 100점",
+      "group": "계정",
+      "title": "VELOCITY 해금",
+      "body": "최종 점수×1.5 반올림. 시작 속도×2, 점수에 따른 증가폭은 다른 기체와 같습니다."
+    },
+    {
+      "id": "first-clear",
+      "trigger": "보스 1회 클리어",
+      "group": "보스",
+      "title": "이동 구멍 · 복합벽",
+      "body": "일반벽의50%가 이동 구멍 후보. 특수벽 선택 중50%가 복합벽 후보입니다. 특수벽 판정 안내는 여기까지 표시됩니다."
+    },
+    {
+      "id": "boss2",
+      "trigger": "두 번째 보스",
+      "group": "보스",
+      "title": "전역 레이저 패턴",
+      "body": "벽 없는 상태에서 한 구역만 안전한 공격을1~3회. 매번 새 예고/이동 시간을 제공합니다."
+    },
+    {
+      "id": "ambient",
+      "trigger": "보스 2회 클리어",
+      "group": "보스",
+      "title": "일반 구간 줄 레이저",
+      "body": "비행3초마다70% 시도.1줄70%/2줄30%, 안전 배치가 없으면 줄이거나 생략합니다."
+    },
+    {
+      "id": "continuity",
+      "trigger": "진행 60점 / VELOCITY 처음부터",
+      "group": "점수",
+      "title": "구멍 높이 연속성 제한",
+      "body": "이전 구멍 중심을 기준으로 최대 구멍 높이의70% 범위에서 선택합니다. 실제 속도와 필수 대시 간격도 보정합니다."
+    },
+    {
+      "id": "cap",
+      "trigger": "진행 220점",
+      "group": "점수",
+      "title": "일반 속도 증가 종료",
+      "body": "보스 배율은 별도입니다. 점수 감점으로 이미 오른 속도는 내려가지 않습니다."
+    }
+  ],
+  "sources": [
+    "src/game/constants.js",
+    "src/game/aircraft.js",
+    "src/game/difficulty.js",
+    "src/game/game-engine.js",
+    "src/game/player.js",
+    "src/game/player-geometry.js",
+    "src/game/collision.js",
+    "src/game/boss.js",
+    "src/game/boss-weapon.js",
+    "src/game/boss-signatures.js",
+    "src/game/boss-patterns.js",
+    "src/game/wasd-challenge.js",
+    "src/game/stages.js",
+    "src/game/visual-assets.js"
+  ],
+  "notes": {
+    "speed": "표는 목표속도입니다. 실제 비행은2초 보간·필수 대시 간격 제한의 영향을 받습니다.",
+    "archive": "독립 WARNING, 투사체 반사로 보스 클리어, 후반 HP5 증가는 현재 규칙이 아닙니다.",
+    "preview": "슬라이더는 문서 안의 가상 실험입니다. 게임 파일·배포 값·계정 기록을 변경하지 않습니다."
+  }
+}
