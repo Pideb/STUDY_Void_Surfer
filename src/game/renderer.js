@@ -739,17 +739,17 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
   const entryProgress = boss?.entranceDurationSeconds
     ? Math.max(0, Math.min(1, 1 - (boss.entranceRemainingSeconds ?? 0) / boss.entranceDurationSeconds)) : 1;
   const identity = boss?.stageId ?? stageId;
-  const geometry = getBossGeometry(identity, entryProgress);
+  const pose = boss?.pose ?? getBossPose({ animation: boss?.animation, idleElapsedSeconds: boss?.motionSeconds ?? elapsedSeconds, reducedMotion });
+  const geometry = boss?.geometry ?? getBossGeometry(identity, entryProgress, boss?.motionSeconds ?? 0);
   const { x, y } = geometry.center;
   const image = getStageAsset(visualAssets, identity, 'boss');
   const rig = BOSS_RIGS[identity] ?? BOSS_RIGS['crystal-gates'];
-  const pose = getBossPose({ animation: boss?.animation, idleElapsedSeconds: elapsedSeconds, reducedMotion });
   if (image) {
     ctx.globalAlpha = 1;
     const prepared = getPreparedBossRig(identity, image);
     if (prepared) drawBossRig(ctx, {
       rig, prepared, pose, box: geometry.box,
-      projectileImage: getStageAsset(visualAssets, identity, 'projectile'), reducedMotion,
+      projectileImage: getStageAsset(visualAssets, identity, 'projectile'), reducedMotion, geometryIncludesRecoil: Boolean(boss?.geometry),
     });
     else ctx.drawImage(image, geometry.box.x, geometry.box.y, 192, 128);
     drawBossActionEffects(ctx, { rig, pose, box: geometry.box, action: boss?.roar, reducedMotion });

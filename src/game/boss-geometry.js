@@ -8,12 +8,13 @@ const LOCATIONS = Object.freeze({
   'solar-forge': { core: [.64, .5], muzzle: [.08, .5] },
 });
 
-export function getBossGeometry(stageId, entranceProgress = 1) {
+export function getBossGeometry(stageId, entranceProgress = 1, motionSeconds = 0, recoilX = 0) {
   const p = Math.max(0, Math.min(1, Number(entranceProgress) || 0));
   const eased = p * p * (3 - 2 * p);
-  const centerX = 1160 + (842 - 1160) * eased;
-  const box = { x: centerX - 96, y: 206, w: 192, h: 128 };
+  const centerX = 1160 + (842 - 1160) * eased + (Number.isFinite(recoilX) ? recoilX : 0);
+  const centerY = 270 + 162 * Math.sin((Number.isFinite(motionSeconds) ? Math.max(0, motionSeconds) : 0) * Math.PI / 3);
+  const box = { x: centerX - 96, y: centerY - 64, w: 192, h: 128 };
   const positions = LOCATIONS[stageId] ?? LOCATIONS['crystal-gates'];
   const point = ([x, y]) => ({ x: box.x + x * box.w, y: box.y + y * box.h });
-  return { box, center: { x: centerX, y: 270 }, core: point(positions.core), muzzle: point(positions.muzzle) };
+  return { box, center: { x: centerX, y: centerY }, core: point(positions.core), muzzle: point(positions.muzzle) };
 }

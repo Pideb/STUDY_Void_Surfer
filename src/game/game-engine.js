@@ -58,6 +58,7 @@ import { createObstacle, getDashBarrierBounds, isDashObstacle, updateObstacle } 
 import { advanceScore } from './score.js';
 import { getBarrierSpeedBound } from './barrier-spacing.js';
 import { getBossGeometry } from './boss-geometry.js';
+import { getBossPose, getBossRecoil } from './boss-motion.js';
 import { advanceBossWeapon, startBossWeapon } from './boss-weapon.js';
 import { getPlayerBounds } from './player-geometry.js';
 import { createSignatureAttack, updateSignatureAttack } from './boss-signatures.js';
@@ -339,6 +340,25 @@ export function createGameEngine(deps = {}) {
     return { ...bossEntry, darkness };
   }
 
+  function getLiveBossPose(motionSeconds = bossEncounter?.motionSeconds ?? 0, offsetSeconds = 0) {
+    const animation = bossEncounter?.animation;
+    const pose = getBossPose({ animation: animation ? { ...animation, elapsedSeconds: animation.elapsedSeconds + offsetSeconds } : null, idleElapsedSeconds: motionSeconds });
+    if (bossEncounter?.attack?.type === 'volley' && animation?.kind !== 'hit') {
+      const attackTime = bossEncounter.attack.elapsedSeconds + offsetSeconds;
+      for (const projectile of bossEncounter.attack.projectiles) {
+        const age = attackTime - projectile.delaySeconds - 1.1;
+        if (age < 0) pose.charge = Math.max(pose.charge, Math.max(0, 1 + age / 1.1));
+        else pose.fire = Math.max(pose.fire, Math.exp(-age * 8));
+      }
+    }
+    return pose;
+  }
+
+  function getLiveBossGeometry(motionSeconds = bossEncounter?.motionSeconds ?? 0, offsetSeconds = 0) {
+    const progress = bossEncounter ? 1 - bossEncounter.entranceRemainingSeconds / bossEncounter.entranceDurationSeconds : 1;
+    return getBossGeometry(bossEncounter?.stageId, progress, motionSeconds, getBossRecoil(getLiveBossPose(motionSeconds, offsetSeconds)));
+  }
+
   function spawnObstacle(difficulty) {
     const session = warningSession;
     const remainingSlots = session ? session.targetCount - session.spawnedCount : 0;
@@ -616,7 +636,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function launchSignatureAttack(wallShot = false) {
-    const muzzle = getBossGeometry(bossEncounter.stageId).muzzle;
+    const muzzle = getLiveBossGeometry().muzzle;
     bossEncounter.attack = createSignatureAttack({
       id: `boss-attack-${nextAttackId++}`, stageId: bossEncounter.stageId, bossNumber: bossEncounter.number,
       playerX: player.x, playerY: player.y, bossX: muzzle.x, bossY: muzzle.y, rng,
@@ -706,6 +726,7 @@ export function createGameEngine(deps = {}) {
     if (attack.type === 'volley') {
       updateSignatureAttack(attack, deltaSeconds, player, {
         projectileImmune: invincibilityEnabled, immuneSeconds: protectedSeconds,
+        originAt: offset => getLiveBossGeometry(bossEncounter.motionSeconds - deltaSeconds + offset, offset - deltaSeconds).muzzle,
       });
       if (attack.hitPlayer && !invincibilityEnabled) { stop('projectile'); return; }
       if (attack.state === 'resolved') {
@@ -837,6 +858,7 @@ export function createGameEngine(deps = {}) {
     updateBossPreview(deltaSeconds);
     if (bossEncounter && bossEncounter === previousBossEncounter) {
       bossEncounter.entranceRemainingSeconds = Math.max(0, bossEncounter.entranceRemainingSeconds - deltaSeconds);
+      bossEncounter.motionSeconds += Math.max(0, deltaSeconds - previousEntranceSeconds);
     }
     advanceSpeedTransition(deltaSeconds);
     let difficulty = getCurrentDifficulty();
@@ -1033,6 +1055,8 @@ export function createGameEngine(deps = {}) {
       },
       boss: bossEncounter ? {
         ...bossEncounter,
+        geometry: getLiveBossGeometry(),
+        pose: getLiveBossPose(),
         weapon: { ...bossEncounter.weapon, firing: bossEncounter.weapon.firing ? { ...bossEncounter.weapon.firing } : null },
         attack: bossEncounter.attack ? {
           ...bossEncounter.attack,

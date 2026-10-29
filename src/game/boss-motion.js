@@ -151,12 +151,29 @@ function normalizedPose(pose, reducedMotion) {
   };
 }
 
+export function getBossRecoil(pose, reducedMotion = false) {
+  const p = normalizedPose(pose, reducedMotion);
+  return reducedMotion ? 0 : p.fire * 10 + p.hit * 12;
+}
+
+// Pure normalized transform, shared with the full-art damage envelope.
+export function getBossPartTransform(part, index, pose, reducedMotion = false) {
+  const p = normalizedPose(pose, reducedMotion);
+  const breathing = reducedMotion ? 0 : Math.sin(p.time * (1.7 + index * .13) + index * 1.6);
+  const openness = p.charge * .55 + p.roar;
+  return {
+    angle: breathing * part.amplitude * 3 + part.side * part.open * 1.7 * openness,
+    dx: (part.slide || 0) * 2 * (openness + .24 * breathing) + (part.recoil || 0) * 2 * p.fire,
+    dy: (part.lift || 0) * 2 * part.side * (openness + .3 * breathing),
+  };
+}
+
 function drawWarped(ctx, source, width, height, time, tail) {
   if (!tail) { ctx.drawImage(source, 0, 0, width, height); return; }
   const steps = 64, strip = source.width / steps;
   for (let i = 0; i < steps; i++) {
     const u = (i + .5) / steps, strength = Math.pow(clamp((u - .56) / .44), 2);
-    const dy = Math.sin(time * 2.5 - u * 7) * height * .055 * strength;
+    const dy = Math.sin(time * 2.5 - u * 7) * height * .075 * strength;
     ctx.drawImage(source, i * strip, 0, strip + .3, source.height,
       i * width / steps, dy, width / steps + .25, height);
   }
@@ -177,23 +194,19 @@ function glow(ctx, x, y, radius, color, strength = 1) {
 }
 
 /** Draw only the articulated artwork and its approved persistent lighting. */
-export function drawBossRig(ctx, { rig, prepared, pose, box, projectileImage, reducedMotion = false } = {}) {
+export function drawBossRig(ctx, { rig, prepared, pose, box, projectileImage, reducedMotion = false, geometryIncludesRecoil = false } = {}) {
   if (!ctx || !rigValid(rig) || !prepared?.base || !Array.isArray(prepared.parts) || !boxValid(box)) return;
   const p = normalizedPose(pose, reducedMotion);
   const { x, y, w, h } = box;
   ctx.save();
-  ctx.translate(x + (reducedMotion ? 0 : p.fire * 5 + p.hit * 9), y);
+  ctx.translate(x + (geometryIncludesRecoil ? 0 : getBossRecoil(p, reducedMotion)), y);
   drawWarped(ctx, prepared.base, w, h, p.time, rig.id === 'abyssal-beast' && !reducedMotion);
   prepared.parts.forEach((part, i) => {
-    const breathing = reducedMotion ? 0 : Math.sin(p.time * (1.7 + i * .13) + i * 1.6);
-    const openness = p.charge * .55 + p.roar;
-    const angle = breathing * part.amplitude + part.side * part.open * openness;
-    const dx = (part.slide || 0) * w * (openness + .24 * breathing) + (part.recoil || 0) * w * p.fire;
-    const dy = (part.lift || 0) * h * part.side * (openness + .3 * breathing);
+    const transform = getBossPartTransform(part, i, p, reducedMotion);
     const [px, py] = part.pivot;
     ctx.save();
-    ctx.translate(px * w + dx, py * h + dy);
-    ctx.rotate(angle);
+    ctx.translate(px * w + transform.dx * w, py * h + transform.dy * h);
+    ctx.rotate(transform.angle);
     ctx.translate(-px * w, -py * h);
     ctx.drawImage(part.canvas, 0, 0, w, h);
     ctx.restore();

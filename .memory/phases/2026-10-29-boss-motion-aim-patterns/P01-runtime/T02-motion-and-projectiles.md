@@ -1,6 +1,6 @@
 # Task: T02 Boss Motion and Projectile Telegraphs
 
-## Status: pending
+## Status: done
 
 ## Goal
 Actual bosses move20..80% every6s with noticeable articulated actions, and every projectile launches from the correctly moving muzzle on its committed advertised path.
@@ -29,8 +29,8 @@ Actual bosses move20..80% every6s with noticeable articulated actions, and every
 - Moving preview updates before launch, staggered shots capture different muzzle origins, committed paths stable, long/coarse tick resolves, old no-provider fixtures unchanged.
 
 ## Acceptance Criteria
-- [ ] Actual movement/art/effects share geometry; all six bosses visibly articulated.
-- [ ] Moving telegraphs commit per shot with no homing/tunneling/stall.
+- [x] Actual movement/art/effects share geometry; all six bosses visibly articulated.
+- [x] Moving telegraphs commit per shot with no homing/tunneling/stall.
 
 ## Validation
 - `npm test -- --run tests/game/boss-motion.test.js tests/game/boss-signatures.test.js tests/game/game-engine.test.js`
@@ -49,6 +49,6 @@ Task: T02-motion-and-projectiles
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

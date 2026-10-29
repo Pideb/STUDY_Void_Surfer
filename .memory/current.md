@@ -7,11 +7,11 @@
 [P01 Runtime](./phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/phase.md)
 
 ## Active Task
-[T01 Entry and Basics](./phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/T01-entry-and-basics.md)
+[Next task](./phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/T02-motion-and-projectiles.md)
 
 ## Status
-- Plan ready0/6; user authorized implementation through final Task.
-- Previous cooldown-speed-boss-tuning complete at33c16e2; preserve unrelated behavior.
+- T01 complete and verified; commit ff0864e.
+- Progress 1/6; sequential completion authorized.
 
 ## Next Step (IMPORTANT)
-Read active T01, implement, validate and commit; continue sequentially throughT06. No auth/DB/deployment changes.
+Read next blueprint, implement, validate, commit and advance.

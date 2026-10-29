@@ -5,6 +5,18 @@ import {
   prepareBossRig, getPreparedBossRig, getBossPose, drawBossRig, drawBossActionEffects,
 } from '../../src/game/boss-motion.js';
 
+describe('shared vertical boss geometry',()=>{
+  it.each(Object.keys(BOSS_RIGS))('%s uses20..80% travel with a6s cycle for art, core and muzzle',id=>{
+    const base=getBossGeometry(id);
+    for(const [time,y] of [[0,270],[1.5,432],[3,270],[4.5,108],[6,270]]){
+      const g=getBossGeometry(id,1,time);
+      expect(g.center.y).toBeCloseTo(y);expect(g.box.y).toBeCloseTo(y-64);
+      expect(g.core.y-base.core.y).toBeCloseTo(y-270);expect(g.muzzle.y-base.muzzle.y).toBeCloseTo(y-270);
+      expect(g.box.y).toBeGreaterThanOrEqual(43.999);expect(g.box.y+g.box.h).toBeLessThanOrEqual(496.001);
+    }
+  });
+});
+
 function context() {
   const ctx = { globalAlpha: 1, globalCompositeOperation: 'source-over' };
   const stack = [];
@@ -234,15 +246,15 @@ describe('approved articulated drawing', () => {
     expect(strips.every((args) => args.length === 9)).toBe(true);
     expect(strips.slice(0, 35).every((args) => args[6] === 0)).toBe(true);
     expect(strips.slice(36).some((args) => Math.abs(args[6]) > 0)).toBe(true);
-    expect(strips.every((args) => Math.abs(args[6]) <= box.h * .055)).toBe(true);
+    expect(strips.every((args) => Math.abs(args[6]) <= box.h * .075)).toBe(true);
     expect(ctx.rotate.mock.calls[0][0]).toBeLessThan(-.17); // Jaw's approved -.19 opening.
     expect(ctx.rotate.mock.calls[1][0]).toBeGreaterThan(.04);
   });
 
   it('adds approved weapon recoil and signal armor slide/lift during a charge', () => {
     const industrial = draw('industrial-void', { time: 0, animation: { kind: 'attack', elapsedSeconds: 1.1 } });
-    expect(industrial.ctx.translate.mock.calls[0]).toEqual([industrial.box.x + 5, industrial.box.y]);
-    expect(industrial.ctx.translate.mock.calls[1][0]).toBeCloseTo((.43 + .026) * industrial.box.w);
+    expect(industrial.ctx.translate.mock.calls[0]).toEqual([industrial.box.x + 10, industrial.box.y]);
+    expect(industrial.ctx.translate.mock.calls[1][0]).toBeCloseTo((.43 + .052) * industrial.box.w);
     const signalIdle = draw('signal-monoliths', { reducedMotion: true });
     const signalCharge = draw('signal-monoliths', { reducedMotion: true, animation: { kind: 'attack', elapsedSeconds: 1 } });
     expect(signalCharge.ctx.translate.mock.calls[1][0]).toBeGreaterThan(signalIdle.ctx.translate.mock.calls[1][0]);

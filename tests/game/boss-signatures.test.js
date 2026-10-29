@@ -26,6 +26,17 @@ function expectFiniteTree(value) {
 }
 
 describe('signature creation and six identities', () => {
+  it('moves each unlaunched preview, commits at its own launch instant, then keeps paths fixed',()=>{
+    const attack=makeAttack({stageId:STAGE_IDS.INDUSTRIAL_VOID,projectileCount:3});let time=0;
+    const tick=dt=>{const from=time;updateSignatureAttack(attack,dt,null,{originAt:offset=>({x:750,y:100+(from+offset)*50})});time+=dt;};
+    tick(.5);expect(attack.projectiles[0].bossY).toBe(125);expect(attack.projectiles[0].launched).toBe(false);
+    tick(.7);const first=attack.projectiles[0];expect(first.launched).toBe(true);expect(first.bossY).toBeCloseTo(155);
+    const committed=structuredClone(first.telegraphPoints);expect(attack.projectiles[1].bossY).toBeCloseTo(160);
+    tick(.3);expect(attack.projectiles[1].launched).toBe(true);expect(attack.projectiles[1].bossY).toBeCloseTo(169);
+    expect(first.telegraphPoints).toEqual(committed);expect(attack.projectiles[2].launched).toBe(false);
+    tick(100);expect(attack.state).toBe('resolved');expect(first.telegraphPoints).toEqual(committed);
+    expect(attack.projectiles[2].bossY).toBeCloseTo(183);
+  });
   it.each(STAGE_CATALOG.map(stage=>stage.id))('%s randomly chooses each wall-free count3..6', stageId => {
     for(const [roll,count] of [[0,3],[.24999,3],[.25,4],[.5,5],[.75,6],[1,6]]) {
       let calls=0;

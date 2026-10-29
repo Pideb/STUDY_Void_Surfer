@@ -23,6 +23,15 @@ function createRuntimeEngine(overrides = {}) {
 }
 
 describe('game engine', () => {
+  it('exposes the same moving geometry and freezes the motion clock while paused',()=>{
+    const {engine,step}=createRuntimeEngine({initialScore:60,initialCompletedWarningCount:1,invincibilityEnabled:true});engine.start();
+    for(let i=0;i<100&&(!engine.getSnapshot().boss||engine.getSnapshot().bossEntry);i++)step();
+    const a=engine.getSnapshot();expect(a.boss).not.toBeNull();
+    const b=step();expect(b.boss.motionSeconds).toBeGreaterThan(a.boss.motionSeconds);
+    expect(b.boss.geometry.center.y).toBeCloseTo(270+162*Math.sin(b.boss.motionSeconds*Math.PI/3));
+    const copy=engine.getSnapshot();copy.boss.geometry.box.y=-999;expect(engine.getSnapshot().boss.geometry.box.y).not.toBe(-999);
+    engine.pause();const paused=engine.getSnapshot();step(1000);expect(engine.getSnapshot().boss.motionSeconds).toBe(paused.boss.motionSeconds);
+  });
   it.each([['default',240,440],['aegis',240,440],['velocity',480,680]])(
     'applies identical actual +10 steps and the200-point cap to %s', (aircraftId,start,ceiling) => {
       for (const [score,increment] of [[0,0],[9,0],[10,10],[20,20],[99,90],[100,100],[109,100],[199,190],[200,200],[10000,200]]) {
@@ -835,6 +844,7 @@ describe('game engine', () => {
     expect(snapshot.challenge).toMatchObject({ active: true, remainingSeconds: 5 });
     expect(snapshot.player.y).toBeLessThan(beforeRoar.player.y);
     const frozen = snapshot; snapshot = step();
+    expect(snapshot.boss.motionSeconds).toBe(frozen.boss.motionSeconds);
     expect(snapshot.elapsedSeconds).toBe(frozen.elapsedSeconds);
     expect(snapshot.player).toEqual(frozen.player);
     expect(snapshot.challenge.remainingSeconds).toBeCloseTo(4.9);

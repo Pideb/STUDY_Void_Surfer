@@ -83,6 +83,7 @@ export function createSignatureAttack({
       targetX, targetY: centerY + offset,
       speed: 220 + clamp(sample, 0, 1) * 140,
       curveAmplitude: curve, delaySeconds: delay, elapsedSeconds: 0,
+      launched: false,
       chargeRemainingSeconds: CHARGE_SECONDS, state: 'charging', hitPlayer: false,
       telegraphPoints: [],
     };
@@ -109,6 +110,21 @@ function playerBounds(player) {
     || player.width <= 0 || player.height <= 0) return null;
   const bounds = getPlayerBounds(player);
   return Object.values(bounds).every(Number.isFinite) && bounds.right >= bounds.left ? bounds : null;
+}
+
+function movePreviewOrigin(projectile, origin) {
+  if (!origin || !Number.isFinite(origin.x) || !Number.isFinite(origin.y)) return;
+  projectile.bossX = clamp(origin.x, HALF_WIDTH, WORLD_WIDTH);
+  projectile.bossY = clamp(origin.y, HALF_HEIGHT, WORLD_HEIGHT - HALF_HEIGHT);
+  projectile.startY = projectile.bossY;
+  projectile.targetX = Math.min(projectile.targetX, projectile.bossX - 1);
+  projectile.x = projectile.previousX = projectile.bossX;
+  projectile.y = projectile.previousY = projectile.bossY;
+  projectile.telegraphPoints = Array.from({length:PATH_SEGMENTS+1},(_,index)=>{
+    const p=index/PATH_SEGMENTS;
+    return {x:projectile.bossX+(projectile.targetX-projectile.bossX)*p,
+      y:projectile.bossY+(projectile.targetY-projectile.bossY)*p+Math.sin(Math.PI*p)*projectile.curveAmplitude};
+  });
 }
 
 // Slab intersection against the player's AABB expanded by the projectile body.
@@ -180,24 +196,33 @@ function moveProjectile(projectile, flightSeconds, bounds) {
 }
 
 /** Split a frame at protection expiry, so immunity never extends past its clock. */
-export function updateSignatureAttack(attack, deltaSeconds, player = null, { projectileImmune = false, immuneSeconds = 0 } = {}) {
+export function updateSignatureAttack(attack, deltaSeconds, player = null, { projectileImmune = false, immuneSeconds = 0, originAt = null } = {}) {
   if (!attack || attack.state === 'resolved' || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) {
     return attack;
   }
   // Cap before adding to avoid overflow and ensure the final tick launches even
   // the last delayed shot before resolving, rather than skipping its collision.
   const previousElapsed = attack.elapsedSeconds;
+  if (typeof originAt === 'function') {
+    // A moving muzzle can extend flight beyond the original static-origin bound.
+    attack.durationSeconds = Math.max(attack.durationSeconds,...attack.projectiles.map(p=>CHARGE_SECONDS+p.delaySeconds+(WORLD_WIDTH+HALF_WIDTH)/p.speed));
+  }
   attack.elapsedSeconds += Math.min(deltaSeconds, Math.max(0, attack.durationSeconds - attack.elapsedSeconds));
   const bounds = projectileImmune ? null : playerBounds(player);
   const immuneUntil = previousElapsed + Math.min(deltaSeconds, Math.max(0, finite(immuneSeconds, 0)));
   for (const projectile of attack.projectiles) {
     if (projectile.state === 'resolved') continue;
+    const launchAt = projectile.delaySeconds + CHARGE_SECONDS;
+    if (!projectile.launched && typeof originAt === 'function') {
+      const offset = Math.max(0, Math.min(deltaSeconds, launchAt - previousElapsed));
+      movePreviewOrigin(projectile, originAt(attack.elapsedSeconds + EPSILON < launchAt ? deltaSeconds : offset));
+    }
     projectile.elapsedSeconds = Math.max(0, attack.elapsedSeconds - projectile.delaySeconds);
     projectile.chargeRemainingSeconds = Math.max(0, CHARGE_SECONDS - projectile.elapsedSeconds);
     if (projectile.chargeRemainingSeconds > EPSILON) continue;
     projectile.chargeRemainingSeconds = 0;
     projectile.state = 'flying';
-    const launchAt = projectile.delaySeconds + CHARGE_SECONDS;
+    projectile.launched = true;
     if (immuneUntil > previousElapsed && immuneUntil >= launchAt) {
       moveProjectile(projectile, Math.max(0, Math.min(attack.elapsedSeconds, immuneUntil) - launchAt), null);
     }
