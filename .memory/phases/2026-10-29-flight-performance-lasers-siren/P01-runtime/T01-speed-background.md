@@ -1,6 +1,6 @@
 # Task: T01 Speed Cap and Stable Boss Background
 
-## Status: pending
+## Status: done
 
 ## Goal
 All aircraft grow through220 progression points, while boss background artwork travels steadily at its captured entry speed without vertical bobbing or speed-dependent tile jumps.
@@ -40,8 +40,8 @@ All aircraft grow through220 progression points, while boss background artwork t
 - Renderer tests assert fixed boss-image vertical coordinates at differentelapsed times and fixed blend geometry under changing wall speeds; ordinary vertical decoration remains unchanged.
 
 ## Acceptance Criteria
-- [ ] Every aircraft reaches the correct220-point ordinary ceiling without changing step size or boss factors.
-- [ ] Boss artwork moves only steadily right-to-left, independent of wall acceleration, with no vertical bob/seam jump.
+- [x] Every aircraft reaches the correct220-point ordinary ceiling without changing step size or boss factors.
+- [x] Boss artwork moves only steadily right-to-left, independent of wall acceleration, with no vertical bob/seam jump.
 
 ## Validation
 - `npm test -- --run tests/game/difficulty.test.js tests/game/game-engine.test.js tests/game/renderer.test.js tests/integration/boss-background.test.js tests/game/barrier-spacing.test.js`
@@ -60,6 +60,6 @@ Task: T01-speed-background
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

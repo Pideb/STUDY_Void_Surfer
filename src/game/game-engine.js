@@ -134,6 +134,7 @@ export function createGameEngine(deps = {}) {
   let stageElapsedSeconds = 0;
   let stageTransition = null;
   let backgroundScrollDistancePx = 0;
+  let bossBackgroundScrollSpeed = null;
   let pendingStageAdvance = null;
   let bossEncounter = null;
   let challenge = null;
@@ -303,6 +304,10 @@ export function createGameEngine(deps = {}) {
       ? createBossEncounter(Math.max(1, Math.floor(warningIndex / 2)), getStageState().definition.id)
       : null;
     if (bossEncounter) {
+      const entrySpeed = Number.isFinite(currentScrollSpeed) && currentScrollSpeed > 0
+        ? currentScrollSpeed : getBaseSpeed(scoreSession.progressionScore, aircraft.id) * aircraft.scrollSpeedMultiplier;
+      bossBackgroundScrollSpeed = entrySpeed;
+      bossEncounter.backgroundScrollSpeed = entrySpeed;
       bossEncounter.baseScrollSpeed = getBaseSpeed(scoreSession.progressionScore, aircraft.id);
       bossEncounter.bossStartElapsedSeconds = elapsedSeconds;
       bossEncounter.patternQueue = createBossPatternRound(bossEncounter.number, rng);
@@ -555,6 +560,7 @@ export function createGameEngine(deps = {}) {
     stageElapsedSeconds = 0;
     stageTransition = null;
     backgroundScrollDistancePx = 0;
+    bossBackgroundScrollSpeed = null;
     pendingStageAdvance = null;
     bossEncounter = null;
     challenge = null;
@@ -606,6 +612,7 @@ export function createGameEngine(deps = {}) {
         stageOrder = pendingStageAdvance.order;
         stageIndex = pendingStageAdvance.index;
         pendingStageAdvance = null;
+        bossBackgroundScrollSpeed = null;
         stageElapsedSeconds = 0;
       }
       if (stageTransition.phase === 'complete') stageTransition = null;
@@ -878,7 +885,7 @@ export function createGameEngine(deps = {}) {
     advanceSpeedTransition(deltaSeconds);
     let difficulty = getCurrentDifficulty();
     updateFlightTrail(deltaSeconds, difficulty.scrollSpeed);
-    backgroundScrollDistancePx += difficulty.scrollSpeed * deltaSeconds * 0.25;
+    backgroundScrollDistancePx += (bossBackgroundScrollSpeed ?? difficulty.scrollSpeed) * deltaSeconds * 0.25;
     const wasTransitioning = Boolean(stageTransition);
     updateStage(deltaSeconds, difficulty.scrollSpeed);
     if (wasTransitioning && !stageTransition) {
@@ -1045,6 +1052,7 @@ export function createGameEngine(deps = {}) {
       bossEntry: getBossEntrySnapshot(),
       elapsedSeconds,
       backgroundScrollDistancePx,
+      backgroundScrollSpeed: bossBackgroundScrollSpeed ?? difficulty.scrollSpeed,
       gameOverReason,
       invincibilityEnabled,
       deathEffect: deathEffect ? { ...deathEffect } : null,

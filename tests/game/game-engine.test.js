@@ -34,14 +34,14 @@ describe('game engine', () => {
     const copy=engine.getSnapshot();copy.boss.geometry.box.y=-999;expect(engine.getSnapshot().boss.geometry.box.y).not.toBe(-999);
     engine.pause();const paused=engine.getSnapshot();step(1000);expect(engine.getSnapshot().boss.motionSeconds).toBe(paused.boss.motionSeconds);
   });
-  it.each([['default',240,440],['aegis',240,440],['velocity',480,680]])(
-    'applies identical actual +10 steps and the200-point cap to %s', (aircraftId,start,ceiling) => {
-      for (const [score,increment] of [[0,0],[9,0],[10,10],[20,20],[99,90],[100,100],[109,100],[199,190],[200,200],[10000,200]]) {
+  it.each([['default',240,460],['aegis',240,460],['velocity',480,700]])(
+    'applies identical actual +10 steps and the220-point cap to %s', (aircraftId,start,ceiling) => {
+      for (const [score,increment] of [[0,0],[9,0],[10,10],[20,20],[99,90],[100,100],[109,100],[199,190],[200,200],[219,210],[220,220],[10000,220]]) {
         const {engine}=createRuntimeEngine({initialScore:score,aircraftId,guestMode:true});
         engine.start();const snapshot=engine.getSnapshot();
         expect(snapshot.difficulty.scrollSpeed).toBe(start+increment);
         expect(snapshot.difficulty.targetScrollSpeed).toBe(start+increment);
-        expect(snapshot.aircraft.speedCapScore).toBe(200);
+        expect(snapshot.aircraft.speedCapScore).toBe(220);
         expect(snapshot.difficulty.scrollSpeed).toBeLessThanOrEqual(ceiling);
       }
     },

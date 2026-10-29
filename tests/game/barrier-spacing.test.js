@@ -3,7 +3,7 @@ import {getBarrierSpeedBound} from '../../src/game/barrier-spacing.js';
 import {getBaseSpeed} from '../../src/game/difficulty.js';
 
 describe('future barrier speed bound',()=>{
-  it.each([['default',1,550],['aegis',1,550],['velocity',2,850]])('uses the same %s cap as actual flight', (aircraftId,aircraftSpeedMultiplier,ceiling)=>{
+  it.each([['default',1,575],['aegis',1,575],['velocity',2,875]])('uses the same %s cap as actual flight', (aircraftId,aircraftSpeedMultiplier,ceiling)=>{
     expect(getBarrierSpeedBound({progressionScore:10000,aircraftId,aircraftSpeedMultiplier})).toBeCloseTo(getBaseSpeed(10000,aircraftId)*1.25*aircraftSpeedMultiplier);
     expect(getBarrierSpeedBound({progressionScore:10000,aircraftId,aircraftSpeedMultiplier})).toBe(ceiling);
   });
@@ -13,7 +13,7 @@ describe('future barrier speed bound',()=>{
     expect(speed).toBeLessThan(getBaseSpeed(150));
   });
   it.each([1,2])('caps future growth but includes aircraft and boss factors (%s)',aircraftSpeedMultiplier=>{
-    expect(getBarrierSpeedBound({progressionScore:200,aircraftSpeedMultiplier})).toBeCloseTo(getBaseSpeed(200)*1.25*aircraftSpeedMultiplier);
+    expect(getBarrierSpeedBound({progressionScore:220,aircraftSpeedMultiplier})).toBeCloseTo(getBaseSpeed(220)*1.25*aircraftSpeedMultiplier);
   });
   it('keeps malformed inputs finite',()=>{
     expect(Number.isFinite(getBarrierSpeedBound({progressionScore:NaN,minimumScrollSpeed:0,minimumSpawnInterval:Infinity,aircraftSpeedMultiplier:NaN}))).toBe(true);

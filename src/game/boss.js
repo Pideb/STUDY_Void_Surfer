@@ -13,6 +13,7 @@ export function createBossEncounter(number, stageId = 'crystal-gates') {
     number: safeNumber,
     stageId,
     motionSeconds: 0,
+    backgroundScrollSpeed: null,
     cyclePhase: 'pending',
     patternQueue: [],
     patternIndex: 0,

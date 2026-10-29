@@ -40,6 +40,15 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('anchors boss background vertically and keeps seam geometry tied to captured speed',()=>{
+    const context=createContext(),canvas=document.createElement('canvas'),background={width:960,height:540};canvas.getContext=()=>context;
+    const renderer=createRenderer(canvas,{visualAssets:{get:key=>key==='stages.crystal-gates.bossBackground'?background:null}});
+    const state={stage:{id:'crystal-gates',mode:'boss'},backgroundScrollSpeed:440,backgroundScrollDistancePx:100,player:{x:240,y:270,width:36,height:24},difficulty:{scrollSpeed:330}};
+    renderer.render({...state,elapsedSeconds:1});const first=context.drawImage.mock.calls.filter(args=>args[0]===background);
+    context.drawImage.mockClear();renderer.render({...state,elapsedSeconds:9,difficulty:{scrollSpeed:550}});
+    expect(context.drawImage.mock.calls.filter(args=>args[0]===background)).toEqual(first);
+    expect(first.length).toBeGreaterThan(0);renderer.destroy();
+  });
   it('draws entrance blackout over scenery but before the player',()=>{
     const c=createContext(),events=[],canvas=document.createElement('canvas');canvas.getContext=()=>c;
     c.fillRect.mockImplementation(function(){events.push(this.fillStyle);});

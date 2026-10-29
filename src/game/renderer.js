@@ -478,13 +478,13 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   ctx.restore();
 }
 
-function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = false, scrollDistancePx = 0, scrollSpeed = 240) {
+function drawStageArtwork(ctx, background, elapsedSeconds = 0, reducedMotion = false, scrollDistancePx = 0, scrollSpeed = 240, stableVertical = false) {
   const sceneAlpha = ctx.globalAlpha ?? 1;
   const scale = 1.12;
   const width = WORLD_WIDTH * scale;
   const height = WORLD_HEIGHT * scale;
   const overflowY = height - WORLD_HEIGHT;
-  const offsetY = overflowY / 2 + (reducedMotion ? 0 : Math.sin(elapsedSeconds * 0.12) * Math.min(overflowY * 0.18, 7));
+  const offsetY = overflowY / 2 + ((reducedMotion || stableVertical) ? 0 : Math.sin(elapsedSeconds * 0.12) * Math.min(overflowY * 0.18, 7));
   if (reducedMotion) {
     ctx.drawImage(background, -(width - WORLD_WIDTH) / 2, -offsetY, width, height);
   } else {
@@ -523,7 +523,7 @@ function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, vis
   const theme = resolveStageTheme(stageId);
   const background = getStageAsset(visualAssets, stageId, boss ? 'bossBackground' : 'background');
   if (background) {
-    drawStageArtwork(ctx, background, elapsedSeconds, reducedMotion, scrollDistancePx, scrollSpeed);
+    drawStageArtwork(ctx, background, elapsedSeconds, reducedMotion, scrollDistancePx, scrollSpeed, boss);
     return;
   }
   ctx.fillStyle = boss ? theme.bossBackground : theme.background;
@@ -540,7 +540,7 @@ function drawStageBackground(ctx, stageId, elapsedSeconds = 0, boss = false, vis
   for (let index = 0; index < STAR_FIELD.length; index += 1) {
     const [baseX, baseY, radius] = STAR_FIELD[index];
     const x = ((baseX - scrollDistancePx * (0.7 + index * 0.04)) % WORLD_WIDTH + WORLD_WIDTH) % WORLD_WIDTH;
-    const y = baseY + Math.sin(elapsedSeconds * 0.22 + index) * 4;
+    const y = baseY + (boss ? 0 : Math.sin(elapsedSeconds * 0.22 + index) * 4);
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fill();
@@ -985,7 +985,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     const elapsed = stage.elapsedSeconds ?? snapshot.elapsedSeconds ?? 0;
     const prefersReducedMotion = resolveReducedMotion(reducedMotion);
     const backgroundScroll = snapshot.backgroundScrollDistancePx ?? elapsed * (snapshot.difficulty?.scrollSpeed ?? 240) * 0.25;
-    const scrollSpeed = snapshot.difficulty?.scrollSpeed ?? 240;
+    const scrollSpeed = snapshot.backgroundScrollSpeed ?? snapshot.difficulty?.scrollSpeed ?? 240;
     drawBackgroundTransition(ctx, stage, elapsed, visualAssets, reducedMotion, backgroundScroll, scrollSpeed);
     drawStageAtmosphere(ctx, stage.mode, elapsed);
     if (stage.transition?.kind === 'portal') {
