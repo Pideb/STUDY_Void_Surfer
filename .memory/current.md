@@ -7,11 +7,11 @@
 [P01 Runtime](./phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/phase.md)
 
 ## Active Task
-[Next task](./phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/T03-projectile-laser.md)
+[Next task](./phases/2026-10-29-cooldown-speed-boss-tuning/P01-runtime/T04-integration-review.md)
 
 ## Status
-- T02 complete and verified; commit 60611a7.
-- Progress 2/4; sequential completion authorized.
+- T03 complete and verified; commit bccbed6.
+- Progress 3/4; sequential completion authorized.
 
 ## Next Step (IMPORTANT)
 Read next blueprint, implement, validate, commit and advance.

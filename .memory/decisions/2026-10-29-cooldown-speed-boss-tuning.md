@@ -9,6 +9,7 @@
 ## D01. Aircraft Description — User Requested
 - Remove the appended `속도 증가 N점까지` fragment from every hangar aircraft description.
 - Preserve each aircraft's other traits, unlock requirements and score/weapon behavior.
+- Implementation wording clarification: VELOCITY shows `시작 속도 ×2` because D04 preserves double initial speed while its fixed increase is identical to other craft. No new trait change is introduced.
 - Rationale: User wants descriptions without speed-cap-score information.
 
 ## D02. Small Upper-left Space Cooldown Ring — User Selected Option1

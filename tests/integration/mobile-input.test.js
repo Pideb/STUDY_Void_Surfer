@@ -161,7 +161,7 @@ describe('mobile and keyboard controls', () => {
     expect(dash).not.toHaveBeenCalled();
     expect(root.querySelector('.boss-health-text').textContent).toBe('3 / 3');
     expect(audioManager.play.mock.calls.filter(([event]) => event === 'challengeSuccess')).toHaveLength(1);
-    for (let frame = 0; frame < 4; frame++) {
+    for (let frame = 0; frame < 6; frame++) {
       currentTime += 100;
       frames.shift()(currentTime);
     }

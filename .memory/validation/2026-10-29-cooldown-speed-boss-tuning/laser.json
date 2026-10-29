@@ -1,0 +1,134 @@
+{
+  "mode": "laser",
+  "viewport": {
+    "width": 1254,
+    "height": 627
+  },
+  "dpr": 1,
+  "buffer": {
+    "width": 1254,
+    "height": 627
+  },
+  "loadedAssets": 53,
+  "missingAssets": [],
+  "overflow": false,
+  "aircraftId": "default",
+  "damage": {
+    "left": 232,
+    "right": 248,
+    "top": 262,
+    "bottom": 278
+  },
+  "cooldownRemaining": 0,
+  "cooldownMarker": {
+    "x": 204,
+    "y": 246,
+    "radius": 8
+  },
+  "speedTable": [
+    {
+      "id": "default",
+      "speeds": [
+        {
+          "score": 0,
+          "speed": 240
+        },
+        {
+          "score": 10,
+          "speed": 250
+        },
+        {
+          "score": 50,
+          "speed": 290
+        },
+        {
+          "score": 99,
+          "speed": 330
+        },
+        {
+          "score": 100,
+          "speed": 340
+        },
+        {
+          "score": 200,
+          "speed": 340
+        }
+      ]
+    },
+    {
+      "id": "aegis",
+      "speeds": [
+        {
+          "score": 0,
+          "speed": 240
+        },
+        {
+          "score": 10,
+          "speed": 250
+        },
+        {
+          "score": 50,
+          "speed": 290
+        },
+        {
+          "score": 99,
+          "speed": 330
+        },
+        {
+          "score": 100,
+          "speed": 340
+        },
+        {
+          "score": 200,
+          "speed": 340
+        }
+      ]
+    },
+    {
+      "id": "velocity",
+      "speeds": [
+        {
+          "score": 0,
+          "speed": 480
+        },
+        {
+          "score": 10,
+          "speed": 490
+        },
+        {
+          "score": 50,
+          "speed": 530
+        },
+        {
+          "score": 99,
+          "speed": 570
+        },
+        {
+          "score": 100,
+          "speed": 580
+        },
+        {
+          "score": 200,
+          "speed": 580
+        }
+      ]
+    }
+  ],
+  "weaponChecks": null,
+  "volley": null,
+  "lineLaser": {
+    "ys": [
+      203.39999999999998
+    ],
+    "thickness": 18,
+    "allowedTop": 81,
+    "allowedBottom": 459
+  },
+  "mobileFire": {
+    "display": "none",
+    "left": 0,
+    "right": 0,
+    "bottom": 0
+  },
+  "fixture": "Production engine/renderer/HUD/assets; reproducible clock, gravity0, guest/admin collision bypass for captures only."
+}

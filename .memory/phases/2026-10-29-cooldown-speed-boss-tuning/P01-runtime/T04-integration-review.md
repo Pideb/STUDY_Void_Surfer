@@ -1,6 +1,6 @@
 # Task: T04 Integration Review
 
-## Status: pending
+## Status: done
 
 ## Goal
 Finish all confirmed tuning with regression, build/config checks and actual renderer evidence; close memory pointer accurately.
@@ -13,6 +13,7 @@ Finish all confirmed tuning with regression, build/config checks and actual rend
 ### I01. Documentation and real-screen evidence
 - Related Files: `README.md` gameplay rules — modify; `.memory/validation/2026-10-29-cooldown-speed-boss-tuning/` — new review/evidence; existing test files affected by approved changes — modify as needed.
 - README: fixed+10 per10 andcap100 allcraft; ordinary240->340 /480->580; current boss factors; smallring; .5charge+.2recovery; wall-free3..6 pervolley, repetition1..3; line15%.
+- Final review clarification: change VELOCITY hangar stat from `이동 속도 ×2` to `시작 속도 ×2` and assert in UI tests. Equal fixed increments mean only its initial speed is doubled; leaving the old wording would misdescribe this task's approved behavior.
 - Evidence should include allthree actual ships with cooldownmarker, real manual firing charge/beam states, wall-free6-shot example, and15% line placement. Capture desktop andlandscape-mobile viewport scaling; do not change production auth/state for capture.
 - Use production createRenderer/drawDashCooldown/drawManualLaser, actual assetloader and publicengine or explicitly labeled deterministic geometry for reproducible captures. Browser-only candidate code is not production evidence.
 - `report.md` records literal observed speeds, timings/counts/margins, fullsuite result, build/config and any playtest limitations. Keep preview-only scripts under.memory.
@@ -24,9 +25,9 @@ Finish all confirmed tuning with regression, build/config checks and actual rend
 - MarkT04 done, commit, updatephase4/4,plan done,current noactive,decision implementedwithreportlink. Commit finalpointer sync separately so last task hash is recorded.
 
 ## Acceptance Criteria
-- [ ] All tests/build/config passed with results recorded.
-- [ ] Actual renderer evidence supports marker/firing/projectile/laser changes and mobile scaling.
-- [ ] README and memory match final runtime; clean git tree after final sync.
+- [x] All tests/build/config passed with results recorded.
+- [x] Actual renderer evidence supports marker/firing/projectile/laser changes and mobile scaling.
+- [x] README and memory match final runtime; clean git tree after final sync.
 
 ## Validation
 - `npm test -- --run` — all test files pass.
@@ -47,6 +48,6 @@ Task: T04-integration-review
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

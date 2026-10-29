@@ -463,6 +463,7 @@ describe('app controller product flow', () => {
       .find((button) => button.getAttribute('aria-label').startsWith('AEGIS'));
     expect(aegis.querySelector('.aircraft-performance').textContent).toBe('중력 ×1.3 · 상승력 70% · 보스 레이저 1발 처치');
     expect(harness.root.textContent).not.toContain('속도 증가');
+    expect(harness.root.textContent).toContain('시작 속도 ×2 · 최종 점수 ×1.5');
   });
 
   it('falls back to the default aircraft and explains a failed best-score lookup', async () => {
