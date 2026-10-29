@@ -1,0 +1,509 @@
+{
+  "runtimeCases": 11,
+  "artifacts": [
+    {
+      "name": "account-hangar-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 853518,
+      "sha256": "4052f0c10b90543c020ffc533c8a5cbd499481751860229e170409edae042925"
+    },
+    {
+      "name": "account-hangar.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1174863,
+      "sha256": "d17daeba3acc790c103e62ac1cd6f8db2e456c5997baf152560f2849048c39d8"
+    },
+    {
+      "name": "ambient-normal-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 975415,
+      "sha256": "ac2a4e429e32d23363fad4bfba7dd5f67333a35d4911e6d1f43ebb919f4c1b3b"
+    },
+    {
+      "name": "ambient-normal.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1204132,
+      "sha256": "a42ea657850df5ca0214c25a2083aafe4baf326bd84be74d1f76bb6c16b294d0"
+    },
+    {
+      "name": "ambient-warning-two-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1155161,
+      "sha256": "1fcde538d32d9ec98c6ae894b7dbd541f1a0f0e1631fec129d1e7e3e821f1b01"
+    },
+    {
+      "name": "ambient-warning-two.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1610105,
+      "sha256": "02bafe908aae14c7351b0df31db9556ff8f1965459fe3d4af3c46c259de5e552"
+    },
+    {
+      "name": "balanced-desktop-failure.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1524914,
+      "sha256": "1740828d28fd73ed8898bca8f4c6e2beb89a57ce7015245966edf85eaa4ed613"
+    },
+    {
+      "name": "balanced-desktop-global.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1329440,
+      "sha256": "f982f0aa76ea84134612d2e9c65b21483ed212813bc1c3ad4ff509dbbb422dc8"
+    },
+    {
+      "name": "balanced-desktop-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1194226,
+      "sha256": "5c6311f78a26f0e4f29403613df45002cd02a6632630fb169cf80fd9a6261787"
+    },
+    {
+      "name": "balanced-desktop-volley.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1523070,
+      "sha256": "e5e94744587deca03f32358cefb70a89ad5a2ec0482ada65c65d62262b9bfdd4"
+    },
+    {
+      "name": "balanced-desktop-walls.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1617727,
+      "sha256": "8f54b2116b8436a3f253d65aeebfef4885c3107e0a897400d8e5146eb4afec9a"
+    },
+    {
+      "name": "baseline-desktop-failure.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1860815,
+      "sha256": "d2b5cbbdb030ccb29da81f817443976b293dc64bfb728ec7a37a40e93fe786a7"
+    },
+    {
+      "name": "baseline-desktop-global.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1730514,
+      "sha256": "305199e2ec13a619a595a3a544294d57db05fb2e436485ca4b1413c0fa1d9f78"
+    },
+    {
+      "name": "baseline-desktop-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1394369,
+      "sha256": "b52820b2e98715c277ba279e2747bd8e95896fbae1c7298778e54a03af272985"
+    },
+    {
+      "name": "baseline-desktop-volley.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1853525,
+      "sha256": "5d5e27c4f97f64b87363906bcc986108b10b94cfe8bb6ae414f78993d273074a"
+    },
+    {
+      "name": "baseline-desktop-walls.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1980624,
+      "sha256": "aaf4619003f2de28eab3393c494df79a831f43b84b82a323deb113152fc4f0fe"
+    },
+    {
+      "name": "baseline-mobile-failure.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 398742,
+      "sha256": "17160538a37d459165e43348e7d21b5ee8df6c1b28f8d1b4d03e1fc459d0ca0f"
+    },
+    {
+      "name": "baseline-mobile-global.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 382184,
+      "sha256": "4ddb095c4e28833e152d355aa5410cb150a97f548481df531ad3b7aca0a44ea6"
+    },
+    {
+      "name": "baseline-mobile-layout.png",
+      "width": 700,
+      "height": 400,
+      "bytes": 354091,
+      "sha256": "b0e63bb3a64cbb337393215d466769a9095728966f18ac083ed0fb6edcdd7226"
+    },
+    {
+      "name": "baseline-mobile-volley.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 397995,
+      "sha256": "6a7d1b5ac77943c618fa16aa17d1ec1cd01c5f4a2d9af889029fc545749e7841"
+    },
+    {
+      "name": "baseline-mobile-walls.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 409223,
+      "sha256": "29f189ed3c2f6812a68ed3af1ca934f002ab0a0a8be22bf3887be0af58164850"
+    },
+    {
+      "name": "boss-entry-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 38788,
+      "sha256": "cbd4285e781e3a2cbe62934401c904a394e6bb335188f33c6f3313021252274a"
+    },
+    {
+      "name": "boss-entry.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 46196,
+      "sha256": "f6aaf9aad81e3154dcb6fb457d06b066fc046c0af2ae570c5aa6a8d988764634"
+    },
+    {
+      "name": "boss-stable-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1117082,
+      "sha256": "069892658a2610a4e8d501d373609327fddccdd0ef42b7773743d65f97281651"
+    },
+    {
+      "name": "boss-stable.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1360169,
+      "sha256": "d334dc663f93123cf3774269eb1ce59406d421f2338ea9c3ba29288b2262f573"
+    },
+    {
+      "name": "dpr2-desktop-failure.png",
+      "width": 2828,
+      "height": 1614,
+      "bytes": 4383513,
+      "sha256": "2662c481919228a8fa672a0760abef4db6e081ce7bb9854f3ac459fd412f0aaa"
+    },
+    {
+      "name": "dpr2-desktop-global.png",
+      "width": 2828,
+      "height": 1614,
+      "bytes": 3778403,
+      "sha256": "d739d5eafd62c4dea7a7e2f4c97100659c6fb2223b9230825bb990cd1478473f"
+    },
+    {
+      "name": "dpr2-desktop-volley.png",
+      "width": 2828,
+      "height": 1614,
+      "bytes": 4344784,
+      "sha256": "89cd48395f26160a1332c4115e5986fbc323f087e272b1eccd239a7745f88832"
+    },
+    {
+      "name": "dpr2-desktop-walls.png",
+      "width": 2828,
+      "height": 1614,
+      "bytes": 4981387,
+      "sha256": "8a974e0e22e6af0b875ab623d9a12e8aa204edf07b6f143ba479a3c7d7f5c772"
+    },
+    {
+      "name": "dpr2-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1197640,
+      "sha256": "3cc0e24d5b4ddd93f2d580027d0f50ca260686784e6721669a6adf385d83f64b"
+    },
+    {
+      "name": "final-desktop-failure.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1413213,
+      "sha256": "7ffc5201d00462531b8d10961480bd14ec9e6c7213523ae4f9c41dc73d83253b"
+    },
+    {
+      "name": "final-desktop-global.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1261537,
+      "sha256": "bf59bb80c39b8547dc26d047356a121e4b8643090858c138a86f72ef6a59575b"
+    },
+    {
+      "name": "final-desktop-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1125859,
+      "sha256": "ccd3a02f388b6b83d6d8073c3e6805a056891d979d3ffb19ea0334ed997941f3"
+    },
+    {
+      "name": "final-desktop-volley.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1409798,
+      "sha256": "8aebfa9d4f31307cddab149e2bc06716dd2187385e62feb12341285576971660"
+    },
+    {
+      "name": "final-desktop-walls.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1521121,
+      "sha256": "571a7db159b639c24e8ed99756889d0d3b62e3ec7c57e796b21f9c5345c52bc6"
+    },
+    {
+      "name": "final-mobile-failure.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 287181,
+      "sha256": "ea18bd1678947e3ee62994561a0d296d55d0a4636ab5c4d8bddc3f6bffdec662"
+    },
+    {
+      "name": "final-mobile-global.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 280454,
+      "sha256": "92974bf0f0f17fd3b4258a99e4c7e26e327ffb39282b43b9e076263ecdb45527"
+    },
+    {
+      "name": "final-mobile-layout.png",
+      "width": 700,
+      "height": 400,
+      "bytes": 248617,
+      "sha256": "ae2f14b97c2a7400709ffeffacbc81bb6a6c4711e86666f81b9866606c1764b8"
+    },
+    {
+      "name": "final-mobile-volley.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 284420,
+      "sha256": "1dec4f011855a9e4ad7b33c86f2e69f83a7ab8dba1aeaf28923478c24f1e8d81"
+    },
+    {
+      "name": "final-mobile-walls.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 310050,
+      "sha256": "73d7aab506f22fe0313bf4247d787bbc6989a2c3f0f89ed989645880416d43f1"
+    },
+    {
+      "name": "final-v2-desktop-failure.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1413213,
+      "sha256": "7ffc5201d00462531b8d10961480bd14ec9e6c7213523ae4f9c41dc73d83253b"
+    },
+    {
+      "name": "final-v2-desktop-global.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1261537,
+      "sha256": "bf59bb80c39b8547dc26d047356a121e4b8643090858c138a86f72ef6a59575b"
+    },
+    {
+      "name": "final-v2-desktop-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1125859,
+      "sha256": "ccd3a02f388b6b83d6d8073c3e6805a056891d979d3ffb19ea0334ed997941f3"
+    },
+    {
+      "name": "final-v2-desktop-volley.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1409798,
+      "sha256": "8aebfa9d4f31307cddab149e2bc06716dd2187385e62feb12341285576971660"
+    },
+    {
+      "name": "final-v2-desktop-walls.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1521121,
+      "sha256": "571a7db159b639c24e8ed99756889d0d3b62e3ec7c57e796b21f9c5345c52bc6"
+    },
+    {
+      "name": "final-v3-desktop-failure.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1308079,
+      "sha256": "da19c44673ab0c56bf980cd802bcd8fe9e3fed990988585faf9372eb681a994d"
+    },
+    {
+      "name": "final-v3-desktop-global.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1196899,
+      "sha256": "c0bc1200e6b81dc8c6abb8960122099029b6c7f7139b627c6a0dcf97b65fa1d5"
+    },
+    {
+      "name": "final-v3-desktop-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1080084,
+      "sha256": "ebb5e156938edf8fc7ed4dc9695dfa1bb2458fa2bf52c9eaa8d938b499b27304"
+    },
+    {
+      "name": "final-v3-desktop-volley.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1298188,
+      "sha256": "f36f95253fedd73617f4a7912df4c4284cdeb08dfb18ea0bbd5172f7b2303f57"
+    },
+    {
+      "name": "final-v3-desktop-walls.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1442328,
+      "sha256": "d4e5d88dc69865127b37447461939e6f8d7bbee8fd706257542353958d9214e9"
+    },
+    {
+      "name": "guest-hangar-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 860125,
+      "sha256": "679453777813bf459d2088de18f5e25107584581283f031285456831029fb95c"
+    },
+    {
+      "name": "guest-hangar.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1174863,
+      "sha256": "d17daeba3acc790c103e62ac1cd6f8db2e456c5997baf152560f2849048c39d8"
+    },
+    {
+      "name": "guest-menu-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 918786,
+      "sha256": "862749a5e558f5595993cd93c760ba20feff4c6874da02321b5e478fc1bc5345"
+    },
+    {
+      "name": "guest-menu.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1174863,
+      "sha256": "d17daeba3acc790c103e62ac1cd6f8db2e456c5997baf152560f2849048c39d8"
+    },
+    {
+      "name": "guest-ranking-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 569461,
+      "sha256": "0b562a785459b9a4a622b3726fdd03a811d2cc2a5911ffd582d7d7d737958b46"
+    },
+    {
+      "name": "guest-ranking.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1174863,
+      "sha256": "d17daeba3acc790c103e62ac1cd6f8db2e456c5997baf152560f2849048c39d8"
+    },
+    {
+      "name": "guest-result-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 859214,
+      "sha256": "0a604db8a3828e24df2a92f5370b75c9a584d89d54db25b4055137540bd140aa"
+    },
+    {
+      "name": "guest-result.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1290517,
+      "sha256": "6cb387ba6a02ff8db56593e2e32da8cf54c73b3abc3dbb748b98518e762ecc3f"
+    },
+    {
+      "name": "mobile-guest-hangar-layout.png",
+      "width": 700,
+      "height": 400,
+      "bytes": 206106,
+      "sha256": "cc9bb3b7332881352f6260a47977e9a2348e59d18a4c9af73d3f4dfb34fbe690"
+    },
+    {
+      "name": "mobile-guest-hangar.png",
+      "width": 674,
+      "height": 307,
+      "bytes": 241882,
+      "sha256": "bbe3edb32f84f4dc29ab8e142f2ec18ef4a86589035c9001b884a825a15dc2d3"
+    },
+    {
+      "name": "quick-desktop-failure.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1524914,
+      "sha256": "1740828d28fd73ed8898bca8f4c6e2beb89a57ce7015245966edf85eaa4ed613"
+    },
+    {
+      "name": "quick-desktop-global.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1329440,
+      "sha256": "f982f0aa76ea84134612d2e9c65b21483ed212813bc1c3ad4ff509dbbb422dc8"
+    },
+    {
+      "name": "quick-desktop-volley.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1523070,
+      "sha256": "e5e94744587deca03f32358cefb70a89ad5a2ec0482ada65c65d62262b9bfdd4"
+    },
+    {
+      "name": "quick-desktop-walls.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1617727,
+      "sha256": "8f54b2116b8436a3f253d65aeebfef4885c3107e0a897400d8e5146eb4afec9a"
+    },
+    {
+      "name": "quick-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1194226,
+      "sha256": "5c6311f78a26f0e4f29403613df45002cd02a6632630fb169cf80fd9a6261787"
+    },
+    {
+      "name": "reference-desktop-failure.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1716238,
+      "sha256": "ba8d86a64b6fe16209ec9daa01fe025cfeeb165140c5174707f58666918f6a34"
+    },
+    {
+      "name": "reference-desktop-global.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1424194,
+      "sha256": "a9d74f1d53174dc2d3b37477ccfc9f5fa20f0a40777a7b0f9b68bed040abf795"
+    },
+    {
+      "name": "reference-desktop-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1341271,
+      "sha256": "8b85d5c460d00e13665054fa88b3e46780e0e4c9f55a376ad6b842da573c2a3a"
+    },
+    {
+      "name": "reference-desktop-volley.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1703659,
+      "sha256": "ff84cd3923227a99c6ced3d5825931329aa3b38c4faf84a782afc33ab5c758d1"
+    },
+    {
+      "name": "reference-desktop-walls.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1841422,
+      "sha256": "72491a3560243486f0b53eb61383b468f3515820095312708b2becd5980118a9"
+    },
+    {
+      "name": "volley-spread-layout.png",
+      "width": 1440,
+      "height": 900,
+      "bytes": 1271982,
+      "sha256": "1ae45391e1685aafd304ae707d8f494ee01589837943c953d419f40fe63f3215"
+    },
+    {
+      "name": "volley-spread.png",
+      "width": 1414,
+      "height": 807,
+      "bytes": 1585966,
+      "sha256": "147b62a21d997b9591eab0e4aaef601eb2263fa41a3b30076e477e3f3bbc2fa0"
+    }
+  ]
+}

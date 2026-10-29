@@ -73,4 +73,4 @@ Task: T05-guest-policy
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed
-- commit: pending
+- commit: a2f70b7

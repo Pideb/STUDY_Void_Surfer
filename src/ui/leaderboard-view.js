@@ -120,11 +120,10 @@ function renderLeaderboardResult(title, result) {
 export function renderLeaderboardPanel(model = {}, onRetry = () => {}) {
   const panel = document.createElement('div');
   panel.className = 'leaderboard-panel';
+  panel.classList.toggle('is-public-only',Boolean(model.hideNeighborhood));
   panel.setAttribute('aria-live', 'polite');
-  panel.append(
-    renderLeaderboardResult('TOP 10', model.top),
-    renderLeaderboardResult('내 주변 순위', model.neighborhood),
-  );
+  panel.append(renderLeaderboardResult('TOP 10', model.top));
+  if (!model.hideNeighborhood) panel.append(renderLeaderboardResult('내 주변 순위', model.neighborhood));
 
   if (model.top?.error || model.neighborhood?.error || model.submitError) {
     const retry = document.createElement('button');

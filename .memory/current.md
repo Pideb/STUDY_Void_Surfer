@@ -7,11 +7,11 @@
 [P01 Runtime](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/phase.md)
 
 ## Active Task
-[Next task](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/T05-guest-policy.md)
+[Next task](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/T06-integration-evidence.md)
 
 ## Status
-- T04 complete and verified; commit 9052205.
-- Progress 4/6; sequential completion authorized.
+- T05 complete and verified; commit a2f70b7.
+- Progress 5/6; sequential completion authorized.
 
 ## Next Step (IMPORTANT)
 Read next blueprint, implement, validate, commit and advance.

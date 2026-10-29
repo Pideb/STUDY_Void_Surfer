@@ -210,7 +210,7 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
     button.className = `aircraft-option${unlocked ? '' : ' is-locked'}${selected ? ' is-selected' : ''}`;
     button.disabled = !unlocked;
     button.setAttribute('aria-pressed', String(selected));
-    button.setAttribute('aria-label', `${craft.name}${selected ? ', 선택됨' : ''}${unlocked ? '' : `, 최고 점수 ${craft.unlockBestScore}점에서 해금`}`);
+    button.setAttribute('aria-label', `${craft.name}${selected ? ', 선택됨' : ''}${unlocked ? '' : `${guestMode ? ', 로그인 필요' : ''}, 최고 점수 ${craft.unlockBestScore}점에서 해금`}`);
     button.addEventListener('click', () => handlers.select?.(craft.id));
 
     const preview = document.createElement('img');
@@ -355,7 +355,7 @@ export function renderPilotRankingScreen(model = {}, handlers = {}) {
   const personalHeading = document.createElement('h2');
   personalHeading.textContent = '내 최고 기록';
   personal.append(personalHeading);
-  if (model.guestMode) {
+  if (model.guestMode || model.personalRecord?.guest) {
     personal.append(createMessage('로그인하면 내 최고 기록을 확인할 수 있습니다.'));
   } else if (model.personalLoading) {
     personal.append(createMessage('개인 기록을 불러오는 중…'));

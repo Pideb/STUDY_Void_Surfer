@@ -304,6 +304,8 @@ describe('app controller product flow', () => {
 
     expect(localStorage.getItem(GUEST_RECORD_STORAGE_KEY)).toBeNull();
     expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+    expect(harness.root.textContent).not.toContain('내 주변 순위');
+    expect(harness.leaderboardService.fetchPlayerNeighborhood).not.toHaveBeenCalled();
 
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '로그인').click();

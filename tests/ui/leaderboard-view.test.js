@@ -38,8 +38,8 @@ describe('leaderboard aircraft identity', () => {
     expect(row.children[1].textContent).toBe('<img src=x>');
     expect(screen.querySelector('img')).toBeNull();
     expect(screen.querySelector('.ranking-load-more').textContent).toBe('더 불러오기');
-    expect(screen.querySelector('.ranking-personal-record').textContent).toContain('전역 순위 없음');
-    expect(screen.querySelector('.ranking-personal-record').textContent).toContain('이 브라우저에만 저장');
+    expect(screen.querySelector('.ranking-personal-record').textContent).not.toContain('23점');
+    expect(screen.querySelector('.ranking-personal-record').textContent).toContain('로그인하면 내 최고 기록을 확인할 수 있습니다.');
   });
 
   it('shows ranking loading, failure, and completion states', () => {

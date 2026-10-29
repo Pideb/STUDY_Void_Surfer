@@ -1000,7 +1000,7 @@ button:focus-visible {
   }
 
   .aircraft-option {
-    grid-template-columns: 3rem 1fr;
+    grid-template-columns: 6.5rem minmax(0, 1fr);
     justify-items: start;
     align-items: center;
     min-height: 0;
@@ -1008,6 +1008,8 @@ button:focus-visible {
   }
 
   .aircraft-preview { width: 6.5rem; height: 4.25rem; }
+  .aircraft-option .aircraft-preview { grid-column:1; grid-row:1 / span 4; }
+  .aircraft-option > :not(.aircraft-preview) { grid-column:2; min-width:0; }
 
   .hud-combat-status { max-width: 8rem; font-size: 0.68rem; }
 
@@ -1055,6 +1057,7 @@ button:focus-visible {
 .weapon-hud.is-ready .reactor-progress { filter:drop-shadow(0 0 7px #fff3c899); }
 .weapon-hud.is-ready .reactor-state,.weapon-hud.is-firing .reactor-state { font-size:17px; }
 .weapon-hud.is-firing { color:#fff; }
+.leaderboard-panel.is-public-only { grid-template-columns:1fr; }
 .mobile-fire-button { position:absolute; right:max(1rem, env(safe-area-inset-right)); bottom:max(5.5rem, calc(env(safe-area-inset-bottom) + 5rem)); min-width:7rem; min-height:3.2rem; touch-action:manipulation; }
 @media (pointer:coarse), (hover:none), (max-width:700px) { .game-hud .mobile-fire-button { display:inline-flex; pointer-events:auto; } }
 @media (pointer:coarse), (hover:none) { .game-hud .mobile-space-button { display:inline-flex; pointer-events:auto; } }

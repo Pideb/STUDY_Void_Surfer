@@ -1,6 +1,6 @@
 # Task: T06 Complete Regression and Runtime Evidence
 
-## Status: pending
+## Status: done
 
 ## Goal
 Prove all six confirmed changes in actual gameplay/UI/audio assets, report real rendering measurements and finish memory accurately with a clean committed tree.
@@ -36,9 +36,9 @@ Prove all six confirmed changes in actual gameplay/UI/audio assets, report real 
 - Adjacentduplicatedadminresetassignmentsnotedbyplanningstayoutside scopeunlessindependentlynecessary totherequest; norelatedpermissionquestionneeded tofinishauthorizedwork.
 
 ## Acceptance Criteria
-- [ ] Complete tests/build/config pass and actualscreens/measurementsevidence reviewed.
-- [ ] All six decisions implemented, guest/account semantics preserved, approvedsiren synchronized.
-- [ ] Plan/phase/tasks/current accuratelycomplete and finalworkingtreeclean.
+- [x] Complete tests/build/config pass and actualscreens/measurementsevidence reviewed.
+- [x] All six decisions implemented, guest/account semantics preserved, approvedsiren synchronized.
+- [x] Plan/phase/tasks/current accuratelycomplete and finalworkingtreeclean.
 
 ## Validation
 - `npm test -- --run`
@@ -61,6 +61,6 @@ Task: T06-integration-evidence
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
