@@ -54,4 +54,4 @@ Runtime auth/ranking data are explicit local test doubles; no remote login/DB/de
 - T03 `8f29888`: measured density layers.
 - T04 `9052205`: approved siren.
 - T05 `a2f70b7`: guest policy/records.
-- T06 hash is recorded in the [task blueprint](../../phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/T06-integration-evidence.md) and final pointer-sync commit.
+- T06 `72a625e`: full regressions, actual runtime evidence, necessary guest/mobile UI fixes and documentation. The [task blueprint](../../phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/T06-integration-evidence.md), phase and current pointer record completion; a separate final memory-sync commit closes the plan.

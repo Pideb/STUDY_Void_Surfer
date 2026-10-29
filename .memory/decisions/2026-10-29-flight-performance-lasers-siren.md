@@ -1,7 +1,7 @@
 # Decisions: Flight Performance, Ambient Lasers and Boss Siren
 
 - Date: 2026-10-29 (Asia/Seoul)
-- Status: Confirmed. Interview complete; production implementation not started.
+- Status: Implemented. All six tasks complete and verified on 2026-10-29. [Final report](../validation/2026-10-29-flight-performance-lasers-siren/report.md).
 - This is a new change set after the completed boss-motion-aim-patterns plan. Do not reopen that plan or change its completed pointer.
 
 ## D01. Speed Growth Cap

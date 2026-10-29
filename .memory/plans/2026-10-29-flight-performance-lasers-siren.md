@@ -6,7 +6,7 @@ Implement the six [confirmed decisions](../decisions/2026-10-29-flight-performan
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | --- | --- | --- | --- |
-| P01 | in_progress | Existing game runtime, renderer, audio and guest UI | [P01](../phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/phase.md) |
+| P01 | done | Existing game runtime, renderer, audio and guest UI | [P01](../phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/phase.md) |
 
 ## Sequential Tasks
 1. T01: cap220 and a fixed boss-background clock/vertical anchor.
