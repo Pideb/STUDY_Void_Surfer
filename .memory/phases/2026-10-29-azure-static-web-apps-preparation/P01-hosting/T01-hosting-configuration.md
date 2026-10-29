@@ -1,6 +1,6 @@
 # Task: T01 Hosting Configuration
 
-## Status: pending
+## Status: done
 
 ## Goal
 Make an Azure-hosted direct OAuth callback return the existing app and detect missing/mismatched deployment config before publication.
@@ -19,8 +19,8 @@ Make an Azure-hosted direct OAuth callback return the existing app and detect mi
 - `git diff --check`; inspect package lock diff and exact emitted config; no game balance changes.
 
 ## Acceptance Criteria
-- [ ] Callback config emitted correctly; verifier rejects incomplete artifacts.
-- [ ] Target tests/build/config checks pass; no secrets or invented Azure domain committed.
+- [x] Callback config emitted correctly; verifier rejects incomplete artifacts.
+- [x] Target tests/build/config checks pass; no secrets or invented Azure domain committed.
 
 ## Commit Message
 ```text
@@ -35,6 +35,6 @@ Task: T01-hosting-configuration
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

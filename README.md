@@ -19,6 +19,8 @@ This repository change does not apply the migration remotely. The SQL assertions
 
 ## 다른 사람에게 공유하기
 
+회사 Azure 배포는 [Azure Static Web Apps 가이드](./docs/azure-deploy.md)를 사용합니다. 기존 Microsoft Entra·Supabase 인증/리더보드를 유지하며, Azure 로그인 콜백 경로와 GitHub Actions의 빌드 시점 공개 설정값을 함께 적용합니다. 아래 Vercel 문서는 기존 대안 배포 절차입니다.
+
 배포된 Vercel 링크를 전달하면 됩니다. 플레이어는 저장소를 clone하거나
 `.env`·Supabase 계정을 준비할 필요 없이, 링크를 열고 조직의 Microsoft Entra
 계정으로 로그인해 플레이할 수 있습니다. 점수와 리더보드는 Supabase에 공유됩니다.

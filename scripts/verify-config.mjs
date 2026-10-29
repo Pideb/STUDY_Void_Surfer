@@ -5,6 +5,8 @@ const root = process.cwd();
 const envExamplePath = join(root, '.env.example');
 const distPath = join(root, 'dist');
 const vercelConfigPath = join(root, 'vercel.json');
+const azureSourceConfigPath = join(root, 'public', 'staticwebapp.config.json');
+const azureBuiltConfigPath = join(distPath, 'staticwebapp.config.json');
 const requiredPublicKeys = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_ANON_KEY'];
 const restrictedIdentifiers = [
   'SUPABASE_SERVICE_ROLE_KEY',
@@ -76,6 +78,30 @@ if (!existsSync(vercelConfigPath)) {
   } catch {
     fail('vercel.json is not valid JSON.');
   }
+}
+
+const azureConfigs = [];
+for (const configPath of [azureSourceConfigPath, azureBuiltConfigPath]) {
+  const label = relative(root, configPath);
+  if (!existsSync(configPath)) {
+    fail(`${label} is missing; Azure needs the callback rewrite in the deployment output.`);
+    continue;
+  }
+  try {
+    const config = JSON.parse(readFileSync(configPath, 'utf8'));
+    azureConfigs.push(config);
+    const callback = config.routes?.find((route) => route.route === '/auth/callback');
+    if (callback?.rewrite !== '/index.html' || callback.redirect
+      || (callback.methods && !['GET', 'HEAD'].every((method) => callback.methods.includes(method)))
+      || (callback.allowedRoles && !callback.allowedRoles.includes('anonymous'))) {
+      fail(`${label} must allow the anonymous OAuth callback and rewrite it to /index.html.`);
+    }
+  } catch {
+    fail(`${label} is not valid JSON.`);
+  }
+}
+if (azureConfigs.length === 2 && JSON.stringify(azureConfigs[0]) !== JSON.stringify(azureConfigs[1])) {
+  fail('Azure source and built configuration differ. Rebuild before deployment.');
 }
 
 if (process.exitCode !== 1) {
