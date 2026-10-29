@@ -1,6 +1,6 @@
 # Task: T01 Entry and Basic Rules
 
-## Status: pending
+## Status: done
 
 ## Goal
 Old walls exit before boss factors apply; background darkens before reveal while player stays visible; passed timing bands keep their width; approved cap/WASD numeric changes apply.
@@ -30,11 +30,11 @@ Old walls exit before boss factors apply; background darkens before reveal while
 - Existing fixtures assuming cap100 or direct1.5s intro must be updated to approved semantics, not stripped of safety assertions.
 
 ## Acceptance Criteria
-- [ ] No boss start with old walls onscreen; dark reveal keeps live ship visible.
-- [ ] Passed guide stable;200 cap and WASD4+/8s rules proven.
+- [x] No boss start with old walls onscreen; dark reveal keeps live ship visible.
+- [x] Passed guide stable;200 cap and WASD4+/8s rules proven.
 
 ## Validation
-- `npm test -- --run tests/game/difficulty.test.js tests/game/game-engine.test.js tests/game/wasd-challenge.test.js tests/game/renderer.test.js tests/game/barrier-spacing.test.js tests/ui/app-controller.test.js`
+- `npm test -- --run tests/game/difficulty.test.js tests/game/game-engine.test.js tests/game/wasd-challenge.test.js tests/game/renderer.test.js tests/game/barrier-spacing.test.js tests/game/obstacles.test.js tests/ui/app-controller.test.js tests/integration/boss-entry.test.js`
 - `git diff --check`
 
 ## Commit Message
@@ -50,6 +50,6 @@ Task: T01-entry-and-basics
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

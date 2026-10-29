@@ -23,14 +23,14 @@ function createRuntimeEngine(overrides = {}) {
 }
 
 describe('game engine', () => {
-  it.each([['default',240,340],['aegis',240,340],['velocity',480,580]])(
-    'applies identical actual +10 steps and the100-point cap to %s', (aircraftId,start,ceiling) => {
-      for (const [score,increment] of [[0,0],[9,0],[10,10],[20,20],[99,90],[100,100],[109,100],[10000,100]]) {
+  it.each([['default',240,440],['aegis',240,440],['velocity',480,680]])(
+    'applies identical actual +10 steps and the200-point cap to %s', (aircraftId,start,ceiling) => {
+      for (const [score,increment] of [[0,0],[9,0],[10,10],[20,20],[99,90],[100,100],[109,100],[199,190],[200,200],[10000,200]]) {
         const {engine}=createRuntimeEngine({initialScore:score,aircraftId,guestMode:true});
         engine.start();const snapshot=engine.getSnapshot();
         expect(snapshot.difficulty.scrollSpeed).toBe(start+increment);
         expect(snapshot.difficulty.targetScrollSpeed).toBe(start+increment);
-        expect(snapshot.aircraft.speedCapScore).toBe(100);
+        expect(snapshot.aircraft.speedCapScore).toBe(200);
         expect(snapshot.difficulty.scrollSpeed).toBeLessThanOrEqual(ceiling);
       }
     },
@@ -60,7 +60,7 @@ describe('game engine', () => {
   it.each(['default', 'aegis', 'velocity'])('keeps the capped aircraft speed after pause deductions (%s)', (aircraftId) => {
     const { engine } = createRuntimeEngine({ initialScore: 200, aircraftId, guestMode: true });
     engine.start();
-    const ceiling = getBaseSpeed(150, aircraftId) * (aircraftId === 'velocity' ? 2 : 1);
+    const ceiling = getBaseSpeed(200, aircraftId) * (aircraftId === 'velocity' ? 2 : 1);
     expect(engine.getSnapshot().difficulty.scrollSpeed).toBeCloseTo(ceiling);
     engine.pause();
     expect(engine.getSnapshot().progressionScore).toBe(200);
@@ -172,7 +172,7 @@ describe('game engine', () => {
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
-    for (let frame = 0; frame < 15; frame += 1) step();
+    while (!engine.getSnapshot().boss) step();
     const initial = engine.getSnapshot();
     const nextStageId = initial.stage.order[1];
     expect(initial.warning.index).toBe(2);
@@ -305,7 +305,7 @@ describe('game engine', () => {
     expect(restarted.obstacles).toHaveLength(0);
     expect(restarted.difficulty.movingGapChance).toBe(0);
     expect(restarted.specialTimingGuideActive).toBe(true);
-    for (let frame = 0; frame < 15; frame += 1) snapshot = step();
+    while (!engine.getSnapshot().boss) snapshot = step();
     expect(snapshot.stage.id).toBe(initial.stage.id);
     expect(snapshot.stage.transition).toBeNull();
     expect(snapshot.boss.stageId).toBe(initial.stage.id);
@@ -318,7 +318,7 @@ describe('game engine', () => {
       stageRng: () => 0,
     });
     engine.start();
-    for (let frame = 0; frame < 15; frame += 1) step(100);
+    while (!engine.getSnapshot().boss) step(100);
 
     const snapshot = engine.getSnapshot();
     expect(snapshot.stage.mode).toBe('boss');
@@ -616,7 +616,7 @@ describe('game engine', () => {
       initialCompletedWarningCount: 1,
     });
     engine.start();
-    for (let frame = 0; frame < 15; frame += 1) step(100);
+    while (!engine.getSnapshot().boss) step(100);
     const initial = engine.getSnapshot();
     expect(initial.difficulty).toMatchObject({ isWarning: true, isBoss: true, bossPattern: 'fast' });
     expect(initial.warning).toMatchObject({ index: 2, targetCount: 7, requiredSpecials: 3 });
@@ -673,7 +673,7 @@ describe('game engine', () => {
     }
     expect(snapshot.challenge).toMatchObject({ active: false, result: 'failure', resolved: true });
     expect(snapshot.boss).toMatchObject({ hp: 3, challengeCount: 1, successfulChallenges: 0, wallSpawningPaused: false });
-    expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(5);
+    expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(8);
     expect(snapshot.score).toBe(60);
     expect(snapshot.progressionScore).toBe(60);
     for (let frame = 0; frame < 1000 && !snapshot.challenge.active; frame += 1) snapshot = step(100);
@@ -1004,8 +1004,9 @@ describe('game engine', () => {
       rng: () => 0.5,
     });
     engine.start();
-
+    while (!engine.getSnapshot().bossPreview) step();
     const preview = engine.getSnapshot();
+    const previewElapsed = preview.elapsedSeconds;
     expect(preview.bossPreview).toMatchObject({ warningIndex: 2, pattern: 'fast', remainingSeconds: 1.5 });
     expect(preview.warning).toBeNull();
     expect(preview.boss).toBeNull();
@@ -1014,7 +1015,7 @@ describe('game engine', () => {
     let duringPreview;
     for (let frame = 0; frame < 5; frame += 1) duringPreview = step(100);
     expect(duringPreview.bossPreview.remainingSeconds).toBeCloseTo(1.0);
-    expect(duringPreview.elapsedSeconds).toBeCloseTo(0.5);
+    expect(duringPreview.elapsedSeconds).toBeCloseTo(previewElapsed + 0.5);
     expect(duringPreview.warning).toBeNull();
     expect(duringPreview.boss).toBeNull();
     expect(duringPreview.difficulty.isBoss).toBe(false);

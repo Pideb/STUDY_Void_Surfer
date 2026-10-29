@@ -40,6 +40,21 @@ function createContext() {
 }
 
 describe('renderer', () => {
+  it('draws entrance blackout over scenery but before the player',()=>{
+    const c=createContext(),events=[],canvas=document.createElement('canvas');canvas.getContext=()=>c;
+    c.fillRect.mockImplementation(function(){events.push(this.fillStyle);});
+    c.translate.mockImplementation((x,y)=>{if(x===240&&y===270)events.push('player');});
+    createRenderer(canvas).render({difficulty:{},bossEntry:{darkness:1},player:{x:240,y:270,width:36,height:24,velocityY:0}});
+    expect(events.indexOf('rgba(0, 0, 0, 1)')).toBeGreaterThan(0);
+    expect(events.indexOf('rgba(0, 0, 0, 1)')).toBeLessThan(events.indexOf('player'));
+  });
+  it('keeps a passed special timing band fixed while upcoming guides use current difficulty',()=>{
+    const c=createContext(),wall={kind:'special',x:40,width:24,gapCenter:270,gapHeight:180,showTimingGuide:true,passed:true,timingGuideWidthPx:84};
+    drawObstacle(c,wall,VISUAL_THEME,{scrollSpeed:800,timingWindowSeconds:.15,elapsedSeconds:0});
+    expect(c.fillRect).toHaveBeenCalledWith(-44,0,84,540);
+    c.fillRect.mockClear();drawObstacle(c,{...wall,passed:false},VISUAL_THEME,{scrollSpeed:800,timingWindowSeconds:.15,elapsedSeconds:0});
+    expect(c.fillRect).toHaveBeenCalledWith(-80,0,120,540);
+  });
   it('uses viewport pixels, preserves logical ship coordinates, and redraws cached scenes on resize', () => {
     const c=createContext(),canvas=document.createElement('canvas'),bounds={width:1920,height:1080};
     canvas.getContext=()=>c;canvas.getBoundingClientRect=()=>bounds;

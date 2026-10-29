@@ -123,6 +123,7 @@ export function createGameEngine(deps = {}) {
   let completedWarningCount = 0;
   let warningSession = null;
   let bossPreview = null;
+  let bossEntry = null;
   let nextWarningScore = WARNING_START_SCORE;
   let firstBossCleared = false;
   let previousBaseGapCenter = null;
@@ -148,7 +149,7 @@ export function createGameEngine(deps = {}) {
 
   function getTargetDifficulty() {
     if (!warningSession) {
-      const warningThreshold = bossPreview ? Number.MAX_SAFE_INTEGER : nextWarningScore;
+      const warningThreshold = bossEntry || bossPreview ? Number.MAX_SAFE_INTEGER : nextWarningScore;
       const base = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, warningThreshold, scoreSession.progressionScore, firstBossCleared, aircraft.id);
       return applyAircraftDifficulty(base);
     }
@@ -266,17 +267,17 @@ export function createGameEngine(deps = {}) {
   }
 
   function startWarningIfNeeded() {
-    if (warningSession || bossPreview || stageTransition || pendingStageAdvance) return;
+    if (warningSession || bossEntry || bossPreview || stageTransition || pendingStageAdvance) return;
 
     const candidate = getDifficulty(getScore(), elapsedSeconds, completedWarningCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id);
     if (!candidate.isWarning) return;
 
     const isBoss = candidate.warningIndex % 2 === 0;
     if (isBoss) {
-      bossPreview = {
+      bossEntry = {
+        phase: 'draining', elapsedSeconds: 0,
         warningIndex: candidate.warningIndex,
         pattern: candidate.bossPattern ?? chooseBossPattern(rng),
-        remainingSeconds: BOSS_PATTERN_PREVIEW_SECONDS,
       };
       return;
     }
@@ -308,13 +309,34 @@ export function createGameEngine(deps = {}) {
   }
 
   function updateBossPreview(deltaSeconds) {
-    if (!bossPreview) return;
-    bossPreview.remainingSeconds = Math.max(0, bossPreview.remainingSeconds - deltaSeconds);
-    if (bossPreview.remainingSeconds > 0) return;
+    if (!bossEntry) return;
+    if (bossEntry.phase === 'draining') {
+      if (obstacles.length > 0) return;
+      bossEntry.phase = 'darkening'; bossEntry.elapsedSeconds = 0;
+      return;
+    }
+    bossEntry.elapsedSeconds += deltaSeconds;
+    if (bossEntry.phase === 'darkening') {
+      if (bossEntry.elapsedSeconds + 1e-9 < .4) return;
+      bossEntry.phase = 'alert'; bossEntry.elapsedSeconds = 0;
+      bossPreview = { warningIndex: bossEntry.warningIndex, pattern: bossEntry.pattern, remainingSeconds: BOSS_PATTERN_PREVIEW_SECONDS };
+    } else if (bossEntry.phase === 'alert') {
+      bossPreview.remainingSeconds = Math.max(0, BOSS_PATTERN_PREVIEW_SECONDS - bossEntry.elapsedSeconds);
+      if (bossPreview.remainingSeconds > 1e-9) return;
+      const { warningIndex, pattern } = bossEntry;
+      bossPreview = null;
+      bossEntry.phase = 'entering'; bossEntry.elapsedSeconds = 0;
+      beginWarningSession(warningIndex, true, pattern);
+    } else if (bossEntry.phase === 'entering' && bossEncounter?.entranceRemainingSeconds <= 0) bossEntry = null;
+  }
 
-    const { warningIndex, pattern } = bossPreview;
-    bossPreview = null;
-    beginWarningSession(warningIndex, true, pattern);
+  function getBossEntrySnapshot() {
+    if (!bossEntry) return null;
+    const smooth = p => { const t = Math.max(0, Math.min(1, p)); return t * t * (3 - 2 * t); };
+    const darkness = bossEntry.phase === 'draining' ? 0 : bossEntry.phase === 'darkening'
+      ? smooth(bossEntry.elapsedSeconds / .4) : bossEntry.phase === 'alert' ? 1
+        : 1 - smooth(bossEntry.elapsedSeconds / (bossEncounter?.entranceDurationSeconds || 1));
+    return { ...bossEntry, darkness };
   }
 
   function spawnObstacle(difficulty) {
@@ -431,8 +453,12 @@ export function createGameEngine(deps = {}) {
 
   function processPassedObstacles() {
     const playerLeft = player.x - player.width / 2;
+    const displayedDifficulty = getCurrentDifficulty();
     for (const obstacle of obstacles) {
       if (obstacle.x + obstacle.width >= playerLeft || obstacle.passed) continue;
+      if (isDashObstacle(obstacle) && obstacle.showTimingGuide) {
+        obstacle.timingGuideWidthPx = displayedDifficulty.scrollSpeed * displayedDifficulty.timingWindowSeconds;
+      }
       obstacle.passed = true;
       const wasBossWall = obstacle.warningIndex > 0 && obstacle.warningIndex % 2 === 0;
       if (!warningSession?.isBoss && !wasBossWall) advanceScore(scoreSession, obstacle.id);
@@ -481,6 +507,7 @@ export function createGameEngine(deps = {}) {
     completedWarningCount = initialCompletedWarningCount;
     warningSession = null;
     bossPreview = null;
+    bossEntry = null;
     nextWarningScore = WARNING_START_SCORE + initialCompletedWarningCount * 10;
     firstBossCleared = initialCompletedWarningCount >= 2;
     previousBaseGapCenter = null;
@@ -601,7 +628,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function scheduleBossAttack(deltaSeconds = 0) {
-    if (!bossEncounter || bossEncounter.hp <= 0 || !warningSession?.isBoss || bossEncounter.attack || bossEncounter.roar
+    if (bossEntry || !bossEncounter || bossEncounter.hp <= 0 || !warningSession?.isBoss || bossEncounter.attack || bossEncounter.roar
       || challenge?.active) return;
     if (bossEncounter.entranceRemainingSeconds > 0) return;
     if (bossEncounter.cyclePhase === 'signature') {
@@ -824,7 +851,7 @@ export function createGameEngine(deps = {}) {
       spawnAccumulatorSeconds = Math.max(0, interval - deltaSeconds);
     }
     difficulty = getCurrentDifficulty();
-    if (stageTransition || pendingStageAdvance) spawnAccumulatorSeconds = 0;
+    if (stageTransition || pendingStageAdvance || bossEntry) spawnAccumulatorSeconds = 0;
     else if (bossEncounter?.entranceRemainingSeconds > 0) spawnAccumulatorSeconds = 0;
     else if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
@@ -955,6 +982,7 @@ export function createGameEngine(deps = {}) {
     if (state !== GAME_STATES.PLAYING || deathEffect) return;
     gameOverReason = reason;
     bossPreview = null;
+    bossEntry = null;
     deathEffect = {
       reason,
       elapsedSeconds: 0,
@@ -977,6 +1005,7 @@ export function createGameEngine(deps = {}) {
       finalScore: Math.round(getScore() * aircraft.scoreMultiplier),
       specialTimingGuideActive: !firstBossCleared,
       bossPreview: bossPreview ? { ...bossPreview } : null,
+      bossEntry: getBossEntrySnapshot(),
       elapsedSeconds,
       backgroundScrollDistancePx,
       gameOverReason,

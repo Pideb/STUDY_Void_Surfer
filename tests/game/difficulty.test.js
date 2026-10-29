@@ -10,18 +10,18 @@ import {
 } from '../../src/game/difficulty.js';
 
 describe('difficulty', () => {
-  it('caps base progression at100 and preserves boss multipliers', () => {
-    const ceiling = 340;
+  it('caps base progression at200 and preserves boss multipliers', () => {
+    const ceiling = 440;
     expect(getBaseSpeed(99)).toBe(330);
-    for (const score of [100, 109, 150, 10000]) expect(getBaseSpeed(score)).toBeCloseTo(ceiling);
+    for (const score of [200, 209, 250, 10000]) expect(getBaseSpeed(score)).toBeCloseTo(ceiling);
     expect(getBaseSpeed(NaN)).toBe(240);
     expect(getBaseSpeed(-1)).toBe(240);
     expect(getDifficulty(200, 0, 1, () => 0, BOSS_PATTERNS.FAST).scrollSpeed).toBeCloseTo(ceiling * 1.25);
     expect(getDifficulty(200, 0, 1, () => 0, BOSS_PATTERNS.SLOW).scrollSpeed).toBeCloseTo(ceiling * .75);
   });
-  it.each([['default',100,1,340],['aegis',100,1,340],['velocity',100,2,580]])('%s stops score-driven growth at%s', (id,cap,multiplier,ceiling) => {
+  it.each([['default',200,1,440],['aegis',200,1,440],['velocity',200,2,680]])('%s stops score-driven growth at%s', (id,cap,multiplier,ceiling) => {
     expect(getBaseSpeed(cap-1,id)*multiplier).toBe(ceiling-10);
-    for(const score of [cap,cap+9,150,10000])expect(getBaseSpeed(score,id)*multiplier).toBe(ceiling);
+    for(const score of [cap,cap+9,250,10000])expect(getBaseSpeed(score,id)*multiplier).toBe(ceiling);
     expect(getDifficulty(200,0,1,()=>0,BOSS_PATTERNS.FAST,20,200,false,id).baseSpeed).toBeCloseTo(getBaseSpeed(cap,id));
   });
 

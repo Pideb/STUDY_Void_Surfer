@@ -2,6 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { createObstacle, getDashBarrierBounds, isDashObstacle, updateObstacle } from '../../src/game/obstacles.js';
 
 describe('obstacles', () => {
+  it('continues oscillating gaps after passage; only timing guides freeze',()=>{
+    const wall=createObstacle({id:'moving',x:50,gapCenter:270,gapHeight:180,movingGap:true,gapMotionPhase:0,gapMotionCycleSeconds:4,gapMotionAmplitude:50});
+    wall.passed=true;updateObstacle(wall,1,100,1);
+    expect(wall.x).toBe(-50);expect(wall.gapCenter).toBe(320);
+  });
   it('creates a normal obstacle with a clamped gap', () => {
     const obstacle = createObstacle({
       id: 'wall-1',

@@ -13,7 +13,7 @@ describe('WASD boss challenge', () => {
     const late = createChallenge({ bossNumber: 9, rng: () => 0.99 });
 
     expect(early).toMatchObject({ maxKeys: 4, timeLimitSeconds: 5 });
-    expect(early.sequence.length).toBeGreaterThanOrEqual(3);
+    expect(early.sequence).toHaveLength(4);
     expect(late).toMatchObject({ maxKeys: 8, timeLimitSeconds: 2.8 });
     expect(late.sequence).toHaveLength(8);
     expect(late.sequence.every((key) => CHALLENGE_KEYS.includes(key))).toBe(true);
@@ -24,7 +24,7 @@ describe('WASD boss challenge', () => {
       const maximum = Math.min(8, bossNumber + 3);
       const short = createChallenge({ bossNumber, rng: () => 0 });
       const long = createChallenge({ bossNumber, rng: () => 0.99 });
-      expect(short.sequence).toHaveLength(Math.max(3, maximum - 2));
+      expect(short.sequence).toHaveLength(Math.max(4, maximum - 2));
       expect(long.sequence).toHaveLength(maximum);
       expect(long.remainingSeconds).toBe(bossNumber === 1 ? 5 : 2.8);
       expect(long.sequence.some((key, index, keys) => index >= 3
@@ -46,6 +46,6 @@ describe('WASD boss challenge', () => {
     expect(updateChallenge(timeout, 5)).toBe('failure');
     expect(createChallengeFailureEffect(() => 0).kind).toBe('ink');
     expect(createChallengeFailureEffect(() => 0.99).kind).toBe('glitch');
-    expect(createChallengeFailureEffect(() => 0)).toMatchObject({ remainingSeconds: 5, durationSeconds: 5 });
+    expect(createChallengeFailureEffect(() => 0)).toMatchObject({ remainingSeconds: 8, durationSeconds: 8 });
   });
 });

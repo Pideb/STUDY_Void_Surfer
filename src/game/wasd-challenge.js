@@ -16,7 +16,7 @@ function getDifficulty(bossNumber) {
 
 export function createChallenge({ bossNumber, rng = Math.random } = {}) {
   const { maxKeys, timeLimitSeconds } = getDifficulty(bossNumber);
-  const minimumLength = Math.max(3, maxKeys - 2);
+  const minimumLength = Math.max(4, maxKeys - 2);
   const length = minimumLength + Math.floor(roll(rng) * (maxKeys - minimumLength + 1));
   const sequence = [];
 

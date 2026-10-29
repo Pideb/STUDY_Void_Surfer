@@ -261,6 +261,7 @@ export function drawDashShockRing(ctx, player, theme = VISUAL_THEME) {
 
 function getTimingGuideWidth(obstacle, difficulty) {
   if (obstacle?.kind !== 'special' || !obstacle.showTimingGuide) return 0;
+  if (obstacle.passed && Number.isFinite(obstacle.timingGuideWidthPx)) return Math.max(0, obstacle.timingGuideWidthPx);
   const speed = Number(difficulty?.scrollSpeed);
   const windowSeconds = Number(difficulty?.timingWindowSeconds);
   if (!Number.isFinite(speed) || !Number.isFinite(windowSeconds)) return 0;
@@ -1018,6 +1019,10 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       }, visualAssets, prefersReducedMotion);
     }
 
+    if (snapshot.bossEntry?.darkness > 0) {
+      ctx.save(); ctx.fillStyle = `rgba(0, 0, 0, ${snapshot.bossEntry.darkness})`;
+      ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT); ctx.restore();
+    }
     drawLaser(ctx, snapshot.boss?.attack);
     drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
     drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id, prefersReducedMotion);
