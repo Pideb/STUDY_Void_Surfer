@@ -9,13 +9,13 @@ import {
 } from '../../src/game/boss-attacks.js';
 
 describe('boss laser safety', () => {
-  it('keeps both damaging cores away from the top/bottom10% while preserving every opening', () => {
+  it('keeps both damaging cores away from the top/bottom15% while preserving every opening', () => {
     for (let i = 0; i < 101; i++) {
       const attack = createSingleLaser({ gapCenter: 270, gapHeight: 180, rng: () => i / 100, lineCount: 2 });
       expect(attack).not.toBeNull();
       for (const y of attack.ys) {
-        expect(y - attack.thickness / 2).toBeGreaterThanOrEqual(54);
-        expect(y + attack.thickness / 2).toBeLessThanOrEqual(486);
+        expect(y - attack.thickness / 2).toBeGreaterThanOrEqual(81);
+        expect(y + attack.thickness / 2).toBeLessThanOrEqual(459);
         expect(isLaserPathSafe(y, { gapCenter: 270, gapHeight: 180, playerHeight: 16 })).toBe(true);
       }
     }

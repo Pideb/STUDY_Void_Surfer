@@ -16,33 +16,38 @@ const EPSILON = 1e-9;
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
 const finite = (value, fallback) => Number.isFinite(value) ? value : fallback;
 
-function pattern(stageId, bossNumber) {
+function pattern(stageId, bossNumber, count) {
   const side = bossNumber % 2 === 0 ? 1 : -1;
+  const indices = Array.from({ length: count }, (_, index) => index);
+  const lane = (index, extent) => -extent + 2 * extent * index / (count - 1);
   switch (stageId) {
     case STAGE_IDS.INDUSTRIAL_VOID:
-      return [0, 1, 2].map((index) => ({
+      return indices.map((index) => ({
         offset: side * (index % 2 === 0 ? 104 : -104), delay: index * 0.28, curve: 0,
       }));
     case STAGE_IDS.SIGNAL_MONOLITHS:
-      return [-112, 0, 112].map((offset, index) => ({ offset, delay: index * 0.36, curve: 0 }));
+      return indices.map((index) => ({ offset: lane(index, 112), delay: index * 0.36, curve: 0 }));
     case STAGE_IDS.GRAVITY_WELL:
-      return [-120, 40, 120].map((curve) => ({ offset: 0, delay: 0, curve }));
+      return indices.map((index) => ({ offset: 0, delay: 0, curve: lane(index, 120) || 40 }));
     case STAGE_IDS.ABYSSAL_BEAST:
-      return [
-        { offset: side * 112, delay: 0, curve: side * 88 },
-        { offset: -side * 112, delay: 0.32, curve: -side * 88 },
-        { offset: side * 56, delay: 0.64, curve: side * 112 },
-      ];
+      return indices.map((index) => {
+        const direction = side * (index % 2 === 0 ? 1 : -1);
+        return {
+          offset: direction * (index < 2 ? 112 : 56), delay: index * 0.32,
+          curve: direction * (88 + 24 * Math.floor(index / 2)),
+        };
+      });
     case STAGE_IDS.SOLAR_FORGE:
-      return [-108, -36, 36, 108].map((offset, index) => ({ offset, delay: index * 0.16, curve: 0 }));
+      return indices.map((index) => ({ offset: lane(index, 108), delay: index * 0.16, curve: 0 }));
     default:
-      return [-144, -72, 0, 72, 144].map((offset) => ({ offset, delay: 0, curve: 0 }));
+      return indices.map((index) => ({ offset: lane(index, 144), delay: 0, curve: 0 }));
   }
 }
 
 /**
  * baseSpeed is intentionally ignored: signatures use 220..360 world px/s even
- * at the scroll-speed ceiling. Delays start after the common 1.1s charge.
+ * at the scroll-speed ceiling. Wall-free volleys choose3..6 shots; explicit1
+ * selects one traditional stage path during wall flight. Delays start after1.1s.
  * Projectile elapsedSeconds is its clock after delay; both hit flags are sticky.
  * durationSeconds is an upper bound through the left world edge.
  */
@@ -58,8 +63,13 @@ export function createSignatureAttack({
   // Shift the whole fan near an edge so announced lanes remain distinct.
   const centerY = clamp(finite(playerY, PLAYER_START_Y), 168, WORLD_HEIGHT - 168);
   const number = Math.max(1, Math.floor(finite(bossNumber, 1)));
-  let trajectories = pattern(stage.id, number);
-  if (projectileCount === 1) {
+  const sampleCount = () => 3 + Math.floor(clamp(typeof rng === 'function' ? finite(rng(), .5) : .5, 0, .999999) * 4);
+  const single = projectileCount === 1;
+  const traditionalCount = stage.id === STAGE_IDS.CRYSTAL_GATES ? 5 : stage.id === STAGE_IDS.SOLAR_FORGE ? 4 : 3;
+  const count = single ? traditionalCount
+    : Number.isInteger(projectileCount) && projectileCount >= 3 && projectileCount <= 6 ? projectileCount : sampleCount();
+  let trajectories = pattern(stage.id, number, count);
+  if (single) {
     const sample = typeof rng === 'function' ? finite(rng(), .5) : .5;
     trajectories = [{ ...trajectories[Math.floor(clamp(sample, 0, .999999) * trajectories.length)], delay: 0 }];
   }

@@ -7,6 +7,10 @@ const player = { x: 240, y: 270, width: 36, height: 24 };
 const makeAttack = (options = {}) => createSignatureAttack({
   id: 'signature-test', stageId: STAGE_IDS.CRYSTAL_GATES,
   playerX: player.x, playerY: player.y, rng: () => 0,
+  // Geometry/collision fixtures use explicit historical counts. Production
+  // no-count behavior is exercised separately for every stage and RNG bucket.
+  projectileCount: options.stageId === STAGE_IDS.SOLAR_FORGE ? 4
+    : !options.stageId || options.stageId === STAGE_IDS.CRYSTAL_GATES ? 5 : 3,
   ...options,
 });
 
@@ -22,6 +26,29 @@ function expectFiniteTree(value) {
 }
 
 describe('signature creation and six identities', () => {
+  it.each(STAGE_CATALOG.map(stage=>stage.id))('%s randomly chooses each wall-free count3..6', stageId => {
+    for(const [roll,count] of [[0,3],[.24999,3],[.25,4],[.5,5],[.75,6],[1,6]]) {
+      let calls=0;
+      const attack=makeAttack({stageId,projectileCount:undefined,rng:()=>calls++===0?roll:.5});
+      expect(attack.projectiles).toHaveLength(count);
+      expect(attack.projectiles.every(p=>p.speed===290)).toBe(true);
+      expect(new Set(attack.projectiles.map(p=>JSON.stringify([p.targetY,p.delaySeconds,p.curveAmplitude]))).size).toBe(count);
+      expectFiniteTree(attack);
+      updateSignatureAttack(attack,1e5);
+      expect(attack.state).toBe('resolved');expect(attack.hitPlayer).toBe(false);
+      expect(attack.projectiles.every(p=>p.state==='resolved'&&p.chargeRemainingSeconds===0)).toBe(true);
+    }
+  });
+  it.each(STAGE_CATALOG.map(stage=>stage.id))('%s resolves all six trajectories with fine ticks including delayed last shots',stageId=>{
+    const attack=makeAttack({stageId,projectileCount:6,rng:()=>.5});
+    for(let i=0;i<300&&attack.state!=='resolved';i++)updateSignatureAttack(attack,.05);
+    expect(attack.state).toBe('resolved');
+    expect(attack.projectiles).toHaveLength(6);
+    expect(attack.projectiles.every(p=>p.state==='resolved'&&p.x<=750&&p.chargeRemainingSeconds===0)).toBe(true);
+  });
+  it.each([0,2,7,NaN,Infinity,'6'])('falls back to a valid random count for invalid override%s',projectileCount=>{
+    expect(makeAttack({projectileCount,rng:()=>.75}).projectiles).toHaveLength(6);
+  });
   it.each(STAGE_CATALOG.map(stage => stage.id))('%s emits only one announced projectile during wall flight', stageId => {
     const attack = makeAttack({ stageId, projectileCount: 1 });
     expect(attack.projectiles).toHaveLength(1);

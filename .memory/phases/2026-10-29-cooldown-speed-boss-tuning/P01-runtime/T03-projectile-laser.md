@@ -1,6 +1,6 @@
 # Task: T03 Projectile Counts and Laser Margins
 
-## Status: pending
+## Status: done
 
 ## Goal
 Each wall-free volley randomly contains3..6 projectiles, while wall-flight attacks remain single shots; all line-laser cores stay inside the central70% height.
@@ -37,9 +37,9 @@ Each wall-free volley randomly contains3..6 projectiles, while wall-flight attac
 - Laser tests sample many RNG values with whole-core81..459 checks, both one/two-line, safe moving gaps and fallback skip; global tests unchanged.
 
 ## Acceptance Criteria
-- [ ] Random3/4/5/6 supported for every stage without repeated identical trajectories.
-- [ ] Wall shots1, full preview/flight/cycle completion retained.
-- [ ] All line cores restricted to81..459 with safe-route rules intact.
+- [x] Random3/4/5/6 supported for every stage without repeated identical trajectories.
+- [x] Wall shots1, full preview/flight/cycle completion retained.
+- [x] All line cores restricted to81..459 with safe-route rules intact.
 
 ## Validation
 - `npm test -- --run tests/game/boss-signatures.test.js tests/game/laser-safety.test.js tests/game/boss-attacks.test.js tests/integration/projectile-phases.test.js tests/game/game-engine.test.js` — pass.
@@ -58,6 +58,6 @@ Task: T03-projectile-laser
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending

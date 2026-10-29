@@ -9,7 +9,7 @@ for (let i = 0; i < 100; i++) {
 }
 
 describe('separate wall and wall-free projectile phases', () => {
-  it.each([...stages].flatMap(([stage, stageRoll]) => [0, .4, .99].map(roll => [stage, stageRoll, roll])))(
+  it.each([...stages].flatMap(([stage, stageRoll]) => [0, .25, .5, .99].map(roll => [stage, stageRoll, roll])))(
     '%s stage-roll=%s attack-roll=%s reaches WASD after complete separate volleys', (stage, stageRoll, roll) => {
       let time = 0;
       const engine = createGameEngine({ now: () => time, gravity: 0, rng: () => roll, stageRng: seeded(stageRoll),
@@ -27,7 +27,7 @@ describe('separate wall and wall-free projectile phases', () => {
         } else {
           expect(boss.cyclePhase).toBe('signature');
           expect(s.obstacles).toHaveLength(0); expect(boss.wallSpawningPaused).toBe(true);
-          expect(attack.projectiles.length).toBeGreaterThanOrEqual(3);
+          expect(attack.projectiles).toHaveLength(3+Math.floor(roll*4));
           if (!signatures.has(attack.id)) {
             signatures.add(attack.id);
             expect(attack.elapsedSeconds).toBe(0);

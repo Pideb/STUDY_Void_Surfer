@@ -29,8 +29,11 @@ describe('consecutive global laser warnings', () => {
     expect(intersectsPlayerLaser({...player,y:270},laser)).toBe(false);
   });
   it('falls back to one line when only one small safe interval exists', () => {
-    const laser=createSingleLaser({lineCount:2,gapCenter:300,gapHeight:400,rng:()=>.5});
+    const laser=createSingleLaser({lineCount:2,gapCenter:300,gapHeight:350,rng:()=>.5});
     expect(laser.ys).toHaveLength(1);
+    expect(laser.ys[0]-laser.thickness/2).toBeGreaterThanOrEqual(81);
+    expect(laser.ys[0]+laser.thickness/2).toBeLessThanOrEqual(459);
+    expect(createSingleLaser({lineCount:2,gapCenter:300,gapHeight:400})).toBeNull();
     expect(createSingleLaser({lineCount:2,gapCenter:270,gapHeight:540})).toBeNull();
   });
   it('excludes the previous quarter for every RNG endpoint and restarts a full warning', () => {

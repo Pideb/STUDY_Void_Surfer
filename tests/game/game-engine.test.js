@@ -681,7 +681,7 @@ describe('game engine', () => {
     for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
     expect(engine.getSnapshot().boss.counterattack).toBeNull();
     expect(engine.fire()).toBe(true);
-    for (let frame = 0; frame < 3; frame += 1) step(100);
+    for (let frame = 0; frame < 5; frame += 1) step(100);
     expect(engine.getSnapshot().boss).toMatchObject({ hp: 2, challengeCount: 2, successfulChallenges: 1 });
     expect(engine.handleChallengeKey('KeyW')).toBe(false);
     step(100);
@@ -845,7 +845,7 @@ describe('game engine', () => {
     expect(engine.fire()).toBe(true);
     expect(engine.getSnapshot().boss.weapon.firing.fromX).toBe(snapshot.player.x);
     expect(engine.getSnapshot().boss.weapon.firing.toX).toBeGreaterThan(740);
-    for (let i = 0; i < 3; i++) snapshot = step();
+    for (let i = 0; i < 5; i++) snapshot = step();
     expect(snapshot.boss.hp).toBe(2);
     expect(snapshot.boss.hitEffect).not.toBeNull();
   });
