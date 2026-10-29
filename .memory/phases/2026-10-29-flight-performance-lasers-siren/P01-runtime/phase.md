@@ -3,7 +3,7 @@
 ## Tasks
 | Task | Status | Summary | Blueprint |
 | --- | --- | --- | --- |
-| T01 | pending | Cap220 and stable boss background | [T01](./T01-speed-background.md) |
+| T01 | done | Cap220 and stable boss background | [T01](./T01-speed-background.md) |
 | T02 | pending | Ambient safe line lasers after boss2 | [T02](./T02-ambient-lasers.md) |
 | T03 | pending | Measured differentiated render density | [T03](./T03-render-density.md) |
 | T04 | pending | Approved2.4s three-pulse boss siren | [T04](./T04-boss-siren.md) |
@@ -11,4 +11,4 @@
 | T06 | pending | Actual-runtime evidence and complete regression | [T06](./T06-integration-evidence.md) |
 
 ## Progress
-- done: 0/6 (active: T01)
+- done: 1/6 (active: T02)

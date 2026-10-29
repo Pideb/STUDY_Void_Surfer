@@ -1,3 +1,4 @@
+import { AMBIENT_LASER_UNLOCK_BOSSES, AMBIENT_LASER_INTERVAL_SECONDS, AMBIENT_LASER_CHANCE } from './constants.js';
 import { createBossPatternRound } from './boss-patterns.js';
 import {
   BOSS_MIN_SPECIALS,
@@ -122,6 +123,9 @@ export function createGameEngine(deps = {}) {
   let nextObstacleId = 1;
   let spawnAccumulatorSeconds = 0;
   let completedWarningCount = 0;
+  let clearedBossCount = 0;
+  let ambientLaserElapsedSeconds = 0;
+  let ambientAttack = null;
   let warningSession = null;
   let bossPreview = null;
   let bossEntry = null;
@@ -317,7 +321,7 @@ export function createGameEngine(deps = {}) {
   function updateBossPreview(deltaSeconds) {
     if (!bossEntry) return;
     if (bossEntry.phase === 'draining') {
-      if (obstacles.length > 0) return;
+      if (obstacles.length > 0 || ambientAttack) return;
       bossEntry.phase = 'darkening'; bossEntry.elapsedSeconds = 0;
       return;
     }
@@ -548,6 +552,9 @@ export function createGameEngine(deps = {}) {
     nextObstacleId = 1;
     spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier;
     completedWarningCount = initialCompletedWarningCount;
+    clearedBossCount = Math.floor(initialCompletedWarningCount / 2);
+    ambientLaserElapsedSeconds = 0;
+    ambientAttack = null;
     warningSession = null;
     bossPreview = null;
     bossEntry = null;
@@ -603,7 +610,7 @@ export function createGameEngine(deps = {}) {
 
   function updateStage(deltaSeconds, scrollSpeed) {
     stageElapsedSeconds += deltaSeconds;
-    if (pendingStageAdvance && !stageTransition && obstacles.length === 0) {
+    if (pendingStageAdvance && !stageTransition && obstacles.length === 0 && !ambientAttack) {
       stageTransition = createPortalTransition({ ...pendingStageAdvance, crossingX: player.x });
     }
     if (stageTransition) {
@@ -695,18 +702,7 @@ export function createGameEngine(deps = {}) {
       bossEncounter.singleLaserElapsedSeconds = 0;
       const activate = safeRandom(rng) < BOSS_SINGLE_LASER_CHANCE;
       if (!activate) return;
-      const difficulty = getCurrentDifficulty();
-      const fastest = Math.max(difficulty.scrollSpeed, bossEncounter.baseScrollSpeed * 1.25 * aircraft.scrollSpeedMultiplier);
-      const laserLifetime = BOSS_LASER_TELEGRAPH_SECONDS + BOSS_LASER_ACTIVE_SECONDS + BOSS_LASER_FADE_SECONDS;
-      if (obstacles.some(wall => isDashObstacle(wall) && !wall.passed && !wall.barrierBroken
-        && (getDashBarrierBounds(wall).x - player.x) / fastest <= laserLifetime + difficulty.timingWindowSeconds + .2)) return;
-      const normalWalls = obstacles.filter((wall) => wall.kind === 'normal');
-      if (normalWalls.length === 0) return;
-      const laser = createSingleLaser({
-        gaps: normalWalls, playerHeight: PLAYER_HITBOX_SIZE, rng,
-        lineCount: safeRandom(rng) < BOSS_DOUBLE_LASER_CHANCE ? 2 : 1,
-        styleKey: getStageDefinition(bossEncounter.stageId).laserStyle,
-      });
+      const laser = prepareLineLaser();
       if (laser) {
         bossEncounter.attack = { id: `boss-attack-${nextAttackId++}`, type: 'laser', ...laser };
         // Pausing future spawns keeps a future opening from invalidating this warning.
@@ -714,6 +710,41 @@ export function createGameEngine(deps = {}) {
         spawnAccumulatorSeconds = 0;
       }
       return;
+    }
+  }
+
+  function prepareLineLaser() {
+    const difficulty = getCurrentDifficulty();
+    const fastest = getBarrierSpeedBound({progressionScore:scoreSession.progressionScore,unpassedCount:obstacles.filter(w=>!w.passed).length,
+      minimumScrollSpeed:difficulty.scrollSpeed,aircraftSpeedMultiplier:aircraft.scrollSpeedMultiplier,aircraftId:aircraft.id});
+    const lifetime = BOSS_LASER_TELEGRAPH_SECONDS + BOSS_LASER_ACTIVE_SECONDS + BOSS_LASER_FADE_SECONDS;
+    if (obstacles.some(wall => isDashObstacle(wall) && !wall.passed && !wall.barrierBroken
+      && (getDashBarrierBounds(wall).x-player.x)/fastest <= lifetime+difficulty.timingWindowSeconds+.2)) return null;
+    const gaps = obstacles.filter(wall => wall.kind === 'normal' || wall.kind === 'hybrid');
+    if (!gaps.length) return null;
+    return createSingleLaser({gaps,playerHeight:PLAYER_HITBOX_SIZE,rng,
+      lineCount:safeRandom(rng)<BOSS_DOUBLE_LASER_CHANCE?2:1,styleKey:getStageState().definition.laserStyle});
+  }
+
+  function scheduleAmbientLaser(deltaSeconds) {
+    if (clearedBossCount < AMBIENT_LASER_UNLOCK_BOSSES || ambientAttack || bossEncounter || bossEntry || bossPreview
+      || stageTransition || pendingStageAdvance || challenge?.active) return;
+    ambientLaserElapsedSeconds += deltaSeconds;
+    if (ambientLaserElapsedSeconds + 1e-9 < AMBIENT_LASER_INTERVAL_SECONDS) return;
+    ambientLaserElapsedSeconds = 0;
+    if (safeRandom(rng) >= AMBIENT_LASER_CHANCE) return;
+    const laser = prepareLineLaser();
+    if (!laser) return;
+    ambientAttack = {id:`ambient-laser-${nextAttackId++}`,type:'laser',...laser};
+    spawnAccumulatorSeconds = 0;
+  }
+
+  function updateAmbientLaser(deltaSeconds) {
+    if (!ambientAttack) return;
+    updateLaser(ambientAttack,deltaSeconds);
+    if (!invincibilityEnabled && intersectsPlayerLaser(player,ambientAttack,WORLD_HEIGHT)) {stop('laser');return;}
+    if (ambientAttack.telegraphRemainingSeconds===0 && ambientAttack.activeRemainingSeconds===0 && ambientAttack.fadeRemainingSeconds===0) {
+      ambientAttack = null; spawnAccumulatorSeconds = 0;
     }
   }
 
@@ -783,6 +814,7 @@ export function createGameEngine(deps = {}) {
       return;
     }
     advanceBossEncounter(bossEncounter, 'boss-cleared');
+    clearedBossCount++;
     if (bossEncounter.number === 1) firstBossCleared = true;
     scoreSession.score += 10;
     scoreSession.progressionScore += 10;
@@ -895,7 +927,7 @@ export function createGameEngine(deps = {}) {
       spawnAccumulatorSeconds = Math.max(0, interval - deltaSeconds);
     }
     difficulty = getCurrentDifficulty();
-    if (stageTransition || pendingStageAdvance || bossEntry) spawnAccumulatorSeconds = 0;
+    if (stageTransition || pendingStageAdvance || bossEntry || ambientAttack) spawnAccumulatorSeconds = 0;
     else if (bossEncounter?.entranceRemainingSeconds > 0) spawnAccumulatorSeconds = 0;
     else if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
@@ -918,6 +950,8 @@ export function createGameEngine(deps = {}) {
     }
     const weaponDeltaSeconds = bossEncounter === previousBossEncounter
       ? Math.max(0, deltaSeconds - previousEntranceSeconds) : 0;
+    updateAmbientLaser(deltaSeconds);
+    if (deathEffect) return;
     updateBossAttack(deltaSeconds, protectedSeconds);
     if (deathEffect) return;
     if (feedbackEffect) {
@@ -941,6 +975,7 @@ export function createGameEngine(deps = {}) {
     processPassedObstacles();
     completeBossIfReady();
     scheduleBossAttack(deltaSeconds);
+    scheduleAmbientLaser(deltaSeconds);
     if (liveRoar && bossEncounter?.roar === liveRoar) {
       liveRoar.elapsedSeconds = Math.min(liveRoar.durationSeconds, liveRoar.elapsedSeconds + deltaSeconds);
       bossEncounter.animation.elapsedSeconds = liveRoar.elapsedSeconds;
@@ -1025,6 +1060,8 @@ export function createGameEngine(deps = {}) {
   function stop(reason = 'unknown') {
     if (state !== GAME_STATES.PLAYING || deathEffect) return;
     gameOverReason = reason;
+    ambientAttack = null;
+    ambientLaserElapsedSeconds = 0;
     bossPreview = null;
     bossEntry = null;
     deathEffect = {
@@ -1047,6 +1084,8 @@ export function createGameEngine(deps = {}) {
       baseScore: getScore(),
       scoreMultiplier: aircraft.scoreMultiplier,
       finalScore: Math.round(getScore() * aircraft.scoreMultiplier),
+      clearedBossCount,
+      ambientAttack: ambientAttack ? {...ambientAttack,ys:[...ambientAttack.ys]} : null,
       specialTimingGuideActive: !firstBossCleared,
       bossPreview: bossPreview ? { ...bossPreview } : null,
       bossEntry: getBossEntrySnapshot(),

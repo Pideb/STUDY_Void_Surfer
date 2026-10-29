@@ -1010,7 +1010,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       ctx.save(); ctx.fillStyle = `rgba(0, 0, 0, ${snapshot.bossEntry.darkness})`;
       ctx.fillRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT); ctx.restore();
     }
-    drawLaser(ctx, snapshot.boss?.attack);
+    drawLaser(ctx, snapshot.boss?.attack ?? snapshot.ambientAttack);
     drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, stage.id);
     drawBoss(ctx, snapshot.difficulty, theme, snapshot.boss, elapsed, visualAssets, stage.id, prefersReducedMotion);
     drawCounterattack(ctx, snapshot.boss?.counterattack, theme);
@@ -1038,7 +1038,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     }
     // Keep essential warning geometry readable above failure obstruction.
     if (snapshot.feedbackEffect) {
-      drawLaser(ctx, snapshot.boss?.attack);
+      drawLaser(ctx, snapshot.boss?.attack ?? snapshot.ambientAttack);
       drawProjectile(ctx, snapshot.boss?.attack, theme, visualAssets, snapshot.boss?.stageId ?? stage.id);
     }
     drawTransitionOverlay(ctx, { transition: stage.transition, reducedMotion: prefersReducedMotion });

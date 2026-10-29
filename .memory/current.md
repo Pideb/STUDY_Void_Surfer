@@ -7,12 +7,11 @@
 [P01 Runtime](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/phase.md)
 
 ## Active Task
-[T01 Speed Cap and Stable Boss Background](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/T01-speed-background.md)
+[Next task](./phases/2026-10-29-flight-performance-lasers-siren/P01-runtime/T02-ambient-lasers.md)
 
 ## Status
-- Confirmed decisions and approved audio reference saved.
-- Plan and all six detailed task blueprints ready; implementation not started.
-- Progress0/6. Previous boss-motion-aim-patterns plan remains complete.
+- T01 complete and verified; commit 36a451e.
+- Progress 1/6; sequential completion authorized.
 
 ## Next Step (IMPORTANT)
-Read T01 blueprint, implement cap220 and stable boss background in constants/game-engine/renderer, validate and commit before advancing toT02. Use `/memory-execute` or "current 보고 이어서 해줘" to begin sequential implementation.
+Read next blueprint, implement, validate, commit and advance.

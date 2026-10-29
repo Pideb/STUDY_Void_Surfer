@@ -545,7 +545,7 @@ export function createAppController(deps) {
       audioManager.setMusicScene?.(stageId);
     }
 
-    const attack = snapshot?.boss?.attack;
+    const attack = snapshot?.boss?.attack ?? snapshot?.ambientAttack;
     if (!attack) {
       lastAttackId = null;
       lastAttackPhase = null;

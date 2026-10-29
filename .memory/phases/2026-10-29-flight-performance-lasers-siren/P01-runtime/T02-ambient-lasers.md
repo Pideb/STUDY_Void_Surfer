@@ -1,6 +1,6 @@
 # Task: T02 Ambient Line Lasers
 
-## Status: pending
+## Status: done
 
 ## Goal
 After boss2 is cleared, normal and WARNING flight can emit safe one/two-line lasers without needing a boss object; hazards finish before boss entrance and never invalidate wall openings.
@@ -39,8 +39,8 @@ After boss2 is cleared, normal and WARNING flight can emit safe one/two-line las
 - Force threshold duringambient then assert no darkening/bossmusic/spawn until both walls and fadinglaser end. Exercise source charging/firing audio exactlyonce per attack and no nestedboss dependency.
 
 ## Acceptance Criteria
-- [ ] Ambient attacks appear only after boss2 clear in normal/WARNING and use approved probabilities/safety.
-- [ ] All clocks, collision, sound, entry drain and wall quotas remain live without overlap/deadlock.
+- [x] Ambient attacks appear only after boss2 clear in normal/WARNING and use approved probabilities/safety.
+- [x] All clocks, collision, sound, entry drain and wall quotas remain live without overlap/deadlock.
 
 ## Validation
 - `npm test -- --run tests/integration/ambient-lasers.test.js tests/game/laser-safety.test.js tests/game/renderer.test.js tests/ui/app-controller.test.js tests/integration/boss-entry.test.js tests/game/game-engine.test.js`
@@ -59,6 +59,6 @@ Task: T02-ambient-lasers
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
