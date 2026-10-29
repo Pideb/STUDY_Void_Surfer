@@ -378,6 +378,30 @@ describe('audio manager', () => {
     expect(manager.isMuted()).toBe(false);
   });
 
+  it('starts one menu loop without fetching unrelated stage music, then preloads the actual gameplay scene', async () => {
+    class MusicContext extends MockAudioContext {
+      constructor() { super(); this.decodeAudioData = vi.fn(async () => ({ duration: 17 })); }
+    }
+    const fetcher = vi.fn(async () => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(8) }));
+    const flush = async () => { for (let n = 0; n < 20; n += 1) await Promise.resolve(); };
+    const manager = createAudioManager(MusicContext, { fetcher });
+    manager.setMusicMode('menu'); manager.setMusicScene(null);
+    await manager.unlock(); await flush();
+    expect(fetcher.mock.calls.map(([url]) => url)).toEqual(['/assets/audio/menu/orbit-run.wav']);
+    const context = MockAudioContext.instances[0];
+    expect(context.resume).toHaveBeenCalledOnce();
+    expect(context.createBufferSource).toHaveBeenCalledOnce();
+    manager.setMusicScene(null); manager.setMusicScene(null); await manager.unlock(); await flush();
+    expect(context.createBufferSource).toHaveBeenCalledOnce();
+    expect(fetcher).toHaveBeenCalledOnce();
+    manager.setMusicScene('solar-forge'); manager.setMusicMode('gameplay');
+    await manager.unlock(); await flush();
+    expect(fetcher.mock.calls.map(([url]) => url)).toContain('/assets/audio/gameplay/solar-forge.wav');
+    expect(fetcher.mock.calls.map(([url]) => url)).toContain('/assets/audio/boss/solar-forge.wav');
+    expect(fetcher.mock.calls.some(([url]) => url.includes('crystal-gates'))).toBe(false);
+    manager.destroy();
+  });
+
   it('runs exactly one original music scheduler and replaces it when the mode changes', async () => {
     vi.useFakeTimers();
     const manager = createAudioManager(MockAudioContext);

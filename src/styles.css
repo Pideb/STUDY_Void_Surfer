@@ -323,6 +323,17 @@ button:focus-visible {
   pointer-events: none;
 }
 
+.menu-aircraft-motion {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  animation: menu-aircraft-float 4.8s ease-in-out infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
 .menu-aircraft-image {
   position: relative;
   z-index: 1;
@@ -330,7 +341,6 @@ button:focus-visible {
   width: min(90%, 22rem);
   height: auto;
   object-fit: contain;
-  animation: menu-aircraft-float 3s ease-in-out infinite;
   filter: drop-shadow(0 0 14px rgba(117, 226, 255, 0.34));
 }
 
@@ -365,8 +375,8 @@ button:focus-visible {
 }
 
 @keyframes menu-aircraft-float {
-  0%, 100% { transform: translateY(-3px); }
-  50% { transform: translateY(3px); }
+  0%, 100% { transform: translate3d(0, -5px, 0); }
+  50% { transform: translate3d(0, 5px, 0); }
 }
 
 @keyframes menu-exhaust-pulse {
@@ -1023,6 +1033,7 @@ button:focus-visible {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .menu-aircraft-motion,
   .menu-aircraft-image,
   .menu-aircraft-exhaust {
     animation: none !important;

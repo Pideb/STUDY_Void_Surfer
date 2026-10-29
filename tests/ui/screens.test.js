@@ -58,6 +58,9 @@ describe('product flow screens', () => {
     expect(preview.querySelector('img').getAttribute('src')).toContain('/assets/game/aircraft/velocity.png');
     expect(preview.querySelector('img').getAttribute('alt')).toBe('');
     expect(preview.querySelector('.menu-aircraft-exhaust')).not.toBeNull();
+    expect(preview.dataset.aircraftId).toBe('velocity');
+    expect(preview.querySelector('.menu-aircraft-motion > .menu-aircraft-image')).not.toBeNull();
+    expect(preview.querySelector('.menu-aircraft-motion > .menu-aircraft-exhaust')).not.toBeNull();
   });
 
   it('shows GUEST login action and an accessible recoverable authentication error', () => {

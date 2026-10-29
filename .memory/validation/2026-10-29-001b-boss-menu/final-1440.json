@@ -1,0 +1,48 @@
+{
+  "label": "final",
+  "width": 1440,
+  "method": "Edge headless --disable-gpu; real RAF; strict autoplay; 180 measured intervals after 1.2s warmup. Not physical GPU FPS.",
+  "frames": 180,
+  "medianFrameMs": 16.699999999999818,
+  "p95FrameMs": 16.700000000000273,
+  "over33ms": 0,
+  "taskDurationMs": 105.53699999999999,
+  "paintEvents": 0,
+  "paintDurationMs": 0,
+  "yRange": [
+    291.9150390625,
+    300.765625
+  ],
+  "nodeStable": true,
+  "beforeGesture": {
+    "contexts": 0,
+    "bufferStarts": 0
+  },
+  "afterGesture": {
+    "contexts": [
+      "running"
+    ],
+    "starts": [
+      {
+        "duration": 17.142854166666666,
+        "loop": true
+      }
+    ],
+    "screen": "menu",
+    "audioRequests": [
+      "/assets/audio/menu/orbit-run.wav"
+    ]
+  },
+  "repaint": {
+    "sameHero": true,
+    "sameMotion": true,
+    "sameAnimation": true,
+    "beforeTime": 6266.4079999994465,
+    "afterTime": 6266.4079999994465
+  },
+  "reducedMotion": {
+    "motion": "none",
+    "exhaust": "none"
+  },
+  "errors": []
+}

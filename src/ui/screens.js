@@ -122,6 +122,7 @@ export function renderMenuScreen(model, handlers) {
     ? model.selectedAircraftId
     : 'default';
   aircraftPreview.className = `menu-aircraft-preview menu-aircraft-preview-${aircraftId}`;
+  aircraftPreview.dataset.aircraftId = aircraftId;
   aircraftPreview.setAttribute('role', 'img');
   aircraftPreview.setAttribute('aria-label', `선택 기체 ${model.selectedAircraft ?? 'DEFAULT'}`);
   const exhaust = document.createElement('span');
@@ -132,7 +133,10 @@ export function renderMenuScreen(model, handlers) {
   aircraftImage.src = VISUAL_ASSET_MANIFEST.aircraft[aircraftId];
   aircraftImage.alt = '';
   aircraftImage.setAttribute('aria-hidden', 'true');
-  aircraftPreview.append(exhaust, aircraftImage);
+  const aircraftMotion = document.createElement('div');
+  aircraftMotion.className = 'menu-aircraft-motion';
+  aircraftMotion.append(exhaust, aircraftImage);
+  aircraftPreview.append(aircraftMotion);
 
   const actions = document.createElement('div');
   actions.className = 'menu-actions';

@@ -98,6 +98,64 @@ describe('app controller product flow', () => {
     localStorage.removeItem('void-surfer:admin-settings:v1');
   });
 
+  it.each(['pointerdown', 'keydown'])('unlocks menu audio on the first %s without entering gameplay', async (type) => {
+    harness = makeHarness({ user: null }); harness.controller.mount(); await settle();
+    expect(harness.audioManager.unlock).not.toHaveBeenCalled();
+    const event = type === 'keydown' ? new KeyboardEvent(type, { code: 'KeyJ', bubbles: true }) : new Event(type, { bubbles: true });
+    window.dispatchEvent(event);
+    expect(harness.audioManager.unlock).toHaveBeenCalledOnce();
+    expect(harness.gameEngine.start).not.toHaveBeenCalled();
+    await settle();
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyJ', bubbles: true }));
+    expect(harness.audioManager.unlock).toHaveBeenCalledOnce();
+    expect(harness.root.querySelector('.menu-screen')).not.toBeNull();
+  });
+
+  it('waits for a completed touch gesture instead of unlocking on touch pointerdown', async () => {
+    harness = makeHarness({ user: null }); harness.controller.mount(); await settle();
+    const pointer = (type) => { const event = new Event(type, { bubbles: true }); Object.defineProperty(event, 'pointerType', { value: 'touch' }); return event; };
+    window.dispatchEvent(pointer('pointerdown')); expect(harness.audioManager.unlock).not.toHaveBeenCalled();
+    window.dispatchEvent(pointer('pointerup')); expect(harness.audioManager.unlock).toHaveBeenCalledOnce();
+  });
+
+  it('deduplicates an in-flight unlock and retries a rejected request on the next gesture', async () => {
+    harness = makeHarness({ user: null }); harness.controller.mount(); await settle();
+    const pending = deferred(); harness.audioManager.unlock.mockImplementationOnce(() => pending.promise);
+    window.dispatchEvent(new Event('pointerdown')); window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyJ' }));
+    expect(harness.audioManager.unlock).toHaveBeenCalledOnce();
+    pending.resolve(); await settle(); await settle();
+    window.dispatchEvent(new Event('pointerdown')); expect(harness.audioManager.unlock).toHaveBeenCalledOnce();
+    harness.controller.destroy(); harness.root.remove();
+    harness = makeHarness({ user: null }); harness.audioManager.unlock.mockRejectedValueOnce(new Error('resume rejected'));
+    harness.controller.mount(); await settle();
+    window.dispatchEvent(new Event('pointerdown')); await settle(); await settle(); await settle();
+    window.dispatchEvent(new Event('pointerdown')); expect(harness.audioManager.unlock).toHaveBeenCalledTimes(2);
+  });
+
+  it('ignores held/reserved keys and removes first-gesture listeners on destroy', async () => {
+    harness = makeHarness({ user: null }); harness.controller.mount(); await settle();
+    for (const options of [{ code: 'KeyJ', repeat: true }, { code: 'Escape' }, { code: 'KeyJ', ctrlKey: true }]) {
+      window.dispatchEvent(new KeyboardEvent('keydown', options));
+    }
+    expect(harness.audioManager.unlock).not.toHaveBeenCalled();
+    harness.controller.destroy(); window.dispatchEvent(new Event('pointerdown'));
+    expect(harness.audioManager.unlock).not.toHaveBeenCalled();
+  });
+
+  it('keeps the connected hero across account and mute repaints and skips duplicate menu background work', async () => {
+    harness = makeHarness(); harness.controller.mount();
+    const hero = harness.root.querySelector('.menu-aircraft-preview');
+    const motion = hero.querySelector('.menu-aircraft-motion');
+    await settle();
+    expect(harness.root.querySelector('.menu-aircraft-preview')).toBe(hero);
+    expect(hero.isConnected).toBe(true);
+    harness.root.querySelector('[aria-label="음소거"]').click();
+    expect(harness.audioManager.setMuted).toHaveBeenCalledWith(true);
+    expect(harness.root.querySelector('.menu-aircraft-motion')).toBe(motion);
+    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledOnce();
+    expect(harness.root.querySelector('.menu-greeting').textContent).toContain('Pilot');
+  });
+
   it('fires once per released modifier press and does not queue blocked fire', async () => {
     harness = makeHarness(); harness.controller.mount(); await settle();
     harness.controller.dispatch('START_GAME_FROM_MENU'); harness.controller.dispatch('START_PLAYING');
@@ -417,12 +475,12 @@ describe('app controller product flow', () => {
     harness.controller.mount();
     await settle();
 
-    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(2);
+    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(1);
     harness.controller.dispatch('SHOW_TUTORIAL');
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '메인 메뉴').click();
 
     expect(harness.gameEngine.start).not.toHaveBeenCalled();
-    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(3);
+    expect(harness.renderer.renderMenuBackground).toHaveBeenCalledTimes(2);
     expect(harness.root.textContent).toContain('게임 시작');
   });
 

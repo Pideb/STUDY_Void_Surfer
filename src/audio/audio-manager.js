@@ -363,7 +363,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
       ensureGraph();
       if (typeof context.resume === 'function' && context.state !== 'running') await context.resume();
       if (destroyed) return;
-      stageMusicPlayer?.preloadScene(musicSceneId);
+      if (musicMode !== 'menu' && musicMode !== 'none') stageMusicPlayer?.preloadScene(musicSceneId);
       stageMusicPlayer?.select(musicSceneId, musicMode);
       scheduleMusic();
     },
@@ -399,15 +399,16 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
       scheduleMusic();
     },
     setMusicScene(sceneId) {
-      const sceneChanged = musicSceneId !== sceneId;
-      musicSceneId = SCENE_SETTINGS[sceneId] ? sceneId : 'crystal-gates';
+      const nextSceneId = SCENE_SETTINGS[sceneId] ? sceneId : 'crystal-gates';
+      const sceneChanged = musicSceneId !== nextSceneId;
+      musicSceneId = nextSceneId;
       const nextSemitones = SCENE_SETTINGS[musicSceneId].semitones;
       if (nextSemitones !== targetSemitones) {
         targetSemitones = nextSemitones;
         sceneStepsRemaining = SCENE_CROSSFADE_STEPS;
       }
       if (sceneChanged) {
-        stageMusicPlayer?.preloadScene(musicSceneId);
+        if (musicMode !== 'menu' && musicMode !== 'none') stageMusicPlayer?.preloadScene(musicSceneId);
         stageMusicPlayer?.select(musicSceneId, musicMode);
       }
     },

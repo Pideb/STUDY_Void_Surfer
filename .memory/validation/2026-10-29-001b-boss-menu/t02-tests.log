@@ -1,0 +1,12 @@
+
+> void-surfer@0.1.0 test
+> vitest --run tests/ui/app-controller.test.js tests/ui/screens.test.js tests/audio
+
+
+ RUN  v5.0.1 C:/WorkSpace/DEX/Study/Vibe
+
+
+ Test Files  6 passed (6)
+      Tests  105 passed (105)
+   Start at  15:59:51
+   Duration  1.59s (environment 55%, tests 32%, transform 9%, import 2%, setup 1%, worker 1%)

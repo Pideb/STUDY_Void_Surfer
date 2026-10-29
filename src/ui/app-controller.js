@@ -119,6 +119,49 @@ export function createAppController(deps) {
   let rankingPersonalRequestId = 0;
   let adminTriggerElement = null;
   let spaceHeld = false;
+  let audioGesturePromise = null;
+  let audioGestureReady = false;
+  const audioGestureEvents = ['pointerdown', 'pointerup', 'keydown'];
+
+  function removeAudioGestureListeners() {
+    for (const type of audioGestureEvents) globalThis.window?.removeEventListener(type, handleAudioGesture, true);
+  }
+
+  function handleAudioGesture(event) {
+    if (!mounted || audioGestureReady || audioGesturePromise) return;
+    if (event.type === 'pointerdown' && event.pointerType && event.pointerType !== 'mouse') return;
+    if (event.type === 'pointerup' && event.pointerType === 'mouse') return;
+    if (event.type === 'keydown' && (event.repeat || event.ctrlKey || event.metaKey || event.altKey
+      || !/^(Enter|Space|Key[A-Z]|Digit[0-9]|Arrow\w+)$/.test(event.code))) return;
+    try {
+      // Call inside the actual gesture, before awaiting anything: browsers use
+      // this activation to permit AudioContext.resume(). Never force autoplay.
+      const request = audioManager.unlock?.();
+      audioGesturePromise = Promise.resolve(request).then(() => {
+        if (!mounted) return;
+        audioGestureReady = true;
+        removeAudioGestureListeners();
+      }).catch(() => {
+        // A later interaction can retry a rejected resume without starting a run.
+      }).finally(() => { audioGesturePromise = null; });
+    } catch {
+      audioGesturePromise = null;
+    }
+  }
+
+  function replaceMenuKeepingPreview(nextMenu) {
+    const previous = root.firstElementChild;
+    const preview = previous?.matches('.menu-screen') ? previous.querySelector('.menu-aircraft-preview') : null;
+    const nextPreview = nextMenu.querySelector('.menu-aircraft-preview');
+    if (!preview || preview.dataset.aircraftId !== nextPreview?.dataset.aircraftId) {
+      root.replaceChildren(nextMenu);
+      return;
+    }
+    // Keep the animated subtree connected: detaching/rebuilding it restarts the
+    // float on mute, account and async status repaints, causing a visible jump.
+    for (const child of [...previous.children]) if (child !== preview) child.remove();
+    for (const child of [...nextMenu.children]) if (child !== nextPreview) previous.append(child);
+  }
   const fireKeys = new Set(['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight']);
   const fireHeld = new Set();
   const handleKeyUp = (event) => { if (event.code === 'Space') spaceHeld = false; fireHeld.delete(event.code); };
@@ -147,10 +190,10 @@ export function createAppController(deps) {
       return;
     }
     if (state.screen === 'menu') {
-      renderer.renderMenuBackground?.();
+      if (!root.firstElementChild?.matches('.menu-screen')) renderer.renderMenuBackground?.();
       audioManager.setMusicMode?.('menu');
       audioManager.setMusicScene?.(null);
-      root.replaceChildren(renderMenuScreen({
+      replaceMenuKeepingPreview(renderMenuScreen({
         displayName: state.user ? getDisplayName(state.user) : 'GUEST',
         signedIn: Boolean(state.user), authError: state.authActionError, busy: state.busy,
         muted: state.muted,
@@ -989,6 +1032,8 @@ export function createAppController(deps) {
   function mount() {
     if (mounted) return;
     mounted = true;
+    audioGestureReady = false;
+    for (const type of audioGestureEvents) globalThis.window?.addEventListener(type, handleAudioGesture, true);
     clearLegacyGuestRecord(deps.guestRecordStorage);
     paint();
     pointerTarget = deps.canvas ?? root.querySelector('canvas');
@@ -1042,6 +1087,7 @@ export function createAppController(deps) {
 
   function destroy() {
     mounted = false;
+    removeAudioGestureListeners();
     stopLoop();
     rankingObserver?.disconnect();
     rankingObserver = null;

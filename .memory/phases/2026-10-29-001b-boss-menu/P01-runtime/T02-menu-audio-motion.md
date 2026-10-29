@@ -1,6 +1,6 @@
 # Task: T02 Menu Audio and Motion
 
-## Status: pending
+## Status: done
 
 ## Implementation
 - `src/ui/app-controller.js`: mount global capture-phase first-audio-gesture listeners on pointerdown(mouse), pointerup(touch/pen), eligible nonrepeat keydown. Invoke audioManager.unlock synchronously within the event; use an in-flight promise to deduplicate and retry after rejection, remove on success/destroy. Preserve existing gameplay unlock/resume and mute settings; a menu action should not require starting a run. Ignore unmounted callbacks and no new overlay dialog.
@@ -15,9 +15,9 @@
 - Real menu harness before/after; `git diff --check`.
 
 ## Acceptance Criteria
-- [ ] Menu BGM works on first eligible menu gesture and mute/retry/cleanup remain correct.
-- [ ] Menu hero stays connected across same-craft repaints and animation uses a shared compositor wrapper.
-- [ ] Target tests and honest actual-browser measurements recorded.
+- [x] Menu BGM works on first eligible menu gesture and mute/retry/cleanup remain correct.
+- [x] Menu hero stays connected across same-craft repaints and animation uses a shared compositor wrapper.
+- [x] Target tests and honest actual-browser measurements recorded.
 
 ## Commit Message
 ```text
@@ -32,6 +32,6 @@ Task: T02-menu-audio-motion
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit:pending
