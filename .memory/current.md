@@ -1,20 +1,22 @@
 # Current Context
 
 ## Active Plan
-[VOID SURFER 0.01-b](./plans/2026-10-29-001b-boss-menu.md)
+None. Completed: [VOID SURFER 0.01-b](./plans/2026-10-29-001b-boss-menu.md).
 
 ## Active Phase
-[P01 Runtime](./phases/2026-10-29-001b-boss-menu/P01-runtime/phase.md)
+None. P01 complete (3/3).
 
 ## Active Task
-[T03 Version Evidence](./phases/2026-10-29-001b-boss-menu/P01-runtime/T03-version-evidence.md)
+None. T03 complete: `7e7b15a`.
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
 - Implementation a606348; Actions run40828446428 completed successfully.
 - Live root/callback/assets/public configuration and anonymous ranking verified.
 - User confirmed Supabase URLs saved and the hosted Microsoft login displays their name correctly. Real score-write smoke test remains unconfirmed.
-- New0.01-b work authorized: boss-only encounters, dormant WARNING archive, menu sound and motion, HTML release update.
+-0.01-b complete locally: boss-only encounters, dormant WARNING archive, menu sound and motion, HTML release update.
+- Runtime commits: `1ae7524`, `3928989`; version/evidence: `7e7b15a`. Full57 files/716 tests, build/config and actual runtime/HTML checks passed.
+- New HTML: `docs/releases/void-surfer-0.01-b.html`, identical Downloads copy. Old0.01v SHA unchanged. No push or production deployment of0.01-b.
 
 ## Next Step (IMPORTANT)
-T01 1ae7524 passed155 targeted cases. T02 3928989 passed105 targeted cases and native first-gesture/repaint checks. Complete T03. Keep old0.01v HTML and recorded WARNING design. New local commits must not be described as a production deployment.
+No remaining task in this plan. Accept subsequent playtest feedback. Keep old0.01v and archived WARNING design. Public Azure URL still serves the earlier deployment; local commits are not a deployed0.01-b release.
