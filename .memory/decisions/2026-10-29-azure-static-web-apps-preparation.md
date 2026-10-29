@@ -1,7 +1,7 @@
 # Decisions: Azure Static Web Apps Preparation
 
 - Date: 2026-10-29
-- Status: Confirmed from the user's portal choices and existing code.
+- Status: Implemented and source published. Actual cloud creation/workflow wiring/hosted login remain pending.
 - Context: user is at Review + create; resource has not yet been created.
 
 ## D01 Hosting

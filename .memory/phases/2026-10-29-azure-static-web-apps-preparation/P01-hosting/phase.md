@@ -2,8 +2,8 @@
 
 | Task | Status | Blueprint |
 | --- | --- | --- |
-| T01 | pending | [Hosting configuration](./T01-hosting-configuration.md) |
-| T02 | pending | [Source publication](./T02-source-publication.md) |
+| T01 | done | [Hosting configuration](./T01-hosting-configuration.md) |
+| T02 | done | [Source publication](./T02-source-publication.md) |
 
 ## Progress
-- done: 0/2 (active: T01)
+- done: 2/2 (active: none)

@@ -6,7 +6,7 @@ Prepare and publish the current game for the Azure resource being reviewed by th
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | --- | --- | --- | --- |
-| P01 | in_progress | Hosting compatibility, verification and source publication | [P01](../phases/2026-10-29-azure-static-web-apps-preparation/P01-hosting/phase.md) |
+| P01 | done | Hosting compatibility, verification and source publication | [P01](../phases/2026-10-29-azure-static-web-apps-preparation/P01-hosting/phase.md) |
 
 ## Tasks
 - T01: exact callback rewrite copied into dist, artifact verifier, Node engine floor, Azure guide, validation.

@@ -1,17 +1,18 @@
 # Current Context
 
 ## Active Plan
-[Azure Static Web Apps Preparation](./plans/2026-10-29-azure-static-web-apps-preparation.md)
+None. 2026-10-29-azure-static-web-apps-preparation complete.
 
 ## Active Phase
-[P01 Hosting](./phases/2026-10-29-azure-static-web-apps-preparation/P01-hosting/phase.md)
+None.
 
 ## Active Task
-[T01 Hosting Configuration](./phases/2026-10-29-azure-static-web-apps-preparation/P01-hosting/T01-hosting-configuration.md)
+None. Source preparation and GitHub publication complete.
 
 ## Status
-- Prior gameplay plan complete. User is at Azure Review + create.
-- Hosting source preparation is now active; source publication precedes resource creation.
+- T01 9b72d23: Azure callback/config checks, Node floor and deployment guide verified.
+- T02: normal source push confirmed; preparation report records actual remote status.
+- The Azure resource has not yet been created/verified.
 
 ## Next Step (IMPORTANT)
-Implement and validate T01, commit, then publish the validated source via T02. The generated workflow and site origin will be configured after portal creation.
+User clicks Create on the reviewed Azure page, then returns the actual resource Overview URL. Inspect the generated GitHub workflow and connect build-time public variables; register the exact Supabase return origin; verify real hosted guest play, login and leaderboard submission. Do not claim deployment complete from source preparation alone.

@@ -1,6 +1,6 @@
 # Task: T02 Source Publication
 
-## Status: pending
+## Status: done
 
 ## Goal
 Publish the validated local game history to the connected GitHub main branch without losing remote changes, then give the user a concrete next portal step.
@@ -20,8 +20,8 @@ Publish the validated local game history to the connected GitHub main branch wit
 - `git ls-remote origin refs/heads/main`; `git status -sb`
 
 ## Acceptance Criteria
-- [ ] Source on GitHub matches the validated local revision, with no force-push.
-- [ ] Memory accurately marks preparation complete and hosted deployment pending.
+- [x] Source on GitHub matches the validated local revision, with no force-push.
+- [x] Memory accurately marks preparation complete and hosted deployment pending.
 
 ## Commit Message
 ```text
@@ -36,6 +36,6 @@ Task: T02-source-publication
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit: pending
