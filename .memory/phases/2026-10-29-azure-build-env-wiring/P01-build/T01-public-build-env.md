@@ -1,0 +1,39 @@
+# Task: T01 Public Build Settings and Live Evidence
+
+## Status: pending
+
+## Implementation
+- Modify `.github/workflows/azure-static-web-apps-proud-grass-03a132e00.yml` :: `jobs.build_and_deploy_job`: job env contains `VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}` and corresponding ANON_KEY. Before upload use bash to check both names have a nonempty value, reporting names only. Upload `app_build_command` runs build and config verifier. Preserve action/token/app paths/API empty/PR close behavior.
+- New `scripts/configure-github-public-env.py`: repository is pinned to `Pideb/STUDY_Void_Surfer`, read only two approved keys from `.env` then `.env.local` (local overrides), require HTTPS project URL and publishable key or legacy JWT role anon. Obtain existing Git credential with no interactive prompt, capture in memory, then GET/POST/PATCH only these two repository-variable API endpoints. Compare readback; print names/status only, never token/values/raw sensitive error responses. Preserve other repository variables. Save no credentials.
+- Modify `docs/azure-deploy.md`: actual origin and generated workflow recorded, public build settings now wired; exact Site URL and `<origin>/auth/callback` operator actions. Keep deployment/real-login distinctions.
+- Evidence under `.memory/validation/2026-10-29-azure-build-env-wiring/`: actual Actions run ID/conclusion, root/callback response, bundle public config presence (booleans, not values), representative assets and public ranking read if available; no score writes or signed-in session fabrication.
+- Validate local build/config/auth contract tests; commit workflow with prescribed message and normal push. Monitor only the matching commit via GitHub connector. If CI fails, inspect actual job steps/logs and fix relevant cause. No repeated broad testing without cause.
+- Mark task/phase/plan done after variables, workflow and live build checks; final memory sync commit may record hash and update pointer. Hosted authentication remains pending the user's Supabase allow-list confirmation and real login.
+
+## Validation
+- `python scripts/configure-github-public-env.py`
+- `npm test -- --run tests/deployment/config.test.js tests/auth/oauth-popup.test.js tests/services/auth-service.test.js`
+- `npm run build` then `npm run verify:config`; `git diff --check`
+- `git push origin main`, matching Actions success and public HTTP read checks.
+
+## Acceptance Criteria
+- [ ] Two public repository variables read back correctly; stored credentials never exposed.
+- [ ] Generated workflow builds with public settings and verifier; matching hosted build succeeds.
+- [ ] Actual site origin/callback verified and remaining operator login step reported honestly.
+
+## Commit Message
+```text
+fix(deploy): wire Supabase public settings into the Azure build
+
+Plan: 2026-10-29-azure-build-env-wiring
+Phase: P01-build
+Task: T01-public-build-env
+
+- Connect verified repository variables and reject missing build configuration
+- Keep Azure deployment token and existing OAuth callback routing
+```
+
+## Progress
+- [ ] Implementation complete
+- [ ] Validation passed
+- commit: pending
