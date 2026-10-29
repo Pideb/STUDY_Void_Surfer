@@ -1,7 +1,7 @@
 # Boss Motion, Aiming and Entrance Review
 
 - Date: 2026-10-29
-- Status: D01..D13 confirmed in ../../decisions/2026-10-29-boss-motion-aim-patterns.md. Added gameplay-text cleanup confirmed (keepT03; cleanT01/T02/T04/T05). Preview only; production unchanged.
+- Status: D01..D13 confirmed in ../../decisions/2026-10-29-boss-motion-aim-patterns.md. Added gameplay-text cleanup confirmed (keepT03; cleanT01/T02/T04/T05). Implemented across six completed tasks. [Actual runtime evidence](../../validation/2026-10-29-boss-motion-aim-patterns/report.md).
 - User prefers inline numbered choices, one question per turn. Use actual assets and animated examples for visual decisions.
 
 ## Requested / Accepted Intent
@@ -14,7 +14,7 @@
 - Manual-laser charge HUD: user selected design2 (bottom-center reactor arc), then selected size2 (80px diameter) after seeing identical normal/special-wall scenes. Style and size confirmed.
 - Speed growth cap becomes200 for ALL aircraft, preserving actual+10 per10 points: NOVA/AEGIS240->440, VELOCITY480->680; existing boss factors separate.
 
-## Verified Existing Constraints
+## Verified Pre-implementation Constraints (Historical)
 - `startWarningIfNeeded` creates bossPreview immediately at threshold; `updateBossPreview` begins encounter after1.5s without waiting for existing obstacles to exit.
 - `getBossGeometry` currently fixes centerY270 and192x128 artwork box. Engine projectiles/fire and renderer/effects call it independently. New motion requires one shared transform/snapshot for drawing and gameplay origins/collision.
 - `updateObstacle` continues moving gaps after `passed`; passage flag is set after full wall width passes the player's left visual boundary. Collision scans all walls, although horizontal overlap excludes walls fully behind the player.

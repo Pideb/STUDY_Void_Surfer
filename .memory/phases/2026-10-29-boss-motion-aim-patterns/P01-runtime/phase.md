@@ -8,7 +8,7 @@
 | T03 | done | Horizontal player beam with full-body swept hits | [T03](./T03-aimed-beam.md) |
 | T04 | done | Shuffled boss blocks and full lifecycle | [T04](./T04-pattern-queue.md) |
 | T05 | done | Reactor HUD, global safety and exact text cleanup | [T05](./T05-hud-and-clarity.md) |
-| T06 | pending | Complete regression and actual runtime evidence | [T06](./T06-integration-evidence.md) |
+| T06 | done | Complete regression and actual runtime evidence | [T06](./T06-integration-evidence.md) |
 
 ## Progress
-- done: 5/6 (active: T06)
+- done: 6/6 (active: none)

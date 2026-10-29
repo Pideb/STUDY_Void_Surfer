@@ -42,4 +42,4 @@ Human live-play difficulty/feel and hardware-specific motion perception still wa
 - T03 `9f4184c`: aimed horizontal beam contact.
 - T04 `386497b`: shuffled complete pattern blocks.
 - T05 `61a5bb9`: reactor/global graphics/text cleanup.
-- T06: recorded in the [task blueprint](../../phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/T06-integration-evidence.md) after commit; final memory-sync commit closes the pointer.
+- T06 `8b6e0a3`: recorded in the [task blueprint](../../phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/T06-integration-evidence.md) after commit; final memory-sync commit closes the pointer.

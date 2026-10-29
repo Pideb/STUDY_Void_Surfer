@@ -43,4 +43,4 @@ Task: T06-integration-evidence
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed
-- commit: pending
+- commit: 8b6e0a3

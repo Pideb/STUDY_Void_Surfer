@@ -6,7 +6,7 @@ Implement all13 [confirmed decisions](../decisions/2026-10-29-boss-motion-aim-pa
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | --- | --- | --- | --- |
-| P01 | in_progress | Existing game runtime, HUD and full regression | [P01](../phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/phase.md) |
+| P01 | done | Existing game runtime, HUD and full regression | [P01](../phases/2026-10-29-boss-motion-aim-patterns/P01-runtime/phase.md) |
 
 ## Order and Reason
 T01 establishes entry/basic clocks and invariant guides. T02 adds common moving geometry before T03 aiming depends on it. T04 decouples pattern completion from fixed order. T05 connects approved visuals/text to real states. T06 validates complete encounters and actual screenshots. One phase: no external infrastructure gate.

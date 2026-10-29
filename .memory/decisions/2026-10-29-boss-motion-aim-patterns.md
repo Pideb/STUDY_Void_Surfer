@@ -1,7 +1,8 @@
 # Decisions: Boss Motion, Aiming and Random Patterns
 
 - Date: 2026-10-29 (Asia/Seoul)
-- Status: D01..D13 confirmed. Interview/design previews complete; production implementation not started.
+- Status: D01..D13 implemented and verified. All six tasks complete; 678 tests/build/config passed.
+- [Actual runtime evidence](../validation/2026-10-29-boss-motion-aim-patterns/report.md).
 - Feature name: `boss-motion-aim-patterns`
 - [Interview history and review evidence](../previews/2026-10-29-boss-motion-aim/review-notes.md).
 - Supersedes relevant runtime rules from completed cooldown-speed-boss-tuning; do not reopen that completed plan or revert its unrelated changes.
