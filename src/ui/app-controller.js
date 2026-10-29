@@ -11,9 +11,11 @@ import {
   renderPausedScreen,
   renderPilotRankingScreen,
   renderTutorialScreen,
+  renderPreparingScreen,
 } from './screens.js';
 
 const ADMIN_EMAIL = 'gh.lee@dexconsulting.net';
+export const GAMEPLAY_MUSIC_WAIT_MS = 10000;
 const ADMIN_SETTINGS_STORAGE_KEY = 'void-surfer:admin-settings:v1';
 
 function isDesignatedAdmin(user) {
@@ -101,6 +103,7 @@ export function createAppController(deps) {
   let handlePointerDown = null;
   let animationFrame = null;
   let mounted = false;
+  let pendingStart = null;
   let gameHud = null;
   let lastDifficultyMode = 'normal';
   let accountRequestId = 0;
@@ -242,6 +245,10 @@ export function createAppController(deps) {
       }));
       return;
     }
+    if (state.screen === 'preparing') {
+      root.replaceChildren(renderPreparingScreen({}, { menu: () => dispatch('RETURN_TO_MENU') }));
+      return;
+    }
     if (state.screen === 'paused') {
       root.replaceChildren(renderPausedScreen({ score: state.snapshot?.score ?? 0 }, {
         resume: () => dispatch({ type: 'RESUME' }),
@@ -304,6 +311,7 @@ export function createAppController(deps) {
   }
 
   function setScreen(screen, message = '') {
+    if (state.screen === 'preparing' && screen !== 'preparing') cancelPendingStart();
     state.screen = screen;
     paint();
     if (message) announce(liveRegion, message);
@@ -679,6 +687,7 @@ export function createAppController(deps) {
   }
 
   function beginPlaying() {
+    const prepareMusic = typeof audioManager.prepareGameplay === 'function';
     state.snapshot = null;
     lastDifficultyMode = 'normal';
     audioRunId += 1;
@@ -690,12 +699,52 @@ export function createAppController(deps) {
     gameEngine.setInvincibilityEnabled?.(isDesignatedAdmin(state.user) && state.invincibilityEnabled);
     gameEngine.setAccountBestScore?.(state.accountBestScore);
     gameEngine.setAircraft?.(state.selectedAircraftId);
-    gameEngine.start({aircraftId:state.user?state.selectedAircraftId:'default',guestMode:!state.user,accountBestScore:state.user?state.accountBestScore:0});
+    gameEngine.start({aircraftId:state.user?state.selectedAircraftId:'default',guestMode:!state.user,accountBestScore:state.user?state.accountBestScore:0,
+      ...(prepareMusic ? { deferStart: true } : {})});
     state.snapshot = gameEngine.getSnapshot();
     lastStageId = state.snapshot?.stage?.id ?? null;
+    if (prepareMusic) {
+      stopLoop();
+      renderer.render(state.snapshot);
+      setScreen('preparing', '스테이지 음악을 준비하고 있습니다.');
+      const request = { sceneId: lastStageId, timer: null };
+      pendingStart = request;
+      request.timer = globalThis.setTimeout(() => activatePreparedStart(request), GAMEPLAY_MUSIC_WAIT_MS);
+      try {
+        Promise.resolve(audioManager.prepareGameplay(lastStageId)).then((ready) => {
+          if (ready) activatePreparedStart(request);
+        }).catch(() => { /* The10s gate still guarantees departure after failure. */ });
+      } catch { /* Unsupported/failed audio must not strand the player. */ }
+      return;
+    }
     if (lastStageId) audioManager.setMusicScene?.(lastStageId);
     audioManager.setMusicMode?.('gameplay');
     Promise.resolve(audioManager.unlock?.()).catch(() => {});
+    finishDeparture();
+  }
+
+  function cancelPendingStart() {
+    if (!pendingStart) return;
+    globalThis.clearTimeout(pendingStart.timer);
+    pendingStart = null;
+    audioManager.resetRun?.();
+    gameEngine.stop?.('preparation-cancelled');
+  }
+
+  function activatePreparedStart(request) {
+    if (!mounted || pendingStart !== request || state.screen !== 'preparing') return;
+    globalThis.clearTimeout(request.timer);
+    pendingStart = null;
+    if (gameEngine.beginPreparedRun?.() === false) {
+      audioManager.resetRun?.(); setScreen('menu'); return;
+    }
+    state.snapshot = gameEngine.getSnapshot();
+    audioManager.startPreparedGameplay?.(request.sceneId);
+    finishDeparture();
+  }
+
+  function finishDeparture() {
+    spaceHeld = false; fireHeld.clear();
     lastAttackId = null;
     lastAttackPhase = null;
     previousBoss = null;
@@ -972,6 +1021,10 @@ export function createAppController(deps) {
   }
 
   function handleKeyDown(event) {
+    if (state.screen === 'preparing') {
+      if (event.code === 'Escape') { event.preventDefault(); dispatch('RETURN_TO_MENU'); }
+      return;
+    }
     const isFireKey = fireKeys.has(event.code);
     const repeatedFire = isFireKey && (fireHeld.size > 0 || event.repeat);
     if (isFireKey) fireHeld.add(event.code);
@@ -1068,7 +1121,10 @@ export function createAppController(deps) {
         } else {
           const changedUser = state.user?.id !== user.id;
           state.user = user;
-          if (changedUser) applyAdminSettingsForUser(user);
+          if (changedUser) {
+            if (state.screen === 'preparing') setScreen('menu');
+            applyAdminSettingsForUser(user);
+          }
           gameEngine.setGuestMode?.(false);
           if (changedUser) {
             state.selectedAircraftId = 'default';
@@ -1087,6 +1143,7 @@ export function createAppController(deps) {
 
   function destroy() {
     mounted = false;
+    cancelPendingStart();
     removeAudioGestureListeners();
     stopLoop();
     rankingObserver?.disconnect();

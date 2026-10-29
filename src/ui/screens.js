@@ -3,6 +3,16 @@ import { AIRCRAFT_CATALOG } from '../game/aircraft.js';
 import { renderLeaderboardPanel, renderPilotRankingTable } from './leaderboard-view.js';
 import { VISUAL_ASSET_MANIFEST } from '../game/visual-assets.js';
 
+export function renderPreparingScreen(_model, handlers) {
+  const panel = createPanel('출격 준비 중');
+  panel.classList.add('preparing-screen');
+  const status = document.createElement('p');
+  status.className = 'screen-message'; status.setAttribute('role', 'status');
+  status.textContent = '스테이지 음악을 준비하고 있습니다. 최대 10초 후 자동으로 출격합니다.';
+  panel.append(status, createButton('메인으로', handlers.menu, { className: 'secondary-button' }));
+  return panel;
+}
+
 function createMessage(text, className = 'screen-message') {
   const message = document.createElement('p');
   message.className = className;

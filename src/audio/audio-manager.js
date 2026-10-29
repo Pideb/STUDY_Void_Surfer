@@ -92,6 +92,8 @@ function createNoopManager() {
   let muted = false;
   return {
     async unlock() {},
+    async prepareGameplay() { return false; },
+    startPreparedGameplay() {},
     setMuted(value) { muted = Boolean(value); },
     isMuted() { return muted; },
     setMusicMode() {},
@@ -111,6 +113,8 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
   let musicGain = null;
   let proceduralGain = null;
   let stageMusicPlayer = null;
+  let preparationGeneration = 0;
+  let stageTrackOnly = false;
   let musicSceneId = 'crystal-gates';
   let musicDucked = false;
   let entryBuffer = null;
@@ -278,7 +282,8 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
 
   function scheduleMusic() {
     const mode = MUSIC_MODES[musicMode];
-    if (!mode || !context || !ensureGraph() || musicPaused || musicTimer !== null || stageMusicPlayer?.isPlaying()) return;
+    if (!mode || !context || !ensureGraph() || musicPaused || musicTimer !== null || stageMusicPlayer?.isPlaying()
+      || (stageTrackOnly && musicMode === 'gameplay')) return;
     crossfadeMusicMode(musicMode);
     playMusicStep();
     musicTimer = globalThis.setInterval(playMusicStep, mode.intervalMs);
@@ -356,16 +361,39 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
 
   if (!AudioContextCtor) return createNoopManager();
 
-  return {
-    async unlock() {
+  async function unlockAudio() {
       if (destroyed) return;
       context ??= new AudioContextCtor();
       ensureGraph();
       if (typeof context.resume === 'function' && context.state !== 'running') await context.resume();
       if (destroyed) return;
-      if (musicMode !== 'menu' && musicMode !== 'none') stageMusicPlayer?.preloadScene(musicSceneId);
+      if (!stageTrackOnly && musicMode !== 'menu' && musicMode !== 'none') stageMusicPlayer?.preloadScene(musicSceneId);
       stageMusicPlayer?.select(musicSceneId, musicMode);
       scheduleMusic();
+  }
+
+  const manager = {
+    unlock: unlockAudio,
+    async prepareGameplay(sceneId) {
+      const ticket = ++preparationGeneration;
+      stageTrackOnly = true;
+      musicMode = 'none'; musicPaused = false;
+      musicSceneId = SCENE_SETTINGS[sceneId] ? sceneId : 'crystal-gates';
+      stopMusicScheduler(); stopMusicVoices(); stageMusicPlayer?.stop();
+      // Calling resume inside the departure gesture matters. Fetch/decode can
+      // proceed even if that resume promise is delayed; the controller owns10s.
+      let resumed;
+      try { resumed = unlockAudio().then(() => context?.state === 'running', () => false); }
+      catch { return false; }
+      const loaded = stageMusicPlayer?.prepareTrack(musicSceneId) ?? Promise.resolve(false);
+      const [running, ready] = await Promise.all([resumed, loaded]);
+      return !destroyed && ticket === preparationGeneration && running && ready;
+    },
+    startPreparedGameplay(sceneId) {
+      if (destroyed) return;
+      stageTrackOnly = true;
+      manager.setMusicScene(sceneId);
+      manager.setMusicMode('gameplay');
     },
     setMuted(value) {
       muted = Boolean(value);
@@ -374,6 +402,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
     isMuted() { return muted; },
     setMusicMode(mode) {
       const nextMode = MUSIC_MODES[mode] ? mode : 'none';
+      if (nextMode === 'menu') { preparationGeneration += 1; stageTrackOnly = false; }
       if (nextMode === 'menu' || nextMode === 'none') cancelRoar();
       if (nextMode === musicMode && !(nextMode !== 'none' && musicPaused)) return;
       stopMusicScheduler();
@@ -418,6 +447,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
       if (!musicDucked) cancelEntry();
     },
     resetRun() {
+      preparationGeneration += 1; stageTrackOnly = false;
       cancelEntry();
       cancelRoar();
       playedEventIds.clear();
@@ -467,6 +497,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
       }
     },
     destroy() {
+      preparationGeneration += 1;
       destroyed = true;
       cancelEntry();
       cancelRoar();
@@ -492,4 +523,5 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
       playedEventIds.clear();
     },
   };
+  return manager;
 }

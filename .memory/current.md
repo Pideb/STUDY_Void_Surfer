@@ -7,7 +7,7 @@
 [P01 Runtime](./phases/2026-10-29-fullscreen-fhd-music-start/P01-runtime/phase.md).
 
 ## Active Task
-[T01 FHD Rendering](./phases/2026-10-29-fullscreen-fhd-music-start/P01-runtime/T01-fhd-rendering.md).
+[T02 Music-Ready Start](./phases/2026-10-29-fullscreen-fhd-music-start/P01-runtime/T02-music-ready-start.md).
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -21,4 +21,4 @@
 - New HTML: `docs/releases/void-surfer-0.01-b.html`, identical Downloads copy, deployed-verified status. Old0.01v SHA unchanged. Deployment evidence: `.memory/validation/2026-10-29-001b-deployment/report.md`.
 
 ## Next Step (IMPORTANT)
-User authorized plan/execution/commits/deployment through completion. Capture fullscreen before/afterT01, implementT02 frozen audio gate, fullchecks/docs/deployT03. Preserve nativeRAF,0.01-b label and old0.01v; no DB/paidresources or unverified real-account write claim.
+T01 complete `dda1732`,67 targeted tests and matched render evidence. Implement T02 frozen audio gate, then fullchecks/docs/deployT03. Preserve nativeRAF,0.01-b label and old0.01v; no DB/paidresources or unverified real-account write claim.

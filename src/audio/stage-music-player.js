@@ -81,6 +81,12 @@ export function createStageMusicPlayer(context, { destination, fetcher = globalT
   }
 
   return {
+    async prepareTrack(sceneId, mode = 'gameplay') {
+      const track = MUSIC_TRACKS[sceneId]?.[mode];
+      if (destroyed || !track) return false;
+      const buffer = await load(track.url);
+      return Boolean(buffer) && !destroyed;
+    },
     preloadScene(sceneId) {
       if (destroyed) return;
       const scene = MUSIC_TRACKS[sceneId];
@@ -96,7 +102,9 @@ export function createStageMusicPlayer(context, { destination, fetcher = globalT
       for (const voice of [...outgoing]) stopVoice(voice);
       const previous = current;
       current = null;
-      stopVoice(previous, true);
+      // Departure must not leave a fading menu voice behind gameplay. Ordinary
+      // stage/boss transitions retain their existing crossfade.
+      stopVoice(previous, desired?.key !== 'menu');
       desired = track ? { key: nextKey, url: track.url } : null;
       onPlaying(false);
       prepare();

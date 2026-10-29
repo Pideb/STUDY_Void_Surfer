@@ -1,6 +1,6 @@
 # Task: T02 Music-Ready Start
 
-## Status: pending
+## Status: done
 
 ## Goal
 Start a prepared run and its selected BGM together; after10s auto-start silently and allow that track to join later. No transient menu/synthetic music or hidden progression.
@@ -28,8 +28,8 @@ Start a prepared run and its selected BGM together; after10s auto-start silently
 - Controller: pending/ready/9999ms/10000ms/late/error/rejection/double-start/cancel/restart/logout/identity change/destroy; no RAF/engine progression duringwait, one start, menu restored. Use fake timers only in scoped tests and restore them. Existing tests with old mockAPI stay valid; native real-engine/audio browser delayed-request fixture required in T03.
 
 ## Acceptance Criteria
-- [ ] Ready→run/music together;10s→silent run/late music; no stale/duplicate starts or menu/fallback bleed.
-- [ ] Preparation truly frozen/no penalty/stage reshuffle; auth/mute/restart/cancel safe; targeted tests pass.
+- [x] Ready→run/music together;10s→silent run/late music; no stale/duplicate starts or menu/fallback bleed.
+- [x] Preparation truly frozen/no penalty/stage reshuffle; auth/mute/restart/cancel safe; targeted tests pass.
 
 ## Validation
 - `npm test -- --run tests/audio tests/ui/app-controller.test.js tests/ui/screens.test.js tests/integration/prepared-run.test.js`
@@ -48,6 +48,11 @@ Task: T02-music-ready-start
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit:pending
+
+## Evidence
+- Targeted9 files126 tests passed. New tests use real engine plus scoped fake timers and native-audio-like deferred loaders; actual browser delayed-request evidence follows inT03.
+- Preparation uses a separate state, no paidpause. Existing lightweight controllers lacking the new audio API retain synchronous compatibility. Engine.stop duringpreparation returns to menu without death/score submission.
+- Adjacent issue handled: account/aircraft setters now guard the prepared state as they already guarded playing/paused, so late account refresh cannot change a chosen run duringloading. No unrelated UI/art/gameplay change.

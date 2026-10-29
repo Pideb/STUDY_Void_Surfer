@@ -582,7 +582,7 @@ export function createGameEngine(deps = {}) {
     totalScrollDistancePx = 0;
     lastSpecialBarrierWorldX = null;
     lastUpdateMs = now();
-    state = GAME_STATES.PLAYING;
+    state = config.deferStart ? GAME_STATES.PREPARING : GAME_STATES.PLAYING;
     startWarningIfNeeded();
     getCurrentDifficulty();
   }
@@ -592,6 +592,13 @@ export function createGameEngine(deps = {}) {
     const definition = getStageDefinition(stageId);
     const mode = warningSession?.isBoss || pendingStageAdvance ? 'boss' : warningSession ? 'warning' : 'normal';
     return { definition, mode };
+  }
+
+  function beginPreparedRun() {
+    if (state !== GAME_STATES.PREPARING) return false;
+    lastUpdateMs = null;
+    state = GAME_STATES.PLAYING;
+    return true;
   }
 
   function getActiveBackgroundKey(definition, mode) {
@@ -841,7 +848,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function setAccountBestScore(bestScore) {
-    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED) {
+    if ([GAME_STATES.PLAYING, GAME_STATES.PAUSED, GAME_STATES.PREPARING].includes(state)) {
       return accountBestScore;
     }
     accountBestScore = Math.max(0, Number(bestScore) || 0);
@@ -852,7 +859,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function setAircraft(id) {
-    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED) {
+    if ([GAME_STATES.PLAYING, GAME_STATES.PAUSED, GAME_STATES.PREPARING].includes(state)) {
       return false;
     }
     const definition = getAircraftDefinition(id);
@@ -862,7 +869,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function setGuestMode(enabled) {
-    if (state === GAME_STATES.PLAYING || state === GAME_STATES.PAUSED) {
+    if ([GAME_STATES.PLAYING, GAME_STATES.PAUSED, GAME_STATES.PREPARING].includes(state)) {
       return guestMode;
     }
     guestMode = Boolean(enabled);
@@ -1065,6 +1072,11 @@ export function createGameEngine(deps = {}) {
   }
 
   function stop(reason = 'unknown') {
+    if (state === GAME_STATES.PREPARING) {
+      state = GAME_STATES.MENU;
+      lastUpdateMs = null;
+      return;
+    }
     if (state !== GAME_STATES.PLAYING || deathEffect) return;
     gameOverReason = reason;
     ambientAttack = null;
@@ -1164,6 +1176,7 @@ export function createGameEngine(deps = {}) {
 
   return {
     start,
+    beginPreparedRun,
     update,
     lift,
     dash,
