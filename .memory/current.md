@@ -11,7 +11,7 @@ None. Source preparation and GitHub publication complete.
 
 ## Status
 - T01 9b72d23: Azure callback/config checks, Node floor and deployment guide verified.
-- T02: normal source push confirmed; preparation report records actual remote status.
+- T02 d9698e0: normal source push confirmed; preparation report records actual remote status.
 - The Azure resource has not yet been created/verified.
 
 ## Next Step (IMPORTANT)
