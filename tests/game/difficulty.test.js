@@ -5,6 +5,7 @@ import {
   getDifficulty,
   getBossSpeedMultiplier,
   chooseWarningScoreStep,
+  chooseBossReentryScoreStep,
   shouldSpawnSpecial,
   shouldSpawnMovingGap,
 } from '../../src/game/difficulty.js';
@@ -25,10 +26,15 @@ describe('difficulty', () => {
     expect(getDifficulty(cap,0,1,()=>0,BOSS_PATTERNS.FAST,20,cap,false,id).baseSpeed).toBeCloseTo(getBaseSpeed(cap,id));
   });
 
-  it('chooses an inclusive five-to-eight-point encounter interval', () => {
+  it('preserves the archived WARNING five-to-eight-point interval', () => {
     expect(chooseWarningScoreStep(() => 0)).toBe(5);
     expect(chooseWarningScoreStep(() => .5)).toBe(7);
     expect(chooseWarningScoreStep(() => 1)).toBe(8);
+  });
+  it('chooses an independent inclusive fifteen-to-twenty-point boss interval', () => {
+    expect(chooseBossReentryScoreStep(() => 0)).toBe(15);
+    expect(chooseBossReentryScoreStep(() => .5)).toBe(18);
+    expect(chooseBossReentryScoreStep(() => 1)).toBe(20);
   });
   it('increases speed by a fixed ten every ten progression points', () => {
     expect(getBaseSpeed(0)).toBe(240);

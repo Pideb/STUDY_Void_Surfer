@@ -1,5 +1,6 @@
 import {
   BASE_GAP_HEIGHT, BASE_SCROLL_SPEED, BOSS_FAST_MULTIPLIER, BOSS_PATTERNS, BOSS_SLOW_MULTIPLIER,
+  BOSS_REENTRY_SCORE_MIN, BOSS_REENTRY_SCORE_MAX,
   MOVING_GAP_CHANCE, NORMAL_SPECIAL_CHANCE, NORMAL_TIMING_WINDOW_SECONDS,
   SPECIAL_UNLOCK_SCORE, SPEED_STEP_INCREMENT, SPEED_STEP_SCORE_POINTS, WARNING_GAP_MULTIPLIER,
   WARNING_SCORE_STEP_MAX, WARNING_SCORE_STEP_MIN, WARNING_SPECIAL_CHANCE, WARNING_START_SCORE,
@@ -26,6 +27,9 @@ export function chooseBossPattern(rng = Math.random) {
 }
 export function chooseWarningScoreStep(rng = Math.random) {
   return WARNING_SCORE_STEP_MIN + Math.floor(roll(rng) * (WARNING_SCORE_STEP_MAX - WARNING_SCORE_STEP_MIN + 1));
+}
+export function chooseBossReentryScoreStep(rng = Math.random) {
+  return BOSS_REENTRY_SCORE_MIN + Math.floor(roll(rng) * (BOSS_REENTRY_SCORE_MAX - BOSS_REENTRY_SCORE_MIN + 1));
 }
 export function getBossSpeedMultiplier(pattern, elapsedSeconds = 0) {
   if (pattern === BOSS_PATTERNS.SLOW) return BOSS_SLOW_MULTIPLIER;

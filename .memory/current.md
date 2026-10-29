@@ -1,13 +1,13 @@
 # Current Context
 
 ## Active Plan
-None. Completed: [VOID SURFER 0.01-b](./plans/2026-10-29-001b-boss-menu.md).
+[VOID SURFER 0.01-b](./plans/2026-10-29-001b-boss-menu.md), follow-up cadence.
 
 ## Active Phase
-None. P01 complete (3/3).
+[P01 Runtime](./phases/2026-10-29-001b-boss-menu/P01-runtime/phase.md),3/4 complete.
 
 ## Active Task
-None. T03 complete: `7e7b15a`.
+[T04 Boss Re-entry](./phases/2026-10-29-001b-boss-menu/P01-runtime/T04-boss-reentry-cadence.md).
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -19,4 +19,4 @@ None. T03 complete: `7e7b15a`.
 - New HTML: `docs/releases/void-surfer-0.01-b.html`, identical Downloads copy. Old0.01v SHA unchanged. No push or production deployment of0.01-b.
 
 ## Next Step (IMPORTANT)
-No remaining task in this plan. Accept subsequent playtest feedback. Keep old0.01v and archived WARNING design. Public Azure URL still serves the earlier deployment; local commits are not a deployed0.01-b release.
+Implement confirmed D05: after the next-stage portal fully completes, schedule subsequent boss at current score+15..20. Keep first20 and archived WARNING5..8. Update0.01-b HTML/tests and commit locally; no push or deployment.

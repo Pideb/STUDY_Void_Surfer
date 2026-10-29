@@ -73,9 +73,19 @@
         "AEGIS",
         "VELOCITY"
       ],
+      "sourceRevisionNote": "3928989 + T04 follow-up: boss re-entry15..20 after full portal completion",
+      "runtimeFingerprint": {
+        "algorithm": "sha256",
+        "files": [
+          "src/game/constants.js",
+          "src/game/difficulty.js",
+          "src/game/game-engine.js"
+        ],
+        "value": "71372f7881ca402d8e4ccd57ffd7d3f5a1085228da987bf74c3916bf7d17821c"
+      },
       "verification": {
         "testFiles": 57,
-        "tests": 716,
+        "tests": 718,
         "build": "passed",
         "configuration": "passed",
         "strictAutoplayMenuLoopVerified": true,
@@ -92,7 +102,10 @@
       ],
       "warningArchive": ".memory/archive/2026-10-29-warning-0.01v.md",
       "productionUrl": "https://proud-grass-03a132e00.6.azurestaticapps.net",
-      "previousVersion": "0.01v"
+      "previousVersion": "0.01v",
+      "followUpChanges": [
+        "Next boss threshold: full next-stage arrival score + random15..20; first boss20 unchanged"
+      ]
     }
   ]
 }

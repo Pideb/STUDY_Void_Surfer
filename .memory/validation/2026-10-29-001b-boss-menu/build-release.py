@@ -31,7 +31,7 @@ doc = doc.replace('실제 캡처 · 고유 탄막과 궤도 예고', '0.01v 기�
 doc = doc.replace('실제 캡처 · WARNING 중 두 줄 레이저', '0.01v 역사 캡처 · 당시 WARNING의 두 줄 레이저 / 현재 독립 WARNING 비활성')
 
 changes = [
-    ('전투·연출','독립 WARNING 대신 매번 보스전','일반 → WARNING → 일반 → BOSS로 실제 보스전 사이에 별도 경고 웨이브가 있었습니다.','일반 → BOSS → 일반 → BOSS로 변경했습니다. 첫 20점, 이후 클리어 점수에서 5~8점 뒤라는 진입 기준은 유지합니다.','보스 번호·해금은 실제 클리어 수로 계산하고 보스가 만든 벽은 뒤에 남아도 점수를 주지 않습니다.'),
+    ('전투·연출','독립 WARNING 대신 매번 보스전','일반 → WARNING → 일반 → BOSS로 실제 보스전 사이에 별도 경고 웨이브가 있었습니다.','일반 → BOSS → 일반 → BOSS로 변경했습니다. 첫 20점은 유지하고, 다음 보스는 다음 스테이지 포털 전환 완료 시점의 점수에서 무작위 15~20점 뒤 나타납니다.','보스 클리어 보너스 10점은 새 대기 간격에서 제외합니다. 보스 번호·해금은 실제 클리어 수로 계산하고 보스가 만든 벽은 뒤에 남아도 점수를 주지 않습니다.'),
     ('전투·연출','WARNING은 향후 재설계를 위해 보관','지운 기능을 나중에 다시 기획할 때 기존 규칙과 의도를 잃을 수 있습니다.','0.01v의 순서·벽 수·최소 특수벽·판정·음향·화면 규칙과 원본 커밋을 별도 보관했습니다.','보관 중인 설계이며 지금 플레이에서 별도 WARNING 구간이 나타나지는 않습니다.'),
     ('신뢰성·성능','게임에 들어갔다 나와야 소리가 나던 문제','소리 활성화가 게임 시작에만 묶여 있어 타이틀의 조작만으로는 메뉴곡이 시작되지 않았습니다.','첫 메뉴 클릭·터치 완료·일반 키 입력에서 소리를 활성화합니다. 요청 중복·실패 후 재시도·화면 종료 정리를 처리하고 메뉴곡만 먼저 불러옵니다.','첫 사용자 입력 전에는 브라우저 정책에 따라 무음일 수 있습니다. 음소거·일시정지 규칙은 유지합니다.'),
     ('화면·디자인','메인 기체의 부유 모션이 끊기던 문제','계정 정보나 음소거 상태를 갱신할 때 기체 DOM을 새로 만들면서 움직임이 처음으로 튀었습니다.','같은 기체는 연결된 DOM·애니메이션 시간을 유지합니다. 기체와 불꽃을 3D 변환 전용 래퍼에서 함께 움직이고 정적 광원과 분리했습니다.','실측에서는 프레임 간격을 유지했고, 상태 갱신 후에도 같은 애니메이션이 이어졌습니다. 모든 기기의 FPS 향상으로 일반화하지 않습니다.'),
@@ -53,7 +53,7 @@ chart = rules_original[rules_original.index('<div class="chart-intro">'):]
 rules = [
  ('피격과 특수벽 성공은 서로 다른 판정입니다.','피격은 기체 중앙의 공통 16×16 정사각형, 특수벽 성공 입력은 공통 56×36 영역으로 판단합니다. 큰 성공 영역이 벽 앞 구간에 일부라도 닿을 때 새 Space 입력으로 성공할 수 있으며, 접촉만으로 자동 발동하지 않습니다.','성공 구간 폭은 현재 속도 × 평소 0.30초 / 보스전 0.15초입니다. 복합벽의 위아래 일반 벽은 작은 피격 영역으로 검사합니다. 이미 충돌한 후에는 입력으로 되살릴 수 없습니다.'),
  ('대시는 모든 위험을 지우지 않습니다.','Space는 새로 누를 때 한 번, 쿨타임은 0.7초입니다. 작은 흰 충전 링으로 상태를 알립니다. 대시 효과 0.6초 동안 적 투사체 접촉을 피할 수 있지만 일반벽·적 레이저·화면 경계의 충돌은 유지됩니다.','특수벽은 별도의 타이밍 성공으로 돌파하고 기체가 지난 부분을 중심으로 부서집니다. 일반 플레이에는 네모 히트박스를 표시하지 않습니다.'),
- ('처음부터 일반 → 보스 → 일반 → 보스','첫 보스 진입 기준은 20점입니다. 이후에는 보스를 클리어한 점수에서 5~8점 뒤 다음 보스가 열립니다. 기존 벽·공격을 모두 정리하고 암전·사이렌·보스 입장을 거치는 규칙은 유지합니다.','독립 WARNING 웨이브는 현재 등장하지 않습니다. 보스 번호와 콘텐츠 해금은 실제 보스를 클리어한 수로 계산합니다. 보스 벽 묶음은 7개·특수벽 최소 3개·일반벽 최소 2개이며, 벽 몇 개를 넘는 것으로 전투가 끝나지는 않습니다.'),
+ ('처음부터 일반 → 보스 → 일반 → 보스','첫 보스 진입 기준은 20점입니다. 이후에는 다음 스테이지 포털 전환이 완전히 끝난 시점의 점수 + 무작위 15~20점에 다음 보스가 열립니다. 예를 들어 도착 시 30점이면 다음 보스는 45~50점입니다. 클리어 보너스 10점은 이 새 간격에 포함하지 않습니다.','전환 중에는 다음 보스 판정·속도 배율을 적용하지 않습니다. 도착 후 기준을 한 번 정하며 일시정지 감점으로 다시 추첨하지 않습니다. 독립 WARNING은 현재 등장하지 않고 옛 5~8점 간격은 보관 규칙입니다. 보스 번호와 해금은 실제 클리어 수로 계산하며, 보스 벽 묶음은 7개·특수벽 최소 3개·일반벽 최소 2개입니다.'),
  ('벽과 구멍은 점진적으로 확장됩니다.','10점부터 특수벽 후보가 열립니다. 특수벽 확률은 일반 20%·보스전 50%이며 생성 간격과 할당량에 따라 보정합니다. 첫 보스 클리어 후 이동 구멍 50%, 특수벽 선택 중 절반의 복합벽이 열립니다.','평소 생성 간격 2초, 보스 1.4초이며 VELOCITY는 절반입니다. 구멍 높이는 평소 180·보스 135 논리 픽셀, 이동 구멍 주기는 평소 4.8초·보스 3.2초입니다. 고속 구멍의 높이 연속성과 필수 대시 대응 간격 1.2초를 유지합니다.'),
  ('점수와 속도는 분리해 관리합니다.','일반 벽 통과는 1점, 보스가 만든 벽과 WASD는 0점, 보스 클리어는 10점입니다. 보스가 사라진 후 뒤에 남은 보스 벽도 통과 점수를 주지 않습니다. VELOCITY는 원점수 × 1.5를 반올림해 최종 점수로 표시합니다.','속도용 진행 점수는 10점마다 실제 +10px/s, 상한 220점입니다. 일반 최고속도는 NOVA·AEGIS 460px/s, VELOCITY 700px/s이고 보스 배율은 별도입니다. 일시정지 −10점으로 이미 오른 속도가 내려가지는 않으며 변속은 2초에 걸쳐 전환합니다.'),
  ('레이저는 예고와 안전 경로를 먼저 보여줍니다.','보스전 줄 레이저와 전역 레이저, 기존 궤도 예고·발사·안전 지대는 유지합니다. 줄 레이저는 위아래 15%를 제외하고 일반벽 구멍·움직임 범위를 피합니다. 전역 패턴에서는 벽·다른 공격이 겹치지 않습니다.','첫 보스 클리어는 이동·복합벽, 두 번째 보스 클리어는 일반 구간 줄 레이저를 해금합니다. 일반 구간 줄 레이저는 3초마다 70% 확률로 시도하고 한 줄 70%·두 줄 30%입니다. 안전한 위치가 없으면 줄이거나 건너뜁니다.'),
@@ -75,13 +75,25 @@ replace_section('release',release)
 doc=doc.replace('총 21개', '총 25개')
 doc=doc.replace('VOID SURFER 0.01-b\\n기준일: 2026-10-29\\n게임 소스: f69a166\\n3기체 / 6지역 / 테스트 699개 통과\\n상태: 배포 준비 기준','VOID SURFER 0.01-b\\n기준일: 2026-10-29\\n게임 소스: 3928989\\n일반-보스 반복 / 첫 메뉴 소리 / 기체 모션 개선\\n상태: 로컬 검증 완료, 미배포')
 doc=doc.replace('0.01-b · 2026-10-29 · f69a166','0.01-b · 2026-10-29 · 3928989')
+doc=doc.replace('data-count="716">716', 'data-count="718">718')
+doc=doc.replace('57 / 716', '57 / 718')
+doc=doc.replace('현재 게임 코드 기준 커밋 3928989.', '현재 게임 코드는 3928989 + T04 재등장 간격 후속 수정입니다.')
+doc=doc.replace('게임 코드 3928989<br>', '게임 코드 3928989 + T04<br>')
+doc=doc.replace('게임 소스: 3928989\\n', '게임 소스: 3928989 + T04 (스테이지 도착 후 15~20점)\\n')
+doc=doc.replace('0.01-b · 2026-10-29 · 3928989', '0.01-b · 2026-10-29 · 3928989 + T04')
+doc=doc.replace('<h3 class="subheading">유지한 것</h3>', '<h3 class="subheading">후속 조정 · 보스 재등장</h3><p>WARNING 간격과 분리했습니다. 첫 보스 20점은 유지하고, 다음 스테이지 포털 전환 완료 시점의 점수에서 무작위 15~20점을 더 얻으면 다음 보스가 등장합니다. 클리어 보너스 10점은 새 대기 간격에 포함하지 않습니다. 포털 중 감점도 도착 시 기준에 반영합니다.</p><h3 class="subheading">유지한 것</h3>')
+runtime_files = ['src/game/constants.js', 'src/game/difficulty.js', 'src/game/game-engine.js']
+runtime_fingerprint = hashlib.sha256(b''.join((name+'\n'+(ROOT/name).read_text(encoding='utf-8').replace('\r\n','\n')).encode('utf-8') for name in runtime_files)).hexdigest()
 metadata={
  'product':'VOID SURFER','version':'0.01-b','baselineDate':'2026-10-29','sourceCommit':runtime_commit,
  'status':'validated-local-not-deployed','document':'void-surfer-0.01-b.html','format':'single-file-html',
  'workflow':['grill-me','memory-plan','memory-execute'],'aircraft':['NOVA','AEGIS','VELOCITY'],
- 'verification':{'testFiles':57,'tests':716,'build':'passed','configuration':'passed','strictAutoplayMenuLoopVerified':True,'realProductionLogin':'user-confirmed for previous deployment','newVersionDeployed':False,'physicalGpuFpsMeasured':False},
+ 'sourceRevisionNote':'3928989 + T04 follow-up: boss re-entry15..20 after full portal completion',
+ 'runtimeFingerprint':{'algorithm':'sha256','files':runtime_files,'value':runtime_fingerprint},
+ 'verification':{'testFiles':57,'tests':718,'build':'passed','configuration':'passed','strictAutoplayMenuLoopVerified':True,'realProductionLogin':'user-confirmed for previous deployment','newVersionDeployed':False,'physicalGpuFpsMeasured':False},
  'feedbackCases':25,'changes':[item[1] for item in changes],'warningArchive':'.memory/archive/2026-10-29-warning-0.01v.md',
  'productionUrl':'https://proud-grass-03a132e00.6.azurestaticapps.net','previousVersion':'0.01v',
+ 'followUpChanges':['Next boss threshold: full next-stage arrival score + random15..20; first boss20 unchanged'],
 }
 doc=re.sub(r'<script type="application/json" id="releaseMetadata">[\s\S]*?</script>',lambda _:'<script type="application/json" id="releaseMetadata">'+json.dumps(metadata,ensure_ascii=False)+'</script>',doc,count=1)
 doc='\n'.join(line.rstrip() for line in doc.splitlines())+'\n'
@@ -93,6 +105,6 @@ registry.write_text(json.dumps(history,ensure_ascii=False,indent=2)+'\n',encodin
 assert BASE.read_bytes()==OLD_BYTES
 assert len(re.findall(r'class="feedback-item"',doc))==25
 assert '0.01v 当' not in doc
-report={'document':str(out.relative_to(ROOT)),'bytes':out.stat().st_size,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'oldSnapshotSha256':OLD_HASH,'oldSnapshotUnchanged':True,'downloadsCopyEqual':out.read_bytes()==copy.read_bytes(),'feedbackCases':25,'sourceCommit':runtime_commit,'deployed':False}
+report={'document':str(out.relative_to(ROOT)),'bytes':out.stat().st_size,'sha256':hashlib.sha256(out.read_bytes()).hexdigest(),'oldSnapshotSha256':OLD_HASH,'oldSnapshotUnchanged':True,'downloadsCopyEqual':out.read_bytes()==copy.read_bytes(),'feedbackCases':25,'sourceCommit':runtime_commit,'sourceRevisionNote':metadata['sourceRevisionNote'],'runtimeFingerprint':runtime_fingerprint,'deployed':False}
 (HERE/'html-build.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
 print(json.dumps(report))

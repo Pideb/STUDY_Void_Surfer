@@ -47,6 +47,7 @@ import { advanceDash, intersectsSweptPlayerObstacle, isSpecialTimingSuccess, sta
 import { intersectsPlayerLaser } from './collision.js';
 import {
   chooseBossPattern,
+  chooseBossReentryScoreStep,
   chooseWarningScoreStep,
   getBaseSpeed,
   getBossSpeedMultiplier,
@@ -160,7 +161,8 @@ export function createGameEngine(deps = {}) {
 
   function getTargetDifficulty() {
     if (!warningSession) {
-      const warningThreshold = bossEntry || bossPreview ? Number.MAX_SAFE_INTEGER : nextWarningScore;
+      const warningThreshold = bossEntry || bossPreview || pendingStageAdvance || stageTransition
+        ? Number.MAX_SAFE_INTEGER : nextWarningScore;
       const base = getDifficulty(getScore(), elapsedSeconds, clearedBossCount, rng, null, warningThreshold, scoreSession.progressionScore, firstBossCleared, aircraft.id);
       return applyAircraftDifficulty(base);
     }
@@ -624,7 +626,12 @@ export function createGameEngine(deps = {}) {
         bossBackgroundScrollSpeed = null;
         stageElapsedSeconds = 0;
       }
-      if (stageTransition.phase === 'complete') stageTransition = null;
+      if (stageTransition.phase === 'complete') {
+        // Begin the new interval after arriving, excluding the clear reward and
+        // accounting for any pause deduction during the portal, not at its swap.
+        nextWarningScore = getScore() + chooseBossReentryScoreStep(rng);
+        stageTransition = null;
+      }
     }
   }
 
@@ -820,7 +827,6 @@ export function createGameEngine(deps = {}) {
     if (bossEncounter.number === 1) firstBossCleared = true;
     scoreSession.score += 10;
     scoreSession.progressionScore += 10;
-    nextWarningScore = getScore() + chooseWarningScoreStep(rng);
     advanceStage();
     warningSession = null;
     bossEncounter = null;
