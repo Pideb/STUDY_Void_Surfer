@@ -12,7 +12,11 @@
     "preview": "vite preview",
     "verify:config": "node scripts/verify-config.mjs",
     "test": "vitest",
-    "test:watch": "vitest --watch"
+    "test:watch": "vitest --watch",
+    "docs:build": "node scripts/release-docs.mjs build",
+    "docs:check": "node scripts/release-docs.mjs check",
+    "release:prepare": "node scripts/release-docs.mjs prepare",
+    "release:record-deployment": "node scripts/release-docs.mjs record-deployment"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4"

@@ -1,0 +1,70 @@
+{
+  "375": {
+    "width": 375,
+    "scroll": 360,
+    "missing": 0,
+    "main": 1
+  },
+  "768": {
+    "width": 768,
+    "scroll": 753,
+    "missing": 0,
+    "main": 1
+  },
+  "1440": {
+    "width": 1440,
+    "scroll": 1425,
+    "missing": 0,
+    "main": 1
+  },
+  "metadata": {
+    "product": "VOID SURFER",
+    "version": "0.01-b",
+    "baselineDate": "2026-10-29",
+    "sourceCommit": "e90bb76",
+    "status": "deployed-verified",
+    "gameFingerprint": "b3597a5c9047f3c3719efa031ae55b63131152b65342e30af35a86b1a023a5c0",
+    "verification": {
+      "testFiles": 60,
+      "tests": 741,
+      "build": "passed",
+      "configuration": "passed",
+      "strictAutoplayMenuLoopVerified": true,
+      "realProductionLogin": "user-confirmed for previous deployment",
+      "newVersionDeployed": true,
+      "physicalGpuFpsMeasured": false
+    },
+    "deployment": {
+      "headSha": "e90bb76ccc072aef086941e2b6aa9b4a38485a50",
+      "runId": 40841808122,
+      "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/40841808122",
+      "completedAtUtc": "2026-10-29T08:25:17Z",
+      "bundleSha256": "a1ceebf2d0c90c3ddf7e9a86231a8a3c8d02999bf2704cdea5d68e31ceb9d9b7",
+      "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
+    },
+    "document": "void-surfer-latest.html",
+    "workflow": [
+      "grill-me",
+      "memory-plan",
+      "memory-execute"
+    ],
+    "changes": {
+      "added": [
+        "이전 WARNING 설계와 원본을 재기획용으로 보관",
+        "음악 준비 중 별도 출격 대기 상태와 최대10초 무음 자동 시작"
+      ],
+      "changed": [
+        "일반→보스 반복으로 독립 WARNING 교체",
+        "다음 보스: 포털 전환 완료 점수+15~20",
+        "전체 캔버스 FHD 제한·모니터 주사율 유지"
+      ],
+      "fixed": [
+        "첫 메뉴 동작으로 소리 활성화",
+        "계정/음소거 갱신 시 메뉴 기체 모션 초기화 방지",
+        "플레이 진입 시 메뉴곡/임시 합성 음악 재생 방지",
+        "로딩 취소·재시작·계정 변경의 늦은 완료와 중복 출격 방지"
+      ]
+    }
+  },
+  "errors": []
+}

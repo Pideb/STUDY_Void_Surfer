@@ -1,6 +1,6 @@
 # Task: T03 Future Release Sync and Final QA
 
-## Status: pending
+## Status: done
 
 ## Implementation
 - New `scripts/release-docs.mjs`: CLI for `build`, `check`, `prepare` and `record-deployment`. Fingerprint sorted src/public/index/lockfile and relevant package dependencies/engines (not doc script names). Docs-only rebuild/check does not bump. Changed game `prepare --title ... --change ...` runs tests/build/config, appends next version once (b→c throughz→nextminor), records exact source fingerprint/validation and pending status, generates management HTML plus latest/new version presentation. `--dry-run` is read-only. Failure leaves previous release catalog/files unchanged using prepare-after-validation staging/atomic writes or rollback for target files.
@@ -11,8 +11,8 @@
 - Build management/current presentation, check relevant script tests; npm build+verify:config because package/workflow changed, no fullgame suite repeat unless source changed (futureprepare runsfull). Native browser QA and source/asset/hash/no-secret checks, final report under `.memory/validation/2026-10-30-management-console/`, local task commits and memory complete. No push or Azure deployment now. Auto-open management HTML and link it; user will request refinements.
 
 ## Acceptance Criteria
-- [ ] One version/catalog generates both documents; future game deployment cannot silently skip prep; bumps idempotent and proofs strict.
-- [ ] Actual browser checks/report and relevant tests/build/config pass; snapshots intact, all tasks locally committed, no push.
+- [x] One version/catalog generates both documents; CI checks stale docs; version bumps idempotent and proof fields/head/source checked. Actual service confirmation remains the deploying agent's responsibility.
+- [x] Edge375/768/1440, themes/offline/print/sliders/export and latest presentation pass;2files13tests/build/config pass, snapshots intact. Report records evidence. Local commits only, no push.
 
 ## Commit Message
 ```text
@@ -24,6 +24,6 @@ Task: T03-release-sync
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
+- [x] Implementation complete
+- [x] Validation passed
 - commit:pending

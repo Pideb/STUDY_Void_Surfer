@@ -22,6 +22,8 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Check synchronized release documentation
+        run: npm run docs:check
       - name: Check public build configuration
         shell: bash
         run: |

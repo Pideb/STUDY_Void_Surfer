@@ -109,5 +109,9 @@
         }
       ]
     }
-  ]
+  ],
+  "snapshotContentSha256": {
+    "void-surfer-0.01v.html": "de0c21a43d39ed30246accc398777f66be4179622f7c840d829dfbf791a96ce9",
+    "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58"
+  }
 }

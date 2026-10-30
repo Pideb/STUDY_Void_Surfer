@@ -9,7 +9,7 @@ function read(root,file){return fs.readFileSync(path.join(root,file),'utf8').rep
 function json(value){return JSON.stringify(value).replace(/</g,'\\u003c');}
 export function managementOutput(root=ROOT,releaseData){
   var release=releaseData||JSON.parse(read(root,'docs/management/releases.json'));
-  var data={...collectGameCatalog(),generatedAt:'2026-10-30',gameFingerprint:release.gameFingerprint};
+  var data={...collectGameCatalog(),generatedAt:release.documentationDate||'2026-10-30',gameFingerprint:release.gameFingerprint};
   var skeleton=read(root,'.agents/skills/visualize/references/skeleton.md').split('```html\n')[1].split('\n```')[0];
   skeleton=skeleton.replace('<html lang="en"','<html lang="ko"').replace('YOUR TITLE HERE','VOID SURFER · 게임 관리 레퍼런스 '+release.currentVersion);
   skeleton=skeleton.replace('  <main id="main-content">\n','').replace('  </main>\n  <script>','  <script>');
