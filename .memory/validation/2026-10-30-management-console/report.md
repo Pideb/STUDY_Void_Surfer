@@ -29,8 +29,8 @@
 
 - 현재 게임 지문: `b3597a5c9047f3c3719efa031ae55b63131152b65342e30af35a86b1a023a5c0`.
 - 운영과 같은 JS: `a1ceebf2d0c90c3ddf7e9a86231a8a3c8d02999bf2704cdea5d68e31ceb9d9b7`.
--0.01v 원본 SHA256: `42704308b359b173044a658af44201ed05467070fc24c1cc0ca2cf9e9ce15d34`.
--0.01-b 원본 SHA256: `5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58`.
+- 0.01v 원본 SHA256: `42704308b359b173044a658af44201ed05467070fc24c1cc0ca2cf9e9ce15d34`.
+- 0.01-b 원본 SHA256: `5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58`.
 - Git의 Windows/CI 줄바꿈 차이만 허용하는 추가 정규화 지문을 기록했다. 원문 내용 수정은 여전히 차단한다.
 
 ## 다음 배포의 자동화 범위
@@ -50,4 +50,4 @@
 - 계획: `989554d`.
 - T01 카탈로그/모델: `317b818`.
 - T02 관리 HTML: `0fe5fff`.
-- T03 릴리스 동기화: 이 보고서를 포함한 로컬 커밋. 해시는 `.memory/current.md`에서 확인.
+- T03 릴리스 동기화: `e884e40`.

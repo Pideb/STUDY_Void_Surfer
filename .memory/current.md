@@ -7,7 +7,7 @@
 [P01 Console](./phases/2026-10-30-management-console/P01-console/phase.md).
 
 ## Active Task
-[T03 Release Sync](./phases/2026-10-30-management-console/P01-console/T03-release-sync.md).
+None. Management console plan complete; awaiting user review.
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -22,4 +22,4 @@
 - Fullscreen rendering now bounded1920×1080 with nativeRAF/logical960×540 retained. Music-ready preparation freezes the initialized run until readiness or10s; then silent fallback/late same-track. Menu/synth bleed and stale/double starts covered. Actual Azure4K viewport/FHD buffer and clean music start verified.
 
 ## Next Step (IMPORTANT)
-T01 `317b818` and T02 `0fe5fff` complete. Native Edge tabs/sliders/proposal/print/offline at375/768/1440 passed. T03 connects release generation/checks and final presentation alias. Current0.01-b and old0.01v preserved. Review draft only: no push/deployment or balance/settings changes.
+T01 `317b818`, T02 `0fe5fff`, T03 `e884e40` complete. Management HTML `docs/management/void-surfer-management.html` and identical Downloads copy, presentation alias `docs/releases/void-surfer-latest.html`.13 docs/model/release tests, build/config/docs:check, native Edge tabs/sliders/proposal/print/offline at375/768/1440 passed. Current0.01-b, original0.01v/b and runtime bundle SHA preserved. No push/deployment or balance/settings changes. User reviews first. Future deployment: follow AGENTS release:prepare/check/proof flow; next changed-game release0.01-c. Evidence `.memory/validation/2026-10-30-management-console/report.md`.
