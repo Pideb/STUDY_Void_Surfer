@@ -31,4 +31,4 @@ Task: T01-version-policy
 ## Progress
 - [x] Implementation complete
 - [x] Validation passed:2files14tests, docs:check, read-only next-release dry-run and two HTML/Downloads/archive assertions.
-- commit:pending
+- commit:e8ca4c0

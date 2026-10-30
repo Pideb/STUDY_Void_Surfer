@@ -7,7 +7,7 @@
 [P01 Policy](./phases/2026-10-30-release-version-policy/P01-policy/phase.md).
 
 ## Active Task
-[T01 Version Policy](./phases/2026-10-30-release-version-policy/P01-policy/T01-version-policy.md).
+None. Release version policy complete; awaiting user feedback.
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
@@ -22,4 +22,4 @@
 - Fullscreen rendering now bounded1920×1080 with nativeRAF/logical960×540 retained. Music-ready preparation freezes the initialized run until readiness or10s; then silent fallback/late same-track. Menu/synth bleed and stale/double starts covered. Actual Azure4K viewport/FHD buffer and clean music start verified.
 
 ## Next Step (IMPORTANT)
-Version policy update active. User changed next deployment to0.1 then0.11→0.12→0.13. Base0.1 never automatically promotes to0.2/1.0; those need user instruction. Current actual deployment0.01-b and original snapshots preserved. Release preparation uses --new-release for an intentional deployment, retaining a pending same-source version on retries. Docs generation alone does not bump. Prior management console implementation complete; no push/deployment in this policy task.
+Version policy complete `e8ca4c0`. Next actual deployment0.1 then0.11→0.12→0.13 (0.19→0.110), base changes to0.2/1.0 only on user instruction. Current actual deployment0.01-b and original snapshots preserved. Release preparation uses --new-release for intentional deployment, retaining pending same-source version on retries. Docs generation alone does not bump. Both HTML and Downloads refreshed.14 tests/docs:check/read-only dry-run/artifact assertions passed. No push/deployment. Evidence `.memory/validation/2026-10-30-release-version-policy/report.md`.
