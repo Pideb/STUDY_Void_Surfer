@@ -1,13 +1,13 @@
 # Current Context
 
 ## Active Plan
-[Management Console](./plans/2026-10-30-management-console.md).
+[Release Version Policy](./plans/2026-10-30-release-version-policy.md).
 
 ## Active Phase
-[P01 Console](./phases/2026-10-30-management-console/P01-console/phase.md).
+[P01 Policy](./phases/2026-10-30-release-version-policy/P01-policy/phase.md).
 
 ## Active Task
-None. Management console plan complete; awaiting user review.
+[T01 Version Policy](./phases/2026-10-30-release-version-policy/P01-policy/T01-version-policy.md).
 
 ## Status
 - Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
