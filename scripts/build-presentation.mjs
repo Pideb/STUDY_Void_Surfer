@@ -32,6 +32,7 @@ export function presentationOutput(root,catalog,registry){
   var chartJSON=JSON.stringify(chartData).replace('"ACCENT"','accent').replace('"POSITIVE"',"style.getPropertyValue('--positive').trim()").replace('"SECONDARY"','secondary');
   base=base.slice(0,start)+"type:'line',data:"+chartJSON+base.slice(end);
   base=base.replace('y:{min:200,max:750,','y:{min:0,max:'+Math.ceil(Math.max(...catalog.crafts.map(c=>c.ceiling))*1.1/100)*100+',');
+  base=base.replace('<h2>현재 버전 '+version+'.</h2>','<h2>현재 버전 '+version+'.</h2><p class="lede">다음 배포 예정: '+esc(registry.nextVersion)+'. 버전 순서는0.1 → 0.11 → 0.12 → 0.13이며,0.2나1.0으로의 기준 변경은 사용자 요청 때만 적용합니다.</p>');
   var copy='VOID SURFER '+version+'\n기준일: '+r.date+'\n게임 소스: '+r.sourceCommit+'\n상태: '+r.status;
   base=base.replace(/var text='VOID SURFER 0\.01-b[^\n]*?';try/, 'var text='+JSON.stringify(copy)+';try');
   base=base.replace(/document\.getElementById\('copyStatus'\)\.textContent='VOID SURFER 0\.01-b[^']*'/,"document.getElementById('copyStatus').textContent="+JSON.stringify('VOID SURFER '+version+' · '+r.date+' · '+r.sourceCommit));

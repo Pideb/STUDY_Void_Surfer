@@ -2,7 +2,9 @@
 
 ## 배포 버전과 문서 자동 동기화
 
-- 게임 배포를 요청받으면 `npm run release:prepare -- --title "변경 요약" --change "실제 변경 내용"`를 먼저 실행한다. 게임 소스 변경이 있을 때만 다음 버전으로 올리고 전체 테스트·빌드·설정 검증을 통과한 뒤 문서들을 생성한다. 단순 문서 수정은 `npm run docs:build`로 버전을 유지한다.
+- 다음 배포 버전은 `0.1`, 이후 `0.11 → 0.12 → 0.13`으로 증가한다. `versionBase`는 `0.1`이며 뒤의 배포 순번을 문자열로 붙인다 (`0.19 → 0.110`). `0.2`나 `1.0`으로 기준 버전을 올리는 것은 사용자 명시 요청 때만 한다. 현재 실제 배포 `0.01-b`는 다음 배포 전까지 유지한다.
+
+- 게임 배포를 요청받으면 `npm run release:prepare -- --new-release --title "변경 요약" --change "실제 변경 내용"`를 먼저 실행한다. 실제 새 배포 요청은 같은 게임 소스라도 다음 버전으로 준비한다. 이미 배포 대기 중인 같은 소스의 준비 재시도는 버전을 유지한다. 전체 테스트·빌드·설정 검증 후 문서를 생성하며, 단순 문서 수정은 `npm run docs:build`로 버전을 유지한다.
 - 버전 원본은 `docs/management/releases.json`이다. 관리용 `docs/management/void-surfer-management.html`, 발표용 `docs/releases/void-surfer-latest.html`와 새 버전 스냅샷을 함께 생성하고 `npm run docs:check` 후 커밋한다. CI도 오래된 문서를 차단한다.
 - 기존 `void-surfer-0.01v.html`, `void-surfer-0.01-b.html` 및 확정된 배포 스냅샷을 덮어쓰지 않는다. 자동 배포 성공을 확인하기 전에는 배포 완료로 쓰지 않는다.
 - 실제 GitHub Actions 성공·배포 HEAD·운영 번들 SHA256을 직접 확인한 증거 JSON으로 `npm run release:record-deployment -- --proof <증거파일>`을 실행하고 두 문서와 기록을 다시 커밋한다. 공개 주소나 확인 안 된 이전 실행을 새 버전 성공 증거로 재사용하지 않는다. 절차는 `docs/management/README.md`를 따른다.

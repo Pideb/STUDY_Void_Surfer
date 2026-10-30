@@ -1,9 +1,10 @@
 {
   "schemaVersion": 1,
   "currentVersion": "0.01-b",
-  "policy": "Changed-game release: b→c…z→nextminor-a; docs-only build never increments.",
+  "policy": "다음 배포0.1, 이후0.11→0.12→0.13. 기준 버전은 사용자 요청으로만 변경하며 자동으로0.2/1.0으로 올리지 않습니다. 문서만 재생성할 때는 버전을 올리지 않습니다.",
+  "versionBase": "0.1",
   "gameFingerprint": "b3597a5c9047f3c3719efa031ae55b63131152b65342e30af35a86b1a023a5c0",
-  "nextVersion": "0.01-c",
+  "nextVersion": "0.1",
   "snapshots": {
     "void-surfer-0.01v.html": "42704308b359b173044a658af44201ed05467070fc24c1cc0ca2cf9e9ce15d34",
     "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58"

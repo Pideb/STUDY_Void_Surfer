@@ -23,19 +23,21 @@ node scripts/build-management.mjs --downloads
 
 ```powershell
 npm run release:prepare -- --dry-run
-npm run release:prepare -- --title "변경 요약" --change "첫 변경" --change "두 번째 변경"
+npm run release:prepare -- --new-release --title "변경 요약" --change "첫 변경" --change "두 번째 변경"
 npm run docs:check
 ```
 
-게임 소스/자산/의존성 변경을 감지한 경우 전체 테스트·빌드·설정 검사 후0.01-b→0.01-c로 한 번만 올립니다. z 다음은0.02-a입니다. 같은 소스 재실행이나 문서만의 변경은 버전을 올리지 않습니다. 검증 실패 시 이전 버전과 문서를 유지합니다. 실제 변경 내용은 `--change`로 제공하며 추측해서 업데이트 내역을 만들지 않습니다. Git HEAD/직전 변경 제목/작업 파일도 근거로 보관합니다.
+다음 배포는 **0.1**, 이후에는 **0.11 → 0.12 → 0.13**입니다. `versionBase: "0.1"` 뒤에 배포 순번을 붙이므로0.19 다음은0.110이며 자동으로0.2가 되지 않습니다.0.2나1.0으로의 기준 변경은 사용자가 요청할 때만 적용합니다. 게임 소스/자산/의존성 변경을 감지한 경우 전체 테스트·빌드·설정 검사 후 다음 버전을 한 번만 준비합니다. 같은 소스 재실행이나 문서만의 변경은 버전을 올리지 않습니다. 검증 실패 시 이전 버전과 문서를 유지합니다. 실제 변경 내용은 `--change`로 제공하며 추측해서 업데이트 내역을 만들지 않습니다. Git HEAD/직전 변경 제목/작업 파일도 근거로 보관합니다.
 
 새 버전은 처음에는 `validated-pending-deployment`이며 커밋/push 후 기존 Azure Actions가 배포합니다. CI의 `docs:check`는 게임 소스와 두 문서가 맞지 않으면 배포를 막습니다. CI가 임의 커밋을 만들지는 않습니다. 배포 요청을 수행하는 에이전트는 AGENTS.md에 따라 이 절차를 자동으로 실행합니다.
+
+실제 다음 배포를 준비할 때는 `--new-release`를 사용합니다. 이전 버전이 배포 완료라면 게임 소스가 같아도 다음 버전을 만듭니다. 이미 배포 대기 중인 버전의 준비를 다시 실행하면 같은 소스에는 버전을 추가하지 않습니다. `docs:build`만으로는 배포 버전을 올리지 않습니다.
 
 배포가 성공하면 **실제로 확인한** 증거 JSON을 다음 형태로 저장합니다. 값은 예시 형식이므로 그대로 실행하지 않습니다.
 
 ```json
 {
-  "version": "0.01-c",
+  "version": "0.1",
   "gameFingerprint": "해당 releases.json의 64자리 지문",
   "conclusion": "success",
   "headSha": "성공한 배포의 40자리 Git HEAD",

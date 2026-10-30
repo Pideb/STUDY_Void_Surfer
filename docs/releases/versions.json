@@ -1,7 +1,7 @@
 {
   "product": "VOID SURFER",
   "currentVersion": "0.01-b",
-  "versionPolicy": "Increment the documented public label for each reviewed release; preserve previous snapshots.",
+  "versionPolicy": "다음 배포0.1, 이후0.11→0.12→0.13. 기준 버전은 사용자 요청으로만 변경하며 자동으로0.2/1.0으로 올리지 않습니다. 문서만 재생성할 때는 버전을 올리지 않습니다.",
   "releases": [
     {
       "product": "VOID SURFER",
@@ -198,5 +198,7 @@
     }
   ],
   "managementDocument": "../management/void-surfer-management.html",
-  "latestDocument": "void-surfer-latest.html"
+  "latestDocument": "void-surfer-latest.html",
+  "versionBase": "0.1",
+  "nextVersion": "0.1"
 }

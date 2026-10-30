@@ -5,8 +5,13 @@ export function gameFingerprint(root){
   var hash=crypto.createHash('sha256');for(var file of files.sort()){var bytes=fs.readFileSync(path.join(root,file));if(/\.(?:js|mjs|json|css|html|svg|sql|txt)$/.test(file))bytes=Buffer.from(bytes.toString('utf8').replace(/\r\n/g,'\n'));hash.update(file+'\n');hash.update(bytes);}
   var pkg=JSON.parse(fs.readFileSync(path.join(root,'package.json'),'utf8'));hash.update(JSON.stringify({dependencies:pkg.dependencies,devDependencies:pkg.devDependencies,engines:pkg.engines}));return hash.digest('hex');
 }
-export function nextVersion(version){
-  var match=/^(\d+)\.(\d+)(?:-([a-z]))?$/.exec(version);if(!match)throw Error('지원하지 않는 버전: '+version);
-  if(!match[3])return match[1]+'.'+match[2]+'-a';if(match[3]!=='z')return match[1]+'.'+match[2]+'-'+String.fromCharCode(match[3].charCodeAt(0)+1);
-  return match[1]+'.'+String(Number(match[2])+1).padStart(match[2].length,'0')+'-a';
+export function nextVersion(version,baseVersion='0.1'){
+  if(!/^(?:0|[1-9]\d*)\.\d$/.test(baseVersion))throw Error('지원하지 않는 기준 버전: '+baseVersion);
+  if(version===baseVersion)return baseVersion+'1';
+  if(typeof version==='string'&&version.startsWith(baseVersion)){
+    var sequence=version.slice(baseVersion.length);
+    if(/^[1-9]\d*$/.test(sequence))return baseVersion+String(BigInt(sequence)+1n);
+  }
+  if(/^0\.01(?:v|-[a-z])?$/.test(version))return baseVersion;
+  throw Error('지원하지 않는 버전: '+version+' · 기준 버전 변경은 사용자 요청이 필요합니다.');
 }

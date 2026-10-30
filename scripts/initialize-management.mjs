@@ -2,11 +2,12 @@ import fs from 'node:fs';import path from 'node:path';import crypto from 'node:c
 import {fileURLToPath} from 'node:url';
 import {collectGameCatalog} from './game-catalog.mjs';import {gameFingerprint} from './release-core.mjs';
 var root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
+if(fs.existsSync(path.join(root,'docs/management/releases.json')))throw Error('이미 초기화되어 있습니다. 기존 버전을 덮어쓰지 말고 docs:build 또는 release:prepare를 사용하세요.');
 var existing=JSON.parse(fs.readFileSync(path.join(root,'docs/releases/versions.json'),'utf8'));
 var current=existing.releases.find(r=>r.version==='0.01-b');
 var fingerprint=gameFingerprint(root);
-var catalog={schemaVersion:1,currentVersion:'0.01-b',policy:'Changed-game release: b→c…z→nextminor-a; docs-only build never increments.',
-  gameFingerprint:fingerprint,nextVersion:'0.01-c',
+var catalog={schemaVersion:1,currentVersion:'0.01-b',versionBase:'0.1',policy:'다음 배포0.1, 이후0.11→0.12→0.13. 기준 버전은 사용자 요청으로만 변경. 문서만 재생성할 때는 버전을 올리지 않습니다.',
+  gameFingerprint:fingerprint,nextVersion:'0.1',
   snapshots:Object.fromEntries(['void-surfer-0.01v.html','void-surfer-0.01-b.html'].map(name=>[name,crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'docs/releases',name))).digest('hex')])),
   releases:[
     {version:'0.01v',date:'2026-10-29',title:'첫 게임·발표 자료 기준',status:'archived',sourceCommit:'f69a166',document:'../releases/void-surfer-0.01v.html',

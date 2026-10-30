@@ -12,7 +12,7 @@ export function documentOutputs(root=ROOT,r=registry(root)){
   var current=r.releases.find(x=>x.version===r.currentVersion),name='void-surfer-'+r.currentVersion+'.html';
   if(!r.snapshots[name])outputs['docs/releases/'+name]=presentation;
   var legacy=JSON.parse(read(root,'docs/releases/versions.json'));
-  legacy.currentVersion=r.currentVersion;legacy.managementDocument='../management/void-surfer-management.html';legacy.latestDocument='void-surfer-latest.html';
+  legacy.currentVersion=r.currentVersion;legacy.versionPolicy=r.policy;legacy.versionBase=r.versionBase||'0.1';legacy.nextVersion=r.nextVersion;legacy.managementDocument='../management/void-surfer-management.html';legacy.latestDocument='void-surfer-latest.html';
   legacy.releases=r.releases.map(release=>({...legacy.releases?.find(x=>x.version===release.version),...release,document:path.basename(release.document)}));delete legacy.versions;outputs['docs/releases/versions.json']=json(legacy);
   return outputs;
 }
@@ -37,16 +37,17 @@ export function validateGame(root){
 function gitContext(root){var get=args=>{var r=spawnSync('git',args,{cwd:root,encoding:'utf8'});if(r.status!==0)throw Error('Git 메타데이터를 읽을 수 없습니다.');return r.stdout.trim();};return {head:get(['rev-parse','HEAD']),subjects:get(['log','-5','--format=%h %s']),files:get(['status','--short'])};}
 export function prepare(root=ROOT,options={},services={}){
   var old=registry(root),fingerprint=gameFingerprint(root),changed=fingerprint!==old.gameFingerprint;
-  if(options.dryRun)return {changed,currentVersion:old.currentVersion,nextVersion:changed?nextVersion(old.currentVersion):old.currentVersion,fingerprint};
-  if(!changed)return {...build(root,services),changed:false};
+  var current=old.releases.find(r=>r.version===old.currentVersion),needsRelease=changed||(options.newRelease===true&&current?.status==='deployed-verified');
+  if(options.dryRun){var upcoming=nextVersion(old.currentVersion,old.versionBase||'0.1');return {changed,currentVersion:old.currentVersion,preparedVersion:needsRelease?upcoming:old.currentVersion,nextVersion:upcoming,fingerprint};}
+  if(!needsRelease)return {...build(root,services),changed:false};
   if(!options.title?.trim()||!options.changes?.length||options.changes.some(x=>!x.trim()))throw Error('--title 과 한 개 이상의 --change 가 필요합니다.');
   protectSnapshots(root,old);var validation=(services.validate||validateGame)(root);
   if(validation.build!=='passed'||validation.configuration!=='passed'||!validation.tests)throw Error('테스트/빌드/설정 검증이 완료되지 않았습니다.');
   if(gameFingerprint(root)!==fingerprint)throw Error('검증 중 소스가 변경되었습니다. 다시 준비하세요.');
-  var context=(services.git||gitContext)(root),date=options.date||new Date().toISOString().slice(0,10),version=nextVersion(old.currentVersion);
-  var r=structuredClone(old);r.currentVersion=version;r.nextVersion=nextVersion(version);r.gameFingerprint=fingerprint;r.documentationDate=date;
+  var context=(services.git||gitContext)(root),date=options.date||new Date().toISOString().slice(0,10),base=old.versionBase||'0.1',version=nextVersion(old.currentVersion,base);
+  var r=structuredClone(old);r.versionBase=base;r.currentVersion=version;r.nextVersion=nextVersion(version,base);r.gameFingerprint=fingerprint;r.documentationDate=date;
   r.releases.push({version,date,title:options.title.trim(),summary:options.changes.join(' · '),status:'validated-pending-deployment',sourceCommit:context.head,sourceContext:context,appFingerprint:fingerprint,document:'../releases/void-surfer-'+version+'.html',validation,changes:{added:[],changed:options.changes,fixed:[]}});
-  var outputs=(services.outputs||documentOutputs)(root,r);outputs[RELEASE_FILE]=json(r);writeTransaction(root,outputs,services.write);return {version,changed:true,status:'validated-pending-deployment',files:Object.keys(outputs)};
+  var outputs=(services.outputs||documentOutputs)(root,r);outputs[RELEASE_FILE]=json(r);writeTransaction(root,outputs,services.write);return {version,changed,releaseCreated:true,status:'validated-pending-deployment',files:Object.keys(outputs)};
 }
 export function recordDeployment(root=ROOT,proof,services={}){
   var r=registry(root),current=r.releases.find(x=>x.version===r.currentVersion);
@@ -59,7 +60,7 @@ export function recordDeployment(root=ROOT,proof,services={}){
   var outputs=(services.outputs||documentOutputs)(root,r),name='void-surfer-'+r.currentVersion+'.html';if(outputs['docs/releases/'+name]){r.snapshots[name]=sha(Buffer.from(outputs['docs/releases/'+name]));r.snapshotContentSha256??={};r.snapshotContentSha256[name]=sha(Buffer.from(outputs['docs/releases/'+name].replace(/\r\n/g,'\n')));}outputs[RELEASE_FILE]=json(r);writeTransaction(root,outputs,services.write);return {version:r.currentVersion,status:current.status};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-  try{var args=process.argv.slice(2),command=args.shift()||'build',options={changes:[]};for(var i=0;i<args.length;i++){if(args[i]==='--dry-run')options.dryRun=true;else if(args[i]==='--title')options.title=args[++i];else if(args[i]==='--change')options.changes.push(args[++i]);else if(args[i]==='--proof')options.proof=args[++i];else throw Error('알 수 없는 옵션: '+args[i]);}
+  try{var args=process.argv.slice(2),command=args.shift()||'build',options={changes:[]};for(var i=0;i<args.length;i++){if(args[i]==='--dry-run')options.dryRun=true;else if(args[i]==='--new-release')options.newRelease=true;else if(args[i]==='--title')options.title=args[++i];else if(args[i]==='--change')options.changes.push(args[++i]);else if(args[i]==='--proof')options.proof=args[++i];else throw Error('알 수 없는 옵션: '+args[i]);}
     var result=command==='build'?build():command==='check'?check():command==='prepare'?prepare(ROOT,options):command==='record-deployment'?recordDeployment(ROOT,JSON.parse(fs.readFileSync(options.proof,'utf8'))):(()=>{throw Error('지원하지 않는 명령');})();console.log(JSON.stringify(result,null,2));
   }catch(error){console.error(error.message);process.exitCode=1;}
 }
