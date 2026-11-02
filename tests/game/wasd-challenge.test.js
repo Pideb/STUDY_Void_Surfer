@@ -45,7 +45,8 @@ describe('WASD boss challenge', () => {
     const timeout = createChallenge({ bossNumber: 3, rng: () => 0 });
     expect(updateChallenge(timeout, 5)).toBe('failure');
     expect(createChallengeFailureEffect(() => 0).kind).toBe('ink');
-    expect(createChallengeFailureEffect(() => 0.99).kind).toBe('glitch');
+    expect(createChallengeFailureEffect(() => 0.99).kind).toBe('fog');
+    for(const [roll,kind] of [[0,'ink'],[.249,'ink'],[.25,'glitch'],[.5,'crack'],[.75,'fog'],[1,'fog']])expect(createChallengeFailureEffect(()=>roll)).toMatchObject({kind,durationSeconds:8});
     expect(createChallengeFailureEffect(() => 0)).toMatchObject({ remainingSeconds: 8, durationSeconds: 8 });
   });
 });

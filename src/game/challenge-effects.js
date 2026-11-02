@@ -1,4 +1,7 @@
 // Approved ink-v3 and glitch-v5 visuals. Cached noise never alters game geometry.
+import { PENALTY_SETTINGS, drawEditorCrack, drawEditorFog } from './penalty-shapes.js';
+export const GLITCH_BURST_STARTS = Object.freeze([.9, 2.1, 3.15, 4.55, 5.7, 6.9]);
+export const isStrongGlitch = elapsed => GLITCH_BURST_STARTS.some(start => elapsed >= start && elapsed < start + .18);
 function rng(seed){let s=seed>>>0;return()=>{s=(Math.imul(s,1664525)+1013904223)>>>0;return s/4294967296;};}
 
 const clamp=x=>Math.max(0,Math.min(1,x));
@@ -23,12 +26,19 @@ function staticTexture(c,t){
   cache.context.putImageData(cache.image,0,0);return cache.canvas;
 }
 export function drawChallengeFailure(c,effect,player,{reducedMotion=false}={}){
-  if(!effect||!player||!(effect.remainingSeconds>0))return;
+  if(!effect||!player||!(effect.remainingSeconds>0)){textures.delete(c);return;}
+  if(!['ink','glitch','crack','fog'].includes(effect.kind))return;
   const duration=effect.durationSeconds||5,elapsed=Math.max(0,duration-effect.remainingSeconds);
   const age=reducedMotion?1:elapsed,kind=effect.kind;
   const strength=clamp(elapsed/.11)*clamp(effect.remainingSeconds/1.2);c.save();
   // Keep a readable near-ship corridor; obstruction occupies part of the scene.
-  c.beginPath();c.rect(0,0,960,540);c.ellipse(player.x,player.y,74,52,0,0,Math.PI*2);c.clip('evenodd');
+  if(kind==='ink'){c.beginPath();c.rect(0,0,960,540);c.ellipse(player.x,player.y,74,52,0,0,Math.PI*2);c.clip('evenodd');}
+  if(kind==='crack'||kind==='fog'){
+    c.globalAlpha=strength;
+    if(kind==='crack')drawEditorCrack(c,PENALTY_SETTINGS.crack,age,effect.seed??0);
+    else drawEditorFog(c,PENALTY_SETTINGS.fog,age);
+    c.restore();return;
+  }
   if(kind==='ink'){
     c.globalAlpha=strength*.88;
     const spread=.93+.07*clamp(age/.3);
@@ -37,6 +47,13 @@ export function drawChallengeFailure(c,effect,player,{reducedMotion=false}={}){
     for(let i=0;i<5;i++){const x=520+i*58,y=88+(i%3)*12,len=20+clamp(age/1.1)*(30+(i%3)*10);c.beginPath();c.ellipse(x,y+len/2,4+(i%2)*2,len/2,0,0,Math.PI*2);c.fill();}
   }else{
     const noiseCanvas=staticTexture(c,age);const step=Math.floor(age*19),roll=rng(step*491+321);
+    if(!reducedMotion&&isStrongGlitch(elapsed)){
+      c.globalAlpha=.98;c.fillStyle='#010207';c.fillRect(0,0,960,540);
+      c.globalAlpha=.92;if(noiseCanvas)c.drawImage(noiseCanvas,0,0,960,540);
+      c.globalAlpha=.75;c.fillStyle='#253a4f';
+      for(let i=0;i<12;i++)c.fillRect(0,roll()*540,960,2+roll()*9);
+      c.restore();return;
+    }
     c.globalAlpha=strength*.14;c.fillStyle='#020711';c.fillRect(0,0,960,540);
     c.imageSmoothingEnabled=false;c.globalAlpha=strength*.30;if(noiseCanvas)c.drawImage(noiseCanvas,0,0,960,540);
     // Retain fast crackling without replacing the underlying wall silhouettes.

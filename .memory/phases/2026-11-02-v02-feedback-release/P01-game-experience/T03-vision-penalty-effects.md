@@ -2,7 +2,7 @@
 
 > 이 작업은 [v0.2 통합 결정](../../../decisions/2026-11-02-v02-feedback-release.md)에 포함된다. 아래 기존 게임·시각 결정 링크는 원래 승인 세부를 보존한다. 버전·임시 해금·첫3보스·회전·메뉴·기록에 관한 충돌은 v0.2 통합 결정이 우선한다.
 
-## Status: pending
+## Status: done
 
 ## Goal
 승인한 먹물/글리치/균열/안개가 동일 확률로8초 적용되고 최종 화면에서 실제로 시야를 방해한다.
@@ -54,9 +54,9 @@ drawChallengeFailure(ctx:CanvasRenderingContext2D,effect:FailureEffect,player:Pl
 - 미실행 항목은 limitation으로 기록한다. 승인되지 않은 새 디자인/밸런스가 필요하면 기존 승인을 확대 해석하지 말고 증거를 제시한다.
 
 ## Acceptance Criteria
-- [ ] 승인한4종이각25% 후보이며8초후제거된다.
-- [ ] .18초강한글리치가player주변/적공격위에실제로합성된다.
-- [ ] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
+- [x] 승인한4종이각25% 후보이며8초후제거된다.
+- [x] .18초강한글리치가player주변/적공격위에실제로합성된다.
+- [x] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
 
 ## Validation
 - `npm test -- --run tests/game/challenge-effects.test.js tests/game/wasd-challenge.test.js tests/game/renderer.test.js` — 종료코드0 및 대상 검증 통과.
@@ -74,6 +74,9 @@ Task: T03-vision-penalty-effects
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest: 3 files / 55 tests passed. Four RNG boundaries, .18s burst boundaries, ink-only player clip verified. Full framebuffer and small-screen capture deferred to integrated validation.

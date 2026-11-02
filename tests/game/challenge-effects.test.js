@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { drawChallengeFailure } from '../../src/game/challenge-effects.js';
+import { drawChallengeFailure, isStrongGlitch } from '../../src/game/challenge-effects.js';
 
 function context() {
   return { save: vi.fn(), restore: vi.fn(), beginPath: vi.fn(), rect: vi.fn(), ellipse: vi.fn(), clip: vi.fn(),
@@ -29,3 +29,5 @@ describe('approved playable failure overlays', () => {
     expect(c.globalAlpha).toBeCloseTo(.42);
   });
 });
+
+it("uses six exact .18-second opaque bursts without a player clip",()=>{for(const t of [.9,2.1,3.15,4.55,5.7,6.9]){expect(isStrongGlitch(t-.001)).toBe(false);expect(isStrongGlitch(t+.179)).toBe(true);expect(isStrongGlitch(t+.181)).toBe(false);}const c=context();drawChallengeFailure(c,{kind:"glitch",durationSeconds:8,remainingSeconds:7},player);expect(c.clip).not.toHaveBeenCalled();expect(c.fillRect).toHaveBeenCalledWith(0,0,960,540);});

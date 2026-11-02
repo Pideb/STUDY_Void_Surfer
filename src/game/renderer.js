@@ -1043,10 +1043,6 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
         ctx.strokeRect(b.left, b.top, b.right - b.left, b.bottom - b.top); ctx.restore();
       }
     }
-    // Keep essential warning geometry readable above failure obstruction.
-    if (snapshot.feedbackEffect) {
-      drawEnemy();
-    }
     drawTransitionOverlay(ctx, { transition: stage.transition, reducedMotion: prefersReducedMotion });
     ctx.restore();
   }

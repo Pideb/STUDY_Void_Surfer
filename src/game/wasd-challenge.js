@@ -77,7 +77,8 @@ export function updateChallenge(challenge, deltaSeconds) {
 
 export function createChallengeFailureEffect(rng = Math.random) {
   return {
-    kind: roll(rng) < 0.5 ? 'ink' : 'glitch',
+    kind: ['ink', 'glitch', 'crack', 'fog'][Math.floor(roll(rng) * 4)],
+    seed: Math.floor(roll(rng) * 4294967296),
     remainingSeconds: CHALLENGE_FAILURE_EFFECT_SECONDS,
     durationSeconds: CHALLENGE_FAILURE_EFFECT_SECONDS,
   };
