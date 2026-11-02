@@ -19,6 +19,7 @@ function createHarness() {
     })),
     fetchTopScores: vi.fn(async () => ({ rows: [], error: { code: 'NETWORK_ERROR', retryable: true } })),
     fetchPlayerNeighborhood: vi.fn(async () => ({ rows: [{ rank: 3, displayName: 'Pilot', bestScore: 12, isCurrentUser: true }], error: null })),
+    fetchLeaderboardPage: vi.fn(async () => ({rows:[{rank:1,displayName:'Public pilot',bestScore:40,aircraftId:'default'}],error:null})),
   };
   const controller = createAppController({
     root,
@@ -47,7 +48,7 @@ describe('leaderboard failure state', () => {
     harness = null;
   });
 
-  it('keeps score/actions and retries leaderboard queries without resubmitting the score', async () => {
+  it('keeps healthy rows/actions and opens pilot ranking without a retry button or score resubmission', async () => {
     harness = createHarness();
     harness.controller.mount();
     await flush();
@@ -62,9 +63,13 @@ describe('leaderboard failure state', () => {
     expect(harness.root.textContent).toContain('내 주변 순위');
     expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledTimes(1);
 
-    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '다시 시도').click();
+    expect([...harness.root.querySelectorAll('button')].some(button=>button.textContent==='다시 시도')).toBe(false);
+    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '파일럿 랭킹').click();
     await flush();
-    expect(harness.leaderboardService.fetchTopScores).toHaveBeenCalledTimes(2);
+    expect(harness.root.textContent).toContain('Public pilot');
+    expect(harness.leaderboardService.fetchTopScores).toHaveBeenCalledTimes(1);
+    expect(harness.leaderboardService.fetchLeaderboardPage).toHaveBeenCalledOnce();
+    // The second personal read belongs to the ranking screen, not a game-over retry.
     expect(harness.leaderboardService.fetchPlayerNeighborhood).toHaveBeenCalledTimes(2);
     expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledTimes(1);
   });

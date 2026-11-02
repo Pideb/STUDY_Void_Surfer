@@ -3,6 +3,11 @@ import { renderLeaderboardPanel, renderPilotRankingTable } from '../../src/ui/le
 import { renderPilotRankingScreen } from '../../src/ui/screens.js';
 
 describe('leaderboard aircraft identity', () => {
+  it('shows list errors without any game-over retry action',()=>{
+    const panel=renderLeaderboardPanel({top:{error:new Error('offline')},neighborhood:{error:new Error('denied')},submitError:true});
+    expect(panel.querySelector('button')).toBeNull();expect(panel.textContent).not.toContain('다시 시도');
+    expect(panel.textContent).toContain('파일럿 랭킹에서 확인해 주세요.');
+  });
   it('shows a safe ship icon and label without creating markup from pilot names', () => {
     const panel = renderLeaderboardPanel({
       top: { rows: [

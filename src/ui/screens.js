@@ -334,9 +334,9 @@ export function renderGameOverScreen(model, handlers) {
   } else if (model.submitState === 'admin-skipped') {
     panel.append(createMessage(model.submitErrorMessage || '관리자 테스트 점수는 리더보드에 저장되지 않습니다.', 'screen-message'));
   } else if (model.submitError) {
-    panel.append(createMessage(model.submitErrorMessage || '점수를 저장하지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message'));
+    panel.append(createMessage(model.submitErrorMessage || '점수를 저장하지 못했습니다. 로그인 및 연결 상태를 확인해 주세요.', 'screen-message error-message'));
   }
-  panel.append(renderLeaderboardPanel({...model.leaderboard,hideNeighborhood:Boolean(model.guestMode)}, handlers.retryLeaderboard));
+  panel.append(renderLeaderboardPanel({...model.leaderboard,hideNeighborhood:Boolean(model.guestMode)}));
   for(const button of actions.querySelectorAll('button'))button.tabIndex=-1;
   const overlay=document.createElement('div');overlay.className='game-over-overlay';
   const footer=document.createElement('p');footer.className='game-over-restart-hint';

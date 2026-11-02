@@ -203,6 +203,30 @@ describe('leaderboard queries', () => {
     expect(result).toEqual({ rows: [], error: null });
   });
 
+  it.each(['guest','missing-auth','expired-session'])('loads game-over TOP10 publicly for %s',async mode=>{
+    const row=dbRow();delete row.user_id;
+    const client=makeClient({userId:null,rpcImpl:vi.fn(async()=>({data:[row],error:null}))});
+    if(mode==='missing-auth')client.auth=undefined;
+    if(mode==='expired-session')client.auth.getSession.mockRejectedValue(new Error('JWT expired'));
+    const result=await fetchTopScores(client);
+    expect(result.error).toBeNull();expect(result.rows).toHaveLength(1);
+    expect(client.rpc).toHaveBeenCalledExactlyOnceWith('get_public_leaderboard',{p_limit:10,p_offset:0});
+    expect(result.rows[0].userId).toBeNull();
+  });
+
+  it('falls back to public TOP10 on a signed-in authentication error without retrying writes',async()=>{
+    const client=makeClient({rpcImpl:vi.fn().mockResolvedValueOnce({error:{code:'42501',message:'Authentication is required'}}).mockResolvedValueOnce({data:[dbRow({user_id:undefined})],error:null})});
+    const result=await fetchTopScores(client,20);
+    expect(result.error).toBeNull();expect(result.rows).toHaveLength(1);
+    expect(client.rpc.mock.calls.map(call=>call[0])).toEqual(['get_leaderboard','get_public_leaderboard']);
+    expect(client.rpc).toHaveBeenLastCalledWith('get_public_leaderboard',{p_limit:20,p_offset:0});
+  });
+
+  it('does not hide schema or network failures behind an authentication fallback',async()=>{
+    const client=makeClient({rpcImpl:vi.fn(async()=>({error:{code:'PGRST202'}}))});
+    expect((await fetchTopScores(client)).error.code).toBe('SCHEMA_MISSING');expect(client.rpc).toHaveBeenCalledOnce();
+  });
+
   it('loads a public leaderboard page without authentication or private user IDs', async () => {
     const client = makeClient({
       rpcImpl: vi.fn(async () => ({

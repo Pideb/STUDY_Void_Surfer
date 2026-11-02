@@ -1,0 +1,23 @@
+{
+  "healthy": {
+    "rows": 10,
+    "hasRetry": false,
+    "sections": 1
+  },
+  "failure": {
+    "hasRetry": false,
+    "rankingAction": true
+  },
+  "fullRankingRows": 12,
+  "calls": [
+    {
+      "name": "get_public_leaderboard",
+      "status": 200
+    },
+    {
+      "name": "get_public_leaderboard",
+      "status": 200
+    }
+  ],
+  "scoreWrites": 0
+}

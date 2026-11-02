@@ -38,4 +38,4 @@ Task: T01-visible-boss-contact
 ## Progress
 - [x] implementation
 - [x] validation
-- commit: pending
+- commit: aeb3ac6

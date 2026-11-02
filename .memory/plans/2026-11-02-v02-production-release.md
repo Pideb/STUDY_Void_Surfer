@@ -6,4 +6,4 @@
 - [P01](../phases/2026-11-02-v02-production-release/P01-release/phase.md)
 - T01: 가이드 원고/디자인·전체 release:prepare·문서 동기화·DB gate 확인·커밋.
 - T02: 필수 운영 gate 충족 후 push·Actions·운영 번들 확인·record-deployment·기록 커밋.
-- Status: in_progress
+- Status: done; original deployment and metadata follow-up success/live bundle hash verified2026-11-03. Canonical proof recorded4a05dc4; follow-up evidence under validation directory.

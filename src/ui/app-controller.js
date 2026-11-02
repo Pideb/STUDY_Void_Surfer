@@ -315,7 +315,6 @@ export function createAppController(deps) {
       }, {
         restart: () => dispatch({ type: 'RESTART_IMMEDIATE' }),
         menu: () => dispatch({ type: 'RETURN_TO_MENU' }),
-        retryLeaderboard: () => loadGameOverData({ submitScore: state.submitState === 'error' }),
         ranking: () => dispatch({ type: 'OPEN_PILOT_RANKING', returnScreen: 'game-over' }),
       }));
       return;
@@ -840,7 +839,10 @@ export function createAppController(deps) {
     const requestId = ++state.gameOverRequest;
     const {score,aircraftId,adminRun}=run;
     const shouldSubmitScore=Boolean(run.user&&!adminRun);
-    const isCurrent=()=>requestId===state.gameOverRequest&&state.screen==='game-over'&&finishedRun?.runId===run.runId;
+    const isCurrent=()=>requestId===state.gameOverRequest&&finishedRun?.runId===run.runId
+      &&(state.user?.id??null)===run.userId
+      &&(state.screen==='game-over'||(state.screen==='pilot-ranking'&&state.rankingReturnScreen==='game-over'));
+    const paintResult=()=>{if(state.screen==='game-over')paint();};
     state.leaderboard = {
       top: { loading: true }, neighborhood: { loading: true },
     };
@@ -873,33 +875,27 @@ export function createAppController(deps) {
           ? submitResult.error.message
           : submitResult.error?.code
             ? submitResult.error.message
-            : '점수를 저장하지 못했습니다. 다시 시도해 주세요.';
+            : '점수를 저장하지 못했습니다. 로그인 및 연결 상태를 확인해 주세요.';
       }
     }
 
-    try {
-      const [topResult, neighborhoodResult] = await Promise.all([
-        leaderboardService.fetchTopScores(),
-        run.user ? leaderboardService.fetchPlayerNeighborhood() : Promise.resolve({rows:[],error:null}),
-      ]);
+    if(!isCurrent())return;
+    state.submitError = shouldSubmitScore
+      ? !isValidScoreSubmission(submitResult, score, run.userId)
+      : state.submitState === 'error';
+    state.leaderboard.submitError = state.submitError;
+    paintResult();
+    const loadList=async(key,read)=>{
+      let result;
+      try{result=await read();}catch(error){result={rows:[],error};}
       if(!isCurrent())return;
-      state.submitError = shouldSubmitScore
-        ? !isValidScoreSubmission(submitResult, score, run.userId)
-        : state.submitState === 'error';
-      state.leaderboard = {
-        top: { rows: topResult?.rows ?? [], error: topResult?.error ?? null },
-        neighborhood: { rows: neighborhoodResult?.rows ?? [], error: neighborhoodResult?.error ?? null },
-        submitError: state.submitError,
-      };
-      paint();
-    } catch {
-      if(!isCurrent())return;
-      state.submitError = state.submitState === 'error';
-      state.leaderboard = {
-        top: { error: true }, neighborhood: { error: true }, submitError: true,
-      };
-      paint();
-    }
+      state.leaderboard={...state.leaderboard,[key]:{rows:result?.rows??[],error:result?.error??null}};
+      paintResult();
+    };
+    await Promise.all([
+      loadList('top',()=>leaderboardService.fetchTopScores()),
+      loadList('neighborhood',()=>run.user?leaderboardService.fetchPlayerNeighborhood():Promise.resolve({rows:[],error:null})),
+    ]);
   }
 
   function attachRankingObserver() {

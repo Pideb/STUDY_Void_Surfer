@@ -109,14 +109,17 @@ export async function submitBestScore(client, { score, displayName, aircraftId =
 
 export async function fetchTopScores(client, limit = DEFAULT_TOP_LIMIT) {
   const safeLimit = clampInteger(limit, DEFAULT_TOP_LIMIT, 1, MAX_TOP_LIMIT);
+  const currentUserId = await getCurrentUserId(client);
+  if (!currentUserId) return fetchLeaderboardPage(client, { limit: safeLimit, offset: 0 });
 
   try {
     const { data, error } = await client.rpc('get_leaderboard', { p_limit: safeLimit });
+    if (error && mapLeaderboardError(error).requiresAuth) return fetchLeaderboardPage(client, { limit: safeLimit, offset: 0 });
     if (error) return { rows: [], error: mapLeaderboardError(error) };
 
-    const currentUserId = await getCurrentUserId(client);
     return { rows: normalizeLeaderboardRows(data, currentUserId), error: null };
   } catch (error) {
+    if (mapLeaderboardError(error).requiresAuth) return fetchLeaderboardPage(client, { limit: safeLimit, offset: 0 });
     return { rows: [], error: mapLeaderboardError(error) };
   }
 }

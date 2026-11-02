@@ -689,7 +689,7 @@ describe('app controller product flow', () => {
     expect(harness.root.textContent).toContain('내 주변 순위');
   });
 
-  it('retries a failed score write, then refreshes the leaderboard after success', async () => {
+  it('keeps a failed score write truthful without a game-over retry button', async () => {
     const submitBestScore = vi.fn()
       .mockResolvedValueOnce({ error: new Error('temporary write failure') })
       .mockResolvedValueOnce(savedScoreResult());
@@ -702,11 +702,10 @@ describe('app controller product flow', () => {
     await settle();
 
     expect(submitBestScore).toHaveBeenCalledTimes(1);
-    harness.root.querySelector('.leaderboard-panel button').click();
-    await settle();
-
-    expect(submitBestScore).toHaveBeenCalledTimes(2);
-    expect(harness.root.textContent).toContain('점수가 계정에 등록되었습니다.');
+    expect(harness.root.querySelector('.leaderboard-panel button')).toBeNull();
+    expect(harness.root.textContent).toContain('점수를 저장하지 못했습니다');
+    expect(harness.root.textContent).not.toContain('점수가 계정에 등록되었습니다.');
+    expect(harness.root.textContent).toContain('파일럿 랭킹');
   });
 
   it('does not report a malformed resolved score response as saved', async () => {
@@ -753,6 +752,46 @@ describe('app controller product flow', () => {
     expect(harness.root.textContent).toContain('점수가 계정에 등록되었습니다');
     expect(harness.root.textContent).not.toContain('점수를 저장하지 못했습니다');
     expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledOnce();
+  });
+
+  it.each(['top','neighborhood'])('keeps the other game-over list when %s rejects',async failed=>{
+    const rows=[{rank:1,userId:'other',displayName:'Healthy list pilot',bestScore:18}];
+    const success=async()=>({rows,error:null}),failure=async()=>{throw Error('read failed');};
+    harness=makeHarness({leaderboard:{fetchTopScores:failed==='top'?failure:success,fetchPlayerNeighborhood:failed==='neighborhood'?failure:success}});
+    harness.controller.mount();await settle();harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');harness.controller.dispatch('GAME_OVER');await settle();
+    expect(harness.root.textContent).toContain('Healthy list pilot');
+    expect(harness.root.querySelectorAll('.leaderboard-section.error-message')).toHaveLength(1);
+    expect(harness.root.querySelector('.leaderboard-panel button')).toBeNull();
+    expect(harness.root.textContent).toContain('점수가 계정에 등록되었습니다');
+  });
+
+  it.each(['top','neighborhood'])('shows the other game-over list while %s is still pending',async pending=>{
+    const request=deferred(),success=async()=>({rows:[{rank:2,displayName:'Ready list pilot',bestScore:7}],error:null});
+    harness=makeHarness({leaderboard:{fetchTopScores:pending==='top'?()=>request.promise:success,fetchPlayerNeighborhood:pending==='neighborhood'?()=>request.promise:success}});
+    harness.controller.mount();await settle();harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');harness.controller.dispatch('GAME_OVER');await settle();
+    expect(harness.root.textContent).toContain('Ready list pilot');expect(harness.root.querySelectorAll('.leaderboard-section[aria-busy="true"]')).toHaveLength(1);
+    request.resolve({rows:[],error:null});await settle();
+  });
+
+  it('caches game-over results received while pilot ranking is open and displays them on return',async()=>{
+    const top=deferred(),neighborhood=deferred();
+    harness=makeHarness({leaderboard:{fetchTopScores:()=>top.promise,fetchPlayerNeighborhood:()=>neighborhood.promise}});
+    harness.controller.mount();await settle();harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');harness.controller.dispatch('GAME_OVER');
+    harness.controller.dispatch({type:'OPEN_PILOT_RANKING',returnScreen:'game-over'});await settle();
+    top.resolve({rows:[{rank:1,displayName:'Cached top pilot',bestScore:42}],error:null});neighborhood.resolve({rows:[{rank:3,displayName:'Cached neighbor',bestScore:9}],error:null});await settle();
+    expect(harness.root.querySelector('.pilot-ranking-screen')).not.toBeNull();
+    harness.controller.dispatch('CLOSE_PILOT_RANKING');
+    expect(harness.root.textContent).toContain('Cached top pilot');expect(harness.root.textContent).toContain('Cached neighbor');
+    expect(harness.root.querySelector('[aria-busy="true"]')).toBeNull();
+    expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledOnce();
+  });
+
+  it('ignores an old finished-run response after an immediate restart',async()=>{
+    const old=deferred();harness=makeHarness({leaderboard:{fetchTopScores:()=>old.promise}});
+    harness.controller.mount();await settle();harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');harness.controller.dispatch('GAME_OVER');await settle();
+    harness.controller.dispatch('RESTART_IMMEDIATE');await settle();
+    old.resolve({rows:[{rank:1,displayName:'Stale run pilot',bestScore:1}],error:null});await settle();
+    expect(harness.root.textContent).not.toContain('Stale run pilot');expect(harness.root.querySelector('.game-over-screen')).toBeNull();
   });
 
   it('plays dash feedback only for successful special-wall dashes and announces mode changes once', async () => {
