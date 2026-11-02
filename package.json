@@ -13,6 +13,8 @@
     "verify:config": "node scripts/verify-config.mjs",
     "test": "vitest",
     "test:watch": "vitest --watch",
+    "guide:build": "node scripts/build-player-guide.mjs",
+    "guide:check": "node scripts/build-player-guide.mjs --check",
     "docs:build": "node scripts/release-docs.mjs build",
     "docs:check": "node scripts/release-docs.mjs check",
     "release:prepare": "node scripts/release-docs.mjs prepare",

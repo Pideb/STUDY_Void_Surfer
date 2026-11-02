@@ -32,6 +32,11 @@ describe('product flow screens', () => {
     expect(labels).toContain('기체 선택');
     expect(labels).toContain('파일럿 랭킹');
     expect(labels).toContain('로그아웃');
+    const guide = screen.querySelector('.menu-utility-row a');
+    expect(guide.getAttribute('href')).toBe('/guide/index.html');
+    expect(guide.target).toBe('_blank');
+    expect(guide.rel).toBe('noopener');
+    expect(guide.nextElementSibling.classList.contains('icon-button')).toBe(true);
   });
 
   it('shows readable title text if the menu logo image fails to load', () => {

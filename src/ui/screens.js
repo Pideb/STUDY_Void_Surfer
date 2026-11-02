@@ -155,13 +155,23 @@ export function renderMenuScreen(model, handlers) {
     createButton('게임 시작', handlers.start, { className: 'primary-button' }),
     createButton('기체 선택', handlers.hangar, { className: 'secondary-button' }),
     createButton('파일럿 랭킹', handlers.ranking, { className: 'secondary-button' }),
-    createIconButton({
+  );
+  const utilityRow = document.createElement('div');
+  utilityRow.className = 'menu-utility-row';
+  const guide = document.createElement('a');
+  guide.className = 'menu-guide-link';
+  guide.href = '/guide/index.html';
+  guide.target = '_blank';
+  guide.rel = 'noopener';
+  guide.textContent = '플레이 가이드 ↗';
+  utilityRow.append(guide, createIconButton({
       label: model.muted ? '소리 켜기' : '음소거',
       icon: model.muted ? 'volume-off' : 'volume-on',
       onClick: handlers.toggleMute,
       className: 'secondary-button',
     }),
   );
+  actions.append(utilityRow);
 
   const accountActions = document.createElement('div');
   accountActions.className = 'account-actions';

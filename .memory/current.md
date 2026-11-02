@@ -7,10 +7,10 @@
 [P03-docs-validation](./phases/2026-11-02-v02-feedback-release/P03-docs-validation/phase.md)
 
 ## Active Task
-[T16](./phases/2026-11-02-v02-feedback-release/P03-docs-validation/T16-player-guide-and-manual-updates.md)
+[T17](./phases/2026-11-02-v02-feedback-release/P03-docs-validation/T17-local-development-preview-archive.md)
 
 ## Status
-T15 done. Execution 15/19. User authorized implementation and commits through last Task; NO push/deployment. Production remains0.01-b; next release0.2 only upon user deployment request.
+T16 done. Execution 16/19. User authorized implementation and commits through last Task; NO push/deployment. Production remains0.01-b; next release0.2 only upon user deployment request.
 
 ## Next Step (IMPORTANT)
 Read the active Task blueprint, implement, validate and commit, then continue automatically. Preserve approved green timing guides, private stats and unrelated prototypes. Stage named paths only. Official docs fingerprint gate is not bypassed; release preparation awaits deployment request.

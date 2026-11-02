@@ -1,6 +1,6 @@
 # Task: T16 플레이어 가이드 HTML·수동 업데이트·메뉴 링크
 
-## Status: pending
+## Status: done
 
 ## Goal
 실제배포URL에서조작법과개발자수동업데이트를읽을수있고승인한메뉴링크로새탭을연다.
@@ -59,9 +59,9 @@ buildPlayerGuide(root:string,options?:{check?:boolean}):void;
 - 네트워크/원격 자원 접근이 없으면 미실행 사실·정확한 후속 명령·예상 결과를 기록하며 운영 완료로 보고하지 않는다.
 
 ## Acceptance Criteria
-- [ ] 게임메뉴에서배포가능한플레이어HTML을새탭으로열수있다.
-- [ ] 수동업데이트원고가자동생성에덮어쓰이지않고버전표시만동기화된다.
-- [ ] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
+- [x] 게임메뉴에서배포가능한플레이어HTML을새탭으로열수있다.
+- [x] 수동업데이트원고가자동생성에덮어쓰이지않고버전표시만동기화된다.
+- [x] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
 
 ## Validation
 - `npm test -- --run tests/docs/player-guide.test.js tests/ui/screens.test.js tests/ui/menu-navigation.test.js tests/deployment/config.test.js` — 종료0.
@@ -83,6 +83,11 @@ Task: T16-player-guide-and-manual-updates
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- 5 targeted files / 40 tests passed; production build, guide:check and verify:config passed.
+- Real browser 375px portrait has no horizontal overflow; one semantic main; Space on menu anchor opens a new guide tab; zero runtime errors.
+- Manual updates remain empty. Preparation rollback and read-only dry run tested in isolated fixtures only; no release prepared.

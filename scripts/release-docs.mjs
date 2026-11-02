@@ -1,5 +1,6 @@
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
 import {ROOT,managementOutput} from './build-management.mjs';import {presentationOutput} from './build-presentation.mjs';import {gameFingerprint,nextVersion} from './release-core.mjs';
+import {GUIDE_FILE,hasPlayerGuide,playerGuideOutput} from './build-player-guide.mjs';
 const RELEASE_FILE='docs/management/releases.json';
 function read(root,file){return fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n');}
 function json(v){return JSON.stringify(v,null,2)+'\n';}
@@ -14,6 +15,7 @@ export function documentOutputs(root=ROOT,r=registry(root)){
   var legacy=JSON.parse(read(root,'docs/releases/versions.json'));
   legacy.currentVersion=r.currentVersion;legacy.versionPolicy=r.policy;legacy.versionBase=r.versionBase||'0.1';legacy.nextVersion=r.nextVersion;legacy.managementDocument='../management/void-surfer-management.html';legacy.latestDocument='void-surfer-latest.html';
   legacy.releases=r.releases.map(release=>({...legacy.releases?.find(x=>x.version===release.version),...release,document:path.basename(release.document)}));delete legacy.versions;outputs['docs/releases/versions.json']=json(legacy);
+  if(hasPlayerGuide(root))outputs[GUIDE_FILE]=playerGuideOutput(root);
   return outputs;
 }
 export function writeTransaction(root,outputs,write=(file,content)=>fs.writeFileSync(file,content)){
@@ -36,9 +38,16 @@ export function validateGame(root){
 }
 function gitContext(root){var get=args=>{var r=spawnSync('git',args,{cwd:root,encoding:'utf8'});if(r.status!==0)throw Error('Git 메타데이터를 읽을 수 없습니다.');return r.stdout.trim();};return {head:get(['rev-parse','HEAD']),subjects:get(['log','-5','--format=%h %s']),files:get(['status','--short'])};}
 export function prepare(root=ROOT,options={},services={}){
-  var old=registry(root),fingerprint=gameFingerprint(root),changed=fingerprint!==old.gameFingerprint;
+  var target=path.join(root,GUIDE_FILE),guide=hasPlayerGuide(root)?playerGuideOutput(root):null,previous=fs.existsSync(target)?fs.readFileSync(target):null;
+  var guideStale=guide!==null&&(previous===null||previous.toString('utf8').replace(/\r\n/g,'\n')!==guide);
+  if(!options.dryRun&&guideStale){fs.mkdirSync(path.dirname(target),{recursive:true});fs.writeFileSync(target,guide);}
+  try{return prepareWithGuide(root,options,services,guideStale);}
+  catch(error){if(!options.dryRun&&guideStale){if(previous===null)fs.unlinkSync(target);else fs.writeFileSync(target,previous);}throw error;}
+}
+function prepareWithGuide(root,options,services,guideStale){
+  var old=registry(root),fingerprint=gameFingerprint(root),changed=guideStale||fingerprint!==old.gameFingerprint;
   var current=old.releases.find(r=>r.version===old.currentVersion),needsRelease=changed||(options.newRelease===true&&current?.status==='deployed-verified');
-  if(options.dryRun){var upcoming=nextVersion(old.currentVersion,old.versionBase||'0.1');return {changed,currentVersion:old.currentVersion,preparedVersion:needsRelease?upcoming:old.currentVersion,nextVersion:upcoming,fingerprint};}
+  if(options.dryRun){var upcoming=nextVersion(old.currentVersion,old.versionBase||'0.1');return {changed,guideStale,currentVersion:old.currentVersion,preparedVersion:needsRelease?upcoming:old.currentVersion,nextVersion:upcoming,fingerprint};}
   if(!needsRelease)return {...build(root,services),changed:false};
   if(!options.title?.trim()||!options.changes?.length||options.changes.some(x=>!x.trim()))throw Error('--title 과 한 개 이상의 --change 가 필요합니다.');
   protectSnapshots(root,old);var validation=(services.validate||validateGame)(root);

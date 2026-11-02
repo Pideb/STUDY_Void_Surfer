@@ -393,6 +393,10 @@ button:focus-visible {
   min-width: 8rem;
 }
 
+.menu-utility-row { display:flex;align-items:center;justify-content:space-between;gap:24px; }
+.menu-guide-link { display:inline-flex;align-items:center;min-height:44px;padding:8px 0;color:#a9c5d5;font-size:16px;text-decoration:none; }
+.menu-guide-link:hover,.menu-guide-link.is-keyboard-current,.menu-guide-link:focus-visible { color:#e2faff;text-shadow:0 0 14px #7de8ff;outline:1px solid #7de8ff;outline-offset:5px; }
+
 .menu-screen .menu-actions > button:not(.icon-button) {
   width: 100%;
   justify-content: flex-start;
