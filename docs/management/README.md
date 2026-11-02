@@ -4,6 +4,8 @@
 
 현재 운영 식별자는 **0.01-b**, 표시 별칭은 **v0.1b**입니다. 이번 구현은 **v0.2 로컬 개발 검토본**이며 아직 배포하지 않았습니다. 최신 변경은 [관리 검토본](../../.memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/management/void-surfer-management.html)과 [발표 검토본](../../.memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/releases/void-surfer-latest.html)에서 확인하세요. 기존 공식 두 HTML과 보호 스냅샷은 배포 준비 전까지 유지합니다.
 
+로컬 게임의 버전 표시는 `releases.json`의 `developmentVersion`을 사용하여 **v0.2 · 개발**로 나옵니다. production 표시와 운영 배포 기록은 별도입니다. 시작 오디오는 페이지 load 시 기존 Web Audio 경로에서 한 번 자동 재생을 시도하고, 정책으로 차단되면 첫 클릭/키 입력으로 재개합니다. 별도 `<audio>` 예제 실험과 실제 브라우저 결과는 [시작 오디오 검증](../../.memory/validation/2026-11-02-startup-autoplay/report.md)에 기록했습니다.
+
 슬라이더는 **문서 안의 가상 실험**입니다. 게임 코드·계정·서버·배포 값을 수정하지 않습니다. 제안 JSON을 내려받을 수 있습니다. 판정/물리 모델은 실제 게임 함수와 비교하는 테스트를 유지합니다. 모션 예시는 실제 자산으로 만든 설명용 애니메이션이며 실게임 전체 렌더러의 녹화가 아닙니다.
 
 ## 수정과 생성

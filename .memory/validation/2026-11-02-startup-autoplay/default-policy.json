@@ -1,0 +1,43 @@
+{
+  "policy": "default-policy",
+  "policyOverride": null,
+  "browser": {
+    "protocolVersion": "1.3",
+    "product": "Edg/156.0.4314.58",
+    "revision": "@7806b68d20d1c1273d5b07b4f4de18e8f5852581",
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0",
+    "jsVersion": "15.6.12.10"
+  },
+  "literal": {
+    "result": {
+      "attempted": true,
+      "status": "NotAllowedError"
+    },
+    "paused": true,
+    "time": 0
+  },
+  "before": {
+    "version": "v0.2 · 개발",
+    "states": [
+      "suspended"
+    ],
+    "starts": 0,
+    "resumes": 1
+  },
+  "after": {
+    "states": [
+      "running"
+    ],
+    "starts": [
+      {
+        "state": "running",
+        "time": 0.04
+      }
+    ],
+    "resumes": 2,
+    "unhandled": [],
+    "stillMenu": true
+  },
+  "exceptions": [],
+  "auditoryListeningVerified": false
+}

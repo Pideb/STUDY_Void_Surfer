@@ -56,7 +56,7 @@ function prepareWithGuide(root,options,services,guideStale){
   if(validation.build!=='passed'||validation.configuration!=='passed'||!validation.tests)throw Error('테스트/빌드/설정 검증이 완료되지 않았습니다.');
   if(gameFingerprint(root)!==fingerprint)throw Error('검증 중 소스가 변경되었습니다. 다시 준비하세요.');
   var context=(services.git||gitContext)(root),date=options.date||new Date().toISOString().slice(0,10),base=old.versionBase||'0.1',version=nextVersion(old.currentVersion,base);
-  var r=structuredClone(old);r.versionBase=base;r.currentVersion=version;r.nextVersion=nextVersion(version,base);r.gameFingerprint=fingerprint;r.documentationDate=date;
+  var r=structuredClone(old);r.versionBase=base;r.currentVersion=version;r.developmentVersion=version;r.nextVersion=nextVersion(version,base);r.gameFingerprint=fingerprint;r.documentationDate=date;
   r.releases.push({version,date,title:options.title.trim(),summary:options.changes.join(' · '),status:'validated-pending-deployment',sourceCommit:context.head,sourceContext:context,appFingerprint:fingerprint,document:'../releases/void-surfer-'+version+'.html',validation,changes:{added:[],changed:options.changes,fixed:[]}});
   var outputs=(services.outputs||documentOutputs)(root,r);outputs[RELEASE_FILE]=json(r);writeTransaction(root,outputs,services.write);return {version,changed,releaseCreated:true,status:'validated-pending-deployment',files:Object.keys(outputs)};
 }

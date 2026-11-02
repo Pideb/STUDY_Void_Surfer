@@ -1,7 +1,7 @@
 # Current Context
 
 ## Active Plan
-[v0.2 feedback release](./plans/2026-11-02-v02-feedback-release.md)
+[Startup autoplay](./plans/2026-11-02-startup-autoplay.md)
 
 ## Active Phase
 None
@@ -10,7 +10,7 @@ None
 None
 
 ## Status
-T19 done. Execution 19/19. User authorized implementation and commits through last Task; NO push/deployment. Production remains0.01-b; next release0.2 only upon user deployment request.
+Previous v0.2 plan19/19 complete. Startup autoplay follow-up1/1 complete. Local development label0.2, production remains0.01-b. NO push/deployment. Full1361 tests/build/config passed; browser default/allowed/production cases recorded.
 
 ## Next Step (IMPORTANT)
-All local implementation tasks complete; see final validation report. Preserve approved green timing guides, private stats and unrelated prototypes. Stage named paths only. Official docs fingerprint gate is not bypassed; release preparation awaits deployment request.
+Await user local play feedback and deployment decision. See validation/2026-11-02-startup-autoplay/report.md. Browser autoplay blocks can require a first user gesture; do not promise unconditional audible autoplay. Remote DB gates from prior HANDOFF still apply.

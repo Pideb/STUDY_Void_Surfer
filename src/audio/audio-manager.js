@@ -94,6 +94,7 @@ function createNoopManager() {
   let muted = false;
   return {
     async unlock() {},
+    tryAutoplay() { return false; },
     async prepareGameplay() { return false; },
     startPreparedGameplay() {},
     setMuted(value) { muted = Boolean(value); },
@@ -127,6 +128,7 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
   let roarVoice = null;
   let pausedRoar = null;
   let destroyed = false;
+  let autoplayAttempted = false;
   let musicTimer = null;
   let musicMode = 'none';
   let musicStep = 0;
@@ -376,6 +378,16 @@ export function createAudioManager(AudioContextCtor = globalThis.AudioContext ??
 
   const manager = {
     unlock: unlockAudio,
+    tryAutoplay() {
+      if (destroyed || muted || musicPaused || musicMode !== 'menu') return false;
+      if (!autoplayAttempted) {
+        autoplayAttempted = true;
+        // A blocked resume may remain pending until activation. Do not make
+        // the first user gesture await this request; unlock() can retry it.
+        void unlockAudio().catch(() => {});
+      }
+      return context?.state === 'running';
+    },
     async prepareGameplay(sceneId) {
       const ticket = ++preparationGeneration;
       stageTrackOnly = true;

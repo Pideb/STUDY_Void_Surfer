@@ -32,6 +32,7 @@ describe('product flow screens', () => {
     expect(labels).toContain('기체 선택');
     expect(labels).toContain('파일럿 랭킹');
     expect(labels).toContain('로그아웃');
+    expect(screen.querySelector('.menu-version').textContent).toBe('v0.2 · 개발');
     const guide = screen.querySelector('.menu-utility-row a');
     expect(guide.getAttribute('href')).toBe('/guide/index.html');
     expect(guide.target).toBe('_blank');

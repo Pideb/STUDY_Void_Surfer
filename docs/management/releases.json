@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "currentVersion": "0.01-b",
+  "developmentVersion": "0.2",
   "policy": "다음 배포0.2, 이후0.21→0.22→0.23. 순번은 문자열로 붙이며 기준 버전 변경은 사용자 명시 요청 때만 합니다. 문서만 재생성할 때는 현재 버전을 유지합니다.",
   "versionBase": "0.2",
   "gameFingerprint": "b3597a5c9047f3c3719efa031ae55b63131152b65342e30af35a86b1a023a5c0",

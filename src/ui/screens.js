@@ -4,7 +4,7 @@ import { renderLeaderboardPanel, renderPilotRankingTable } from './leaderboard-v
 import { VISUAL_ASSET_MANIFEST } from '../game/visual-assets.js';
 import releases from '../../docs/management/releases.json' with { type: 'json' };
 import {getAircraftAccess} from '../game/feedback-policy.js';
-import {getDisplayVersion} from '../lib/release-version.js';
+import {getGameVersion} from '../lib/release-version.js';
 
 export function renderPreparingScreen(_model, handlers) {
   const panel = createPanel('출격 준비 중');
@@ -194,7 +194,8 @@ export function renderMenuScreen(model, handlers) {
   }
   menu.append(brand, aircraftPreview, actions, accountActions);
   const version = document.createElement('small');
-  version.className = 'menu-version';version.textContent = `v${getDisplayVersion(releases.currentVersion,releases)}`;
+  version.className = 'menu-version';
+  version.textContent = `v${getGameVersion(releases,{development:import.meta.env.DEV})}${import.meta.env.DEV?' · 개발':''}`;
   menu.append(version);
   if (model.adminDialogOpen) {
     menu.append(renderAdminSettingsDialog(model, {

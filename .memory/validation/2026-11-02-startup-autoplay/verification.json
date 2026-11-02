@@ -1,0 +1,22 @@
+{
+  "sourceHead": "1f1861c2b79ee63d555d9ff03a8d0c6b1635cbec",
+  "sourceHashes": {
+    "src/audio/audio-manager.js": "c8e66c4cf4af042bdc99d0c9b02df1934cb4635b0f398b6dd857c1c5f77b6803",
+    "src/ui/app-controller.js": "da46cf6c48c29caf17d492c0474df0299fa5475d828ff4b44c27d860403547df",
+    "src/ui/screens.js": "19c98e1b29e19dd38e7de859f4e1dc0945d63938510cceebf7462672cb678e49",
+    "src/lib/release-version.js": "91e79cb3e3ce553aa64c4fa40ab16ac9b163859e72802fa62391aea2af8dfdba",
+    "scripts/release-docs.mjs": "7769f0a27ce8ecf2930b9ac6f412e8199e0c9d61183f8222b18cb8764ec188a9",
+    "docs/management/releases.json": "b11641f044c06e830ccf4ea4f97408eb0ef4d27f9ee6351f0e1fa6dbc8470ab4"
+  },
+  "gameFingerprint": "49d57a74382696eb651807d8e8f495e51558a93198be17852552041e3a5a8dd4",
+  "tests": {
+    "passed": 1361,
+    "files": 81
+  },
+  "build": "passed",
+  "configuration": "passed",
+  "productionVersion": "0.01-b",
+  "developmentVersion": "0.2",
+  "protectedSnapshotsUnchanged": true,
+  "deploymentPerformed": false
+}

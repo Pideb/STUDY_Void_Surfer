@@ -88,6 +88,16 @@ async function settle() {
 
 describe('app controller product flow', () => {
   let harness;
+  it('attempts on load once and keeps first input independent of a pending automatic request',async()=>{
+    vi.spyOn(document,'readyState','get').mockReturnValue('loading');
+    harness=makeHarness({user:null});harness.audioManager.tryAutoplay=vi.fn(()=>new Promise(()=>{}));harness.controller.mount();await settle();
+    expect(harness.audioManager.tryAutoplay).not.toHaveBeenCalled();window.dispatchEvent(new Event('load'));window.dispatchEvent(new Event('load'));expect(harness.audioManager.tryAutoplay).toHaveBeenCalledOnce();
+    window.dispatchEvent(new Event('pointerdown'));await settle();expect(harness.audioManager.unlock).toHaveBeenCalledOnce();expect(harness.gameEngine.start).not.toHaveBeenCalled();
+  });
+  it('attempts immediately after load and removes an unfired load handler on destroy',async()=>{
+    const ready=vi.spyOn(document,'readyState','get').mockReturnValue('complete');harness=makeHarness({user:null});harness.audioManager.tryAutoplay=vi.fn(()=>true);harness.controller.mount();expect(harness.audioManager.tryAutoplay).toHaveBeenCalledOnce();harness.controller.destroy();harness.root.remove();
+    ready.mockReturnValue('loading');harness=makeHarness({user:null});harness.audioManager.tryAutoplay=vi.fn(()=>true);harness.controller.mount();harness.controller.destroy();window.dispatchEvent(new Event('load'));expect(harness.audioManager.tryAutoplay).not.toHaveBeenCalled();
+  });
   afterEach(() => {
     harness?.controller.destroy();
     harness?.root.remove();

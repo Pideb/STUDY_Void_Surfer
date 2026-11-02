@@ -378,6 +378,20 @@ describe('audio manager', () => {
     expect(manager.isMuted()).toBe(false);
   });
 
+  it('tries allowed startup playback once and preserves mute and pause boundaries',async()=>{
+    vi.useFakeTimers();const manager=createAudioManager(MockAudioContext);manager.setMusicMode('menu');manager.setMuted(true);expect(manager.tryAutoplay()).toBe(false);expect(MockAudioContext.instances).toHaveLength(0);manager.setMuted(false);manager.pauseMusic();expect(manager.tryAutoplay()).toBe(false);manager.resumeMusic();manager.tryAutoplay();await Promise.resolve();const ctx=MockAudioContext.instances[0];expect(ctx.state).toBe('running');expect(ctx.resume).toHaveBeenCalledOnce();manager.tryAutoplay();expect(ctx.resume).toHaveBeenCalledOnce();manager.destroy();expect(manager.tryAutoplay()).toBe(false);
+  });
+
+  it('can unlock on a gesture while a blocked startup resume is still pending',async()=>{
+    vi.useFakeTimers();let resolveStartup;class Context extends MockAudioContext{constructor(){super();this.resume=vi.fn().mockImplementationOnce(()=>new Promise(resolve=>{resolveStartup=resolve;})).mockImplementation(async()=>{this.state='running';});}}
+    const manager=createAudioManager(Context);manager.setMusicMode('menu');expect(manager.tryAutoplay()).toBe(false);await manager.unlock();const ctx=MockAudioContext.instances[0];expect(ctx.resume).toHaveBeenCalledTimes(2);manager.setMusicMode('none');resolveStartup();await Promise.resolve();const voices=ctx.oscillators.length;vi.advanceTimersByTime(1000);expect(ctx.oscillators).toHaveLength(voices);manager.destroy();
+  });
+
+  it('handles rejected automatic playback and still permits gesture retry',async()=>{
+    vi.useFakeTimers();class Context extends MockAudioContext{constructor(){super();this.resume.mockRejectedValueOnce(new DOMException('Blocked','NotAllowedError'));}}
+    const manager=createAudioManager(Context);manager.setMusicMode('menu');manager.tryAutoplay();await Promise.resolve();await Promise.resolve();await manager.unlock();expect(MockAudioContext.instances[0].state).toBe('running');manager.destroy();
+  });
+
   it('starts one menu loop without fetching unrelated stage music, then preloads the actual gameplay scene', async () => {
     class MusicContext extends MockAudioContext {
       constructor() { super(); this.decodeAudioData = vi.fn(async () => ({ duration: 17 })); }

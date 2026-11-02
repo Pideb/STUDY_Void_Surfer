@@ -157,6 +157,12 @@ export function createAppController(deps) {
   let audioGestureReady = false;
   const audioGestureEvents = ['pointerdown', 'pointerup', 'keydown'];
 
+  function tryStartupAudio() {
+    if (!mounted || orientationWasBlocking || state.screen !== 'menu' || state.muted) return;
+    try { Promise.resolve(audioManager.tryAutoplay?.()).catch(() => {}); }
+    catch { /* The normal first-input path remains available. */ }
+  }
+
   function removeAudioGestureListeners() {
     for (const type of audioGestureEvents) globalThis.window?.removeEventListener(type, handleAudioGesture, true);
   }
@@ -169,7 +175,7 @@ export function createAppController(deps) {
       || !/^(Enter|Space|Key[A-Z]|Digit[0-9]|Arrow\w+)$/.test(event.code))) return;
     try {
       // Call inside the actual gesture, before awaiting anything: browsers use
-      // this activation to permit AudioContext.resume(). Never force autoplay.
+      // this activation to permit AudioContext.resume() after blocked autoplay.
       const request = audioManager.unlock?.();
       audioGesturePromise = Promise.resolve(request).then(() => {
         if (!mounted) return;
@@ -1168,6 +1174,8 @@ export function createAppController(deps) {
     for (const type of audioGestureEvents) globalThis.window?.addEventListener(type, handleAudioGesture, true);
     clearLegacyGuestRecord(deps.guestRecordStorage);
     paint();
+    if (globalThis.document?.readyState === 'complete') tryStartupAudio();
+    else globalThis.window?.addEventListener('load', tryStartupAudio, { once: true });
     pointerTarget = deps.canvas ?? root.querySelector('canvas');
     handlePointerDown = (event) => {
       if(!orientationWasBlocking&&state.screen==='game-over'){event.preventDefault?.();dispatch('RESTART_IMMEDIATE');return;}
@@ -1231,6 +1239,7 @@ export function createAppController(deps) {
     menuLayout.destroy();orientationController.destroy();orientationHost.remove();root.inert=false;gameEngine.setSuspended?.('orientation',false);
     cancelPendingStart();
     removeAudioGestureListeners();
+    globalThis.window?.removeEventListener('load', tryStartupAudio);
     stopLoop();
     rankingObserver?.disconnect();
     rankingObserver = null;
