@@ -1,0 +1,32 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const dir='.memory/validation/2026-11-02-v01-gameplay-visual-polish';
+const tab=await fetch('http://127.0.0.1:9445/json/new?about:blank',{method:'PUT'}).then(r=>r.json());
+const ws=new WebSocket(tab.webSocketDebuggerUrl),pending=new Map(),errors=[];let id=0;
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j;});
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id){const job=pending.get(m.id);if(job){clearTimeout(job.timer);pending.delete(m.id);m.error?job.reject(m.error):job.resolve(m.result);}}else if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails);};
+const send=(method,params={})=>new Promise((resolve,reject)=>{const n=++id,timer=setTimeout(()=>reject(Error(method)),15000);pending.set(n,{resolve,reject,timer});ws.send(JSON.stringify({id:n,method,params}));});
+const evaluate=async expression=>{const r=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
+await send('Runtime.enable');await send('Page.enable');
+
+await send('Emulation.setDeviceMetricsOverride',{width:844,height:390,deviceScaleFactor:1,mobile:true});await send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:5});
+await send('Page.navigate',{url:'http://127.0.0.1:5173/.memory/validation/2026-11-02-v01-gameplay-visual-polish/render-check.html'});
+await evaluate(`(async()=>{
+ await import('/src/styles.css');
+ const [{createAppController},{createGameEngine},{createRenderer},{createVisualAssetLoader}]=await Promise.all([import('/src/ui/app-controller.js'),import('/src/game/game-engine.js'),import('/src/game/renderer.js'),import('/src/game/visual-assets.js')]);
+ window.t=0;window.frames=new Map();window.nextFrame=0;window.requestAnimationFrame=fn=>{frames.set(++nextFrame,fn);return nextFrame;};window.cancelAnimationFrame=id=>frames.delete(id);
+ const ids=Array.from({length:20},(_,i)=>'test'+i);window.engine=createGameEngine({now:()=>t,gravity:0,rng:()=>.99,initialScore:220,initialClearedBossCount:6,initialBossCadence:{target:20,cycleId:1,spawnedIds:ids,passedIds:ids}});
+ const assets=createVisualAssetLoader();await assets.preload();window.canvas=document.querySelector('canvas');window.root=document.createElement('div');document.body.append(root);window.renderer=createRenderer(canvas,{visualAssets:assets});
+ window.controller=createAppController({root,canvas,gameEngine:engine,authService:{getSessionUser:async()=>null,subscribeToAuth:()=>()=>{}},leaderboardService:{fetchTopScores:async()=>({rows:[]})},renderer,audioManager:{isMuted:()=>false,play(){}}});controller.mount();await Promise.resolve();await Promise.resolve();controller.dispatch('START_GAME_FROM_MENU');controller.dispatch('START_PLAYING');engine.setInvincibilityEnabled(true);
+ window.step=dt=>{t+=dt*1000;const batch=[...frames.values()];frames.clear();for(const fn of batch)fn(t);};
+ for(let n=0;n<3000&&!engine.getSnapshot().challenge?.active;n++)step(.1);
+ return engine.getSnapshot().challenge;
+})()`);
+assert.equal(await evaluate('engine.getSnapshot().challenge.active'),true);const sequence=await evaluate('engine.getSnapshot().challenge.sequence');assert.equal(sequence.length,8);
+const touch=async selector=>{const b=await evaluate('(()=>{const r=document.querySelector('+JSON.stringify(selector)+').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()');await send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[b]});await send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});};
+const wrong=['KeyW','KeyA','KeyS','KeyD'].find(k=>k!==sequence[0]);await touch('[data-code="'+wrong+'"]');assert.equal(await evaluate('engine.getSnapshot().challenge.cursor'),0);
+const time=await evaluate('engine.getSnapshot().challenge.remainingSeconds');await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await new Promise(r=>setTimeout(r,120));assert.equal(await evaluate('Boolean(document.querySelector(".orientation-gate"))'),true);await evaluate('step(30)');assert.equal(await evaluate('engine.getSnapshot().challenge.remainingSeconds'),time);
+await send('Emulation.setDeviceMetricsOverride',{width:844,height:390,deviceScaleFactor:1,mobile:true});await new Promise(r=>setTimeout(r,100));await evaluate('document.querySelector(".rotation-resume-panel button").click()');
+const image=await send('Page.captureScreenshot',{format:'png'});fs.writeFileSync('.memory/validation/2026-11-02-v02-feedback-release/qte-eight-touch.png',Buffer.from(image.data,'base64'));
+for(const code of sequence)await touch('[data-code="'+code+'"]');assert.equal(await evaluate('engine.getSnapshot().challenge.cursor'),8);assert.equal(await evaluate('engine.getSnapshot().score'),220);
+const result={scope:'Actual controller/engine/renderer with native touch events. Completed cadence, gravity0 and admin invincibility are UI fixture only, not avoidance proof.',keys:sequence.length,wrongKeyContinues:true,rotationFreezesTime:true,noRotationPenalty:true,success:true,errors};assert.equal(errors.length,0);fs.writeFileSync('.memory/validation/2026-11-02-v02-feedback-release/qte-touch-browser.json',JSON.stringify(result,null,2));await evaluate('controller.destroy();renderer.destroy()');ws.close();console.log(JSON.stringify(result));

@@ -1,0 +1,2 @@
+# Preserve the exact pre-optimization rollback bytes and their SHA256 evidence.
+.memory/validation/2026-10-30-v01-performance/original-baseline/** -text

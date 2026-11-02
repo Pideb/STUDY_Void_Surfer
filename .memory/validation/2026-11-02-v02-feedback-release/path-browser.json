@@ -1,0 +1,23 @@
+{
+  "viewport": [
+    3840,
+    2160
+  ],
+  "deviceScaleFactor": 2,
+  "buffer": [
+    1920,
+    1080
+  ],
+  "gpu": "ANGLE (Microsoft, Microsoft Basic Render Driver (0x0000008C) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+  "passed": true,
+  "frames": 540,
+  "scene": {
+    "stageId": "crystal-gates",
+    "aircraftId": "default",
+    "bossNumber": 2,
+    "scrollSpeed": 240,
+    "dt": 0.016666666666666666
+  },
+  "minBoundaryMargin": 24.25,
+  "errors": []
+}

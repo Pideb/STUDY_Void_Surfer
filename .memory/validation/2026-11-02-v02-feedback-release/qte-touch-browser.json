@@ -1,0 +1,9 @@
+{
+  "scope": "Actual controller/engine/renderer with native touch events. Completed cadence, gravity0 and admin invincibility are UI fixture only, not avoidance proof.",
+  "keys": 8,
+  "wrongKeyContinues": true,
+  "rotationFreezesTime": true,
+  "noRotationPenalty": true,
+  "success": true,
+  "errors": []
+}

@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-30",
+  "sourceHead": "461220d8894477518d0d2f3e2c4252ebd62e21eb",
+  "purpose": "User-selected preserve-quality optimization; retain pre-optimization originals for targeted rollback.",
+  "render": {
+    "maxWidth": 1920,
+    "maxHeight": 1080,
+    "densities": {
+      "background": 0.5,
+      "walls": 0.75,
+      "projectiles": 0.5,
+      "lasers": 0.35
+    },
+    "laserBlur": "original unchanged",
+    "frameRate": "native RAF"
+  },
+  "files": {
+    "src/game/renderer.js": {
+      "sha256": "6d98c6541bc4449fbf9e7f96f13f75a2dcda92fd9b8388e022145063b65d4dbd",
+      "bytes": 47379
+    },
+    "src/game/render-layers.js": {
+      "sha256": "7d56e5b83f82f9c52325ad9b965075d8848583d84228a6241e562122e19b2e30",
+      "bytes": 2773
+    },
+    "src/game/render-resolution.js": {
+      "sha256": "831ed98d4292c4d540beeb674af65d73ccae1d244402a369b1045f3fa2c85ead",
+      "bytes": 1056
+    },
+    "src/game/laser-renderer.js": {
+      "sha256": "59f516a882f137ad08ac710f4c16cbd06174dfdbd7987ef3e9a5fd50055c6d0d",
+      "bytes": 9409
+    },
+    "src/ui/game-hud.js": {
+      "sha256": "610158dfe2c19abf837a9baabee4eb52331be9a53a9858bc6bec4a0fa2c762c0",
+      "bytes": 13402
+    }
+  }
+}

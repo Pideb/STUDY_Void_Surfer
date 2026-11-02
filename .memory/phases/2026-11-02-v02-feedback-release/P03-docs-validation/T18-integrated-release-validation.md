@@ -2,7 +2,7 @@
 
 > 이 작업은 [v0.2 통합 결정](../../../decisions/2026-11-02-v02-feedback-release.md)에 포함된다. 아래 기존 게임·시각 결정 링크는 원래 승인 세부를 보존한다. 버전·임시 해금·첫3보스·회전·메뉴·기록에 관한 충돌은 v0.2 통합 결정이 우선한다.
 
-## Status: pending
+## Status: done
 
 ## Goal
 시안이 아닌 실제 엔진과 브라우저에서 전 기체·6지역·보스 차수 경계·모바일 입력·전체화면 렌더를 검증한다.
@@ -62,10 +62,10 @@ type ScenarioResult={stageId:string;aircraftId:string;bossNumber:number;seed:num
 - 미실행 항목은 limitation으로 기록한다. 승인되지 않은 새 디자인/밸런스가 필요하면 기존 승인을 확대 해석하지 말고 증거를 제시한다.
 
 ## Acceptance Criteria
-- [ ] 전체 테스트·빌드·설정 검증이 통과하고 실제화면·입력·성능 증거가 남아 있다.
-- [ ] 회피 경로·세트 종료·초록 안내·모바일 동작의 경계 사례 및 미검증 한계가 명시된다.
-- [ ] 임시해금/키보드/게임오버/회전/통계/가이드/개발자료 비공개·원격검증 gate를 함께 보고한다.
-- [ ] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
+- [x] 전체 테스트·빌드·설정 검증이 통과하고 실제화면·입력·성능 증거가 남아 있다.
+- [x] 회피 경로·세트 종료·초록 안내·모바일 동작의 경계 사례 및 미검증 한계가 명시된다.
+- [x] 임시해금/키보드/게임오버/회전/통계/가이드/개발자료 비공개·원격검증 gate를 함께 보고한다.
+- [x] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
 
 ## Validation
 - `npm test -- --run` — 종료코드0 및 대상 검증 통과.
@@ -86,6 +86,12 @@ Task: T18-integrated-release-validation
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Full suite79 files /1347 tests passed; build, verify:config and guide:check passed.
+- 432 finite physical attack paths passed; narrow trace replayed in real browser; 4K DPR2 buffer capped1920x1080. 48 actual renderer captures; native eight-key touch QTE and orientation freeze passed.
+- Local PostgreSQL5 migrations /2 role suites passed; no remote DB/JWT/concurrency/hardware claim. Report and179 source hashes stored in verification.json.
+- HUD1000 updates24000 to0 DOMwrites, equal pixels; software-raster timing limitations and penalty median regression explicitly reported.
