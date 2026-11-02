@@ -1,0 +1,385 @@
+.menu-design-space{position:absolute;left:50%;top:50%;display:grid;place-items:center;transform-origin:50% 50%;}
+.menu-design-space:not(.is-mobile-landscape) .screen-panel{
+  align-self: center;
+  justify-self: center;
+  width: min(92%, 620px);
+  max-height: 94%;
+  overflow: auto;
+  padding: clamp(1.1rem, 48px, 2.2rem);
+  border: 1px solid rgba(85, 246, 229, 0.42);
+  border-radius: 1rem;
+  background: rgba(5, 12, 33, 0.94);
+  box-shadow: 0 0 34px rgba(41, 185, 221, 0.18);
+  text-align: center;
+}
+.menu-design-space:not(.is-mobile-landscape) .screen-panel h1{
+  margin: 0 0 1rem;
+  color: var(--color-neon-strong);
+  font-size: clamp(1.35rem, 64px, 2rem);
+  letter-spacing: 0.08em;
+}
+.menu-design-space:not(.is-mobile-landscape) .account-actions{
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(139, 166, 191, 0.25);
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-overlay{
+  position: absolute;
+  inset: 0;
+  align-self: center;
+  justify-self: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 0.8fr);
+  grid-template-rows: auto auto auto;
+  align-items: center;
+  align-content: center;
+  gap: clamp(0.55rem, 16.2px, 1rem) clamp(1.5rem, 96px, 5rem);
+  padding: clamp(0.75rem, 22.5px, 1.25rem) clamp(1.25rem, 80px, 4rem);
+}
+.menu-design-space:not(.is-mobile-landscape) .admin-settings-trigger{
+  position: absolute;
+  top: clamp(0.75rem, 18px, 1.25rem);
+  left: clamp(0.75rem, 32px, 1.5rem);
+  z-index: 2;
+  padding: 0.45rem 0.7rem;
+  border-color: rgba(122, 220, 255, 0.42);
+  background: rgba(5, 16, 34, 0.72);
+  color: #bdefff;
+  font-size: 0.78rem;
+}
+.menu-design-space:not(.is-mobile-landscape) .admin-settings-dialog{
+  position: fixed;
+  z-index: 20;
+  top: 50%;
+  left: 50%;
+  width: min(28rem, calc(1600px - 2rem));
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(122, 220, 255, 0.72);
+  border-radius: 0.75rem;
+  background: rgba(4, 12, 28, 0.97);
+  box-shadow: 0 0 2rem rgba(22, 183, 231, 0.24);
+}
+.menu-design-space:not(.is-mobile-landscape) .admin-settings-dialog h2,.menu-design-space:not(.is-mobile-landscape) .admin-settings-dialog p{
+  margin: 0;
+}
+.menu-design-space:not(.is-mobile-landscape) .admin-settings-dialog label{
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  color: var(--color-text);
+  line-height: 1.45;
+}
+.menu-design-space:not(.is-mobile-landscape) .admin-settings-dialog input[type="checkbox"]{
+  flex: 0 0 auto;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin: 0.1rem 0 0;
+  accent-color: var(--color-neon-strong);
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-brand{
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  max-width: 38rem;
+  text-align: left;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-brand h1{
+  margin: 0;
+  color: var(--color-neon-strong);
+  font-size: clamp(2rem, 112px, 4.5rem);
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 24px rgba(85, 246, 229, 0.3);
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-brand .menu-wordmark{
+  position: relative;
+  width: min(100%, 38rem);
+  max-width: 100%;
+  margin: 0;
+  font-family: "Arial", "Avenir Next", system-ui, sans-serif;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  line-height: 1.05;
+  text-shadow: 0 0 1px #fff, 0 0 14px rgba(85, 246, 229, 0.26);
+  -webkit-text-stroke: 0.35px rgba(85, 246, 229, 0.48);
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-wordmark-image{
+  display: block;
+  width: 100%;
+  max-height: clamp(3.5rem, 224px, 7.5rem);
+  object-fit: contain;
+  object-position: left center;
+  filter: drop-shadow(0 0 10px rgba(85, 246, 229, 0.22));
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-wordmark.is-logo-unavailable .menu-wordmark-image{
+  display: none;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-wordmark-fallback:not(.sr-only){
+  display: inline-block;
+  color: #eaffff;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-greeting{
+  margin: 0.85rem 0 0;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-greeting strong{
+  color: var(--color-text);
+  font-weight: 800;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-status{
+  margin: 1.2rem 0 0;
+  color: var(--color-neon-strong);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-preview{
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  position: relative;
+  display: grid;
+  place-items: center;
+  justify-self: center;
+  width: min(100%, 26rem);
+  aspect-ratio: 1.65;
+  pointer-events: none;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-motion{
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  animation: menu-aircraft-float 4.8s ease-in-out infinite;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-image{
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: min(90%, 22rem);
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(117, 226, 255, 0.34));
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-preview-velocity .menu-aircraft-image{
+  filter: drop-shadow(0 0 16px rgba(255, 85, 207, 0.4));
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-preview-aegis .menu-aircraft-image{
+  filter: drop-shadow(0 0 16px rgba(255, 196, 92, 0.4));
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-exhaust{
+  position: absolute;
+  z-index: 0;
+  top: 50%;
+  left: 2%;
+  width: 38%;
+  height: 0.8rem;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: linear-gradient(90deg, transparent, rgba(74, 221, 255, 0.2), rgba(123, 245, 255, 0.85));
+  filter: blur(0.55rem);
+  animation: menu-exhaust-pulse 1.15s ease-in-out infinite alternate;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-preview-velocity .menu-aircraft-exhaust{
+  background: linear-gradient(90deg, transparent, rgba(255, 85, 207, 0.2), rgba(255, 143, 224, 0.88));
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-aircraft-preview-aegis .menu-aircraft-exhaust{
+  background: linear-gradient(90deg, transparent, rgba(255, 166, 64, 0.2), rgba(255, 222, 120, 0.88));
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-actions{
+  grid-column: 2;
+  grid-row: 2;
+  display: grid;
+  justify-items: stretch;
+  gap: 0.7rem;
+  min-width: 8rem;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-screen .menu-actions > button:not(.icon-button){
+  width: 100%;
+  justify-content: flex-start;
+  padding-inline: 0.8rem;
+  border: 0;
+  border-bottom: 1px solid rgba(139, 166, 191, 0.28);
+  border-radius: 0;
+  background: linear-gradient(90deg, rgba(8, 31, 62, 0.58), transparent);
+  text-align: left;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-screen .menu-actions > button:not(.icon-button):hover,.menu-design-space:not(.is-mobile-landscape) .menu-screen .menu-actions > button:not(.icon-button).is-keyboard-current{
+  border-bottom-color: var(--color-neon-strong);
+  background: linear-gradient(90deg, rgba(25, 107, 133, 0.42), transparent);
+  box-shadow: none;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-screen .menu-actions .icon-button{
+  justify-self: start;
+  border: 0;
+  background: transparent;
+}
+.menu-design-space:not(.is-mobile-landscape) .menu-overlay .account-actions{
+  grid-column: 2;
+  grid-row: 3;
+  justify-self: end;
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(139, 166, 191, 0.25);
+  text-align: right;
+}
+.menu-design-space:not(.is-mobile-landscape) .pilot-ranking-screen{
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  width: min(94%, 760px);
+  max-height: min(92%, 900px);
+  gap: 0.75rem;
+}
+.menu-design-space:not(.is-mobile-landscape) .pilot-ranking-screen > h1{ margin-bottom: 0; }
+.menu-design-space:not(.is-mobile-landscape) .pilot-ranking-screen > .screen-message{ margin: 0; }
+.menu-design-space:not(.is-mobile-landscape) .pilot-ranking-table-scroll{
+  min-height: 8rem;
+  max-height: min(486px, 34rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(139, 166, 191, 0.25);
+  border-radius: 0.7rem;
+  background: rgba(8, 20, 45, 0.76);
+}
+.menu-design-space:not(.is-mobile-landscape) .pilot-ranking-table{
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.menu-design-space:not(.is-mobile-landscape) .pilot-ranking-table th,.menu-design-space:not(.is-mobile-landscape) .pilot-ranking-table td{
+  padding: 0.58rem 0.7rem;
+  border-bottom: 1px solid rgba(139, 166, 191, 0.16);
+  overflow-wrap: anywhere;
+}
+.menu-design-space:not(.is-mobile-landscape) .pilot-ranking-table th{
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: var(--color-muted);
+  background: #08142d;
+}
+.menu-design-space:not(.is-mobile-landscape) .hangar-screen{
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  width: min(94%, 780px);
+  max-height: 96%;
+  overflow: auto;
+  padding: clamp(1rem, 48px, 2rem);
+  color: var(--color-text);
+  text-align: center;
+}
+.menu-design-space:not(.is-mobile-landscape) .hangar-screen h1{
+  margin: 0;
+  color: var(--color-neon-strong);
+  letter-spacing: 0.12em;
+}
+.menu-design-space:not(.is-mobile-landscape) .hangar-best-score{
+  margin: 0;
+  color: var(--color-muted);
+}
+.menu-design-space:not(.is-mobile-landscape) .hangar-aircraft-list{
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  width: 100%;
+  margin: 0.6rem 0;
+}
+.menu-design-space:not(.is-mobile-landscape) .aircraft-option{
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.55rem;
+  min-width: 0;
+  min-height: 15rem;
+  padding: 1rem 0.75rem;
+  border-color: rgba(85, 246, 229, 0.42);
+  background: rgba(5, 12, 33, 0.74);
+  text-align: center;
+}
+.menu-design-space:not(.is-mobile-landscape) .aircraft-option.is-selected{
+  border-color: var(--color-neon-strong);
+  box-shadow: 0 0 22px rgba(85, 246, 229, 0.22);
+}
+.menu-design-space:not(.is-mobile-landscape) .aircraft-option.is-locked{
+  border-color: rgba(139, 166, 191, 0.2);
+  background: rgba(5, 8, 22, 0.64);
+  color: #748193;
+  cursor: not-allowed;
+  filter: saturate(0.4);
+  opacity: 0.65;
+}
+.menu-design-space:not(.is-mobile-landscape) .aircraft-option:disabled:hover{
+  box-shadow: none;
+  transform: none;
+}
+.menu-design-space:not(.is-mobile-landscape) .aircraft-preview{
+  display: block;
+  width: min(100%, 13rem);
+  height: 5.5rem;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 0 12px rgba(85, 246, 229, 0.28));
+}
+.menu-design-space:not(.is-mobile-landscape) .aircraft-preview-velocity{ filter: drop-shadow(0 0 12px rgba(255, 85, 207, 0.32)); }
+.menu-design-space:not(.is-mobile-landscape) .aircraft-preview-aegis{ filter: drop-shadow(0 0 12px rgba(255, 196, 92, 0.32)); }
+.menu-design-space:not(.is-mobile-landscape) .aircraft-description,.menu-design-space:not(.is-mobile-landscape) .aircraft-performance,.menu-design-space:not(.is-mobile-landscape) .aircraft-lock-reason{ font-size: 0.82rem; line-height: 1.4; }
+.menu-design-space:not(.is-mobile-landscape) .aircraft-description{ color: var(--color-muted); }
+.menu-design-space:not(.is-mobile-landscape) .aircraft-performance{ color: var(--color-text); font-weight: 700; }
+.menu-design-space:not(.is-mobile-landscape) .aircraft-lock-reason{ color: var(--color-neon-strong); }
+.menu-design-space:not(.is-mobile-landscape) .is-locked .aircraft-lock-reason{ color: #a3adbb; }
+.menu-design-space:not(.is-mobile-landscape) .menu-version{ position:absolute;left:max(16px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom));font-size:12px;color:#a0b4c9;pointer-events:none; }
+.menu-design-space:not(.is-mobile-landscape) .game-over-overlay{ position:absolute;inset:0;display:grid;place-items:center;background:rgba(0,3,12,.42);padding:16px 16px 64px; }
+.menu-design-space:not(.is-mobile-landscape) .game-over-overlay > .game-over-screen{ max-height:calc(900px - 96px);overflow-y:auto; }
+.menu-design-space:not(.is-mobile-landscape) .game-over-restart-hint{ position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:12px;right:12px;margin:0;text-align:center;color:#d8ffff;font-size:clamp(14px,32px,18px);font-weight:800;letter-spacing:.04em;text-shadow:0 0 8px #40e9ff,0 0 20px #19bfe0; }
+
+.menu-design-space.is-mobile-landscape .menu-overlay{width:100%;height:100%;min-height:0;align-self:stretch;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch;gap:10px 28px;padding:max(18px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left));overflow:hidden;}
+.menu-design-space.is-mobile-landscape .menu-brand{grid-column:1;grid-row:1;text-align:left;}
+.menu-design-space.is-mobile-landscape .menu-wordmark{width:100%;}
+.menu-design-space.is-mobile-landscape .menu-wordmark-image{max-height:60px;object-position:left center;}
+.menu-design-space.is-mobile-landscape .menu-greeting{margin:8px 0 0;font-size:14px;line-height:1.55;color:#aac4d2;}
+.menu-design-space.is-mobile-landscape .menu-aircraft-status{margin:8px 0 0;font-size:14px;line-height:20px;letter-spacing:.04em;}
+.menu-design-space.is-mobile-landscape .menu-aircraft-preview{grid-column:1;grid-row:2;width:min(100%,300px);height:100%;min-height:0;aspect-ratio:auto;}
+.menu-design-space.is-mobile-landscape .menu-aircraft-motion{min-height:0;}
+.menu-design-space.is-mobile-landscape .menu-aircraft-image{width:auto;height:100%;max-width:100%;max-height:100%;object-fit:contain;}
+.menu-design-space.is-mobile-landscape .menu-actions{grid-column:2;grid-row:1 / span 3;gap:10px;min-width:0;align-self:center;}
+.menu-design-space.is-mobile-landscape .menu-actions>button:not(.icon-button){min-height:60px;font-size:20px;font-weight:650;padding:10px 16px;}
+.menu-design-space.is-mobile-landscape .menu-utility-row{justify-content:flex-start;gap:18px;min-height:56px;}
+.menu-design-space.is-mobile-landscape .menu-guide-link{min-height:56px;min-width:52px;font-size:16px;padding:8px 10px;white-space:nowrap;color:#b2cad5;}
+.menu-design-space.is-mobile-landscape .menu-guide-link svg{width:16px;height:16px;}
+.menu-design-space.is-mobile-landscape .menu-utility-row .icon-button{min-width:56px;min-height:56px;}
+.menu-design-space.is-mobile-landscape .menu-utility-row .icon-button svg{width:24px;height:24px;}
+.menu-design-space.is-mobile-landscape .menu-overlay .account-actions{grid-column:1;grid-row:3;justify-self:start;margin:0;padding:0;border:0;}
+.menu-design-space.is-mobile-landscape .account-actions button{min-width:52px;min-height:52px;font-size:16px;padding:8px 10px;}
+@media(max-height:360px){.menu-design-space.is-mobile-landscape .menu-greeting{display:none;}.menu-design-space.is-mobile-landscape .menu-wordmark-image{max-height:52px;}.menu-design-space.is-mobile-landscape .menu-overlay{padding:max(12px,env(safe-area-inset-top)) max(18px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(18px,env(safe-area-inset-left));gap:8px 20px;}.menu-design-space.is-mobile-landscape .menu-actions{gap:8px;}.menu-design-space.is-mobile-landscape .menu-actions>button:not(.icon-button){min-height:56px;font-size:19px;}.menu-design-space.is-mobile-landscape .menu-utility-row,.menu-design-space.is-mobile-landscape .menu-guide-link,.menu-design-space.is-mobile-landscape .menu-utility-row .icon-button{min-height:52px;}}
+.orientation-gate{position:absolute;inset:0;z-index:30;display:grid;place-items:center;overflow:hidden;background:#030715;color:#ecfcff;text-align:center;font-family:"Pretendard","Noto Sans KR",system-ui,sans-serif;}
+.orientation-gate[hidden]{display:none;}
+.rotate-space{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:30% center;opacity:.46;}
+.rotate-shade{position:absolute;inset:0;background:linear-gradient(180deg,rgba(2,7,20,.12),rgba(2,7,20,.5) 30%,rgba(2,7,20,.68) 75%,rgba(2,7,20,.9));}
+.rotate-brand{position:absolute;top:max(42px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);width:min(56vw,230px);height:58px;object-fit:contain;filter:drop-shadow(0 0 7px #55f6e544);}
+.rotate-content{position:relative;z-index:1;width:calc(100% - 40px);max-width:420px;margin-top:14px;}
+.rotate-illustration{position:relative;width:152px;height:152px;margin:0 auto 28px;}
+.rotate-illustration svg{position:relative;width:100%;height:100%;fill:none;stroke:#b2fff7;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 8px #55f6e533);}
+.rotate-orbit{position:absolute;inset:5px;border:1px solid #55f6e51f;border-radius:50%;box-shadow:0 0 34px #55f6e50b,inset 0 0 24px #55f6e508;}
+.rotate-phone{transform-origin:72px 72px;animation:rotate-device 4.2s ease-in-out infinite;}
+.rotate-display{fill:#55f6e509;stroke:#55f6e555;stroke-width:1;}
+.rotate-arrow{stroke:#55f6e5;opacity:.85;}
+.rotate-kicker{font-size:10px;font-weight:600;letter-spacing:.26em;color:#7eb4c0;margin:0 0 14px;}
+.rotate-content h1{font-size:clamp(25px,7vw,32px);font-weight:750;letter-spacing:-.045em;line-height:1.4;color:#edffff;text-shadow:0 0 16px #55f6e52b;margin:0;}
+.rotate-copy{font-size:12px;line-height:1.9;color:#a3bdca;margin:14px 0 0;}
+.rotate-rule{width:66px;height:1px;margin:28px auto 0;background:linear-gradient(90deg,transparent,#55f6e58c,transparent);}
+.rotate-footer{position:absolute;bottom:max(38px,calc(env(safe-area-inset-bottom) + 24px));left:20px;right:20px;color:#6f93a6;font-size:11px;line-height:1.7;}
+@keyframes rotate-device{0%,18%{transform:rotate(0deg);}50%,72%{transform:rotate(-90deg);}100%{transform:rotate(0deg);}}
+@media(prefers-reduced-motion:reduce){.rotate-phone{animation:none;transform:rotate(-35deg);}}
+
+.orientation-host{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:rgba(1,5,16,.65);pointer-events:auto;}
+.orientation-host[hidden]{display:none;}
+.menu-design-space.is-mobile-landscape button,.menu-design-space.is-mobile-landscape a{min-height:52px;min-width:52px;}
+.menu-design-space.is-mobile-landscape .screen-panel,.menu-design-space.is-mobile-landscape .hangar-screen{max-height:calc(100% - 24px);overflow:auto;}
+.menu-design-space.is-mobile-landscape .account-actions{margin-bottom:12px;}
+.menu-design-space.is-mobile-landscape .menu-version{font-size:10px;bottom:4px;}

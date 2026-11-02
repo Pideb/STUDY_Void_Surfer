@@ -4,7 +4,7 @@ import {createGameEngine} from "../helpers/engine-fixtures.js";
 const flush=async()=>{for(let i=0;i<15;i++)await Promise.resolve();};
 const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};};
 let h;
-async function setup(){
+async function setup(options={}){
   vi.useFakeTimers();const root=document.createElement('div');document.body.append(root);const audio=deferred(),frames=[];
   const engine=createGameEngine({rng:()=>.6,stageRng:()=>.5});vi.spyOn(engine,'start');vi.spyOn(engine,'beginPreparedRun');
   let authCallback;const authService={getSessionUser:async()=>null,subscribeToAuth:fn=>{authCallback=fn;return ()=>{};}};
@@ -13,12 +13,12 @@ async function setup(){
   vi.spyOn(globalThis,'requestAnimationFrame').mockImplementation(fn=>{frames.push(fn);return frames.length;});
   vi.spyOn(globalThis,'cancelAnimationFrame').mockImplementation(()=>{});
   const controller=createAppController({root,canvas:document.createElement('canvas'),authService,leaderboardService:{},gameEngine:engine,
-    renderer:{render:vi.fn(),renderMenuBackground:vi.fn(),destroy:vi.fn()},audioManager:music});
+    renderer:{render:vi.fn(),renderMenuBackground:vi.fn(),destroy:vi.fn()},audioManager:music,...options});
   h={controller,root,engine,music,audio,frames,auth:user=>authCallback(user)};controller.mount();await flush();
   return h;
 }
 function depart(){h.controller.dispatch('START_GAME_FROM_MENU');h.controller.dispatch('START_PLAYING');}
-afterEach(()=>{h?.controller.destroy();h?.root.remove();h=null;vi.useRealTimers();vi.restoreAllMocks();});
+afterEach(()=>{h?.controller.destroy();h?.root.remove();h=null;vi.useRealTimers();vi.restoreAllMocks();vi.unstubAllGlobals();});
 
 describe('music-ready start gate with the real engine',()=>{
   it('shows preparation, freezes the run and starts the selected stage only once when ready',async()=>{
@@ -61,4 +61,7 @@ describe('music-ready start gate with the real engine',()=>{
     expect(h.engine.beginPreparedRun).toHaveBeenCalledTimes(2);expect(h.engine.getSnapshot().stage.id).toBe(stage);
     expect(h.music.startPreparedGameplay).toHaveBeenLastCalledWith(stage);
   });
+ it('defers ready audio behind the portrait gate, then departs in landscape',async()=>{vi.stubGlobal('innerWidth',844);vi.stubGlobal('innerHeight',390);await setup({orientationIsMobile:()=>true});depart();vi.stubGlobal('innerWidth',390);vi.stubGlobal('innerHeight',844);window.dispatchEvent(new Event('resize'));h.audio.resolve(true);await flush();vi.advanceTimersByTime(11000);expect(h.engine.beginPreparedRun).not.toHaveBeenCalled();expect(h.engine.getSnapshot().state).toBe('preparing');vi.stubGlobal('innerWidth',844);vi.stubGlobal('innerHeight',390);window.dispatchEvent(new Event('resize'));expect(h.engine.beginPreparedRun).toHaveBeenCalledOnce();expect(h.engine.getSnapshot().state).toBe('playing');});
+ it('suspends actual flight until a fresh continue action without deducting points',async()=>{vi.stubGlobal('innerWidth',844);vi.stubGlobal('innerHeight',390);await setup({orientationIsMobile:()=>true});depart();h.audio.resolve(true);await flush();const before=h.engine.getSnapshot();vi.stubGlobal('innerWidth',390);vi.stubGlobal('innerHeight',844);window.dispatchEvent(new Event('resize'));vi.advanceTimersByTime(30000);vi.stubGlobal('innerWidth',844);vi.stubGlobal('innerHeight',390);window.dispatchEvent(new Event('resize'));expect(h.engine.getSnapshot().suspensionReasons).toEqual(['orientation']);expect(h.engine.getSnapshot().score).toBe(before.score);document.querySelector('.rotation-resume-panel button').click();expect(h.engine.getSnapshot().suspensionReasons).toEqual([]);expect(h.engine.getSnapshot().score).toBe(before.score);});
+
 });

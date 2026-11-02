@@ -9,7 +9,7 @@
 ## Tasks
 | Task | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| T13 | pending | 개발자 전용 플레이 기록 DB·쓰기 RPC | [13](./T13-private-play-session-schema.md) |
+| T13 | in_progress | 개발자 전용 플레이 기록 DB·쓰기 RPC | [13](./T13-private-play-session-schema.md) |
 | T14 | pending | 플레이시간·총횟수 측정·안정적인 기록 전송 | [14](./T14-play-session-clock-and-delivery.md) |
 | T15 | pending | 동점 플레이시간 정렬·비공개 최고기록 시간 | [15](./T15-private-ranking-duration-tiebreak.md) |
 

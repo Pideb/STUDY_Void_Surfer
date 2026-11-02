@@ -2,6 +2,9 @@ import { getAuthErrorMessage } from '../services/auth-errors.js';
 import { clearLegacyGuestRecord } from '../services/guest-record-service.js';
 import { AIRCRAFT_CATALOG, getUnlockedAircraftIds, canSelectAircraft } from '../game/aircraft.js';
 import {createMenuNavigation} from './menu-navigation.js';
+import {createMenuLayout} from './menu-layout.js';
+import {createOrientationController} from './orientation-controller.js';
+import {renderOrientationScreen,renderRotationResumeScreen} from './screens.js';
 import { announce } from './components.js';
 import { createGameHud } from './game-hud.js';
 import {
@@ -79,6 +82,7 @@ export function createAppController(deps) {
   const { authService, leaderboardService, gameEngine, renderer, audioManager, root } = deps;
   if (!(root instanceof HTMLElement)) throw new TypeError('앱 UI 루트는 HTMLElement여야 합니다.');
   const menuNavigation=createMenuNavigation(root);
+  const menuLayout=createMenuLayout(root,{isMobile:deps.orientationIsMobile});
   const suppliedLiveRegion = deps.liveRegion ?? root.parentElement?.querySelector('#live-region');
   const liveRegion = suppliedLiveRegion ?? document.createElement('div');
   const ownsLiveRegion = !suppliedLiveRegion;
@@ -105,6 +109,26 @@ export function createAppController(deps) {
   let handlePointerDown = null;
   let animationFrame = null;
   let mounted = false;
+  let orientationState={mobile:false,portrait:false,resumePending:false,priorScreen:null};
+  let orientationWasBlocking=false;
+  const orientationHost=document.createElement('div');orientationHost.className='orientation-host';orientationHost.hidden=true;
+  let orientationController=null;
+  function syncOrientation(next){
+    orientationState=next;const blocked=next.portrait||next.resumePending,wasBlocking=orientationWasBlocking;
+    orientationWasBlocking=blocked;
+    gameEngine.setSuspended?.('orientation',blocked);root.inert=blocked;
+    orientationHost.hidden=!blocked;
+    if(blocked){
+      if(!orientationHost.isConnected)(root.parentElement??document.body).append(orientationHost);
+      orientationHost.replaceChildren(next.portrait?renderOrientationScreen():renderRotationResumeScreen({resume:()=>orientationController.confirmResume()}));
+      if(!wasBlocking){handleBlur();stopLoop();audioManager.pauseMusic?.();}
+    }else if(wasBlocking){
+      if(state.screen!=='paused')audioManager.resumeMusic?.();
+      if(state.screen==='playing'&&mounted)animationFrame=globalThis.requestAnimationFrame(renderFrame);
+      if(state.screen==='preparing'&&pendingStart?.ready)activatePreparedStart(pendingStart);
+    }
+    if(mounted)menuLayout.refresh();
+  }
   let pendingStart = null;
   let gameHud = null;
   let lastDifficultyMode = 'normal';
@@ -156,7 +180,7 @@ export function createAppController(deps) {
   }
 
   function replaceMenuKeepingPreview(nextMenu) {
-    const previous = root.firstElementChild;
+    const previous = root.querySelector('.menu-screen');
     const preview = previous?.matches('.menu-screen') ? previous.querySelector('.menu-aircraft-preview') : null;
     const nextPreview = nextMenu.querySelector('.menu-aircraft-preview');
     if (!preview || preview.dataset.aircraftId !== nextPreview?.dataset.aircraftId) {
@@ -179,7 +203,7 @@ export function createAppController(deps) {
 
   function paint() {
     root.dataset.screen=state.screen;
-    queueMicrotask(()=>{if(mounted&&!['playing','game-over','preparing'].includes(state.screen))menuNavigation.refresh();});
+    queueMicrotask(()=>{if(mounted){menuLayout.refresh();if(!orientationWasBlocking&&!['playing','game-over','preparing'].includes(state.screen))menuNavigation.refresh();}});
     rankingObserver?.disconnect();
     rankingObserver = null;
     gameHud = null;
@@ -202,7 +226,7 @@ export function createAppController(deps) {
       return;
     }
     if (state.screen === 'menu') {
-      if (!root.firstElementChild?.matches('.menu-screen')) renderer.renderMenuBackground?.();
+      if (!root.querySelector('.menu-screen')) renderer.renderMenuBackground?.();
       audioManager.setMusicMode?.('menu');
       audioManager.setMusicScene?.(null);
       replaceMenuKeepingPreview(renderMenuScreen({
@@ -753,6 +777,7 @@ export function createAppController(deps) {
 
   function activatePreparedStart(request) {
     if (!mounted || pendingStart !== request || state.screen !== 'preparing') return;
+    if(orientationWasBlocking){request.ready=true;return;}
     globalThis.clearTimeout(request.timer);
     pendingStart = null;
     if (gameEngine.beginPreparedRun?.() === false) {
@@ -974,6 +999,7 @@ export function createAppController(deps) {
 
   function dispatch(event) {
     const type = typeof event === 'string' ? event : event?.type;
+    if(orientationWasBlocking&&type!=='RETURN_TO_MENU')return;
     switch (type) {
       case 'START_GAME_FROM_MENU':
       case 'SHOW_TUTORIAL':
@@ -1053,6 +1079,7 @@ export function createAppController(deps) {
   }
 
   function handleKeyDown(event) {
+    if(orientationWasBlocking){event.preventDefault();if(orientationState.resumePending&&!event.repeat&&['Space','Enter'].includes(event.code))orientationController.confirmResume();return;}
     const wasHeld=physicalKeys.has(event.code);physicalKeys.add(event.code);
     if(state.screen==='game-over'){event.preventDefault();if(event.repeat||wasHeld||blockedRestartKeys.has(event.code))return;dispatch(event.code==='Escape'?'RETURN_TO_MENU':'RESTART_IMMEDIATE');return;}
     if (state.screen === 'preparing') {
@@ -1129,7 +1156,8 @@ export function createAppController(deps) {
     paint();
     pointerTarget = deps.canvas ?? root.querySelector('canvas');
     handlePointerDown = (event) => {
-      if (state.screen !== 'playing') return;
+      if(!orientationWasBlocking&&state.screen==='game-over'){event.preventDefault?.();dispatch('RESTART_IMMEDIATE');return;}
+      if (orientationWasBlocking || state.screen !== 'playing') return;
       event.preventDefault?.();
       triggerLift();
     };
@@ -1182,6 +1210,7 @@ export function createAppController(deps) {
   function destroy() {
     mounted = false;
     menuNavigation.destroy();
+    menuLayout.destroy();orientationController.destroy();orientationHost.remove();root.inert=false;gameEngine.setSuspended?.('orientation',false);
     cancelPendingStart();
     removeAudioGestureListeners();
     stopLoop();
@@ -1199,5 +1228,6 @@ export function createAppController(deps) {
     if (ownsLiveRegion) liveRegion.remove();
   }
 
+  orientationController=createOrientationController({isMobile:deps.orientationIsMobile,getScreen:()=>state.screen,onChange:syncOrientation});
   return { mount, destroy, dispatch };
 }

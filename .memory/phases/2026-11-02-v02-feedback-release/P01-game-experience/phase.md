@@ -20,9 +20,9 @@
 | T09 | done | v0.2 버전·임시 해금·보스 순서와20/15벽 간격 | [09](./T09-feedback-unlocks-and-version-policy.md) |
 | T10 | done | 모든 메뉴 방향키·Space 탐색 | [10](./T10-keyboard-menu-navigation.md) |
 | T11 | done | 게임오버 재시작 입력·암전 안내·점수 저장 수명 | [11](./T11-game-over-restart-and-save-lifetime.md) |
-| T12 | in_progress | PC 비율·모바일 확대·회전 중단과 수동 복귀 | [12](./T12-responsive-menu-and-orientation-suspension.md) |
+| T12 | done | PC 비율·모바일 확대·회전 중단과 수동 복귀 | [12](./T12-responsive-menu-and-orientation-suspension.md) |
 
 ## Progress
-- done: 11/12
-- in_progress (active:T12)
+- done: 12/12
+- complete
 - 실제 배포 완료와 개발 Task 완료를 구분한다.

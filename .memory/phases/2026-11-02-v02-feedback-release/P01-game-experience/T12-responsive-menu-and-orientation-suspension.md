@@ -1,6 +1,6 @@
 # Task: T12 PC 비율·모바일 확대·회전 중단과 수동 복귀
 
-## Status: pending
+## Status: done
 
 ## Goal
 승인한PC비율/큰모바일메뉴/세로안내를적용하고회전중모든게임시계를감점없이멈춘뒤계속하기로안전하게복귀한다.
@@ -60,9 +60,9 @@ createMenuLayout(root:HTMLElement):{refresh():void;destroy():void};
 - 네트워크/원격 자원 접근이 없으면 미실행 사실·정확한 후속 명령·예상 결과를 기록하며 운영 완료로 보고하지 않는다.
 
 ## Acceptance Criteria
-- [ ] PC·모바일메뉴·세로안내가승인시안과맞고터치/키보드로사용가능하다.
-- [ ] 회전중게임·QTE·플레이시간이감점없이멈추며가로후계속하기로만재개한다.
-- [ ] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
+- [x] PC·모바일메뉴·세로안내가승인시안과맞고터치/키보드로사용가능하다.
+- [x] 회전중게임·QTE·플레이시간이감점없이멈추며가로후계속하기로만재개한다.
+- [x] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
 
 ## Validation
 - `npm test -- --run tests/ui/menu-layout.test.js tests/ui/orientation-controller.test.js tests/ui/app-controller.test.js tests/game/game-engine.test.js tests/ui/preparing-start.test.js tests/integration/mobile-input.test.js` — 종료0.
@@ -83,6 +83,9 @@ Task: T12-responsive-menu-and-orientation-suspension
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest6 files/132 tests passed. Real browser normalized menus at6 PC resolutions;5 mobile landscapes all menu targets>=52px; portrait gate and manual resume verified,0 exceptions. QTE30s freeze/no penalty/no catchup and ready-audio deferral covered. Build passed; original hero subtree stays connected across repaints.

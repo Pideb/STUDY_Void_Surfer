@@ -156,6 +156,7 @@ export function createGameEngine(deps = {}) {
   let feedbackEffect = null;
   let nextAttackId = 1;
   let currentScrollSpeed = null;
+  const suspensionReasons=new Set();
   let frameScrollSpeedAt = () => currentScrollSpeed ?? 240;
   let speedTransition = null;
   let totalScrollDistancePx = 0;
@@ -570,6 +571,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function start(runOptions = {}) {
+    suspensionReasons.clear();
     const config=runOptions&&typeof runOptions==='object'?runOptions:{};
     if(Object.hasOwn(config,'guestMode'))guestMode=Boolean(config.guestMode);
     if(Object.hasOwn(config,'accountBestScore'))accountBestScore=Number.isFinite(Number(config.accountBestScore))?Math.max(0,Number(config.accountBestScore)):0;
@@ -626,6 +628,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function beginPreparedRun() {
+    if(suspensionReasons.size)return false;
     if (state !== GAME_STATES.PREPARING) return false;
     lastUpdateMs = null;
     state = GAME_STATES.PLAYING;
@@ -886,7 +889,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function handleChallengeInput(code) {
-    if (state !== GAME_STATES.PLAYING || deathEffect || !challenge?.active) return false;
+    if (suspensionReasons.size || state !== GAME_STATES.PLAYING || deathEffect || !challenge?.active) return false;
     const result = handleChallengeKey(challenge, code);
     if (result === 'success' || result === 'failure') resolveChallenge();
     return result !== 'ignored';
@@ -930,7 +933,8 @@ export function createGameEngine(deps = {}) {
   }
 
   function update(nowMs) {
-    if (state !== GAME_STATES.PLAYING || !Number.isFinite(nowMs)) {
+    if(suspensionReasons.size){if(Number.isFinite(nowMs))lastUpdateMs=nowMs;return;}
+    if (suspensionReasons.size || state !== GAME_STATES.PLAYING || !Number.isFinite(nowMs)) {
       return;
     }
 
@@ -1069,14 +1073,14 @@ export function createGameEngine(deps = {}) {
   }
 
   function lift() {
-    if (state !== GAME_STATES.PLAYING || deathEffect || challenge?.active || bossEncounter?.weapon.firing) return false;
+    if (suspensionReasons.size || state !== GAME_STATES.PLAYING || deathEffect || challenge?.active || bossEncounter?.weapon.firing) return false;
     playerRecovery.remainingSeconds = 0;
     applyLift(player, LIFT_VELOCITY * aircraft.liftMultiplier);
     return true;
   }
 
   function dash() {
-    if (state !== GAME_STATES.PLAYING || deathEffect) return false;
+    if (suspensionReasons.size || state !== GAME_STATES.PLAYING || deathEffect) return false;
     if (challenge?.active || bossEncounter?.weapon.firing) return false;
     if (player.dashCooldownRemainingSeconds > 0) return false;
     const difficulty = getCurrentDifficulty();
@@ -1110,7 +1114,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function fire() {
-    if (state !== GAME_STATES.PLAYING || deathEffect || challenge?.active || !bossEncounter
+    if (suspensionReasons.size || state !== GAME_STATES.PLAYING || deathEffect || challenge?.active || !bossEncounter
       || bossEncounter.hp <= 0 || bossEncounter.entranceRemainingSeconds > 0) return false;
     return startBossWeapon(bossEncounter.weapon, {
       id: `player-laser-${nextAttackId++}`, fromX: player.x, fromY: player.y, toX: WORLD_WIDTH, toY: player.y,
@@ -1118,6 +1122,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function resume() {
+    if(suspensionReasons.size)return false;
     if (state !== GAME_STATES.PAUSED) {
       return;
     }
@@ -1132,7 +1137,7 @@ export function createGameEngine(deps = {}) {
       lastUpdateMs = null;
       return;
     }
-    if (state !== GAME_STATES.PLAYING || deathEffect) return;
+    if (suspensionReasons.size || state !== GAME_STATES.PLAYING || deathEffect) return;
     gameOverReason = reason;
     ambientAttack = null;
     ambientLaserElapsedSeconds = 0;
@@ -1147,6 +1152,8 @@ export function createGameEngine(deps = {}) {
       aircraftId: aircraft.id,
     };
   }
+
+  function setSuspended(reason,active){if(reason!=='orientation')return;const had=suspensionReasons.has(reason);if(active)suspensionReasons.add(reason);else suspensionReasons.delete(reason);if(had!==Boolean(active))lastUpdateMs=null;}
 
   function getSnapshot() {
     const stageState = getStageState();
@@ -1214,6 +1221,7 @@ export function createGameEngine(deps = {}) {
       } : null,
       challenge: challenge ? { ...challenge, sequence: [...challenge.sequence] } : null,
       playerRecovery: { ...playerRecovery },
+      suspensionReasons:[...suspensionReasons],
       bossCadence: {target:bossCadence.target,cycleId:bossCadence.cycleId,phase:bossCadence.phase,spawnedCount:bossCadence.spawnedIds.size,passedCount:bossCadence.passedIds.size},
       feedbackEffect: feedbackEffect ? { ...feedbackEffect } : null,
       player: { ...player },
@@ -1245,6 +1253,7 @@ export function createGameEngine(deps = {}) {
     setAccountBestScore,
     setGuestMode,
     setInvincibilityEnabled,
+    setSuspended,
     handleChallengeKey: handleChallengeInput,
     getSnapshot,
   };
