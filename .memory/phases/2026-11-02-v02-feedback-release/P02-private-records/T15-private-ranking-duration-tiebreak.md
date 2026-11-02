@@ -1,6 +1,6 @@
 # Task: T15 동점 플레이시간 정렬·비공개 최고기록 시간
 
-## Status: pending
+## Status: done
 
 ## Goal
 동일 점수에서 해당 사망 run의 긴 플레이시간이 높은 순위가 되며 사용자 화면/API로 시간 원본이 노출되지 않게 한다.
@@ -81,9 +81,9 @@ type FinishedRunScore={runId:string;score:number;aircraftId:string;user:User|nul
 - 실제동시제출은독립세션2개또는동시RPC호출로검증한다. 단일SQL파일순차시험만으로경쟁상태검증까지통과했다고쓰지않는다.
 
 ## Acceptance Criteria
-- [ ] 전체랭킹이점수우선·동점긴사망시간우선이며같은계정동점개선도저장된다.
-- [ ] 사용자화면/반환RPC/일반직접조회에서시간원본이노출되지않는다.
-- [ ] 구형클라이언트/과거미측정기록/동시제출/빠른재시작을검증하고원격migration상태를기록한다.
+- [x] 전체랭킹이점수우선·동점긴사망시간우선이며같은계정동점개선도저장된다.
+- [x] 사용자화면/반환RPC/일반직접조회에서시간원본이노출되지않는다.
+- [x] 구형클라이언트/과거미측정기록/동시제출/빠른재시작을검증하고원격migration상태를기록한다.
 
 ## Validation
 - `npm test -- --run tests/deployment/ranking-duration-schema.test.js tests/services/leaderboard-service.test.js tests/ui/leaderboard-view.test.js tests/integration/ranking-duration.test.js tests/integration/play-record-lifecycle.test.js` — 종료0.
@@ -103,6 +103,9 @@ Task: T15-private-ranking-duration-tiebreak
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest7 files/95 tests passed. All5 migrations and2 role/idempotency/ordering SQL test files executed successfully on in-memory PostgreSQL via PGlite (no Docker). Client durations/legacy fallback/private whitelists/frozenA vsB verified. Remote Supabase/JWT/PostgREST/concurrent independent-session verification remains a documented deployment gate; real account scores unchanged.

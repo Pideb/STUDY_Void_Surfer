@@ -815,7 +815,7 @@ export function createAppController(deps) {
     if(job?.state==='saved'||(job?.state==='error'&&!retry))return job.result;
     job={run,state:'saving',promise:null,result:null};scoreSaveJobs.set(run.runId,job);
     job.promise=(async()=>{
-      let result;try{if(state.user?.id!==run.userId)throw Object.assign(new Error('Account changed before score submission'),{code:'SESSION_CHANGED'});result=await leaderboardService.submitBestScore(run.user,{score:run.score,displayName:getDisplayName(run.user),aircraftId:run.aircraftId});}catch(error){result={error};}
+      let result;try{if(state.user?.id!==run.userId)throw Object.assign(new Error('Account changed before score submission'),{code:'SESSION_CHANGED'});result=await leaderboardService.submitBestScore(run.user,{score:run.score,displayName:getDisplayName(run.user),aircraftId:run.aircraftId,durationMs:run.durationMs});}catch(error){result={error};}
       if(!isValidScoreSubmission(result,run.score,run.userId)&&!result?.error)result={error:new Error('Invalid score submission response')};
       job.result=result;job.state=result?.error?'error':'saved';
       const complete=[...scoreSaveJobs.entries()].filter(([,j])=>j.state!=='saving');for(const [id]of complete.slice(0,Math.max(0,complete.length-20)))scoreSaveJobs.delete(id);

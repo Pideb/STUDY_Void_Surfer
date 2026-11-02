@@ -14,7 +14,8 @@ function clampInteger(value, fallback, minimum, maximum) {
   return Math.min(maximum, Math.max(minimum, Math.trunc(numeric)));
 }
 
-function validateSubmission({ score, displayName, aircraftId }) {
+function validateSubmission({ score, displayName, aircraftId, durationMs }) {
+  if(!Number.isInteger(durationMs)||durationMs<0||durationMs>604800000)return createValidationError('플레이 기록의 시간 형식이 올바르지 않습니다.');
   if (!Number.isInteger(score) || score < 0) {
     return createValidationError('점수는 0 이상의 정수여야 합니다.');
   }
@@ -32,10 +33,7 @@ function validateSubmission({ score, displayName, aircraftId }) {
 
 function isMissingAircraftScoreRpc(error) {
   const code = String(error?.code ?? '').toUpperCase();
-  if (code === 'PGRST202' || code === '42883') return true;
-
-  const message = typeof error?.message === 'string' ? error.message : '';
-  return /could not find (?:the )?function.*submit_score|function .*submit_score.*does not exist|submit_score.*not found/i.test(message);
+  return code === 'PGRST202' || code === '42883';
 }
 
 function isMissingBestScoreRpc(error) {
@@ -55,21 +53,32 @@ async function getCurrentUserId(client) {
   }
 }
 
-export async function submitBestScore(client, { score, displayName, aircraftId = 'default' } = {}) {
-  const validationError = validateSubmission({ score, displayName, aircraftId });
+export async function submitBestScore(client, { score, displayName, aircraftId = 'default', durationMs = 0, expectedUserId = null } = {}) {
+  const validationError = validateSubmission({ score, displayName, aircraftId, durationMs });
   if (validationError) {
     return { updated: false, record: null, error: validationError };
   }
 
   try {
-    let { data, error } = await client.rpc('submit_score', {
+    let accessToken=null;
+    if(expectedUserId){
+      const session=await client.auth.getSession();
+      if(session.error||session.data?.session?.user?.id!==expectedUserId)return{updated:false,record:null,error:mapLeaderboardError({code:'42501'})};
+      accessToken=session.data.session.access_token??null;
+    }
+    const rpc=params=>{const request=client.rpc('submit_score',params);return accessToken&&request?.setHeader?request.setHeader('Authorization',`Bearer ${accessToken}`):request;};
+    let { data, error } = await rpc({
       p_score: score,
       p_display_name: displayName.trim(),
       p_aircraft_id: aircraftId,
+      p_duration_ms: durationMs,
     });
 
     if (error && isMissingAircraftScoreRpc(error)) {
-      ({ data, error } = await client.rpc('submit_score', {
+      ({data,error}=await rpc({p_score:score,p_display_name:displayName.trim(),p_aircraft_id:aircraftId}));
+    }
+    if (error && isMissingAircraftScoreRpc(error)) {
+      ({ data, error } = await rpc({
         p_score: score,
         p_display_name: displayName.trim(),
       }));

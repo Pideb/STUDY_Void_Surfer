@@ -4,7 +4,7 @@ export function mapLeaderboardError(error) {
   const code = String(error?.code ?? error?.status ?? '').toUpperCase();
   const rawMessage = typeof error?.message === 'string' ? error.message : '';
   if (code === 'PGRST202' || code === '42883'
-    || /could not find (?:the )?function|function .* does not exist/i.test(rawMessage)) {
+    || (!code && /could not find (?:the )?function|function .* does not exist/i.test(rawMessage))) {
     return {
       code: 'SCHEMA_MISSING',
       message: 'Supabase 리더보드 함수가 없습니다. 프로젝트의 DB migration이 모두 적용되었는지 확인하세요.',

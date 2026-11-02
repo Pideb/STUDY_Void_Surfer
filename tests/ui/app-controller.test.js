@@ -617,7 +617,7 @@ describe('app controller product flow', () => {
     expect(harness.root.textContent).toContain('메인 메뉴');
     expect(harness.root.textContent).toContain('불러오는 중');
     expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledWith(pilot, {
-      score: 0, displayName: 'Pilot', aircraftId: 'default',
+      score: 0, displayName: 'Pilot', aircraftId: 'default', durationMs:0,
     });
   });
 
@@ -664,7 +664,7 @@ describe('app controller product flow', () => {
     await settle();
 
     expect(harness.leaderboardService.submitBestScore).toHaveBeenCalledWith(pilot, {
-      score: 50, displayName: 'Pilot', aircraftId: 'velocity',
+      score: 50, displayName: 'Pilot', aircraftId: 'velocity', durationMs:0,
     });
     expect(harness.root.textContent).toContain('기본 점수 33 × 1.5 = 최종 점수 50');
     expect(harness.root.querySelector('img')).toBeNull();

@@ -50,6 +50,7 @@ describe('submitBestScore', () => {
       p_score: 31,
       p_display_name: 'Pilot',
       p_aircraft_id: 'aegis',
+      p_duration_ms: 0,
     });
   });
 
@@ -308,4 +309,11 @@ describe('leaderboard row normalization and error mapping', () => {
     expect(mapLeaderboardError({ code: 'PGRST202', message: 'Could not find the function public.get_player_best_score' }))
       .toMatchObject({ code: 'SCHEMA_MISSING', retryable: false });
   });
+});
+
+describe('duration-aware score compatibility',()=>{
+ it.each([NaN,Infinity,-1,1.5,604800001,null])('rejects invalid duration%s',async durationMs=>{const c=makeClient();expect((await submitBestScore(c,{score:1,displayName:'Pilot',durationMs})).error.code).toBe('VALIDATION_ERROR');expect(c.rpc).not.toHaveBeenCalled();});
+ it('falls back4 to3 to2 only for exact missing-function codes',async()=>{const c=makeClient({rpcImpl:vi.fn().mockResolvedValueOnce({error:{code:'PGRST202'}}).mockResolvedValueOnce({error:{code:'42883'}}).mockResolvedValueOnce({data:dbRow(),error:null})});await submitBestScore(c,{score:25,displayName:'Pilot',aircraftId:'velocity',durationMs:1234});expect(c.rpc.mock.calls.map(([,p])=>Object.keys(p).length)).toEqual([4,3,2]);expect(c.rpc.mock.calls[0][1].p_duration_ms).toBe(1234);});
+ it('does not hide a permission error behind a legacy retry',async()=>{const c=makeClient({rpcImpl:vi.fn(async()=>({error:{code:'42501',message:'permission denied'}}))});expect((await submitBestScore(c,{score:25,displayName:'Pilot',durationMs:50})).error.code).toBe('AUTH_REQUIRED');expect(c.rpc).toHaveBeenCalledOnce();});
+ it('rejects a changed account before sending its frozen score',async()=>{const c=makeClient({userId:'other'});expect((await submitBestScore(c,{score:25,displayName:'Pilot',expectedUserId:'original'})).error.code).toBe('AUTH_REQUIRED');expect(c.rpc).not.toHaveBeenCalled();});
 });

@@ -56,7 +56,7 @@ if (window.location.pathname === '/auth/callback') {
   };
 
   const leaderboardService = client ? {
-    submitBestScore: (_user, payload) => submitBestScore(client, payload),
+    submitBestScore: (user, payload) => submitBestScore(client, {...payload,expectedUserId:user?.id??null}),
     fetchPlayerBestScore: () => fetchPlayerBestScore(client),
     fetchTopScores: () => fetchTopScores(client),
     fetchLeaderboardPage: (options) => fetchLeaderboardPage(client, options),
