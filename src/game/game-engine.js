@@ -1,7 +1,6 @@
 import { AMBIENT_LASER_UNLOCK_BOSSES, AMBIENT_LASER_INTERVAL_SECONDS, AMBIENT_LASER_CHANCE } from './constants.js';
 import { createBossPatternRound } from './boss-patterns.js';
 import {
-  BOSS_MIN_SPECIALS,
   BOSS_OBSTACLE_COUNT,
   BOSS_ATTACK_NORMAL_WALL_COOLDOWN,
   BOSS_PATTERN_PREVIEW_SECONDS,
@@ -54,6 +53,7 @@ import {
   getDifficulty,
   shouldSpawnMovingGap,
   shouldSpawnSpecial,
+  getBossWallRules,
 } from './difficulty.js';
 import { createObstacle, getDashBarrierBounds, isDashObstacle, updateObstacle } from './obstacles.js';
 import { advanceScore } from './score.js';
@@ -298,7 +298,7 @@ export function createGameEngine(deps = {}) {
       bossPattern: isBoss ? bossPattern : null,
       targetCount: isBoss ? BOSS_OBSTACLE_COUNT : WARNING_OBSTACLE_COUNT,
       spawnedCount: 0,
-      requiredSpecials: isBoss ? BOSS_MIN_SPECIALS : WARNING_MIN_SPECIALS,
+      requiredSpecials: isBoss ? getBossWallRules(clearedBossCount + 1).minSpecials : WARNING_MIN_SPECIALS,
       specialObstacleIds: new Set(),
       specialSpawnedCount: 0,
       waveComplete: false,
@@ -441,7 +441,7 @@ export function createGameEngine(deps = {}) {
   function updateSpawning(deltaSeconds, difficulty) {
     spawnAccumulatorSeconds += deltaSeconds;
     let activeDifficulty = difficulty;
-    let interval = (warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
+    let interval = (warningSession?.isBoss ? getBossWallRules(clearedBossCount + 1).spawnIntervalSeconds : warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
       * aircraft.spawnIntervalMultiplier;
 
     while (spawnAccumulatorSeconds >= interval
@@ -453,7 +453,7 @@ export function createGameEngine(deps = {}) {
         break;
       }
       activeDifficulty = getCurrentDifficulty();
-      interval = (warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
+      interval = (warningSession?.isBoss ? getBossWallRules(clearedBossCount + 1).spawnIntervalSeconds : warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
         * aircraft.spawnIntervalMultiplier;
     }
   }
@@ -936,7 +936,7 @@ export function createGameEngine(deps = {}) {
     updateStage(deltaSeconds, difficulty.scrollSpeed);
     if (wasTransitioning && !stageTransition) {
       startWarningIfNeeded();
-      const interval = (warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
+      const interval = (warningSession?.isBoss ? getBossWallRules(clearedBossCount + 1).spawnIntervalSeconds : warningSession ? WARNING_SPAWN_INTERVAL_SECONDS : NORMAL_SPAWN_INTERVAL_SECONDS)
         * aircraft.spawnIntervalMultiplier;
       spawnAccumulatorSeconds = Math.max(0, interval - deltaSeconds);
     }
@@ -949,7 +949,7 @@ export function createGameEngine(deps = {}) {
     const previousObstacles = new Map();
     for (const obstacle of obstacles) {
       previousObstacles.set(obstacle.id, { ...obstacle });
-      updateObstacle(obstacle, deltaSeconds, difficulty.scrollSpeed, elapsedSeconds);
+      updateObstacle(obstacle, deltaSeconds, difficulty.scrollSpeed, elapsedSeconds, { playerDamageFront: getPlayerBounds(player).right });
       if (obstacle.breakEffect) {
         obstacle.breakEffect.remainingSeconds -= deltaSeconds;
         if (obstacle.breakEffect.remainingSeconds <= 0) delete obstacle.breakEffect;

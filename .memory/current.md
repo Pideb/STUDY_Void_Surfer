@@ -1,25 +1,16 @@
 # Current Context
 
 ## Active Plan
-[Release Version Policy](./plans/2026-10-30-release-version-policy.md).
+[v0.2 feedback release](./plans/2026-11-02-v02-feedback-release.md)
 
 ## Active Phase
-[P01 Policy](./phases/2026-10-30-release-version-policy/P01-policy/phase.md).
+[P01-game-experience](./phases/2026-11-02-v02-feedback-release/P01-game-experience/phase.md)
 
 ## Active Task
-None. Release version policy complete; awaiting user feedback.
+[T02](./phases/2026-11-02-v02-feedback-release/P01-game-experience/T02-challenge-input-and-recovery.md)
 
 ## Status
-- Azure origin: https://proud-grass-03a132e00.6.azurestaticapps.net
-- Deployed0.01-b runtime `e90bb76`, push HEAD `e90bb76ccc072aef086941e2b6aa9b4a38485a50`; Actions run40841808122 completed successfully.
-- Live root/callback/assets/public configuration and anonymous ranking verified.
-- User confirmed Supabase URLs saved and the hosted Microsoft login displays their name correctly. Real score-write smoke test remains unconfirmed.
-- 0.01-b complete locally: boss-only encounters, dormant WARNING archive, menu sound and motion, HTML release update.
-- Earlier runtime `1ae7524`, `3928989`, `e0eaacf`; latest FHD `dda1732`, music-ready departure `e90bb76`, evidence `d245fee`. Latest60 files/741 tests, build/config and native/browser HTML checks passed.
-- Subsequent boss threshold: completed next-stage arrival score + random15..20, independent of old WARNING5..8; first boss20 unchanged. Portal pause included in arrival baseline; later pause does not reroll.
-- User explicitly requested deployment after T04.0.01-b pushed and deployed; public JS matches validated local dist SHA. Live root/callback/assets/public ranking and first-menu AudioContext/loop/repaint checks pass. Actual account score-write remains untested.
-- New HTML: `docs/releases/void-surfer-0.01-b.html`, identical Downloads copy, deployed-verified status. Old0.01v SHA unchanged. Latest evidence: `.memory/validation/2026-10-29-fullscreen-fhd-music-start/report.md`.
-- Fullscreen rendering now bounded1920×1080 with nativeRAF/logical960×540 retained. Music-ready preparation freezes the initialized run until readiness or10s; then silent fallback/late same-track. Menu/synth bleed and stale/double starts covered. Actual Azure4K viewport/FHD buffer and clean music start verified.
+T01 done: targeted115 tests passed. Execution1/19. User authorized implementation and commits through last Task; NO push/deployment. Production remains0.01-b; next release0.2 requires user request.
 
 ## Next Step (IMPORTANT)
-Version policy complete `e8ca4c0`. Next actual deployment0.1 then0.11→0.12→0.13 (0.19→0.110), base changes to0.2/1.0 only on user instruction. Current actual deployment0.01-b and original snapshots preserved. Release preparation uses --new-release for intentional deployment, retaining pending same-source version on retries. Docs generation alone does not bump. Both HTML and Downloads refreshed.14 tests/docs:check/read-only dry-run/artifact assertions passed. No push/deployment. Evidence `.memory/validation/2026-10-30-release-version-policy/report.md`.
+Read T02 blueprint, implement, validate and commit, then continue automatically. Preserve approved green timing guides and unrelated untracked prototypes. Stage named paths only.

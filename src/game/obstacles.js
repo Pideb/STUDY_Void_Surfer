@@ -37,23 +37,29 @@ export function createObstacle({
   const safeGapHeight = Math.max(1, Math.min(WORLD_HEIGHT, Number(gapHeight) || 1));
   const normalizedKind = ['special', 'hybrid'].includes(kind) ? kind : 'normal';
   const canMoveGap = normalizedKind === 'normal' && Boolean(movingGap);
-  const baseGapCenter = clampGapCenter(gapCenter, safeGapHeight);
-  const safeAmplitude = Number.isFinite(gapMotionAmplitude)
+  const requestedAmplitude = Number.isFinite(gapMotionAmplitude)
     ? Math.max(0, gapMotionAmplitude)
     : MOVING_GAP_AMPLITUDE;
   const safeCycle = Number.isFinite(gapMotionCycleSeconds) && gapMotionCycleSeconds > 0
     ? gapMotionCycleSeconds
     : null;
+  const safeAmplitude = Math.min(requestedAmplitude, (WORLD_HEIGHT - safeGapHeight) / 2);
+  const baseGapCenter = Math.max(safeGapHeight / 2 + (canMoveGap ? safeAmplitude : 0),
+    Math.min(WORLD_HEIGHT - safeGapHeight / 2 - (canMoveGap ? safeAmplitude : 0), clampGapCenter(gapCenter, safeGapHeight)));
   const safePhase = Number.isFinite(gapMotionPhase)
     ? gapMotionPhase
-    : Number(rng()) * Math.PI * 2;
+    : (Number(rng()) || 0) * Math.PI * 2;
 
   return {
     id,
     x,
     width: normalizedKind === 'special' ? SPECIAL_OBSTACLE_WIDTH : OBSTACLE_WIDTH,
-    gapCenter: baseGapCenter,
+    gapCenter: baseGapCenter + (canMoveGap && safeCycle ? safeAmplitude * Math.sin(safePhase) : 0),
     baseGapCenter,
+    motionAgeSeconds: 0,
+    motionFrozen: false,
+    motionCenter: baseGapCenter,
+    motionPhase: safePhase,
     gapHeight: safeGapHeight,
     kind: normalizedKind,
     barrierBroken: false,
@@ -71,14 +77,23 @@ export function createObstacle({
   };
 }
 
-export function updateObstacle(obstacle, deltaSeconds, speed, elapsedSeconds) {
+// Integral of smoothstep over the final 40px before the 160px stop boundary.
+function motionDistance(distance) {
+  if (distance <= 0) return 0;
+  if (distance >= 40) return distance - 20;
+  const u = distance / 40;
+  return 40 * (u ** 3 - 0.5 * u ** 4);
+}
+
+export function updateObstacle(obstacle, deltaSeconds, speed, elapsedSeconds, options = {}) {
   if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0 || !Number.isFinite(speed)) {
     return obstacle;
   }
 
+  const previousX = obstacle.x;
   obstacle.x -= speed * deltaSeconds;
   if (!obstacle.movingGap
-    || !Number.isFinite(elapsedSeconds)
+    || obstacle.motionFrozen
     || !Number.isFinite(obstacle.baseGapCenter)
     || !Number.isFinite(obstacle.gapMotionPhase)
     || !Number.isFinite(obstacle.gapMotionAmplitude)
@@ -87,7 +102,17 @@ export function updateObstacle(obstacle, deltaSeconds, speed, elapsedSeconds) {
     return obstacle;
   }
 
-  const phase = (Math.PI * 2 * elapsedSeconds / obstacle.gapMotionCycleSeconds)
+  let motionDelta = deltaSeconds;
+  if (Number.isFinite(options.playerDamageFront)) {
+    const before = previousX - options.playerDamageFront - 160;
+    const after = obstacle.x - options.playerDamageFront - 160;
+    const u = Math.max(0, Math.min(1, before / 40));
+    motionDelta = speed > 0 ? (motionDistance(before) - motionDistance(after)) / speed
+      : deltaSeconds * u * u * (3 - 2 * u);
+    if (after <= 0) obstacle.motionFrozen = true;
+  }
+  obstacle.motionAgeSeconds += Math.max(0, motionDelta);
+  const phase = (Math.PI * 2 * obstacle.motionAgeSeconds / obstacle.gapMotionCycleSeconds)
     + obstacle.gapMotionPhase;
   obstacle.gapCenter = clampGapCenter(
     obstacle.baseGapCenter + obstacle.gapMotionAmplitude * Math.sin(phase),

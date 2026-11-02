@@ -96,8 +96,18 @@ describe('obstacles', () => {
       gapMotionAmplitude: 90,
       gapMotionCycleSeconds: 2.4,
     });
-    expect(obstacle.gapCenter).toBeCloseTo(360);
+    expect(obstacle.gapCenter).toBeCloseTo(270+90*Math.sin(Math.PI*2*.1/2.4));
     expect(obstacle.gapCenter).toBeGreaterThanOrEqual(90);
     expect(obstacle.gapCenter).toBeLessThanOrEqual(450);
   });
+});
+
+describe("approach motion",()=>{
+ it.each([240,460,700,770].flatMap(v=>[1/60,1/30,.7].map(dt=>[v,dt])))("freezes vertically at160px for speed%s dt%s",(speed,dt)=>{
+ const wall=createObstacle({id:"move",x:1032,gapCenter:270,gapHeight:180,movingGap:true,gapMotionPhase:.4,gapMotionCycleSeconds:4.8});
+ const start=wall.gapCenter; updateObstacle(wall,.001,speed,999,{playerDamageFront:248});expect(Math.abs(wall.gapCenter-start)).toBeLessThan(1);
+ while(wall.x>408)updateObstacle(wall,dt,speed,999,{playerDamageFront:248});
+ expect(wall.motionFrozen).toBe(true);const center=wall.gapCenter,x=wall.x; wall.passed=true;updateObstacle(wall,1,speed,1000,{playerDamageFront:248});expect(wall.gapCenter).toBe(center);expect(wall.x).toBe(x-speed);
+ });
+ it("does not flatten against world bounds or share clocks",()=>{const a=createObstacle({id:"a",x:1000,gapCenter:0,gapHeight:180,movingGap:true,gapMotionPhase:0,gapMotionCycleSeconds:4});const b=createObstacle({id:"b",x:1000,gapCenter:0,gapHeight:180,movingGap:true,gapMotionPhase:0,gapMotionCycleSeconds:4});updateObstacle(a,.1,240,99);expect(a.gapCenter).not.toBe(b.gapCenter);expect(a.gapCenter).toBeGreaterThan(90);expect(b.motionAgeSeconds).toBe(0);});
 });

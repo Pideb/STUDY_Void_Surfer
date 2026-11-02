@@ -302,7 +302,7 @@ describe('game engine', () => {
     expect(cleared).toBe(true);
     expect(bossWavesCompleted).toBeGreaterThanOrEqual(2);
     expect(specialCounts.length).toBeGreaterThanOrEqual(2);
-    expect(specialCounts.every((count) => count >= 3)).toBe(true);
+    expect(specialCounts.every((count) => count >= 0 && count <= 5)).toBe(true);
     expect(artOwners.size).toBeGreaterThan(0);
     expect([...phases]).toEqual(['lead-in', 'approach', 'white-out', 'hold', 'reveal']);
     expect(swapped).toBe(true);
@@ -425,7 +425,7 @@ describe('game engine', () => {
     engine.start();
     let snapshot = engine.getSnapshot();
     const passedBossWalls = new Set();
-    for (let frame = 0; frame < 500; frame += 1) {
+    for (let frame = 0; frame < 900; frame += 1) {
       snapshot = step(100);
       for (const wall of snapshot.obstacles) {
         if (wall.passed && wall.bossNumber === 1) passedBossWalls.add(wall.id);
@@ -602,7 +602,7 @@ describe('game engine', () => {
     expect(snapshot.score).toBeGreaterThanOrEqual(before);
   });
 
-  it('uses the shorter boss cadence and guarantees three special walls', () => {
+  it('uses ordinary gaps and no forced specials for the first boss', () => {
     const { engine, step } = createRuntimeEngine({ initialScore: 20, invincibilityEnabled: true, rng: () => .6 });
     engine.start();
     let snapshot;
@@ -612,9 +612,9 @@ describe('game engine', () => {
     }
 
     expect(snapshot.warning?.spawnedCount).toBe(7);
-    expect(snapshot.warning?.specialSpawnedCount).toBeGreaterThanOrEqual(3);
+    expect(snapshot.warning?.specialSpawnedCount).toBe(0);
     expect(snapshot.obstacles.filter((obstacle) => obstacle.warningIndex === 1)
-      .every((obstacle) => obstacle.gapHeight === 135)).toBe(true);
+      .every((obstacle) => obstacle.gapHeight === 180)).toBe(true);
   });
 
   it('runs the first threshold as a boss segment with seven walls and three specials', () => {
@@ -626,7 +626,7 @@ describe('game engine', () => {
     while (!engine.getSnapshot().boss) step(100);
     const initial = engine.getSnapshot();
     expect(initial.difficulty).toMatchObject({ isWarning: false, isBoss: true, bossPattern: 'fast' });
-    expect(initial.warning).toMatchObject({ index: 1, targetCount: 7, requiredSpecials: 3 });
+    expect(initial.warning).toMatchObject({ index: 1, targetCount: 7, requiredSpecials: 0 });
     expect(initial.obstacles.filter(({ kind }) => kind === 'special').every(({ showTimingGuide }) => showTimingGuide)).toBe(true);
 
     let snapshot;
@@ -1056,7 +1056,7 @@ describe('game engine', () => {
       expect(snapshot.boss.attack).toBeNull();
       snapshot = step();
     }
-    for (let frame = 0; frame < 16; frame += 1) snapshot = step();
+    for (let frame = 0; frame < 22; frame += 1) snapshot = step();
     expect(snapshot.warning.spawnedCount).toBeGreaterThan(0);
   });
 

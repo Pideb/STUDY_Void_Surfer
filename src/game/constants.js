@@ -48,6 +48,7 @@ export const BOSS_OBSTACLE_COUNT = 7;
 export const WARNING_MIN_SPECIALS = 2;
 export const BOSS_MIN_SPECIALS = 3;
 export const NORMAL_TIMING_WINDOW_SECONDS = 0.30;
+// Archived narrower window; active special walls always use NORMAL_TIMING_WINDOW_SECONDS.
 export const WARNING_TIMING_WINDOW_SECONDS = 0.15;
 export const SPECIAL_BREAK_DURATION_SECONDS = 0.65;
 export const FLIGHT_TRAIL_LIFETIME_SECONDS = 1.2;

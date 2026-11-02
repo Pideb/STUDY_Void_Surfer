@@ -4,7 +4,7 @@ import {
   MOVING_GAP_CHANCE, NORMAL_SPECIAL_CHANCE, NORMAL_TIMING_WINDOW_SECONDS,
   SPECIAL_UNLOCK_SCORE, SPEED_STEP_INCREMENT, SPEED_STEP_SCORE_POINTS, WARNING_GAP_MULTIPLIER,
   WARNING_SCORE_STEP_MAX, WARNING_SCORE_STEP_MIN, WARNING_SPECIAL_CHANCE, WARNING_START_SCORE,
-  WARNING_TIMING_WINDOW_SECONDS,
+  NORMAL_SPAWN_INTERVAL_SECONDS, WARNING_SPAWN_INTERVAL_SECONDS, BOSS_MIN_SPECIALS,
 } from './constants.js';
 import { getAircraftDefinition } from './aircraft.js';
 
@@ -36,6 +36,14 @@ export function getBossSpeedMultiplier(pattern, elapsedSeconds = 0) {
   if (pattern === BOSS_PATTERNS.FAST) return BOSS_FAST_MULTIPLIER;
   return Math.floor(normalizeElapsed(elapsedSeconds) / 2) % 2 === 0 ? BOSS_SLOW_MULTIPLIER : BOSS_FAST_MULTIPLIER;
 }
+export function getBossWallRules(bossNumber) {
+  const first = normalizeBossCount(bossNumber) <= 1;
+  return { gapHeight: first ? BASE_GAP_HEIGHT : BASE_GAP_HEIGHT * WARNING_GAP_MULTIPLIER,
+    spawnIntervalSeconds: first ? NORMAL_SPAWN_INTERVAL_SECONDS : WARNING_SPAWN_INTERVAL_SECONDS,
+    specialChance: first ? NORMAL_SPECIAL_CHANCE : WARNING_SPECIAL_CHANCE,
+    minSpecials: first ? 0 : BOSS_MIN_SPECIALS,
+    timingWindowSeconds: NORMAL_TIMING_WINDOW_SECONDS };
+}
 export function getDifficulty(score, elapsedSeconds, completedBossCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score, firstBossCleared = false, aircraftId = 'default') {
   const safeScore = normalizeScore(score);
   const activeBossNumber = normalizeBossCount(completedBossCount) + 1;
@@ -47,14 +55,15 @@ export function getDifficulty(score, elapsedSeconds, completedBossCount, rng = M
   const bossPattern = isBoss ? (bossPatternOverride ?? chooseBossPattern(rng)) : null;
   const speedMultiplier = isBoss ? getBossSpeedMultiplier(bossPattern, elapsedSeconds) : 1;
   const warningMode = isWarning || isBoss;
+  const wallRules = getBossWallRules(activeBossNumber);
   return {
     score: safeScore, progressionScore: normalizeScore(progressionScore), elapsedSeconds: normalizeElapsed(elapsedSeconds), warningIndex: isBoss ? activeBossNumber : 0,
     isWarning, isBoss, bossPattern, baseSpeed: getBaseSpeed(progressionScore, aircraftId), speedMultiplier,
     scrollSpeed: getBaseSpeed(progressionScore, aircraftId) * speedMultiplier,
-    gapHeight: warningMode ? BASE_GAP_HEIGHT * WARNING_GAP_MULTIPLIER : BASE_GAP_HEIGHT,
-    specialChance: safeScore >= SPECIAL_UNLOCK_SCORE ? (warningMode ? WARNING_SPECIAL_CHANCE : NORMAL_SPECIAL_CHANCE) : 0,
+    gapHeight: warningMode ? wallRules.gapHeight : BASE_GAP_HEIGHT,
+    specialChance: safeScore >= SPECIAL_UNLOCK_SCORE ? (warningMode ? wallRules.specialChance : NORMAL_SPECIAL_CHANCE) : 0,
     movingGapChance: firstBossCleared ? MOVING_GAP_CHANCE : 0,
-    timingWindowSeconds: warningMode ? WARNING_TIMING_WINDOW_SECONDS : NORMAL_TIMING_WINDOW_SECONDS,
+    timingWindowSeconds: NORMAL_TIMING_WINDOW_SECONDS,
     nextWarningScore: warningThreshold,
   };
 }

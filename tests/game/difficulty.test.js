@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { BOSS_PATTERNS } from '../../src/game/constants.js';
 import {
+  getBossWallRules,
   getBaseSpeed,
   getDifficulty,
   getBossSpeedMultiplier,
@@ -66,9 +67,9 @@ describe('difficulty', () => {
       isWarning: false,
       isBoss: true,
       warningIndex: 1,
-      specialChance: 0.5,
-      gapHeight: 135,
-      timingWindowSeconds: 0.15,
+      specialChance: 0.2,
+      gapHeight: 180,
+      timingWindowSeconds: 0.30,
     });
     expect(getDifficulty(20, 0, 1, Math.random, null, 30).isBoss).toBe(false);
     expect(getDifficulty(30, 0, 1).warningIndex).toBe(2);
@@ -109,3 +110,5 @@ describe('difficulty', () => {
     expect(difficulty.speedMultiplier).toBe(1.25);
   });
 });
+
+it("uses staged boss wall rules without narrowing timing",()=>{ expect(getBossWallRules(1)).toEqual({gapHeight:180,spawnIntervalSeconds:2,specialChance:.2,minSpecials:0,timingWindowSeconds:.3}); for(const n of [2,3,9]) expect(getBossWallRules(n)).toEqual({gapHeight:135,spawnIntervalSeconds:1.4,specialChance:.5,minSpecials:3,timingWindowSeconds:.3}); });
