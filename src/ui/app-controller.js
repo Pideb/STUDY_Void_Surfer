@@ -5,6 +5,7 @@ import {createMenuNavigation} from './menu-navigation.js';
 import {createMenuLayout} from './menu-layout.js';
 import {createOrientationController} from './orientation-controller.js';
 import {renderOrientationScreen,renderRotationResumeScreen} from './screens.js';
+import releases from '../../docs/management/releases.json' with {type:'json'};
 import { announce } from './components.js';
 import { createGameHud } from './game-hud.js';
 import {
@@ -82,6 +83,8 @@ export function createAppController(deps) {
   const { authService, leaderboardService, gameEngine, renderer, audioManager, root } = deps;
   if (!(root instanceof HTMLElement)) throw new TypeError('앱 UI 루트는 HTMLElement여야 합니다.');
   const menuNavigation=createMenuNavigation(root);
+  const playTracker=deps.playSessionTracker??null;
+  let finishedTiming=null;
   const menuLayout=createMenuLayout(root,{isMobile:deps.orientationIsMobile});
   const suppliedLiveRegion = deps.liveRegion ?? root.parentElement?.querySelector('#live-region');
   const liveRegion = suppliedLiveRegion ?? document.createElement('div');
@@ -117,6 +120,7 @@ export function createAppController(deps) {
     orientationState=next;const blocked=next.portrait||next.resumePending,wasBlocking=orientationWasBlocking;
     orientationWasBlocking=blocked;
     gameEngine.setSuspended?.('orientation',blocked);root.inert=blocked;
+    if(blocked)playTracker?.suspend('orientation');else playTracker?.resume('orientation');
     orientationHost.hidden=!blocked;
     if(blocked){
       if(!orientationHost.isConnected)(root.parentElement??document.body).append(orientationHost);
@@ -344,6 +348,7 @@ export function createAppController(deps) {
   }
 
   function setScreen(screen, message = '') {
+    if(screen==='menu'&&['playing','paused'].includes(state.screen))playTracker?.finish('abandoned');
     if (state.screen === 'preparing' && screen !== 'preparing') cancelPendingStart();
     state.screen = screen;
     paint();
@@ -698,11 +703,12 @@ export function createAppController(deps) {
     stopLoop();
     audioManager.setMusicMode?.('none');
     state.snapshot = gameEngine.getSnapshot();
+    finishedTiming??=playTracker?.finish('dead')??null;
     state.leaderboard = null;
     state.submitError = false;
     state.submitErrorMessage = null;
     state.submitState = 'idle';
-    finishedRun=Object.freeze({...activeRun,runId:activeRun?.runId??String(++runSequence),score:state.snapshot?.finalScore??state.snapshot?.score??0,aircraftId:state.snapshot?.aircraft?.id??'default'});
+    finishedRun=Object.freeze({...activeRun,runId:activeRun?.runId??String(++runSequence),score:state.snapshot?.finalScore??state.snapshot?.score??0,aircraftId:state.snapshot?.aircraft?.id??'default',durationMs:finishedTiming?.durationMs??0});
     blockedRestartKeys.clear();for(const code of physicalKeys)blockedRestartKeys.add(code);
     state.screen = 'game-over';
     lastDifficultyMode = 'normal';
@@ -716,6 +722,7 @@ export function createAppController(deps) {
     if (state.screen !== 'playing') return;
     gameEngine.update(timestamp);
     state.snapshot = gameEngine.getSnapshot();
+    if(state.snapshot.deathEffect||state.snapshot.state==='game-over')finishedTiming??=playTracker?.finish('dead')??null;
     renderer.render(state.snapshot, { showPlayerHitbox: Boolean(isDesignatedAdmin(state.user)
       && state.adminModeEnabled && state.showPlayerHitbox) });
     gameHud?.update(state.snapshot);
@@ -729,6 +736,7 @@ export function createAppController(deps) {
   }
 
   function beginPlaying() {
+    finishedTiming=null;
     spaceHeld=false;arrowUpDown=false;fireHeld.clear();finishedRun=null;
     activeRun=Object.freeze({runId:String(++runSequence),user:state.user?structuredClone(state.user):null,userId:state.user?.id??null,adminRun:Boolean(isDesignatedAdmin(state.user)&&state.adminModeEnabled)});
     const prepareMusic = typeof audioManager.prepareGameplay === 'function';
@@ -789,6 +797,7 @@ export function createAppController(deps) {
   }
 
   function finishDeparture() {
+    if(playTracker&&!activeRun?.statsRunId){const statsRunId=playTracker.begin({ownerUserId:activeRun?.userId??null,version:releases.currentVersion,aircraftId:state.snapshot?.aircraft?.id??state.selectedAircraftId,isAdminTest:activeRun?.adminRun??false});activeRun=Object.freeze({...activeRun,statsRunId});}
     spaceHeld = false; fireHeld.clear();
     lastAttackId = null;
     lastAttackPhase = null;
@@ -1053,6 +1062,7 @@ export function createAppController(deps) {
       case 'PAUSE':
         if (state.screen === 'playing' && !state.snapshot?.challenge?.active && !state.snapshot?.deathEffect) {
           state.snapshot = gameEngine.pause();
+          playTracker?.suspend('manual');
           audioManager.pauseMusic?.();
           audioManager.play('pause');
           setScreen('paused', '게임을 일시정지했습니다. 10점이 차감되었습니다.');
@@ -1061,6 +1071,7 @@ export function createAppController(deps) {
       case 'RESUME':
         if (state.screen === 'paused') {
           gameEngine.resume();
+          playTracker?.resume('manual');
           audioManager.resumeMusic?.();
           state.snapshot = gameEngine.getSnapshot();
           setScreen('playing', '게임을 다시 시작합니다.');
@@ -1150,6 +1161,9 @@ export function createAppController(deps) {
   function mount() {
     if (mounted) return;
     mounted = true;
+    void playTracker?.flush();
+    globalThis.window?.addEventListener('pagehide',handlePageHide);
+    globalThis.window?.addEventListener('pageshow',handlePageShow);
     audioGestureReady = false;
     for (const type of audioGestureEvents) globalThis.window?.addEventListener(type, handleAudioGesture, true);
     clearLegacyGuestRecord(deps.guestRecordStorage);
@@ -1167,6 +1181,7 @@ export function createAppController(deps) {
     globalThis.window?.addEventListener('blur', handleBlur);
     try {
       unsubscribeAuth = authService.subscribeToAuth((user) => {
+        queueMicrotask(()=>{if(mounted)void playTracker?.flush();});
         if (!user) {
           accountRequestId += 1;
           state.user = null;
@@ -1209,6 +1224,9 @@ export function createAppController(deps) {
 
   function destroy() {
     mounted = false;
+    playTracker?.destroy();
+    globalThis.window?.removeEventListener('pagehide',handlePageHide);
+    globalThis.window?.removeEventListener('pageshow',handlePageShow);
     menuNavigation.destroy();
     menuLayout.destroy();orientationController.destroy();orientationHost.remove();root.inert=false;gameEngine.setSuspended?.('orientation',false);
     cancelPendingStart();
@@ -1228,6 +1246,8 @@ export function createAppController(deps) {
     if (ownsLiveRegion) liveRegion.remove();
   }
 
+  function handlePageHide(event){if(event.persisted){playTracker?.suspend('bfcache');gameEngine.setSuspended?.('bfcache',true);stopLoop();audioManager.pauseMusic?.();}else playTracker?.finish('abandoned');void playTracker?.flush();}
+  function handlePageShow(event){if(!event.persisted)return;playTracker?.resume('bfcache');gameEngine.setSuspended?.('bfcache',false);if(state.screen==='playing'&&!orientationWasBlocking){audioManager.resumeMusic?.();stopLoop();animationFrame=globalThis.requestAnimationFrame(renderFrame);}void playTracker?.flush();}
   orientationController=createOrientationController({isMobile:deps.orientationIsMobile,getScreen:()=>state.screen,onChange:syncOrientation});
   return { mount, destroy, dispatch };
 }

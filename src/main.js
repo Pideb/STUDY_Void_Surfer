@@ -1,4 +1,7 @@
 import './styles.css';
+import {createClient} from '@supabase/supabase-js';
+import {createPlayRecordService} from './services/play-record-service.js';
+import {createPlaySessionTracker} from './services/play-session-tracker.js';
 import { createApp } from './app/create-app.js';
 import { createSupabaseClientFromEnv } from './lib/supabase-client.js';
 import { completeOAuthPopup } from './auth/oauth-popup.js';
@@ -73,6 +76,11 @@ if (window.location.pathname === '/auth/callback') {
   }
 
   const controller = createAppController({
+    playSessionTracker:createPlaySessionTracker({
+      service:createPlayRecordService(client,{anonymousClient:client?createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'void-surfer.analytics.anonymous'}}):null}),
+      storage:(()=>{try{return globalThis.localStorage;}catch{return null;}})(),
+      diagnostic:code=>console.warn('Private play-record delivery:',code),
+    }),
     authService,
     leaderboardService,
     gameEngine: createGameEngine(),

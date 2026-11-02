@@ -129,6 +129,7 @@ export function createGameEngine(deps = {}) {
   let lastUpdateMs = null;
   let gameOverReason = null;
   let deathEffect = null;
+  let deathStartedAtMs = null;
   let obstacles = [];
   let nextObstacleId = 1;
   let spawnAccumulatorSeconds = 0;
@@ -582,6 +583,7 @@ export function createGameEngine(deps = {}) {
     elapsedSeconds = 0;
     gameOverReason = null;
     deathEffect = null;
+    deathStartedAtMs = null;
     obstacles = [];
     nextObstacleId = 1;
     spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier;
@@ -1143,6 +1145,7 @@ export function createGameEngine(deps = {}) {
     ambientLaserElapsedSeconds = 0;
     bossPreview = null;
     bossEntry = null;
+    deathStartedAtMs=now();
     deathEffect = {
       reason,
       elapsedSeconds: 0,
@@ -1153,7 +1156,7 @@ export function createGameEngine(deps = {}) {
     };
   }
 
-  function setSuspended(reason,active){if(reason!=='orientation')return;const had=suspensionReasons.has(reason);if(active)suspensionReasons.add(reason);else suspensionReasons.delete(reason);if(had!==Boolean(active))lastUpdateMs=null;}
+  function setSuspended(reason,active){if(!['orientation','bfcache'].includes(reason))return;const had=suspensionReasons.has(reason);if(active)suspensionReasons.add(reason);else suspensionReasons.delete(reason);if(had!==Boolean(active))lastUpdateMs=null;}
 
   function getSnapshot() {
     const stageState = getStageState();
@@ -1174,6 +1177,7 @@ export function createGameEngine(deps = {}) {
       backgroundScrollDistancePx,
       backgroundScrollSpeed: bossBackgroundScrollSpeed ?? difficulty.scrollSpeed,
       gameOverReason,
+      deathStartedAtMs,
       invincibilityEnabled,
       deathEffect: deathEffect ? { ...deathEffect } : null,
       aircraft: {

@@ -1,0 +1,9 @@
+import {describe,it,expect,vi,afterEach} from 'vitest';
+import {createGameEngine} from '../../src/game/game-engine.js';
+import {createAppController} from '../../src/ui/app-controller.js';
+import {createPlaySessionTracker} from '../../src/services/play-session-tracker.js';
+let controller,root;afterEach(()=>{controller?.destroy();root?.remove();vi.restoreAllMocks();});
+const settle=async()=>{for(let i=0;i<20;i++)await Promise.resolve();};
+describe('real flight telemetry boundary',()=>{
+ it('records actual departure and death before the half-second explosion finishes',async()=>{let t=0;const frames=[],service={start:vi.fn(async()=>({ok:true})),finish:vi.fn(async()=>({ok:true}))},tracker=createPlaySessionTracker({now:()=>t,service});root=document.createElement('div');document.body.append(root);const engine=createGameEngine({now:()=>t,gravity:100000});vi.spyOn(globalThis,'requestAnimationFrame').mockImplementation(fn=>{frames.push(fn);return frames.length;});vi.spyOn(globalThis,'cancelAnimationFrame').mockImplementation(()=>{});controller=createAppController({root,canvas:document.createElement('canvas'),gameEngine:engine,playSessionTracker:tracker,authService:{getSessionUser:async()=>null,subscribeToAuth:()=>()=>{}},leaderboardService:{fetchTopScores:async()=>({rows:[]})},renderer:{render(){},renderMenuBackground(){}},audioManager:{isMuted:()=>false,play(){}}});controller.mount();await settle();expect(service.start).not.toHaveBeenCalled();controller.dispatch('START_GAME_FROM_MENU');controller.dispatch('START_PLAYING');t=100;frames.shift()(t);expect(engine.getSnapshot().deathEffect).not.toBeNull();await tracker.flush();expect(service.finish.mock.calls[0][0]).toMatchObject({durationMs:100,outcome:'dead'});for(let n=0;n<6;n++){t+=100;frames.shift()?.(t);}await settle();expect(root.querySelector('.game-over-screen')).not.toBeNull();expect(service.finish).toHaveBeenCalledOnce();expect(root.textContent).not.toContain('duration');});
+});

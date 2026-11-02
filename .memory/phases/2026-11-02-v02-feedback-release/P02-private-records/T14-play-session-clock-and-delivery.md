@@ -1,6 +1,6 @@
 # Task: T14 플레이시간·총횟수 측정·안정적인 기록 전송
 
-## Status: pending
+## Status: done
 
 ## Goal
 실제출격1회당run을만들고QTE포함·pause/회전제외시간을사망순간고정하여즉시재시작/네트워크실패에서도중복없이전송한다.
@@ -62,9 +62,9 @@ type Result={ok:boolean;retryable:boolean;errorCode?:string};
 - 네트워크/원격 자원 접근이 없으면 미실행 사실·정확한 후속 명령·예상 결과를 기록하며 운영 완료로 보고하지 않는다.
 
 ## Acceptance Criteria
-- [ ] 승인한시간·횟수·종료상태가run별중복없이측정·전송된다.
-- [ ] 기록실패가게임을막거나다른계정/새run에데이터를섞지않는다.
-- [ ] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
+- [x] 승인한시간·횟수·종료상태가run별중복없이측정·전송된다.
+- [x] 기록실패가게임을막거나다른계정/새run에데이터를섞지않는다.
+- [x] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
 
 ## Validation
 - `npm test -- --run tests/services/play-record-service.test.js tests/services/play-session-tracker.test.js tests/services/play-record-outbox.test.js tests/integration/play-record-lifecycle.test.js tests/integration/prepared-run.test.js tests/integration/guest-access.test.js` — 종료0.
@@ -83,6 +83,9 @@ Task: T14-play-session-clock-and-delivery
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest7 files/28 tests passed and production build passed. Tests cover real death-before-explosion timing, canceled preparation0 starts, overlapping pause/orientation, owner-aware guest/account transport, timeout/backoff, storage rejection and queue cap. Live RPC acknowledgment not verified until T13 migration gate is applied.
