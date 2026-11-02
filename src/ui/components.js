@@ -3,6 +3,7 @@ export function createButton(label, onClick, options = {}) {
   button.type = 'button';
   button.textContent = label;
   button.setAttribute('aria-label', options.ariaLabel ?? label);
+  button.dataset.menuItemId = options.menuItemId ?? `button:${options.ariaLabel??label}`;
   if (options.className) button.className = options.className;
   button.addEventListener('click', onClick);
   return button;
@@ -38,6 +39,7 @@ export function createIconButton({ label, icon, onClick, className = '' }) {
   button.type = 'button';
   button.className = `icon-button ${className}`.trim();
   button.setAttribute('aria-label', label);
+  button.dataset.menuItemId = `icon:${icon.startsWith('volume')?'volume':icon}`;
   button.append(createVolumeIcon(icon));
   button.addEventListener('click', onClick);
   return button;

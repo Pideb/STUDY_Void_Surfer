@@ -1,0 +1,6 @@
+{
+  "before": "게임 시작",
+  "next": "기체 선택",
+  "focus": "aircraft:aegis",
+  "errors": []
+}

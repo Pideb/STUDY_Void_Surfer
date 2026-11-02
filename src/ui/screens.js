@@ -232,6 +232,7 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
     button.setAttribute('aria-pressed', String(selected));
     button.setAttribute('aria-label', `${craft.name}${selected ? ', 선택됨' : ''}${unlocked ? '' : `${guestMode ? ', 로그인 필요' : ''}, 최고 점수 ${craft.unlockBestScore}점에서 해금`}`);
     button.addEventListener('click', () => handlers.select?.(craft.id));
+    button.dataset.menuItemId = `aircraft:${craft.id}`;
 
     const preview = document.createElement('img');
     preview.className = `aircraft-preview aircraft-preview-${craft.id}`;

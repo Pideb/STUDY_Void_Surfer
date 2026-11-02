@@ -1,6 +1,6 @@
 # Task: T10 모든 메뉴 방향키·Space 탐색
 
-## Status: pending
+## Status: done
 
 ## Goal
 기존 hover와 같은 키보드 강조로 메뉴와 대화상자를 조작하며 게임 키/브라우저 입력 충돌을 막는다.
@@ -53,9 +53,9 @@ type MenuFocus={screenKey:string;activeItemId:string|null;lastInput:'keyboard'|'
 - 네트워크/원격 자원 접근이 없으면 미실행 사실·정확한 후속 명령·예상 결과를 기록하며 운영 완료로 보고하지 않는다.
 
 ## Acceptance Criteria
-- [ ] 모든일반메뉴를방향키·Space로조작하고마우스hover와동일한강조가보인다.
-- [ ] 게임입력·모달·입력창·게임오버예외가충돌하지않는다.
-- [ ] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
+- [x] 모든일반메뉴를방향키·Space로조작하고마우스hover와동일한강조가보인다.
+- [x] 게임입력·모달·입력창·게임오버예외가충돌하지않는다.
+- [x] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
 
 ## Validation
 - `npm test -- --run tests/ui/menu-navigation.test.js tests/ui/app-controller.test.js tests/ui/screens.test.js tests/ui/accessibility.test.js tests/integration/mobile-input.test.js` — 종료0.
@@ -75,6 +75,9 @@ Task: T10-keyboard-menu-navigation
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest5 files/74 tests passed. Real browser ArrowDown then Space opened hangar; ArrowRight focused AEGIS;0 exceptions. Enabled-only/modal/grid/stable-ID/Space latch cases covered. No layout redesign.

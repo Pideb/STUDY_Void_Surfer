@@ -48,7 +48,7 @@ button {
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-button:hover {
+button:hover, button.is-keyboard-current {
   border-color: var(--color-neon-strong);
   box-shadow: 0 0 18px rgba(85, 246, 229, 0.24);
 }
@@ -404,7 +404,8 @@ button:focus-visible {
   text-align: left;
 }
 
-.menu-screen .menu-actions > button:not(.icon-button):hover {
+.menu-screen .menu-actions > button:not(.icon-button):hover,
+.menu-screen .menu-actions > button:not(.icon-button).is-keyboard-current {
   border-bottom-color: var(--color-neon-strong);
   background: linear-gradient(90deg, rgba(25, 107, 133, 0.42), transparent);
   box-shadow: none;

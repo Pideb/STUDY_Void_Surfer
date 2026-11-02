@@ -1,6 +1,7 @@
 import { getAuthErrorMessage } from '../services/auth-errors.js';
 import { clearLegacyGuestRecord } from '../services/guest-record-service.js';
 import { AIRCRAFT_CATALOG, getUnlockedAircraftIds, canSelectAircraft } from '../game/aircraft.js';
+import {createMenuNavigation} from './menu-navigation.js';
 import { announce } from './components.js';
 import { createGameHud } from './game-hud.js';
 import {
@@ -77,6 +78,7 @@ function getHangarAircraft(bestScore, guest = false) {
 export function createAppController(deps) {
   const { authService, leaderboardService, gameEngine, renderer, audioManager, root } = deps;
   if (!(root instanceof HTMLElement)) throw new TypeError('앱 UI 루트는 HTMLElement여야 합니다.');
+  const menuNavigation=createMenuNavigation(root);
   const suppliedLiveRegion = deps.liveRegion ?? root.parentElement?.querySelector('#live-region');
   const liveRegion = suppliedLiveRegion ?? document.createElement('div');
   const ownsLiveRegion = !suppliedLiveRegion;
@@ -173,6 +175,8 @@ export function createAppController(deps) {
   const handleBlur = () => { spaceHeld = false; arrowUpDown=false; fireHeld.clear(); };
 
   function paint() {
+    root.dataset.screen=state.screen;
+    queueMicrotask(()=>{if(mounted&&!['playing','game-over','preparing'].includes(state.screen))menuNavigation.refresh();});
     rankingObserver?.disconnect();
     rankingObserver = null;
     gameHud = null;
@@ -1065,6 +1069,7 @@ export function createAppController(deps) {
         return;
       }
     }
+    if(!['playing','game-over','preparing'].includes(state.screen)&&menuNavigation.handleKey(event))return;
     if (event.target?.closest?.('input, select, textarea, [contenteditable="true"]')) return;
     if (isFireKey && state.screen === 'playing') {
       event.preventDefault();
@@ -1156,6 +1161,7 @@ export function createAppController(deps) {
 
   function destroy() {
     mounted = false;
+    menuNavigation.destroy();
     cancelPendingStart();
     removeAudioGestureListeners();
     stopLoop();
