@@ -170,9 +170,12 @@ export function createAppController(deps) {
   }
   const fireKeys = new Set(['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight']);
   const fireHeld = new Set();
+  const physicalKeys=new Set(),blockedRestartKeys=new Set();
+  const scoreSaveJobs=new Map();
+  let activeRun=null,finishedRun=null,runSequence=0;
   let arrowUpDown = false;
-  const handleKeyUp = (event) => { if (event.code === 'Space') spaceHeld = false; if(event.code==='ArrowUp')arrowUpDown=false; fireHeld.delete(event.code); };
-  const handleBlur = () => { spaceHeld = false; arrowUpDown=false; fireHeld.clear(); };
+  const handleKeyUp = (event) => { physicalKeys.delete(event.code);blockedRestartKeys.delete(event.code); if (event.code === 'Space') spaceHeld = false; if(event.code==='ArrowUp')arrowUpDown=false; fireHeld.delete(event.code); };
+  const handleBlur = () => { physicalKeys.clear();blockedRestartKeys.clear();spaceHeld = false; arrowUpDown=false; fireHeld.clear(); };
 
   function paint() {
     root.dataset.screen=state.screen;
@@ -675,6 +678,8 @@ export function createAppController(deps) {
     state.submitError = false;
     state.submitErrorMessage = null;
     state.submitState = 'idle';
+    finishedRun=Object.freeze({...activeRun,runId:activeRun?.runId??String(++runSequence),score:state.snapshot?.finalScore??state.snapshot?.score??0,aircraftId:state.snapshot?.aircraft?.id??'default'});
+    blockedRestartKeys.clear();for(const code of physicalKeys)blockedRestartKeys.add(code);
     state.screen = 'game-over';
     lastDifficultyMode = 'normal';
     paint();
@@ -700,7 +705,8 @@ export function createAppController(deps) {
   }
 
   function beginPlaying() {
-    handleBlur();
+    spaceHeld=false;arrowUpDown=false;fireHeld.clear();finishedRun=null;
+    activeRun=Object.freeze({runId:String(++runSequence),user:state.user?structuredClone(state.user):null,userId:state.user?.id??null,adminRun:Boolean(isDesignatedAdmin(state.user)&&state.adminModeEnabled)});
     const prepareMusic = typeof audioManager.prepareGameplay === 'function';
     state.snapshot = null;
     lastDifficultyMode = 'normal';
@@ -769,14 +775,26 @@ export function createAppController(deps) {
     animationFrame = globalThis.requestAnimationFrame(renderFrame);
   }
 
+  async function queueRunScore(run,{retry=true}={}){
+    let job=scoreSaveJobs.get(run.runId);
+    if(job?.state==='saving')return job.promise;
+    if(job?.state==='saved'||(job?.state==='error'&&!retry))return job.result;
+    job={run,state:'saving',promise:null,result:null};scoreSaveJobs.set(run.runId,job);
+    job.promise=(async()=>{
+      let result;try{if(state.user?.id!==run.userId)throw Object.assign(new Error('Account changed before score submission'),{code:'SESSION_CHANGED'});result=await leaderboardService.submitBestScore(run.user,{score:run.score,displayName:getDisplayName(run.user),aircraftId:run.aircraftId});}catch(error){result={error};}
+      if(!isValidScoreSubmission(result,run.score,run.userId)&&!result?.error)result={error:new Error('Invalid score submission response')};
+      job.result=result;job.state=result?.error?'error':'saved';
+      const complete=[...scoreSaveJobs.entries()].filter(([,j])=>j.state!=='saving');for(const [id]of complete.slice(0,Math.max(0,complete.length-20)))scoreSaveJobs.delete(id);
+      return result;
+    })();return job.promise;
+  }
+
   async function loadGameOverData({ submitScore = true } = {}) {
-    if (state.submitState === 'saving') return;
+    const run=finishedRun;if(!run)return;
     const requestId = ++state.gameOverRequest;
-    const score = state.snapshot?.finalScore ?? state.snapshot?.score ?? 0;
-    const displayName = getDisplayName(state.user);
-    const aircraftId = state.snapshot?.aircraft?.id ?? 'default';
-    const adminRun = Boolean(isDesignatedAdmin(state.user) && state.adminModeEnabled);
-    const shouldSubmitScore = Boolean(submitScore && state.user && !adminRun);
+    const {score,aircraftId,adminRun}=run;
+    const shouldSubmitScore=Boolean(run.user&&!adminRun);
+    const isCurrent=()=>requestId===state.gameOverRequest&&state.screen==='game-over'&&finishedRun?.runId===run.runId;
     state.leaderboard = {
       top: { loading: true }, neighborhood: { loading: true },
     };
@@ -794,12 +812,12 @@ export function createAppController(deps) {
     let submitResult = null;
     if (shouldSubmitScore) {
       try {
-        submitResult = await leaderboardService.submitBestScore(state.user, { score, displayName, aircraftId });
+        submitResult = await queueRunScore(run,{retry:submitScore});
       } catch (error) {
         submitResult = { error };
       }
-      if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
-      if (isValidScoreSubmission(submitResult, score, state.user?.id)) state.submitState = 'saved';
+      if(!isCurrent())return;
+      if (isValidScoreSubmission(submitResult, score, run.userId)) state.submitState = 'saved';
       else {
         submitResult = submitResult?.error
           ? submitResult
@@ -816,11 +834,11 @@ export function createAppController(deps) {
     try {
       const [topResult, neighborhoodResult] = await Promise.all([
         leaderboardService.fetchTopScores(),
-        state.user ? leaderboardService.fetchPlayerNeighborhood() : Promise.resolve({rows:[],error:null}),
+        run.user ? leaderboardService.fetchPlayerNeighborhood() : Promise.resolve({rows:[],error:null}),
       ]);
-      if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
+      if(!isCurrent())return;
       state.submitError = shouldSubmitScore
-        ? !isValidScoreSubmission(submitResult, score, state.user?.id)
+        ? !isValidScoreSubmission(submitResult, score, run.userId)
         : state.submitState === 'error';
       state.leaderboard = {
         top: { rows: topResult?.rows ?? [], error: topResult?.error ?? null },
@@ -829,7 +847,7 @@ export function createAppController(deps) {
       };
       paint();
     } catch {
-      if (requestId !== state.gameOverRequest || state.screen !== 'game-over') return;
+      if(!isCurrent())return;
       state.submitError = state.submitState === 'error';
       state.leaderboard = {
         top: { error: true }, neighborhood: { error: true }, submitError: true,
@@ -1035,6 +1053,8 @@ export function createAppController(deps) {
   }
 
   function handleKeyDown(event) {
+    const wasHeld=physicalKeys.has(event.code);physicalKeys.add(event.code);
+    if(state.screen==='game-over'){event.preventDefault();if(event.repeat||wasHeld||blockedRestartKeys.has(event.code))return;dispatch(event.code==='Escape'?'RETURN_TO_MENU':'RESTART_IMMEDIATE');return;}
     if (state.screen === 'preparing') {
       if (event.code === 'Escape') { event.preventDefault(); dispatch('RETURN_TO_MENU'); }
       return;

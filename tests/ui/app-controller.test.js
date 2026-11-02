@@ -83,8 +83,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
 }
 
 async function settle() {
-  await Promise.resolve();
-  await Promise.resolve();
+  for(let n=0;n<15;n++)await Promise.resolve();
 }
 
 describe('app controller product flow', () => {
@@ -460,7 +459,7 @@ describe('app controller product flow', () => {
     harness.controller.dispatch({ type: 'GAME_OVER' });
     expect(harness.root.textContent).toContain('최종 점수 0');
 
-    [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '재시작').click();
+    harness.root.querySelector('.game-over-overlay').click();
     expect(harness.root.textContent).toContain('점수 0');
     expect(harness.gameEngine.start).toHaveBeenCalledTimes(2);
 

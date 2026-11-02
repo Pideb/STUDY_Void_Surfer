@@ -1,6 +1,6 @@
 # Task: T11 게임오버 재시작 입력·암전 안내·점수 저장 수명
 
-## Status: pending
+## Status: done
 
 ## Goal
 결과창밖터치/ESC외새키로빠르게재시작하고ESC로메뉴에가되이전run의점수저장이새run을덮어쓰거나누락되지않는다.
@@ -51,9 +51,9 @@ queueRunScore(run:FinishedRun):Promise<void>;
 - 네트워크/원격 자원 접근이 없으면 미실행 사실·정확한 후속 명령·예상 결과를 기록하며 운영 완료로 보고하지 않는다.
 
 ## Acceptance Criteria
-- [ ] 결과창입력/버튼/하단안내가정확하고새run재시작을막지않는다.
-- [ ] 이전run의저장응답이새run/결과에영향없으며저장이중복·누락되지않는다.
-- [ ] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
+- [x] 결과창입력/버튼/하단안내가정확하고새run재시작을막지않는다.
+- [x] 이전run의저장응답이새run/결과에영향없으며저장이중복·누락되지않는다.
+- [x] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
 
 ## Validation
 - `npm test -- --run tests/ui/screens.test.js tests/ui/app-controller.test.js tests/integration/game-over-restart.test.js tests/integration/leaderboard-failure.test.js` — 종료0.
@@ -73,6 +73,9 @@ Task: T11-game-over-restart-and-save-lifetime
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest4 files/65 tests passed. Deferred A/B score saves complete independently; held/repeat/keyup/ESC/inside/outside input covered. Actual browser gameover captured1600x900 and844x390, footer inside viewport and no restart button. Job errors remain visible/retryable; no remote score writes used in verification.

@@ -3,8 +3,8 @@ import { createAppController } from '../../src/ui/app-controller.js';
 
 const pilot = { id: 'pilot-1', email: 'pilot@example.com', user_metadata: { name: 'Pilot' } };
 
-function flush() {
-  return Promise.resolve().then(() => Promise.resolve());
+async function flush() {
+  for(let n=0;n<20;n++)await Promise.resolve();
 }
 
 function createHarness() {

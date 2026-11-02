@@ -311,7 +311,6 @@ export function renderGameOverScreen(model, handlers) {
   const actions = document.createElement('div');
   actions.className = 'screen-actions';
   actions.append(
-    createButton('재시작', handlers.restart, { className: 'primary-button' }),
     createButton('파일럿 랭킹', handlers.ranking, { className: 'secondary-button' }),
     createButton('메인 메뉴', handlers.menu, { className: 'secondary-button' }),
   );
@@ -327,7 +326,13 @@ export function renderGameOverScreen(model, handlers) {
     panel.append(createMessage(model.submitErrorMessage || '점수를 저장하지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message'));
   }
   panel.append(renderLeaderboardPanel({...model.leaderboard,hideNeighborhood:Boolean(model.guestMode)}, handlers.retryLeaderboard));
-  return panel;
+  for(const button of actions.querySelectorAll('button'))button.tabIndex=-1;
+  const overlay=document.createElement('div');overlay.className='game-over-overlay';
+  const footer=document.createElement('p');footer.className='game-over-restart-hint';
+  footer.textContent='아무 키 입력/화면 클릭을 통해 재시작';
+  overlay.append(panel,footer);
+  overlay.addEventListener('click',event=>{if(!panel.contains(event.target)){event.preventDefault();handlers.restart?.();}});
+  return overlay;
 }
 
 export function renderPilotRankingScreen(model = {}, handlers = {}) {
