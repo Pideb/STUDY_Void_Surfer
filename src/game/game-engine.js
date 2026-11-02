@@ -2,6 +2,7 @@ import { AMBIENT_LASER_UNLOCK_BOSSES, AMBIENT_LASER_INTERVAL_SECONDS, AMBIENT_LA
 import { createBossPatternRound } from './boss-patterns.js';
 import {
   BOSS_OBSTACLE_COUNT,
+  CHALLENGE_RECOVERY_SECONDS,
   BOSS_ATTACK_NORMAL_WALL_COOLDOWN,
   BOSS_PATTERN_PREVIEW_SECONDS,
   DASH_DURATION_SECONDS,
@@ -148,6 +149,7 @@ export function createGameEngine(deps = {}) {
   let pendingStageAdvance = null;
   let bossEncounter = null;
   let challenge = null;
+  let playerRecovery = { remainingSeconds: 0, durationSeconds: CHALLENGE_RECOVERY_SECONDS };
   let feedbackEffect = null;
   let nextAttackId = 1;
   let currentScrollSpeed = null;
@@ -575,6 +577,7 @@ export function createGameEngine(deps = {}) {
     pendingStageAdvance = null;
     bossEncounter = null;
     challenge = null;
+    playerRecovery = { remainingSeconds: 0, durationSeconds: CHALLENGE_RECOVERY_SECONDS };
     feedbackEffect = null;
     nextAttackId = 1;
     currentScrollSpeed = null;
@@ -645,6 +648,8 @@ export function createGameEngine(deps = {}) {
   function resolveChallenge() {
     if (!challenge || challenge.result === 'pending' || challenge.resolved) return;
     challenge.resolved = true;
+    player.velocityY = Math.min(0, player.velocityY);
+    playerRecovery.remainingSeconds = playerRecovery.durationSeconds;
     if (challenge.result === 'failure') feedbackEffect = createChallengeFailureEffect(rng);
     if (bossEncounter) {
       advanceBossEncounter(bossEncounter, challenge.result === 'success' ? 'challenge-success' : 'challenge-failure');
@@ -918,7 +923,16 @@ export function createGameEngine(deps = {}) {
     const previousPlayer = { ...player };
     const firing = bossEncounter?.weapon.firing;
     const lockedSeconds = firing ? Math.min(deltaSeconds, Math.max(0, firing.durationSeconds - firing.elapsedSeconds)) : 0;
-    if (deltaSeconds > lockedSeconds) updatePlayer(player, deltaSeconds - lockedSeconds, gravity * aircraft.gravityMultiplier);
+    if (deltaSeconds > lockedSeconds) {
+      const flightSeconds = deltaSeconds - lockedSeconds;
+      const recoverySeconds = Math.min(flightSeconds, playerRecovery.remainingSeconds);
+      if (recoverySeconds > 0) {
+        const averageScale = 1 - (playerRecovery.remainingSeconds - recoverySeconds / 2) / playerRecovery.durationSeconds;
+        updatePlayer(player, recoverySeconds, gravity * aircraft.gravityMultiplier * averageScale);
+        playerRecovery.remainingSeconds = Math.max(0, playerRecovery.remainingSeconds - recoverySeconds);
+      }
+      if (flightSeconds > recoverySeconds) updatePlayer(player, flightSeconds - recoverySeconds, gravity * aircraft.gravityMultiplier);
+    }
     elapsedSeconds += deltaSeconds;
     if (bossEncounter?.animation) bossEncounter.animation.elapsedSeconds += deltaSeconds;
     const previousBossEncounter = bossEncounter;
@@ -1016,6 +1030,7 @@ export function createGameEngine(deps = {}) {
 
   function lift() {
     if (state !== GAME_STATES.PLAYING || deathEffect || challenge?.active || bossEncounter?.weapon.firing) return false;
+    playerRecovery.remainingSeconds = 0;
     applyLift(player, LIFT_VELOCITY * aircraft.liftMultiplier);
     return true;
   }
@@ -1158,6 +1173,7 @@ export function createGameEngine(deps = {}) {
         remainingSeconds: Math.max(0, speedTransition.durationSeconds - speedTransition.elapsedSeconds),
       } : null,
       challenge: challenge ? { ...challenge, sequence: [...challenge.sequence] } : null,
+      playerRecovery: { ...playerRecovery },
       feedbackEffect: feedbackEffect ? { ...feedbackEffect } : null,
       player: { ...player },
       flightTrail: flightTrail.map((point) => ({ ...point })),

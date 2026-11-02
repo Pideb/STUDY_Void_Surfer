@@ -912,8 +912,10 @@ describe('app controller product flow', () => {
     harness.controller.dispatch('START_GAME_FROM_MENU');
     harness.controller.dispatch('START_PLAYING');
 
-    harness.snapshot.challenge = { active: true, result: 'pending' };
+    harness.snapshot.challenge = { active: true, result: 'pending', wrongKeyEventId:1 };
     harness.frames.shift()(16);
+    harness.frames.shift()(20);
+    expect(harness.audioManager.play.mock.calls.filter(([event]) => event === 'challengeWrongKey')).toHaveLength(1);
     harness.snapshot.challenge = { active: false, result: 'success' };
     harness.frames.shift()(32);
     harness.frames.shift()(48);

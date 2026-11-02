@@ -1,4 +1,4 @@
-import { BOSS_CHALLENGE_TIME_LIMIT_SECONDS, BOSS_LATER_CHALLENGE_TIME_LIMIT_SECONDS, CHALLENGE_FAILURE_EFFECT_SECONDS } from './constants.js';
+import { BOSS_CHALLENGE_TIME_LIMIT_SECONDS, BOSS_LATER_CHALLENGE_TIME_LIMIT_SECONDS, CHALLENGE_FAILURE_EFFECT_SECONDS, CHALLENGE_WRONG_KEY_FLASH_SECONDS } from './constants.js';
 
 const CHALLENGE_KEYS = Object.freeze(['KeyW', 'KeyA', 'KeyS', 'KeyD']);
 
@@ -41,14 +41,18 @@ export function createChallenge({ bossNumber, rng = Math.random } = {}) {
     maxKeys,
     result: 'pending',
     resolved: false,
+    wrongKeyEventId: 0,
+    wrongKeyIndex: null,
+    wrongKeyFlashRemaining: 0,
   };
 }
 
 export function handleChallengeKey(challenge, code) {
   if (!challenge?.active || !CHALLENGE_KEYS.includes(code)) return challenge?.result ?? 'ignored';
   if (challenge.sequence[challenge.cursor] !== code) {
-    challenge.active = false;
-    challenge.result = 'failure';
+    challenge.wrongKeyEventId += 1;
+    challenge.wrongKeyIndex = challenge.cursor;
+    challenge.wrongKeyFlashRemaining = CHALLENGE_WRONG_KEY_FLASH_SECONDS;
     return challenge.result;
   }
 
@@ -62,6 +66,7 @@ export function handleChallengeKey(challenge, code) {
 
 export function updateChallenge(challenge, deltaSeconds) {
   if (!challenge?.active || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) return challenge?.result ?? 'ignored';
+  challenge.wrongKeyFlashRemaining = Math.max(0, challenge.wrongKeyFlashRemaining - deltaSeconds);
   challenge.remainingSeconds = Math.max(0, challenge.remainingSeconds - deltaSeconds);
   if (challenge.remainingSeconds === 0) {
     challenge.active = false;

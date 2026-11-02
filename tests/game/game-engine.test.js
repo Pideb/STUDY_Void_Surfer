@@ -675,12 +675,16 @@ describe('game engine', () => {
       const wrong = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].find((key) => key !== snapshot.challenge.sequence[0]);
       engine.handleChallengeKey(wrong);
       snapshot = engine.getSnapshot();
+      expect(snapshot.challenge).toMatchObject({active:true,cursor:0,wrongKeyEventId:1});
+      for(let frame=0;frame<50&&snapshot.challenge.active;frame++)snapshot=step(100);
     } else {
       for (let frame = 0; frame < 50 && snapshot.challenge.active; frame += 1) snapshot = step(100);
     }
     expect(snapshot.challenge).toMatchObject({ active: false, result: 'failure', resolved: true });
     expect(snapshot.boss).toMatchObject({ hp: 3, challengeCount: 1, successfulChallenges: 0, wallSpawningPaused: true });
     expect(snapshot.feedbackEffect.remainingSeconds).toBeCloseTo(8);
+    expect(snapshot.playerRecovery.remainingSeconds).toBe(.15);
+
     expect(snapshot.score).toBe(60);
     expect(snapshot.progressionScore).toBe(60);
     for (let frame = 0; frame < 1000 && !snapshot.challenge.active; frame += 1) snapshot = step(100);
@@ -714,7 +718,7 @@ describe('game engine', () => {
         expect(snapshot.score).toBe(entryScore);
         expect(snapshot.progressionScore).toBe(entryScore);
         if (snapshot.challenge?.active) {
-          expect(snapshot.challenge.timeLimitSeconds).toBe(snapshot.boss.number === 1 ? 5 : 2.8);
+          expect(snapshot.challenge.timeLimitSeconds).toBe(snapshot.boss.number === 1 ? 4 : 2.5);
           expect(snapshot.challenge.sequence.length).toBeGreaterThanOrEqual(6);
           for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
           successes += 1;
@@ -841,13 +845,13 @@ describe('game engine', () => {
     expect(engine.lift()).toBe(true); expect(engine.dash()).toBe(true);
     snapshot = step();
     expect(snapshot.boss.roar).toBeNull();
-    expect(snapshot.challenge).toMatchObject({ active: true, remainingSeconds: 5 });
+    expect(snapshot.challenge).toMatchObject({ active: true, remainingSeconds: 4 });
     expect(snapshot.player.y).toBeLessThan(beforeRoar.player.y);
     const frozen = snapshot; snapshot = step();
     expect(snapshot.boss.motionSeconds).toBe(frozen.boss.motionSeconds);
     expect(snapshot.elapsedSeconds).toBe(frozen.elapsedSeconds);
     expect(snapshot.player).toEqual(frozen.player);
-    expect(snapshot.challenge.remainingSeconds).toBeCloseTo(4.9);
+    expect(snapshot.challenge.remainingSeconds).toBeCloseTo(3.9);
     for (const code of snapshot.challenge.sequence) engine.handleChallengeKey(code);
     snapshot = engine.getSnapshot();
     expect(snapshot.boss.hp).toBe(3);
@@ -1220,3 +1224,5 @@ describe('game engine', () => {
     expect(engine.getSnapshot().flightTrail).toEqual([]);
   });
 });
+
+it("restores flight with an immediately usable lift after success",()=>{const {engine,step}=createRuntimeEngine({initialScore:60,invincibilityEnabled:true});engine.start();let s=engine.getSnapshot();for(let n=0;n<1500&&!s.challenge?.active;n++)s=step(100);expect(s.challenge?.active).toBe(true);for(const key of s.challenge.sequence)engine.handleChallengeKey(key);expect(engine.getSnapshot().playerRecovery.remainingSeconds).toBe(.15);expect(engine.lift()).toBe(true);expect(engine.getSnapshot().player.velocityY).toBe(-360);expect(engine.getSnapshot().playerRecovery.remainingSeconds).toBe(0);engine.start();expect(engine.getSnapshot().playerRecovery.remainingSeconds).toBe(0);});

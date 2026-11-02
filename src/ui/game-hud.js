@@ -203,6 +203,7 @@ export function createGameHud(model, handlers) {
         const item = document.createElement('li');
         item.textContent = code.slice(-1).toUpperCase();
         item.className = index < cursor ? 'is-complete' : index === cursor ? 'is-current' : '';
+        item.classList.toggle('is-wrong', index === cursor && challenge.wrongKeyIndex === cursor && challenge.wrongKeyFlashRemaining > 0);
         item.setAttribute('aria-label', `${index + 1}: ${code.slice(-1).toUpperCase()}${index < cursor ? ', 입력 완료' : ''}`);
         return item;
       }));

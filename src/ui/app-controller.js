@@ -112,6 +112,7 @@ export function createAppController(deps) {
   let lastAttackPhase = null;
   let previousBoss = null;
   let challengeRunId = 0;
+  let lastWrongChallengeEvent = null;
   let previousChallengeActive = false;
   let lastBossPreviewId = null;
   let audioRunId = 0;
@@ -634,6 +635,13 @@ export function createAppController(deps) {
 
     const challenge = snapshot?.challenge;
     if (challenge?.active && !previousChallengeActive) challengeRunId += 1;
+    if (challenge?.active && challenge.wrongKeyEventId > 0) {
+      const eventId = `${audioRunId}:challenge-${challengeRunId}:wrong-${challenge.wrongKeyEventId}`;
+      if (lastWrongChallengeEvent !== eventId) {
+        lastWrongChallengeEvent = eventId;
+        audioManager.play('challengeWrongKey', { id: eventId });
+      }
+    }
     if (challenge && !challenge.active && previousChallengeActive) {
       const challengeId = `${audioRunId}:challenge-${challengeRunId}`;
       if (challenge.result === 'success') {

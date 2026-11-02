@@ -5,6 +5,7 @@ import { createBossRoarBuffer } from './boss-roar.js';
 import { ROAR_PROFILES, ROAR_DURATION_SECONDS } from './boss-roar-synth.js';
 
 const SOUND_CONFIG = Object.freeze({
+  challengeWrongKey: [{ frequency: 180, duration: 0.12, type: 'square', volume: 0.35 }],
   lift: [{ frequency: 420, duration: 0.08, type: 'triangle', volume: 0.65 }],
   dash: [{ frequency: 680, duration: 0.14, type: 'sawtooth', volume: 0.8 }],
   score: [{ frequency: 760, duration: 0.1, type: 'sine', volume: 0.5 }],
@@ -71,6 +72,7 @@ const SCENE_SETTINGS = Object.freeze({
 });
 
 export const AUDIO_EVENTS = Object.freeze([
+  'challengeWrongKey',
   'bossEntry', 'bossRoar', 'bossCharge', 'projectileReflect', 'bossHit', 'laserTelegraph',
   'challengeSuccess', 'challengeFailureInk', 'challengeFailureGlitch',
 ]);

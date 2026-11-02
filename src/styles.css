@@ -731,6 +731,12 @@ button:focus-visible {
   border-color: var(--color-neon-strong);
   box-shadow: var(--focus-ring), 0 0 22px rgba(85, 246, 229, 0.45);
 }
+.challenge-sequence li.is-wrong {
+  color: #fff;
+  border-color: #ff526b;
+  background: #852338;
+  box-shadow: 0 0 18px #ff345a;
+}
 
 .challenge-sequence li.is-complete {
   color: #08132d;

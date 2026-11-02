@@ -135,3 +135,5 @@ describe('game HUD', () => {
     expect(indicator.hidden).toBe(true);
   });
 });
+
+it("flashes only the current wrong key without advancing",()=>{ const hud=makeHud();hud.update({challenge:{active:true,sequence:["KeyW","KeyA"],cursor:0,remainingSeconds:3,timeLimitSeconds:4,wrongKeyIndex:0,wrongKeyFlashRemaining:.18}});expect(hud.element.querySelectorAll(".challenge-sequence .is-wrong")).toHaveLength(1);expect(hud.element.querySelector(".is-wrong").textContent).toBe("W");expect(hud.element.querySelectorAll(".challenge-sequence .is-complete")).toHaveLength(0);});
