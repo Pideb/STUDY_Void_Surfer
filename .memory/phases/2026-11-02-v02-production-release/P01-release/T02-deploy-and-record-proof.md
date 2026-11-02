@@ -1,6 +1,10 @@
 # T02 deploy and record proof
 
-## Status: in_progress
+## Status: done
+
+## Results
+
+Verified on2026-11-03: Actions41420130260 success at2026-11-02T09:46:27Z, exact HEADfd82ff458572c1eaa49d3391f21a813ccf9cbc49, production JS SHA256cca98444faf29925fbe1ad7397be23e2856c1a239e3ac48d657e6b94c2eec5f8 matches local build; public guide matches exact local bytes (normalized CRLF). record-deployment succeeded. Metadata follow-up push is part of the original deployment authorization; subsequent gameplay bug fixes are local only until a new deployment request.
 
 ## Implementation
 

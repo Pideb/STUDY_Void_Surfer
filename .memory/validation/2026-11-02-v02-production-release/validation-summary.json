@@ -1,0 +1,10 @@
+{
+  "testsPassed": 1376,
+  "testsFailed": 0,
+  "testFiles": 84,
+  "success": true,
+  "productionBundle": "index-aNzGh-GU.js",
+  "bytes": 443723,
+  "sha256": "cca98444faf29925fbe1ad7397be23e2856c1a239e3ac48d657e6b94c2eec5f8",
+  "auditMetadataInBundle": false
+}

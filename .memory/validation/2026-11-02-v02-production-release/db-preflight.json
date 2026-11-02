@@ -1,5 +1,5 @@
 {
-  "checkedAtUtc": "2026-11-02T09:21:27.280Z",
+  "checkedAtUtc": "2026-11-02T09:25:11.462Z",
   "writesPerformed": false,
   "ready": true,
   "results": [
@@ -20,6 +20,20 @@
       "status": 401,
       "code": "42501",
       "message": "permission denied for function submit_score"
+    }
+  ],
+  "privateTables": [
+    {
+      "table": "play_sessions",
+      "status": 401,
+      "code": "42501",
+      "message": "permission denied for table play_sessions"
+    },
+    {
+      "table": "player_score_timing",
+      "status": 401,
+      "code": "42501",
+      "message": "permission denied for table player_score_timing"
     }
   ]
 }

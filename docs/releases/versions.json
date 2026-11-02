@@ -203,7 +203,7 @@
       "date": "2026-11-02",
       "title": "v0.2 gameplay and mobile beta",
       "summary": "Boss difficulty eased; slow-fast-shift-random encounter order · Keyboard menus, revised restart flow, temporary aircraft unlock and mobile beta · Stage projectile outlines, startup audio attempt and mobile LAN departure fix · Player guide includes the seven developer-authored v0.2 update notes",
-      "status": "validated-pending-deployment",
+      "status": "deployed-verified",
       "sourceCommit": "c3f71ac033fe1577506611b292fda3f1d407e02c",
       "sourceContext": {
         "head": "c3f71ac033fe1577506611b292fda3f1d407e02c",
@@ -228,6 +228,14 @@
           "Player guide includes the seven developer-authored v0.2 update notes"
         ],
         "fixed": []
+      },
+      "deployment": {
+        "headSha": "fd82ff458572c1eaa49d3391f21a813ccf9cbc49",
+        "runId": 41420130260,
+        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41420130260",
+        "completedAtUtc": "2026-11-02T09:46:27Z",
+        "bundleSha256": "cca98444faf29925fbe1ad7397be23e2856c1a239e3ac48d657e6b94c2eec5f8",
+        "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
       }
     }
   ],

@@ -10,5 +10,10 @@ for(const [rpc,args]of probes){
  const response=await fetch(env.VITE_SUPABASE_URL+'/rest/v1/rpc/'+rpc,{method:'POST',headers:{apikey:env.VITE_SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});
  const body=await response.json();results.push({rpc,status:response.status,code:body.code,message:body.message});
 }
-const report={checkedAtUtc:new Date().toISOString(),writesPerformed:false,ready:results[0].code==='22023'&&results[1].code==='22023'&&results[2].code==='42501',results};
+const privateTables=[];
+for(const table of ['play_sessions','player_score_timing']){
+ const response=await fetch(env.VITE_SUPABASE_URL+'/rest/v1/'+table+'?select=*&limit=0',{headers:{apikey:env.VITE_SUPABASE_ANON_KEY}});
+ const body=await response.json();privateTables.push({table,status:response.status,code:body.code,message:body.message});
+}
+const report={checkedAtUtc:new Date().toISOString(),writesPerformed:false,ready:results[0].code==='22023'&&results[1].code==='22023'&&results[2].code==='42501'&&privateTables.every(table=>table.code==='42501'),results,privateTables};
 fs.writeFileSync('.memory/validation/2026-11-02-v02-production-release/db-preflight.json',JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report));

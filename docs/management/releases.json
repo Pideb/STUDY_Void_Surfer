@@ -8,7 +8,8 @@
   "nextVersion": "0.21",
   "snapshots": {
     "void-surfer-0.01v.html": "42704308b359b173044a658af44201ed05467070fc24c1cc0ca2cf9e9ce15d34",
-    "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58"
+    "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58",
+    "void-surfer-0.2.html": "b8f94a22979d4546720d5ef99adccaa360a652388b8adc216ecd814a3e1afce5"
   },
   "releases": [
     {
@@ -118,7 +119,7 @@
       "date": "2026-11-02",
       "title": "v0.2 gameplay and mobile beta",
       "summary": "Boss difficulty eased; slow-fast-shift-random encounter order · Keyboard menus, revised restart flow, temporary aircraft unlock and mobile beta · Stage projectile outlines, startup audio attempt and mobile LAN departure fix · Player guide includes the seven developer-authored v0.2 update notes",
-      "status": "validated-pending-deployment",
+      "status": "deployed-verified",
       "sourceCommit": "c3f71ac033fe1577506611b292fda3f1d407e02c",
       "sourceContext": {
         "head": "c3f71ac033fe1577506611b292fda3f1d407e02c",
@@ -143,12 +144,21 @@
           "Player guide includes the seven developer-authored v0.2 update notes"
         ],
         "fixed": []
+      },
+      "deployment": {
+        "headSha": "fd82ff458572c1eaa49d3391f21a813ccf9cbc49",
+        "runId": 41420130260,
+        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41420130260",
+        "completedAtUtc": "2026-11-02T09:46:27Z",
+        "bundleSha256": "cca98444faf29925fbe1ad7397be23e2856c1a239e3ac48d657e6b94c2eec5f8",
+        "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
       }
     }
   ],
   "snapshotContentSha256": {
     "void-surfer-0.01v.html": "de0c21a43d39ed30246accc398777f66be4179622f7c840d829dfbf791a96ce9",
-    "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58"
+    "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58",
+    "void-surfer-0.2.html": "b8f94a22979d4546720d5ef99adccaa360a652388b8adc216ecd814a3e1afce5"
   },
   "documentationDate": "2026-11-02"
 }
