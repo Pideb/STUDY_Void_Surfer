@@ -12,9 +12,9 @@
 | T16 | done | 플레이어 가이드 HTML·수동 업데이트·메뉴 링크 | [16](./T16-player-guide-and-manual-updates.md) |
 | T17 | done | 관리 HTML 개발 예시 링크 탭 | [17](./T17-local-development-preview-archive.md) |
 | T18 | done | 실게임 통합·경로·시각·성능 검증 | [18](./T18-integrated-release-validation.md) |
-| T19 | in_progress | 게임 관리 모델·개발 검토본·실행 기록 동기화 | [19](./T19-documentation-and-handoff.md) |
+| T19 | done | 게임 관리 모델·개발 검토본·실행 기록 동기화 | [19](./T19-documentation-and-handoff.md) |
 
 ## Progress
-- done: 3/4
+- done: 4/4
 - pending
 - 실제 배포 완료와 개발 Task 완료를 구분한다.

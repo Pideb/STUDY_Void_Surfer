@@ -1,6 +1,7 @@
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {spawnSync} from 'node:child_process';import {fileURLToPath} from 'node:url';
 import {ROOT,managementOutput} from './build-management.mjs';import {presentationOutput} from './build-presentation.mjs';import {gameFingerprint,nextVersion} from './release-core.mjs';
 import {GUIDE_FILE,hasPlayerGuide,playerGuideOutput} from './build-player-guide.mjs';
+import {archivalAliasOutput} from './release-labels.mjs';
 const RELEASE_FILE='docs/management/releases.json';
 function read(root,file){return fs.readFileSync(path.join(root,file),'utf8').replace(/\r\n/g,'\n');}
 function json(v){return JSON.stringify(v,null,2)+'\n';}
@@ -12,6 +13,7 @@ export function documentOutputs(root=ROOT,r=registry(root)){
   var outputs={'docs/management/game-data.json':json(management.data),'docs/management/void-surfer-management.html':management.html,'docs/releases/void-surfer-latest.html':presentation};
   var current=r.releases.find(x=>x.version===r.currentVersion),name='void-surfer-'+r.currentVersion+'.html';
   if(!r.snapshots[name])outputs['docs/releases/'+name]=presentation;
+  for(var release of r.releases){var label=release.displayVersion;if(['0.01v','0.01-b'].includes(release.version)&&label){var alias='docs/releases/void-surfer-'+label+'.html';if(!outputs[alias])outputs[alias]=archivalAliasOutput(root,release);}}
   var legacy=JSON.parse(read(root,'docs/releases/versions.json'));
   legacy.currentVersion=r.currentVersion;legacy.versionPolicy=r.policy;legacy.versionBase=r.versionBase||'0.1';legacy.nextVersion=r.nextVersion;legacy.managementDocument='../management/void-surfer-management.html';legacy.latestDocument='void-surfer-latest.html';
   legacy.releases=r.releases.map(release=>({...legacy.releases?.find(x=>x.version===release.version),...release,document:path.basename(release.document)}));delete legacy.versions;outputs['docs/releases/versions.json']=json(legacy);

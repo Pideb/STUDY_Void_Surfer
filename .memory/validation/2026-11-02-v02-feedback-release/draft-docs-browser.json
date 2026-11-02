@@ -1,0 +1,20 @@
+{
+  "draftStatus": "draft-not-deployed",
+  "bossTimingReset": 0.3,
+  "slidersWork": true,
+  "archiveLinks": 12,
+  "allLinksHTTP200": true,
+  "aliases": [
+    {
+      "id": "0.01v",
+      "label": "0.1",
+      "metadataPreserved": true
+    },
+    {
+      "id": "0.01-b",
+      "label": "0.1b",
+      "metadataPreserved": true
+    }
+  ],
+  "errors": []
+}

@@ -3,6 +3,10 @@ export function targetSpeed(config,craft,progression,mode){
   var base=config.BASE_SCROLL_SPEED*craft.scrollSpeedMultiplier+config.SPEED_STEP_INCREMENT*Math.floor(score/config.SPEED_STEP_SCORE_POINTS);
   return base*(mode==='slow'?config.BOSS_SLOW_MULTIPLIER:mode==='fast'?config.BOSS_FAST_MULTIPLIER*(craft.id==='velocity'?config.VELOCITY_FAST_BOSS_SPEED_MULTIPLIER:1):1);
 }
+export function projectileTargetSpeed(config,scrollSpeed,sample){
+  var base=config.minBase+Math.max(0,Math.min(1,sample))*(config.maxBase-config.minBase);
+  return Math.max(config.min,Math.min(config.max,base+(scrollSpeed-config.reference)*config.gain));
+}
 export function specialEligibility(config,input){
   var p=input.playerX,w=input.wallX,s=input.speed,t=input.windowSeconds,h=input.hitbox,success=input.successWidth;
   if(![p,w,s,t,h,success].every(Number.isFinite)||s<=0||t<0||h<=0||success<=0)return false;

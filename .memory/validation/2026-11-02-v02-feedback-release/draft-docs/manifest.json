@@ -1,0 +1,60 @@
+{
+  "status": "draft-not-deployed",
+  "sourceHead": "1f210d2cfc1c5a83719d7fa13bcee04d602d69bd",
+  "gameFingerprint": "bda0c726657a57eadfe2043de26ab50c5bef7d27d947a14ac18a1fdb8abb4c70",
+  "productionVersion": "0.01-b",
+  "manualPlayerUpdatesUnchanged": true,
+  "generatorSourceHashes": {
+    "scripts/build-management.mjs": "c51c49449f45d3589945c4d1c8a60fecc99fd749a2fc220da7411cbe52f75d4d",
+    "scripts/build-presentation.mjs": "e256dfb3d3dbb65ad0114bcd11721aaa65eeebe918f974a47dcf3c8348cc0d36",
+    "scripts/game-catalog.mjs": "608151b1fcb30aaaee92b85474e1cdbb110a6b02a0a181cddb850d63281ef42c",
+    "scripts/release-labels.mjs": "26dbe9756f50acd330934b02e675e61266ac6be4ea4784644712b733aee97723",
+    "scripts/release-docs.mjs": "5f651d9a55a6a6966f4f4487219682bf35405be96a952a1443a0a9d3151b8f57",
+    "docs/management/content.html": "47adca9ff74658ddfe895325608b98c1a72b15fe6472f052bcbf7e99d88934f4",
+    "docs/management/browser.js": "407cdd988d171e5581b3c35c09aa612601596d93f35786fa4b1313adfbfbcc43",
+    "docs/management/lab-model.mjs": "b34153b9b334f4fbab7648bcad71f41fe9aa70c1aa5710fd5bf90205bc4d9b76",
+    "docs/management/preview-catalog.json": "39bc7fb570fb04c996de97bb4aaecb1bac1d62ffab22860dfdcea596c5f00f49"
+  },
+  "files": [
+    {
+      "file": ".memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/management/game-data.json",
+      "bytes": 29809,
+      "sha256": "94ac26272db16f100346a5cbed8d932b127d2a438533deee3f8a6720b1f8d9af"
+    },
+    {
+      "file": ".memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/management/void-surfer-management.html",
+      "bytes": 3856494,
+      "sha256": "e6fd116b0cd91715cf56bdf04c4b0f86e86849bd66268d06a29ffb4e06a13625"
+    },
+    {
+      "file": ".memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/releases/void-surfer-latest.html",
+      "bytes": 4170163,
+      "sha256": "175f67dbe4ce1b5701c6cd11e02be139cd49e6c05f3d5181ae5dad976bf90d58"
+    },
+    {
+      "file": ".memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/releases/void-surfer-0.2.html",
+      "bytes": 4170163,
+      "sha256": "175f67dbe4ce1b5701c6cd11e02be139cd49e6c05f3d5181ae5dad976bf90d58"
+    },
+    {
+      "file": ".memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/releases/void-surfer-0.1.html",
+      "bytes": 4683799,
+      "sha256": "4077ed222e416db2b94a0fc16adff0f9a163581c65e50f13045387e8e9c13f56"
+    },
+    {
+      "file": ".memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/releases/void-surfer-0.1b.html",
+      "bytes": 5809986,
+      "sha256": "91dfb58d274d861fa81c95d70781d0d07b52f718b84f414b95e76c5a062da33f"
+    },
+    {
+      "file": ".memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/releases/versions.json",
+      "bytes": 9096,
+      "sha256": "8c135dd1feec00de29f694fb24015f0766e4a4182f30a5b009906ff0a1f80354"
+    },
+    {
+      "file": ".memory/validation/2026-11-02-v02-feedback-release/draft-docs/public/guide/index.html",
+      "bytes": 18625,
+      "sha256": "845f61cb14f25bdc499b840ed0ae7007a102f0e1c644297fb2f8c4c82f2c3dfb"
+    }
+  ]
+}

@@ -5,7 +5,19 @@ import {getBaseSpeed} from '../../src/game/difficulty.js';
 import {isSpecialTimingSuccess} from '../../src/game/collision.js';
 import {updatePlayer,applyLift} from '../../src/game/player.js';
 import {targetSpeed,specialEligibility,timingSpan,simulateFlight,hybridGapSafe} from '../../docs/management/lab-model.mjs';
+import {projectileTargetSpeed} from '../../docs/management/lab-model.mjs';
+import {collectGameCatalog} from '../../scripts/game-catalog.mjs';
+import {getBossWallRules} from '../../src/game/difficulty.js';
+import {sampleProjectileSpeed} from '../../src/game/projectile-speed.js';
+import {createChallenge} from '../../src/game/wasd-challenge.js';
 describe('management preview parity',()=>{
+  it('reads current boss tiers, cadence and challenge times instead of archived tuning',()=>{
+    const data=collectGameCatalog();expect(data.bossCadence).toMatchObject({firstWalls:20,repeatWalls:15,resetAt:'stage-arrival'});expect(data.feedbackAccess.expiresAtBase).toBe('0.3');expect(data.ranking.durationVisible).toBe(false);
+    for(const rule of data.bossWallRules)expect(rule).toMatchObject(getBossWallRules(rule.boss));
+    for(const c of data.challenges){expect(c.seconds).toBe(createChallenge({bossNumber:c.boss}).timeLimitSeconds);expect(c.min).toBeGreaterThanOrEqual(4);}
+    expect(data.unlocks.find(u=>u.id==='boss1').trigger).toBe('일반벽 20개');expect(data.uniqueAttacks).toHaveLength(6);expect(data.challengeFeedback.glitchBlackoutSeconds).toBe(.18);
+  });
+  it('matches actual sampled projectile speeds across clamps and scroll tiers',()=>{const data=collectGameCatalog();for(const speed of[-10000,240,460,575,700,770,10000])for(const roll of[0,.3,.8,1])expect(projectileTargetSpeed(data.projectileSpeed,speed,roll)).toBeCloseTo(sampleProjectileSpeed(speed,()=>roll));});
   it.each(AIRCRAFT_CATALOG)('$name uses the production score-speed curve',craft=>{
     for(var score of [0,9,10,60,219,220,999])expect(targetSpeed(C,craft,score,'normal')).toBe(getBaseSpeed(score,craft.id)*craft.scrollSpeedMultiplier);
     expect(targetSpeed(C,craft,220,'fast')).toBeCloseTo(getBaseSpeed(220,craft.id)*craft.scrollSpeedMultiplier*1.25*(craft.id==='velocity'?.88:1));

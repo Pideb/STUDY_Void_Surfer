@@ -1,0 +1,19 @@
+import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {describe,it,expect} from 'vitest';
+import {ROOT} from '../../scripts/build-management.mjs';import {registry,protectSnapshots,documentOutputs,check} from '../../scripts/release-docs.mjs';
+import {archivalAliasOutput,labelVisibleHTML} from '../../scripts/release-labels.mjs';
+const parse=html=>new DOMParser().parseFromString(html,'text/html');
+describe('archival display aliases without rewriting history',()=>{
+ it('also labels text inserted later by legacy scripts without changing JSON data',async()=>{
+  const r=registry(ROOT),alias=parse(archivalAliasOutput(ROOT,r.releases.find(r=>r.version==='0.01-b'))),runtime=alias.querySelector('#archival-display-labels').textContent;
+  const frame=document.createElement('iframe');document.body.append(frame);const doc=frame.contentDocument;doc.body.innerHTML='<p id="dynamic"></p><script type="application/json" id="data">{"version":"0.01-b"}</script>';
+  new Function('document','NodeFilter','MutationObserver',runtime)(doc,window.NodeFilter,window.MutationObserver);if(doc.readyState==='loading')doc.dispatchEvent(new Event('DOMContentLoaded'));
+  doc.querySelector('#dynamic').textContent='VOID SURFER 0.01-b';await new Promise(resolve=>setTimeout(resolve,10));expect(doc.querySelector('#dynamic').textContent).toBe('VOID SURFER 0.1b');expect(doc.querySelector('#data').textContent).toBe('{"version":"0.01-b"}');frame.remove();
+ });
+ it('changes text nodes only, preserving quoted > attributes, URLs, comments and raw script/style',()=>{const html='<title>0.01-b</title><a data-x="0.01-b > old" href="/0.01v/image.png">v0.01v</a><!-- 0.01v --><script>var label="0.01-b";</script><style>.v0.01v{}</style>';const output=labelVisibleHTML(html);expect(output).toContain('<title>0.1b</title>');expect(output).toContain('href="/0.01v/image.png">v0.1</a>');expect(output).toContain('data-x="0.01-b > old"');expect(output).toContain('<script>var label="0.01-b";</script>');expect(output).toContain('<!-- 0.01v -->');});
+ it.each(['0.01v','0.01-b'])('%s retains original metadata, code, styles and asset URLs',version=>{
+  const r=registry(ROOT),release=r.releases.find(r=>r.version===version),file=path.join(ROOT,'docs/releases/void-surfer-'+version+'.html'),before=fs.readFileSync(file),sha=crypto.createHash('sha256').update(before).digest('hex'),old=parse(before.toString()),output=archivalAliasOutput(ROOT,release),alias=parse(output);
+  const oldMeta=JSON.parse(old.querySelector('#releaseMetadata').textContent),newMeta=JSON.parse(alias.querySelector('#releaseMetadata').textContent);expect(newMeta).toMatchObject(oldMeta);expect(newMeta).toMatchObject({version,sourceReleaseId:version,displayVersion:release.displayVersion,sourceSnapshotSha256:r.snapshots[path.basename(file)]});
+  const rawCode=doc=>[...doc.querySelectorAll('script:not(#releaseMetadata):not(#archival-display-labels),style')].map(e=>e.textContent);expect(rawCode(alias)).toEqual(rawCode(old));const urls=doc=>[...doc.querySelectorAll('[src],[href]')].map(e=>[e.getAttribute('src'),e.getAttribute('href')]);expect(urls(alias)).toEqual(urls(old));expect(alias.title).toContain(release.displayVersion);expect(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')).toBe(sha);expect(()=>protectSnapshots(ROOT,r)).not.toThrow();
+ });
+ it('keeps source gate strict and generates legacy aliases only as separate outputs',()=>{const r=registry(ROOT);const output=documentOutputs(ROOT,r);expect(output['docs/releases/void-surfer-0.1.html']).toContain('sourceReleaseId');expect(output['docs/releases/void-surfer-0.1b.html']).toContain('archival-display-labels');expect(output['docs/releases/void-surfer-0.01-b.html']).toBeUndefined();expect(()=>check(ROOT)).toThrow('게임 소스');});
+});

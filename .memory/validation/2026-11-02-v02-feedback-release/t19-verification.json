@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "sourceHead": "1f210d2cfc1c5a83719d7fa13bcee04d602d69bd",
+  "documentTests": {
+    "files": 5,
+    "passed": 30
+  },
+  "runtimeFingerprintUnchanged": true,
+  "officialSourcesUnchanged": true,
+  "docsGate": {
+    "command": "npm run docs:check",
+    "exitCode": 1,
+    "expected": true,
+    "reason": "Only deployed source fingerprint mismatch; no bypass"
+  },
+  "draftStatus": "draft-not-deployed",
+  "deploymentPerformed": false
+}

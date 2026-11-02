@@ -2,7 +2,7 @@
 
 > 이 작업은 [v0.2 통합 결정](../../../decisions/2026-11-02-v02-feedback-release.md)에 포함된다. 아래 기존 게임·시각 결정 링크는 원래 승인 세부를 보존한다. 버전·임시 해금·첫3보스·회전·메뉴·기록에 관한 충돌은 v0.2 통합 결정이 우선한다.
 
-## Status: pending
+## Status: done
 
 ## Goal
 바뀐 실제규칙을 관리문서 데이터모델에반영하고 배포전검토본을생성하되 공식배포기록/보호스냅샷을올리지않는다.
@@ -71,9 +71,9 @@ archivalAliasOutput(root:string,release:ReleaseEntry):string;
 - 미실행 항목은 limitation으로 기록한다. 승인되지 않은 새 디자인/밸런스가 필요하면 기존 승인을 확대 해석하지 말고 증거를 제시한다.
 
 ## Acceptance Criteria
-- [ ] 실제 새 규칙과 맞는 관리·발표 개발검토본을 .memory에서 확인할 수 있다.
-- [ ] 공식 버전은0.01-b이고 배포 전 문서 gate 및 후속 배포 절차가 명확하다.
-- [ ] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
+- [x] 실제 새 규칙과 맞는 관리·발표 개발검토본을 .memory에서 확인할 수 있다.
+- [x] 공식 버전은0.01-b이고 배포 전 문서 gate 및 후속 배포 절차가 명확하다.
+- [x] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
 
 ## Validation
 - `npm test -- --run tests/docs/management-model.test.js tests/docs/release-docs.test.js` — 종료코드0 및 대상 검증 통과.
@@ -93,6 +93,12 @@ Task: T19-documentation-and-handoff
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Document tests5 files /30 cases passed. Real draft browser: timing slider0.30 reset/change,12 archive linksHTTP200,2 archival display aliases retaining original metadata/assets/code, zero exceptions.
+- v0.2 draft documents generated only under .memory; production0.01-b, official latest/management/snapshots and manual player updates unchanged. Runtime fingerprint matches T18 full1347-test source.
+- docs:check exit1 recorded as expected deployed fingerprint gate only; no bypass, push or deployment. Remote DB/live auth/concurrency and device gates documented in HANDOFF.md.
+- Plan19/19, phases and current pointer synchronized; original backups and protected snapshots preserved.

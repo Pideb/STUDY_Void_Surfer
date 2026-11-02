@@ -1,6 +1,6 @@
 # Plan: v0.2 feedback release
 
-> 추가 보완 확정: [고정 벽 간격·동점 플레이시간 정렬](../research/2026-11-02-v02-boss-interval-ranking-time.md). 첫20벽/새스테이지도착후15벽, 보스·전환대기벽제외. 동점은해당최고점수run의긴사망시간우선이며시간비공개. T09확장·T15추가로3Phase/19Task 동기화 완료. 구현은아직시작하지않았다.
+> 구현·로컬 검증·Task별 커밋 19/19 완료. [최종 검증](../validation/2026-11-02-v02-feedback-release/report.md). 운영 DB 적용·실제 로그인·실기기 확인은 배포 전 별도 gate이며 push·배포는 수행하지 않았다. 첫20벽/새스테이지도착후15벽, 보스·전환대기벽 제외. 동점은 해당 최고점수run의 긴 사망시간 우선이며 시간은 비공개다.
 
 ## Goal
 기존 승인된 게임·시각 개선과 추가 피드백 기능을 하나의 순차 실행 계획으로 적용한다. 실제 게임·모바일·메뉴·비공개 기록·사용자/개발자 문서까지 검증하며 현재 운영0.01-b는 별도 배포 요청 전까지 유지한다.
@@ -15,9 +15,9 @@
 ## Phases
 | Phase | Status | Summary | Blueprint |
 | :--- | :--- | :--- | :--- |
-| P01 | in_progress (execution pending) | 게임·피드백 UI | [P01-game-experience](../phases/2026-11-02-v02-feedback-release/P01-game-experience/phase.md) |
-| P02 | pending | 비공개 플레이 기록 | [P02-private-records](../phases/2026-11-02-v02-feedback-release/P02-private-records/phase.md) |
-| P03 | pending | 플레이어·관리 문서와 최종 검증 | [P03-docs-validation](../phases/2026-11-02-v02-feedback-release/P03-docs-validation/phase.md) |
+| P01 | complete (12/12) | 게임·피드백 UI | [P01-game-experience](../phases/2026-11-02-v02-feedback-release/P01-game-experience/phase.md) |
+| P02 | complete locally (3/3) | 비공개 플레이 기록 · 운영 적용 별도 | [P02-private-records](../phases/2026-11-02-v02-feedback-release/P02-private-records/phase.md) |
+| P03 | complete (4/4) | 플레이어·관리 문서와 최종 검증 | [P03-docs-validation](../phases/2026-11-02-v02-feedback-release/P03-docs-validation/phase.md) |
 
 ## Task sequence
 1. **T01** 이동 구멍 정지·보스 벽 난이도·특수벽 판정 ? P01-game-experience
@@ -71,13 +71,14 @@
 이전 사용자 환경 제약에 따라 Docker를기동하지않는다. 새 migration/SQL시험/클라이언트는구현한다. 연결·권한이있으면원격개발자료로검증하고없으면배포전적용·역할별조회차단검증을별도gate로남긴다. 이를누락하거나이미운영반영됐다고쓰지않는다.
 
 ## Commit discipline
-Task에있는Plan/Phase/Task헤더사용. 명시경로만staging,기존사용자변경과대형중복미리보기혼입금지. 승인시안/원본backup/보호snapshot보존. 현재턴은계획문서만갱신한다.
+Task에 있는 Plan/Phase/Task 헤더 사용. 명시 경로만 staging하며 승인 시안·원본 backup·보호 snapshot을 보존했다. 개발 예시 탭에서 연결하는 선별 원본은 링크 동작을 위해 한 번씩 커밋했고 무관한 미사용 시안은 변경하지 않았다.
 
 ## Progress
 - decisions: confirmed
 - planning: complete
-- implementation: 0/19
-- active: P01-T01
+- implementation: 19/19 locally complete
+- active: none
+- deployment: not requested; no push/deployment
 
 ## Planning validation
 - 2026-11-02 보완 후: 결정/계획/current/Phase3/Task19 총25개 문서 구조·필수 청사진 항목·커밋 헤더 확인.
