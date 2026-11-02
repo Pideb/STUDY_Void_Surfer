@@ -1,4 +1,5 @@
 import { createRenderLayers } from './render-layers.js';
+import { clipWallBreach, drawMovingWallMaterial, drawRestoredProjectile } from './visual-materials.js';
 import {
   DASH_DURATION_SECONDS, DASH_COOLDOWN_SECONDS, WORLD_HEIGHT, WORLD_WIDTH,
 } from './constants.js';
@@ -391,7 +392,8 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
   } else {
     ctx.fillRect(obstacle.x, 0, obstacle.width, gapTop);
     ctx.fillRect(obstacle.x, bottomTop, obstacle.width, WORLD_HEIGHT - bottomTop);
-    if (wallAsset) {
+    const movingMaterial = obstacle.movingGap && drawMovingWallMaterial(ctx,obstacle,visualAssets);
+    if (wallAsset && !movingMaterial) {
       drawClippedWallAsset(ctx, wallAsset, obstacle, 0, gapTop, 0.37, 0.26);
       drawClippedWallAsset(ctx, wallAsset, obstacle, bottomTop, WORLD_HEIGHT - bottomTop, 0.37, 0.26);
     }
@@ -400,6 +402,8 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
 
   ctx.strokeStyle = accent;
   ctx.lineWidth = 3;
+  ctx.save();
+  if(isSpecial)clipWallBreach(ctx,obstacle,theme.breakOpeningHalfHeight??28);
   ctx.beginPath();
   if (isSpecial) {
     ctx.moveTo(obstacle.x, 0);
@@ -413,8 +417,10 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
     ctx.lineTo(obstacle.x + obstacle.width, bottomTop);
   }
   ctx.stroke();
+  ctx.restore();
 
   if (isSpecial) {
+    ctx.save();clipWallBreach(ctx,obstacle,theme.breakOpeningHalfHeight??28);
     ctx.strokeStyle = accent;
     ctx.lineWidth = 2;
     for (let y = 14; y < WORLD_HEIGHT; y += 24) {
@@ -423,6 +429,7 @@ export function drawObstacle(ctx, obstacle, theme = VISUAL_THEME, difficulty = n
       ctx.lineTo(obstacle.x + obstacle.width - 8, y + 10);
       ctx.stroke();
     }
+    ctx.restore();
     const effect = obstacle.breakEffect;
     if (effect) {
       const progress = Math.max(0, Math.min(1, 1 - effect.remainingSeconds / Math.max(0.001, effect.durationSeconds ?? 0.65)));
@@ -846,22 +853,10 @@ function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null,
   }
   if (pass !== 'guidance' && attack.state !== 'charging') {
     ctx.globalAlpha = attack.state === 'returning' ? 1 : 0.92;
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
-    setGlow(ctx, color, 18);
-    ctx.beginPath(); ctx.arc(attack.x, attack.y, 18, 0, Math.PI * 2); ctx.stroke();
-    resetGlow(ctx);
-    ctx.strokeStyle = '#f4ffff';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.arc(attack.x, attack.y, 12, 0, Math.PI * 2); ctx.stroke();
     setGlow(ctx, color, attack.state === 'returning' ? 18 : 12);
     const image = getStageAsset(visualAssets, stageId, 'projectile');
     if (image) {
-      ctx.save();
-      ctx.translate(attack.x, attack.y);
-      if (attack.state === 'returning') ctx.rotate(Math.PI);
-      ctx.drawImage(image, -16, -11, 32, 22);
-      ctx.restore();
+      drawRestoredProjectile(ctx,image,attack,attack.stageId??stageId);
     } else {
       ctx.fillStyle = color;
       ctx.beginPath(); ctx.arc(attack.x, attack.y, attack.state === 'returning' ? 9 : 7, 0, Math.PI * 2); ctx.fill();
@@ -1012,7 +1007,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     }
     const enemyAttack=snapshot.boss?.attack??snapshot.ambientAttack;
     const drawEnemy=()=>{
-      if(enemyAttack?.type==='laser'){layers.paint(ctx,'lasers',layerCtx=>drawLaser(layerCtx,enemyAttack,{guidance:false,rasterScale:layerCtx===ctx?1:layers.getStats().lasers.density}));drawLaserGuidance(ctx,enemyAttack);}
+      if(enemyAttack?.type==='laser'){layers.paint(ctx,'lasers',layerCtx=>drawLaser(layerCtx,enemyAttack,{guidance:false,rasterScale:layerCtx===ctx?1:layers.getStats().lasers.density,stageId:enemyAttack.stageId??stage.id,visualAssets}));drawLaserGuidance(ctx,enemyAttack);}
       if(enemyAttack&&enemyAttack.type!=='laser'){
         layers.paint(ctx,'projectiles',layerCtx=>drawProjectile(layerCtx,enemyAttack,theme,visualAssets,stage.id,'body'));
         drawProjectile(ctx,enemyAttack,theme,visualAssets,stage.id,'guidance');

@@ -1,3 +1,5 @@
+import { drawRestoredBeam } from './visual-materials.js';
+import { getStageVisualTheme } from './visual-theme.js';
 import {
   BOSS_LASER_FADE_SECONDS, WORLD_HEIGHT as H, WORLD_WIDTH as W,
 } from './constants.js';
@@ -7,18 +9,26 @@ import { getLaserFrontX } from './boss-attacks.js';
 const cyan = '#59e8ff';
 const white = '#f7ffff';
 
-function charge(ctx, y, radius, strength) {
+
+function stageColor(css,hex){
+ if(!hex)return css;const base=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));let channels,alpha=1;
+ if(/^#[0-9a-f]{6}$/i.test(css))channels=[1,3,5].map(i=>parseInt(css.slice(i,i+2),16));
+ else{const match=String(css).match(/^rgba?\(([^)]+)\)$/);if(!match)return css;const v=match[1].split(',').map(Number);channels=v.slice(0,3);if(v.length===4)alpha=v[3];}
+ const max=Math.max(...channels),min=Math.min(...channels);if(min>=225||max<=0)return css;const white=min/max,scale=max/255;return 'rgba('+base.map(v=>Math.round((v*(1-white)+255*white)*scale)).join(',')+','+alpha+')';
+}
+
+function charge(ctx, y, radius, strength, colorize = x => x) {
   ctx.save();
   const glow = ctx.createRadialGradient(W - 8, y, 0, W - 8, y, radius);
   glow.addColorStop(0, `rgba(245,255,255,${strength})`);
-  glow.addColorStop(0.28, `rgba(89,232,255,${strength * 0.7})`);
-  glow.addColorStop(1, 'rgba(40,154,255,0)');
+  glow.addColorStop(0.28, colorize(`rgba(89,232,255,${strength * 0.7})`));
+  glow.addColorStop(1, colorize('rgba(40,154,255,0)'));
   ctx.fillStyle = glow;
   ctx.fillRect(W - radius - 8, y - radius, radius * 2, radius * 2);
   ctx.restore();
 }
 
-function beam(ctx, y, height, front, time, opacity = 1, rasterScale = 1) {
+function beam(ctx, y, height, front, time, opacity = 1, rasterScale = 1, colorize = x => x) {
   ctx.save();
   ctx.globalCompositeOperation = 'lighter';
   ctx.lineCap = 'round';
@@ -40,10 +50,10 @@ function beam(ctx, y, height, front, time, opacity = 1, rasterScale = 1) {
     ctx.restore();
   }
 
-  ray(y, height * 1.45, '#227eff', 0.08, broad ? 20 : 12);
-  ray(y, height, '#36caff', 0.17, broad ? 13 : 7);
-  ray(y, height * 0.6, cyan, 0.28, broad ? 9 : 4);
-  ray(y, height * 0.29, '#a5faff', 0.58, broad ? 6 : 2);
+  ray(y, height * 1.45, colorize('#227eff'), 0.08, broad ? 20 : 12);
+  ray(y, height, colorize('#36caff'), 0.17, broad ? 13 : 7);
+  ray(y, height * 0.6, colorize(cyan), 0.28, broad ? 9 : 4);
+  ray(y, height * 0.29, colorize('#a5faff'), 0.58, broad ? 6 : 2);
   ray(y, Math.max(2, height * 0.1), white, 0.92, broad ? 3 : 0);
 
   const filaments = broad ? 11 : 5;
@@ -52,12 +62,12 @@ function beam(ctx, y, height, front, time, opacity = 1, rasterScale = 1) {
     const lineY = y + fraction * height * 0.36
       + Math.sin(time * 5 + index * 1.9) * height * 0.018;
     const alpha = 0.12 + (1 - Math.abs(fraction)) * 0.35;
-    ray(lineY, broad ? 1.5 + (index % 3) : 0.9, '#d2ffff', alpha, 2,
+    ray(lineY, broad ? 1.5 + (index % 3) : 0.9, colorize('#d2ffff'), alpha, 2,
       Math.abs(fraction) * height * 0.23);
   }
 
   // Fine highlights stream left within the glow rather than outlining a box.
-  ctx.shadowColor = cyan;
+  ctx.shadowColor = colorize(cyan);
   ctx.shadowBlur = 8 * rasterScale;
   ctx.filter = 'none';
   for (let index = 0; index < (broad ? 22 : 10); index += 1) {
@@ -66,9 +76,9 @@ function beam(ctx, y, height, front, time, opacity = 1, rasterScale = 1) {
     const offsetY = Math.sin(index * 2.4) * height * 0.39;
     const length = 16 + (index % 5) * 9;
     const highlight = ctx.createLinearGradient(x, 0, x + length, 0);
-    highlight.addColorStop(0, 'rgba(221,255,255,0)');
-    highlight.addColorStop(0.65, 'rgba(221,255,255,0.55)');
-    highlight.addColorStop(1, 'rgba(221,255,255,0)');
+    highlight.addColorStop(0, colorize('rgba(221,255,255,0)'));
+    highlight.addColorStop(0.65, colorize('rgba(221,255,255,0.55)'));
+    highlight.addColorStop(1, colorize('rgba(221,255,255,0)'));
     ctx.strokeStyle = highlight;
     ctx.globalAlpha = opacity * 0.6;
     ctx.lineWidth = 1 + index % 2;
@@ -84,10 +94,10 @@ function beam(ctx, y, height, front, time, opacity = 1, rasterScale = 1) {
     ctx.scale(broad ? 0.55 : 1, 1);
     const radius = Math.max(18, height * 0.58);
     const flare = ctx.createRadialGradient(0, 0, 0, 0, 0, radius);
-    flare.addColorStop(0, 'rgba(247,255,255,0.95)');
-    flare.addColorStop(0.2, 'rgba(162,249,255,0.65)');
-    flare.addColorStop(0.55, 'rgba(52,202,255,0.2)');
-    flare.addColorStop(1, 'rgba(52,202,255,0)');
+    flare.addColorStop(0, colorize('rgba(247,255,255,0.95)'));
+    flare.addColorStop(0.2, colorize('rgba(162,249,255,0.65)'));
+    flare.addColorStop(0.55, colorize('rgba(52,202,255,0.2)'));
+    flare.addColorStop(1, colorize('rgba(52,202,255,0)'));
     ctx.fillStyle = flare;
     ctx.beginPath(); ctx.arc(0, 0, radius, 0, Math.PI * 2); ctx.fill();
     ctx.restore();
@@ -132,12 +142,14 @@ function dangerLanes(ctx,safeZone,zoneHeight,warning,opacity) {
   ctx.restore();
 }
 
-export function drawLaser(ctx, attack, {guidance = true, rasterScale = 1} = {}) {
+export function drawLaser(ctx, attack, {guidance = true, rasterScale = 1, stageId = null, visualAssets = null} = {}) {
   if (!attack || attack.type !== 'laser') return;
   if (attack.kind === 'single' && attack.ys?.length > 1) {
-    for (const y of attack.ys) drawLaser(ctx, { ...attack, y, ys: undefined }, {guidance,rasterScale});
+    for (const y of attack.ys) drawLaser(ctx, { ...attack, y, ys: undefined }, {guidance,rasterScale,stageId,visualAssets});
     return;
   }
+  const tint = attack.kind === 'quarter' ? getStageVisualTheme(attack.stageId??stageId)?.laser : null;
+  const colorize = css => stageColor(css,tint);
   const warning = attack.telegraphRemainingSeconds > 0;
   const fading = attack.activeRemainingSeconds <= 0;
   const opacity = fading ? Math.max(0, (attack.fadeRemainingSeconds ?? 0) / BOSS_LASER_FADE_SECONDS) : 1;
@@ -156,7 +168,9 @@ export function drawLaser(ctx, attack, {guidance = true, rasterScale = 1} = {}) 
       }
       charge(ctx, attack.y, 24 + 17 * warningProgress, 0.5 + 0.4 * warningProgress);
     } else {
-      beam(ctx, attack.y, attack.thickness ?? 18, front, time, opacity, rasterScale);
+      const image=visualAssets?.get('stages.'+(attack.stageId??stageId)+'.laser');
+      if(image)drawRestoredBeam(ctx,attack.y,attack.thickness??18,front,time,opacity,image,attack.stageId??stageId);
+      else beam(ctx, attack.y, attack.thickness ?? 18, front, time, opacity, rasterScale);
       charge(ctx, attack.y, 48, opacity);
     }
   } else if (attack.kind === 'quarter') {
@@ -175,7 +189,7 @@ export function drawLaser(ctx, attack, {guidance = true, rasterScale = 1} = {}) 
         }
         }
         ctx.restore();
-        charge(ctx, (zone + 0.5) * zoneHeight, 28, 0.3 + warningProgress * 0.44);
+        charge(ctx, (zone + 0.5) * zoneHeight, 28, 0.3 + warningProgress * 0.44,colorize);
       }
     } else {
       ctx.save(); ctx.beginPath();
@@ -188,7 +202,7 @@ export function drawLaser(ctx, attack, {guidance = true, rasterScale = 1} = {}) 
       for (let zone = 0; zone < 4; zone += 1) {
         if (zone === attack.safeZone) continue;
         beam(ctx, (zone + 0.5) * zoneHeight, zoneHeight - 8, front, time, opacity, rasterScale);
-        charge(ctx, (zone + 0.5) * zoneHeight, 60, opacity);
+        charge(ctx, (zone + 0.5) * zoneHeight, 60, opacity,colorize);
       }
       ctx.restore();
     }

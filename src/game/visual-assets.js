@@ -1,4 +1,5 @@
 export const VISUAL_ASSET_MANIFEST = Object.freeze({
+  movingWallAtlases: Object.freeze({a:'/assets/game/walls/moving-wall-a.png',b:'/assets/game/walls/moving-wall-b.png'}),
   menuBackground: '/assets/game/menu/space-background.png',
   menuTitle: '/assets/game/menu/void-surfer-wordmark.png',
   aircraft: Object.freeze({

@@ -2,7 +2,7 @@
 
 > 이 작업은 [v0.2 통합 결정](../../../decisions/2026-11-02-v02-feedback-release.md)에 포함된다. 아래 기존 게임·시각 결정 링크는 원래 승인 세부를 보존한다. 버전·임시 해금·첫3보스·회전·메뉴·기록에 관한 충돌은 v0.2 통합 결정이 우선한다.
 
-## Status: pending
+## Status: done
 
 ## Goal
 심연B/나머지A 이동벽과 그림중심 투사체·단일 레이저, 지역색 전역 레이저를 적용하고 초록 안내를 그대로 유지한다.
@@ -62,9 +62,9 @@ type AssetCore={x:number;y:number;width:number;height:number};
 - 미실행 항목은 limitation으로 기록한다. 승인되지 않은 새 디자인/밸런스가 필요하면 기존 승인을 확대 해석하지 말고 증거를 제시한다.
 
 ## Acceptance Criteria
-- [ ] 초록안내는변하지않고파괴된부분특수벽장식선만사라진다.
-- [ ] 이동벽선택·투사체·단일·전역이승인v3와동일한방식으로표시된다.
-- [ ] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
+- [x] 초록안내는변하지않고파괴된부분특수벽장식선만사라진다.
+- [x] 이동벽선택·투사체·단일·전역이승인v3와동일한방식으로표시된다.
+- [x] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
 
 ## Validation
 - `npm test -- --run tests/game/visual-assets.test.js tests/game/renderer.test.js tests/game/laser-safety.test.js tests/integration/central-hitbox.test.js` — 종료코드0 및 대상 검증 통과.
@@ -83,6 +83,9 @@ Task: T06-approved-art-and-wall-breach
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest:4 files/65 tests passed. Browser runtime:48 captures across6 stages, zero errors; inspected broken guide, beast moving texture and industrial beam. Original green-guide function verified unchanged by SHA; atlas provenance recorded. Captures retained locally.

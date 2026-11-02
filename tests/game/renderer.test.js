@@ -660,7 +660,7 @@ describe('renderer', () => {
     renderer.destroy();
   });
 
-  it('adds visible outer and inner outlines to flying boss projectiles', () => {
+  it('keeps projectile silhouettes free of outer targeting rings', () => {
     const canvas = document.createElement('canvas');
     const context = createContext();
     canvas.getContext = vi.fn(() => context);
@@ -675,8 +675,8 @@ describe('renderer', () => {
     });
 
     const radii = context.arc.mock.calls.map((call) => call[2]);
-    expect(radii).toContain(18);
-    expect(radii).toContain(12);
+    expect(radii).not.toContain(18);
+    expect(radii).not.toContain(12);
     renderer.destroy();
   });
 
@@ -744,8 +744,8 @@ describe('renderer', () => {
     });
 
     expect(context.drawImage.mock.calls.some(([drawn]) => drawn === stageBackground)).toBe(true);
-    expect(context.drawImage.mock.calls.some(([drawn]) => drawn === laser)).toBe(false);
-    expect(context.createLinearGradient).toHaveBeenCalled();
+    expect(context.drawImage.mock.calls.some(([drawn]) => drawn === laser)).toBe(true);
+    expect(context.createRadialGradient).toHaveBeenCalled();
     expect(context.stroke).toHaveBeenCalled();
     expect(context.fill).toHaveBeenCalled(); // The unavailable player sprite uses the procedural fallback.
     renderer.destroy();

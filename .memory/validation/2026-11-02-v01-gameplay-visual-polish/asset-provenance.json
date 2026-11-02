@@ -1,0 +1,280 @@
+{
+  "provenance": [
+    {
+      "from": ".memory/validation/2026-10-30-v01-moving-wall-playtest/atlas-a.png",
+      "to": "public/assets/game/walls/moving-wall-a.png",
+      "sha256": "08e6ed3bf4e6c08bc294b7cf8fc11a752a495f98aa277af4e619373ba4263355"
+    },
+    {
+      "from": ".memory/validation/2026-10-30-v01-moving-wall-playtest/atlas-b.png",
+      "to": "public/assets/game/walls/moving-wall-b.png",
+      "sha256": "1c1a63b29c6ef5c688241165933cfd74c725f53ad81870caac97f51fe1d8e00e"
+    }
+  ],
+  "crops": [
+    {
+      "kind": "projectile",
+      "stageId": "crystal-gates",
+      "width": 1536,
+      "height": 1024,
+      "transparentFraction": 0.9299659729003906,
+      "cropMethod": "alpha-core-plus-padding",
+      "core": {
+        "x": 440,
+        "y": 325,
+        "width": 644,
+        "height": 383
+      },
+      "frame": {
+        "x": 401,
+        "y": 302,
+        "right": 1123,
+        "bottom": 731,
+        "width": 722,
+        "height": 429
+      }
+    },
+    {
+      "kind": "laser",
+      "stageId": "crystal-gates",
+      "width": 2048,
+      "height": 768,
+      "transparentFraction": 0.7529252370198568,
+      "cropMethod": "bright-core-plus-glow",
+      "core": {
+        "x": 0,
+        "y": 334,
+        "width": 2048,
+        "height": 94
+      },
+      "frame": {
+        "x": 0,
+        "y": 240,
+        "right": 2048,
+        "bottom": 522,
+        "width": 2048,
+        "height": 282
+      }
+    },
+    {
+      "kind": "projectile",
+      "stageId": "industrial-void",
+      "width": 1774,
+      "height": 887,
+      "transparentFraction": 0.7672340928531755,
+      "cropMethod": "alpha-core-plus-padding",
+      "core": {
+        "x": 177,
+        "y": 270,
+        "width": 1433,
+        "height": 342
+      },
+      "frame": {
+        "x": 91,
+        "y": 249,
+        "right": 1696,
+        "bottom": 633,
+        "width": 1605,
+        "height": 384
+      }
+    },
+    {
+      "kind": "laser",
+      "stageId": "industrial-void",
+      "width": 2172,
+      "height": 724,
+      "transparentFraction": 0.8320176174923435,
+      "cropMethod": "bright-core-plus-glow",
+      "core": {
+        "x": 0,
+        "y": 311,
+        "width": 2172,
+        "height": 89
+      },
+      "frame": {
+        "x": 0,
+        "y": 222,
+        "right": 2172,
+        "bottom": 489,
+        "width": 2172,
+        "height": 267
+      }
+    },
+    {
+      "kind": "projectile",
+      "stageId": "signal-monoliths",
+      "width": 1774,
+      "height": 887,
+      "transparentFraction": 0.7769523201854674,
+      "cropMethod": "alpha-core-plus-padding",
+      "core": {
+        "x": 161,
+        "y": 261,
+        "width": 1365,
+        "height": 378
+      },
+      "frame": {
+        "x": 79,
+        "y": 238,
+        "right": 1608,
+        "bottom": 662,
+        "width": 1529,
+        "height": 424
+      }
+    },
+    {
+      "kind": "laser",
+      "stageId": "signal-monoliths",
+      "width": 2172,
+      "height": 724,
+      "transparentFraction": 0,
+      "cropMethod": "bright-core-plus-glow",
+      "core": {
+        "x": 0,
+        "y": 243,
+        "width": 2172,
+        "height": 209
+      },
+      "frame": {
+        "x": 0,
+        "y": 34,
+        "right": 2172,
+        "bottom": 661,
+        "width": 2172,
+        "height": 627
+      }
+    },
+    {
+      "kind": "projectile",
+      "stageId": "gravity-well",
+      "width": 1774,
+      "height": 887,
+      "transparentFraction": 0.6979119665365565,
+      "cropMethod": "alpha-core-plus-padding",
+      "core": {
+        "x": 122,
+        "y": 192,
+        "width": 1262,
+        "height": 505
+      },
+      "frame": {
+        "x": 46,
+        "y": 161,
+        "right": 1460,
+        "bottom": 728,
+        "width": 1414,
+        "height": 567
+      }
+    },
+    {
+      "kind": "laser",
+      "stageId": "gravity-well",
+      "width": 2172,
+      "height": 724,
+      "transparentFraction": 0.6915781467802163,
+      "cropMethod": "bright-core-plus-glow",
+      "core": {
+        "x": 0,
+        "y": 326,
+        "width": 2172,
+        "height": 81
+      },
+      "frame": {
+        "x": 0,
+        "y": 245,
+        "right": 2172,
+        "bottom": 488,
+        "width": 2172,
+        "height": 243
+      }
+    },
+    {
+      "kind": "projectile",
+      "stageId": "abyssal-beast",
+      "width": 1774,
+      "height": 887,
+      "transparentFraction": 0.727547094509316,
+      "cropMethod": "alpha-core-plus-padding",
+      "core": {
+        "x": 173,
+        "y": 169,
+        "width": 1514,
+        "height": 534
+      },
+      "frame": {
+        "x": 82,
+        "y": 136,
+        "right": 1774,
+        "bottom": 736,
+        "width": 1692,
+        "height": 600
+      }
+    },
+    {
+      "kind": "laser",
+      "stageId": "abyssal-beast",
+      "width": 2172,
+      "height": 724,
+      "transparentFraction": 0.8343597061546758,
+      "cropMethod": "bright-core-plus-glow",
+      "core": {
+        "x": 0,
+        "y": 292,
+        "width": 2172,
+        "height": 125
+      },
+      "frame": {
+        "x": 0,
+        "y": 167,
+        "right": 2172,
+        "bottom": 542,
+        "width": 2172,
+        "height": 375
+      }
+    },
+    {
+      "kind": "projectile",
+      "stageId": "solar-forge",
+      "width": 1774,
+      "height": 887,
+      "transparentFraction": 0.7567182997804947,
+      "cropMethod": "alpha-core-plus-padding",
+      "core": {
+        "x": 138,
+        "y": 224,
+        "width": 1522,
+        "height": 433
+      },
+      "frame": {
+        "x": 46,
+        "y": 198,
+        "right": 1752,
+        "bottom": 683,
+        "width": 1706,
+        "height": 485
+      }
+    },
+    {
+      "kind": "laser",
+      "stageId": "solar-forge",
+      "width": 2172,
+      "height": 724,
+      "transparentFraction": 0.8409643580273293,
+      "cropMethod": "bright-core-plus-glow",
+      "core": {
+        "x": 0,
+        "y": 245,
+        "width": 2172,
+        "height": 224
+      },
+      "frame": {
+        "x": 0,
+        "y": 21,
+        "right": 2172,
+        "bottom": 693,
+        "width": 2172,
+        "height": 672
+      }
+    }
+  ]
+}

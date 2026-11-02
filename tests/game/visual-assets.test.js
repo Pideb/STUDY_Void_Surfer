@@ -4,6 +4,11 @@ import { createHash } from 'node:crypto';
 import { createVisualAssetLoader, VISUAL_ASSET_MANIFEST } from '../../src/game/visual-assets.js';
 
 describe('visual asset loader', () => {
+  it('preserves approved moving atlas bytes and their runtime paths',()=>{
+    const provenance=JSON.parse(readFileSync('.memory/validation/2026-11-02-v01-gameplay-visual-polish/asset-provenance.json','utf8'));
+    for(const item of provenance.provenance)expect(createHash('sha256').update(readFileSync(item.to)).digest('hex')).toBe(item.sha256);
+    expect(VISUAL_ASSET_MANIFEST.movingWallAtlases).toEqual({a:'/assets/game/walls/moving-wall-a.png',b:'/assets/game/walls/moving-wall-b.png'});
+  });
   it('registers the local menu wordmark in the shared asset preloader manifest', () => {
     expect(VISUAL_ASSET_MANIFEST.menuTitle).toBe('/assets/game/menu/void-surfer-wordmark.png');
   });
