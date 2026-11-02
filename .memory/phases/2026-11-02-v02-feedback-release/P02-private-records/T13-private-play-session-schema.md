@@ -1,6 +1,6 @@
 # Task: T13 개발자 전용 플레이 기록 DB·쓰기 RPC
 
-## Status: pending
+## Status: done
 
 ## Goal
 로그인/게스트의시작·사망·이탈run을중복없이저장하고anon/authenticated사용자는어떤플레이로그도조회하지못하게한다.
@@ -50,9 +50,9 @@ public.finish_play_session(p_run_id uuid,p_write_nonce uuid,p_duration_ms bigint
 - 네트워크/원격 자원 접근이 없으면 미실행 사실·정확한 후속 명령·예상 결과를 기록하며 운영 완료로 보고하지 않는다.
 
 ## Acceptance Criteria
-- [ ] 쓰기전용멱등RPC와역할별읽기차단스키마·검증SQL이준비된다.
-- [ ] 실제원격적용/권한검증의완료또는배포전미완료상태를명확히기록한다.
-- [ ] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
+- [x] 쓰기전용멱등RPC와역할별읽기차단스키마·검증SQL이준비된다.
+- [x] 실제원격적용/권한검증의완료또는배포전미완료상태를명확히기록한다.
+- [x] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
 
 ## Validation
 - `npm test -- --run tests/deployment/play-records-schema.test.js tests/deployment/config.test.js` — 종료0.
@@ -72,6 +72,9 @@ Task: T13-private-play-session-schema
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest2 files/10 static deployment-contract tests passed. Added owner-only SQL role/idempotency test with rollback. Remote migration and live anon/auth role checks NOT executed: no administrator DB connection supplied; required pre-deployment gate documented in docs/operations/play-records.md. Docker not used.
