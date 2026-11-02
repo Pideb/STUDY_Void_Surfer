@@ -12,7 +12,7 @@
     "BASE_GAP_HEIGHT": 180,
     "BASE_SCROLL_SPEED": 240,
     "BOSS_ATTACK_NORMAL_WALL_COOLDOWN": 2,
-    "BOSS_CHALLENGE_TIME_LIMIT_SECONDS": 5,
+    "BOSS_CHALLENGE_TIME_LIMIT_SECONDS": 4,
     "BOSS_COUNTERATTACK_SECONDS": 0.3,
     "BOSS_DOUBLE_LASER_CHANCE": 0.3,
     "BOSS_ENTRANCE_SECONDS": 1,
@@ -25,7 +25,7 @@
     "BOSS_LASER_TELEGRAPH_SECONDS": 0.7,
     "BOSS_LASER_THICKNESS": 18,
     "BOSS_LASER_UNLOCK_NUMBER": 2,
-    "BOSS_LATER_CHALLENGE_TIME_LIMIT_SECONDS": 2.8,
+    "BOSS_LATER_CHALLENGE_TIME_LIMIT_SECONDS": 2.5,
     "BOSS_LINE_LASER_EDGE_FRACTION": 0.15,
     "BOSS_MIN_SPECIALS": 3,
     "BOSS_OBSTACLE_COUNT": 7,
@@ -51,8 +51,11 @@
     "BOSS_SLOW_MULTIPLIER": 0.75,
     "BOSS_VOLLEY_INTERVAL_SECONDS": 3,
     "CHALLENGE_FAILURE_EFFECT_SECONDS": 8,
+    "CHALLENGE_RECOVERY_SECONDS": 0.15,
+    "CHALLENGE_WRONG_KEY_FLASH_SECONDS": 0.18,
     "DASH_COOLDOWN_SECONDS": 0.7,
     "DASH_DURATION_SECONDS": 0.6,
+    "FIRST_BOSS_WALL_COUNT": 20,
     "FLIGHT_TRAIL_LIFETIME_SECONDS": 1.2,
     "GAP_CONTINUITY_SCORE": 60,
     "GRAVITY": 900,
@@ -77,6 +80,7 @@
     "PLAYER_SUCCESS_HEIGHT": 36,
     "PLAYER_SUCCESS_WIDTH": 56,
     "PLAYER_WIDTH": 36,
+    "REPEAT_BOSS_WALL_COUNT": 15,
     "SPECIAL_BREAK_DURATION_SECONDS": 0.65,
     "SPECIAL_OBSTACLE_WIDTH": 24,
     "SPECIAL_RESPONSE_INTERVAL_SECONDS": 1.2,
@@ -688,6 +692,10 @@
     }
   ],
   "assets": {
+    "movingWallAtlases": {
+      "a": "/assets/game/walls/moving-wall-a.png",
+      "b": "/assets/game/walls/moving-wall-b.png"
+    },
     "menuBackground": "/assets/game/menu/space-background.png",
     "menuTitle": "/assets/game/menu/void-surfer-wordmark.png",
     "aircraft": {
@@ -782,85 +790,235 @@
       "boss": 1,
       "min": 4,
       "max": 4,
-      "seconds": 5
+      "seconds": 4
     },
     {
       "boss": 2,
       "min": 4,
       "max": 5,
-      "seconds": 2.8
+      "seconds": 2.5
     },
     {
       "boss": 3,
       "min": 4,
       "max": 6,
-      "seconds": 2.8
+      "seconds": 2.5
     },
     {
       "boss": 4,
       "min": 5,
       "max": 7,
-      "seconds": 2.8
+      "seconds": 2.5
     },
     {
       "boss": 5,
       "min": 6,
       "max": 8,
-      "seconds": 2.8
+      "seconds": 2.5
     },
     {
       "boss": 6,
       "min": 6,
       "max": 8,
-      "seconds": 2.8
+      "seconds": 2.5
     },
     {
       "boss": 7,
       "min": 6,
       "max": 8,
-      "seconds": 2.8
+      "seconds": 2.5
     },
     {
       "boss": 8,
       "min": 6,
       "max": 8,
-      "seconds": 2.8
+      "seconds": 2.5
     }
   ],
+  "feedbackAccess": {
+    "temporaryEnabled": true,
+    "expiresAtBase": "0.3",
+    "notice": "다음 버전까지 임시 해금"
+  },
+  "menuLayout": {
+    "referenceWidth": 1600,
+    "referenceHeight": 900,
+    "mobilePrimaryFont": 20,
+    "mobilePrimaryHeight": 60,
+    "rotationResume": "manual"
+  },
+  "bossCadence": {
+    "firstWalls": 20,
+    "repeatWalls": 15,
+    "resetAt": "stage-arrival",
+    "excludeBossWalls": true,
+    "excludeTransitionWalls": true
+  },
+  "ranking": {
+    "order": [
+      "score-desc",
+      "private-duration-desc",
+      "achieved-asc",
+      "user-id-asc"
+    ],
+    "durationVisible": false
+  },
+  "bossWallRules": [
+    {
+      "boss": 1,
+      "gapHeight": 180,
+      "spawnIntervalSeconds": 2,
+      "specialChance": 0.2,
+      "minSpecials": 0,
+      "timingWindowSeconds": 0.3,
+      "inlineProjectile": false,
+      "inlineLaser": false
+    },
+    {
+      "boss": 2,
+      "gapHeight": 135,
+      "spawnIntervalSeconds": 1.4,
+      "specialChance": 0.5,
+      "minSpecials": 3,
+      "timingWindowSeconds": 0.3,
+      "inlineProjectile": false,
+      "inlineLaser": false
+    },
+    {
+      "boss": 3,
+      "gapHeight": 135,
+      "spawnIntervalSeconds": 1.4,
+      "specialChance": 0.5,
+      "minSpecials": 3,
+      "timingWindowSeconds": 0.3,
+      "inlineProjectile": true,
+      "inlineLaser": false
+    },
+    {
+      "boss": 4,
+      "gapHeight": 135,
+      "spawnIntervalSeconds": 1.4,
+      "specialChance": 0.5,
+      "minSpecials": 3,
+      "timingWindowSeconds": 0.3,
+      "inlineProjectile": true,
+      "inlineLaser": true
+    },
+    {
+      "boss": 7,
+      "gapHeight": 135,
+      "spawnIntervalSeconds": 1.4,
+      "specialChance": 0.5,
+      "minSpecials": 3,
+      "timingWindowSeconds": 0.3,
+      "inlineProjectile": true,
+      "inlineLaser": true
+    }
+  ],
+  "projectileSpeed": {
+    "reference": 240,
+    "minBase": 220,
+    "maxBase": 360,
+    "gain": 0.35,
+    "min": 80,
+    "max": 800
+  },
+  "uniqueAttacks": [
+    {
+      "stageId": "crystal-gates",
+      "unlockBoss": 2,
+      "count": "1→3",
+      "intervalSeconds": null
+    },
+    {
+      "stageId": "industrial-void",
+      "unlockBoss": 2,
+      "count": "3",
+      "intervalSeconds": 0.3
+    },
+    {
+      "stageId": "signal-monoliths",
+      "unlockBoss": 2,
+      "count": "6×2",
+      "intervalSeconds": 1.15
+    },
+    {
+      "stageId": "gravity-well",
+      "unlockBoss": 2,
+      "count": "5",
+      "intervalSeconds": 0.3
+    },
+    {
+      "stageId": "abyssal-beast",
+      "unlockBoss": 2,
+      "count": "6",
+      "intervalSeconds": 0.18
+    },
+    {
+      "stageId": "solar-forge",
+      "unlockBoss": 2,
+      "count": "6",
+      "intervalSeconds": null
+    }
+  ],
+  "challengeFeedback": {
+    "kinds": [
+      "ink",
+      "glitch",
+      "crack",
+      "fog"
+    ],
+    "seconds": 8,
+    "glitchBlackoutSeconds": 0.18,
+    "recoverySeconds": 0.15,
+    "wrongKeySeconds": 0.18
+  },
+  "movingWalls": {
+    "freezeDistance": 160,
+    "brakingDistance": 40,
+    "artByStage": {
+      "crystal-gates": "A",
+      "industrial-void": "A",
+      "signal-monoliths": "A",
+      "gravity-well": "A",
+      "abyssal-beast": "B",
+      "solar-forge": "A"
+    }
+  },
   "unlocks": [
     {
       "id": "guest",
       "trigger": "처음부터",
       "group": "시작",
-      "title": "GUEST · NOVA",
-      "body": "로그인 없이 시작. 게스트 최고 기록은 저장하지 않고 공개 랭킹만 조회합니다."
+      "title": "GUEST · 모든 기체 임시 해금",
+      "body": "다음 버전까지 임시 해금. v0.3 전까지 계정·게스트 모두3기체 선택 가능. 게스트 기록은 저장하지 않습니다."
     },
     {
       "id": "special",
       "trigger": "10점",
       "group": "점수",
       "title": "특수벽 후보",
-      "body": "일반20% / 보스50%. 생성 간격·최소 할당·대시 대응 간격에 따라 보정됩니다."
+      "body": "일반·첫 보스20% / 두 번째 보스부터50%. 성공 기준은 끝까지0.30초로 유지하며 생성 간격·최소 할당·대시 간격으로 보정합니다."
     },
     {
       "id": "boss1",
-      "trigger": "20점",
-      "group": "점수",
-      "title": "첫 BOSS",
-      "body": "기존 벽을 모두 보낸 뒤 암전·사이렌·보스 입장. 독립 WARNING은 현재 비활성입니다."
+      "trigger": "일반벽 20개",
+      "group": "보스",
+      "title": "첫 BOSS · 저속",
+      "body": "20개를 통과하고 남은 벽이 화면 밖까지 나간 뒤 진입합니다. 이후 새 지역 도착부터 일반벽15개마다 다음 보스. 보스 벽·전환 추가벽은 제외합니다."
     },
     {
       "id": "aegis",
-      "trigger": "계정 최고 50점",
+      "trigger": "임시 해금 / 원래 최고 50점",
       "group": "계정",
-      "title": "AEGIS 해금",
-      "body": "게스트는 최고 기록과 무관하게 NOVA만 선택합니다."
+      "title": "AEGIS",
+      "body": "중력1.3배·상승력70%. 보스 레이저1발로 HP3칸 제거. 원래 해금 기준은 임시 기간 뒤 복구합니다."
     },
     {
       "id": "velocity",
-      "trigger": "계정 최고 100점",
+      "trigger": "임시 해금 / 원래 최고 100점",
       "group": "계정",
-      "title": "VELOCITY 해금",
+      "title": "VELOCITY",
       "body": "최종 점수×1.5 반올림. 시작 속도×2, 점수에 따른 증가폭은 다른 기체와 같습니다."
     },
     {
@@ -876,6 +1034,27 @@
       "group": "보스",
       "title": "전역 레이저 패턴",
       "body": "벽 없는 상태에서 한 구역만 안전한 공격을1~3회. 매번 새 예고/이동 시간을 제공합니다."
+    },
+    {
+      "id": "unique",
+      "trigger": "두 번째 보스부터",
+      "group": "보스",
+      "title": "지역별 고유 탄막",
+      "body": "6지역 고유 공격을1~3세트. 보스2·3은 앞 세트가 화면을 벗어난 뒤,4부터는 발사 완료 후 다음 예고가 겹칠 수 있습니다."
+    },
+    {
+      "id": "inline-projectile",
+      "trigger": "세 번째 보스부터",
+      "group": "보스",
+      "title": "벽 사이 단일 투사체",
+      "body": "벽 회피 중에는 한 발씩만 발사합니다. 일반·특수벽과 함께 나올 수 있습니다."
+    },
+    {
+      "id": "inline-laser",
+      "trigger": "네 번째 보스부터",
+      "group": "보스",
+      "title": "벽 사이 줄 레이저",
+      "body": "비유도 무작위 높이. 구멍과 위·아래15%를 보호하며 안전 배치가 없으면 생략합니다."
     },
     {
       "id": "ambient",
@@ -920,6 +1099,6 @@
     "archive": "독립 WARNING, 투사체 반사로 보스 클리어, 후반 HP5 증가는 현재 규칙이 아닙니다.",
     "preview": "슬라이더는 문서 안의 가상 실험입니다. 게임 파일·배포 값·계정 기록을 변경하지 않습니다."
   },
-  "generatedAt": "2026-10-30",
-  "gameFingerprint": "b3597a5c9047f3c3719efa031ae55b63131152b65342e30af35a86b1a023a5c0"
+  "generatedAt": "2026-11-02",
+  "gameFingerprint": "c7ae2c2e5951bb1d556a57211a02d29baa38d6a7c93d4297f5f00ed8e6f392e7"
 }

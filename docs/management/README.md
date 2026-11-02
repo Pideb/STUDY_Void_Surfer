@@ -2,7 +2,7 @@
 
 기본 파일: [게임 관리 레퍼런스](./void-surfer-management.html). 파일을 더블클릭하면 열립니다. 핵심 본문·실제 이미지·판정/물리 슬라이더는 파일 하나에 들어 있고 오프라인에서도 동작합니다. 글꼴·Chart.js와 PNG 내보내기만 CDN에 의존하며, 그래프에는 오프라인 SVG 대안이 있습니다.
 
-현재 운영 식별자는 **0.01-b**, 표시 별칭은 **v0.1b**입니다. 이번 구현은 **v0.2 로컬 개발 검토본**이며 아직 배포하지 않았습니다. 최신 변경은 [관리 검토본](../../.memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/management/void-surfer-management.html)과 [발표 검토본](../../.memory/validation/2026-11-02-v02-feedback-release/draft-docs/docs/releases/void-surfer-latest.html)에서 확인하세요. 기존 공식 두 HTML과 보호 스냅샷은 배포 준비 전까지 유지합니다.
+현재 운영 식별자는 **0.01-b**, 표시 별칭은 **v0.1b**입니다. **v0.2 배포 준비본**을 생성했으며 아직 배포하지 않았습니다. 최신 변경은 [관리 자료](./void-surfer-management.html)와 [발표 자료](../releases/void-surfer-latest.html)에 반영합니다. 운영 성공 확인 전까지 v0.2는 배포 대기 상태이며, 기존 보호 스냅샷은 그대로 보존합니다.
 
 로컬 게임의 버전 표시는 `releases.json`의 `developmentVersion`을 사용하여 **v0.2 · 개발**로 나옵니다. production 표시와 운영 배포 기록은 별도입니다. 시작 오디오는 페이지 load 시 기존 Web Audio 경로에서 한 번 자동 재생을 시도하고, 정책으로 차단되면 첫 클릭/키 입력으로 재개합니다. 별도 `<audio>` 예제 실험과 실제 브라우저 결과는 [시작 오디오 검증](../../.memory/validation/2026-11-02-startup-autoplay/report.md)에 기록했습니다.
 
@@ -62,8 +62,8 @@ npm run docs:check
 
 ## 플레이어 가이드와 개발 시안
 
-`docs/player/guide-content.json`은 조작 원고, `docs/player/updates.json`은 개발자가 직접 쓰는 업데이트 내역입니다. 후자는 현재 빈 목록이며 자동으로 채우지 않습니다. `npm run guide:build`로 공개 가이드 `public/guide/index.html`을 만들고 `npm run guide:check`로 확인합니다. 배포 준비 시 가이드를 먼저 동기화한 뒤 게임 지문을 확정하고, 검증 실패 시 가이드도 되돌립니다. dry-run은 가이드를 쓰지 않고 `guideStale`을 알려줍니다.
+`docs/player/guide-content.json`은 조작 원고, `docs/player/updates.json`은 개발자가 직접 쓰는 업데이트 내역입니다. 사용자가 작성한 v0.2의7개 항목을 반영했으며 자동 분석 문구는 섞지 않습니다. 버전명은 큰 굵은 제목으로 표시합니다. `npm run guide:build`로 공개 가이드 `public/guide/index.html`을 만들고 `npm run guide:check`로 확인합니다. 배포 준비 시 가이드를 먼저 동기화한 뒤 게임 지문을 확정하고, 검증 실패 시 가이드도 되돌립니다. dry-run은 가이드를 쓰지 않고 `guideStale`을 알려줍니다.
 
-관리 문서의 **개발 예시** 탭은 `preview-catalog.json`에 선별한 원본12개를 연결합니다. 로컬 프로젝트 안의 문서에서만 작동합니다. Downloads 사본이나 원격 도메인에서는 링크를 활성화하지 않습니다. `.memory` 시안은 공개 빌드에 복사하지 않습니다. 예전0.01v·0.01-b 내용은 보존하며,0.1·0.1b 별칭은 원본 코드·자산·배포 증거를 유지하고 표시만 바꾸는 사본입니다.
+관리 문서의 **개발 예시** 탭은 `preview-catalog.json`에 선별한 원본13개를 연결합니다. 로컬 프로젝트 안의 문서에서만 작동합니다. Downloads 사본이나 원격 도메인에서는 링크를 활성화하지 않습니다. `.memory` 시안은 공개 빌드에 복사하지 않습니다. 예전0.01v·0.01-b 내용은 보존하며,0.1·0.1b 별칭은 원본 코드·자산·배포 증거를 유지하고 표시만 바꾸는 사본입니다.
 
 배포 전에는 [비공개 기록·랭킹 DB 운영 절차](../operations/play-records.md)의 새 migration2개를 적용하고 실제 역할·로그인·동시 제출을 확인해야 합니다. [최종 로컬 검증 보고서](../../.memory/validation/2026-11-02-v02-feedback-release/report.md)에 실기기·GPU·원격 검증 범위를 구분했습니다. 소스가 바뀐 현재 `docs:check`의 배포 지문 오류는 정상적인 차단이며 우회하지 않습니다.

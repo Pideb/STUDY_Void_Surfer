@@ -1,0 +1,25 @@
+{
+  "checkedAtUtc": "2026-11-02T09:21:27.280Z",
+  "writesPerformed": false,
+  "ready": true,
+  "results": [
+    {
+      "rpc": "start_play_session",
+      "status": 400,
+      "code": "22023",
+      "message": "Invalid play record"
+    },
+    {
+      "rpc": "finish_play_session",
+      "status": 400,
+      "code": "22023",
+      "message": "Invalid play record"
+    },
+    {
+      "rpc": "submit_score",
+      "status": 401,
+      "code": "42501",
+      "message": "permission denied for function submit_score"
+    }
+  ]
+}

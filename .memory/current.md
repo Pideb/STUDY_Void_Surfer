@@ -1,16 +1,16 @@
 # Current Context
 
 ## Active Plan
-[Projectile outline](./plans/2026-11-02-projectile-outline.md)
+[v0.2 production release](./plans/2026-11-02-v02-production-release.md)
 
 ## Active Phase
-None
+[P01](./phases/2026-11-02-v02-production-release/P01-release/phase.md)
 
 ## Active Task
-None
+[T02](./phases/2026-11-02-v02-production-release/P01-release/T02-deploy-and-record-proof.md)
 
 ## Status
-Projectile stage-color outline1/1 complete. Six actual stage scenes compared at desktop/mobile density.158 game and20 docs tests/build/config passed. Sprite sizes/gameplay preserved; no push/deployment.
+T01 done; 1,376 tests and all build/document checks passed. Remote migration RPCs now exist (22023/42501 safe preflight). T02 in_progress: push and verify exact Actions/production payload.
 
 ## Next Step (IMPORTANT)
-Await user play feedback and deployment decision. See validation/2026-11-02-projectile-outline/review.html. Prior remote DB/deployment gates remain; production0.01-b, local0.2 development.
+Push prepared v0.2, inspect exact HEAD Actions success and live bundle SHA256, record deployment proof and sync documents. User authorized deployment; no further approval needed.

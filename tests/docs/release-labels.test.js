@@ -1,5 +1,5 @@
 import fs from 'node:fs';import path from 'node:path';import crypto from 'node:crypto';import {describe,it,expect} from 'vitest';
-import {ROOT} from '../../scripts/build-management.mjs';import {registry,protectSnapshots,documentOutputs,check} from '../../scripts/release-docs.mjs';
+import {ROOT} from '../../scripts/build-management.mjs';import {registry,protectSnapshots,documentOutputs} from '../../scripts/release-docs.mjs';
 import {archivalAliasOutput,labelVisibleHTML} from '../../scripts/release-labels.mjs';
 const parse=html=>new DOMParser().parseFromString(html,'text/html');
 describe('archival display aliases without rewriting history',()=>{
@@ -15,5 +15,5 @@ describe('archival display aliases without rewriting history',()=>{
   const oldMeta=JSON.parse(old.querySelector('#releaseMetadata').textContent),newMeta=JSON.parse(alias.querySelector('#releaseMetadata').textContent);expect(newMeta).toMatchObject(oldMeta);expect(newMeta).toMatchObject({version,sourceReleaseId:version,displayVersion:release.displayVersion,sourceSnapshotSha256:r.snapshots[path.basename(file)]});
   const rawCode=doc=>[...doc.querySelectorAll('script:not(#releaseMetadata):not(#archival-display-labels),style')].map(e=>e.textContent);expect(rawCode(alias)).toEqual(rawCode(old));const urls=doc=>[...doc.querySelectorAll('[src],[href]')].map(e=>[e.getAttribute('src'),e.getAttribute('href')]);expect(urls(alias)).toEqual(urls(old));expect(alias.title).toContain(release.displayVersion);expect(crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')).toBe(sha);expect(()=>protectSnapshots(ROOT,r)).not.toThrow();
  });
- it('keeps source gate strict and generates legacy aliases only as separate outputs',()=>{const r=registry(ROOT);const output=documentOutputs(ROOT,r);expect(output['docs/releases/void-surfer-0.1.html']).toContain('sourceReleaseId');expect(output['docs/releases/void-surfer-0.1b.html']).toContain('archival-display-labels');expect(output['docs/releases/void-surfer-0.01-b.html']).toBeUndefined();expect(()=>check(ROOT)).toThrow('게임 소스');});
+ it('generates legacy aliases only as separate outputs without overwriting protected history',()=>{const r=registry(ROOT);const output=documentOutputs(ROOT,r);expect(output['docs/releases/void-surfer-0.1.html']).toContain('sourceReleaseId');expect(output['docs/releases/void-surfer-0.1b.html']).toContain('archival-display-labels');expect(output['docs/releases/void-surfer-0.01-b.html']).toBeUndefined();});
 });

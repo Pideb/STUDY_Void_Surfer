@@ -18,7 +18,7 @@ export function playerGuideOutput(root=ROOT){
   const controls=content.controls.map(row=>`<div class="control"><dt>${text(row.input)}</dt><dd>${text(row.description)}</dd></div>`).join('');
   const entries=updates.entries.map(entry=>{
     if(!Array.isArray(entry.body)||!entry.body.length||!/^\d{4}-\d{2}-\d{2}$/.test(entry.date))throw Error('Invalid player update schema');
-    return `<article class="update"><p class="eyebrow">${text(entry.version)} · ${text(entry.date)}</p><h3>${text(entry.title)}</h3><ul>${entry.body.map(line=>`<li>${text(line)}</li>`).join('')}</ul></article>`;
+    return `<article class="update"><h3 class="update-version">${text(entry.version)}</h3><p class="eyebrow">${text(entry.date)}</p>${entry.title===entry.version?'':`<p class="update-title">${text(entry.title)}</p>`}<ul>${entry.body.map(line=>`<li>${text(line)}</li>`).join('')}</ul></article>`;
   }).join('');
   let html=fs.readFileSync(path.join(ROOT,'.agents/skills/visualize/references/skeleton.md'),'utf8').replace(/\r\n/g,'\n').split('```html\n')[1].split('\n```')[0];
   // Keep the complete visualization skeleton, correcting its duplicate main wrapper.
@@ -36,7 +36,8 @@ export function playerGuideOutput(root=ROOT){
     html.theme-light{--bg:#f5f8fc;--border:#cedbe8;--accent:#136174;}
     body{font-family:Inter,'Noto Sans KR',sans-serif;font-size:1rem;background:radial-gradient(ellipse at 100% 0%,var(--surface) 0,transparent 65%),var(--bg);}
     #main-content{max-width:1000px;margin:auto;padding:88px 36px 32px;}header{padding:24px 0 48px;border-bottom:1px solid var(--border);}h1{font-size:3.5rem;margin:16px 0 24px;}h2{font-size:2rem;margin:12px 0 28px;}h3{font-size:1.5rem;font-weight:600;margin:12px 0 20px;}.eyebrow{font-size:.75rem;font-weight:600;letter-spacing:.14em;color:var(--accent);}.lead{font-size:1.2rem;line-height:1.8;color:var(--text-secondary);}nav{display:flex;gap:12px 24px;flex-wrap:wrap;margin-top:28px;}a{color:var(--accent);text-underline-offset:5px;}a:hover{color:var(--text);}a:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:5px;}section{margin-top:64px;scroll-margin-top:30px;}.control{display:grid;grid-template-columns:190px 1fr;gap:24px;padding:24px 0;border-bottom:1px solid var(--border);}dt{font-weight:600;color:var(--accent);}dd{color:var(--text-secondary);line-height:1.8;}.notes{padding-left:22px;}.notes li,.update li{padding:8px 0;color:var(--text-secondary);}.empty{padding:28px;border:1px dashed var(--border);color:var(--text-secondary);}.update{padding:24px 0;}.update ul{padding-left:22px;}footer{margin-top:72px;padding:24px 0;color:var(--text-secondary);font-size:.8rem;border-top:1px solid var(--border);}
-    @media(max-width:600px){#main-content{padding:80px 24px 24px;}h1{font-size:2.6rem;}.control{grid-template-columns:1fr;gap:12px;}nav{gap:16px;}section{margin-top:48px;}}
+    .update-version{font-family:Inter,'Noto Sans KR',sans-serif;font-size:2.25rem;font-weight:800;letter-spacing:-.04em;margin:0 0 12px;}.update-title{font-weight:600;margin-top:16px;}
+    @media(max-width:600px){#main-content{padding:80px 24px 24px;}h1{font-size:2.6rem;}.control{grid-template-columns:1fr;gap:12px;}nav{gap:16px;}section{margin-top:48px;}.update-version{font-size:2rem;}}
     @media(max-width:375px){body{overflow-x:hidden;}}
     @media print{.viz-menu,nav,.skip-link,.skip-to-content{display:none!important;}#main-content{padding:0;max-width:none;}*{color:#111!important;}section{break-inside:avoid;}header{padding-top:0;}}
   `);
