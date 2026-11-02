@@ -1,5 +1,6 @@
 import { AMBIENT_LASER_UNLOCK_BOSSES, AMBIENT_LASER_INTERVAL_SECONDS, AMBIENT_LASER_CHANCE } from './constants.js';
 import { createBossPatternRound } from './boss-patterns.js';
+import { createUniqueAttack, updateUniqueAttack } from './boss-unique-attacks.js';
 import {
   BOSS_OBSTACLE_COUNT,
   CHALLENGE_RECOVERY_SECONDS,
@@ -370,6 +371,12 @@ export function createGameEngine(deps = {}) {
         else pose.fire = Math.max(pose.fire, Math.exp(-age * 8));
       }
     }
+    if (bossEncounter?.attack?.type === 'unique' && animation?.kind !== 'hit') {
+      for (const set of bossEncounter.attack.sets) {
+        if (set.phase === 'warning') pose.charge = Math.max(pose.charge, 1 - set.warningRemainingSeconds / set.warningSeconds);
+        if (set.lastLaunchAt !== null) pose.fire = Math.max(pose.fire, Math.exp(-Math.max(0,set.elapsedSeconds-set.lastLaunchAt)*8));
+      }
+    }
     return pose;
   }
 
@@ -507,6 +514,9 @@ export function createGameEngine(deps = {}) {
     } else if (pattern === 'global') {
       bossEncounter.globalShotsRemaining = 1 + Math.floor(safeRandom(rng) * 3);
       startGlobalShot();
+    } else if (pattern === 'unique') {
+      bossEncounter.attack = createUniqueAttack({id:`boss-attack-${nextAttackId++}`,stageId:bossEncounter.stageId,bossNumber:bossEncounter.number,rng});
+      updateUniqueAttack(bossEncounter.attack,0,player,{originAt:()=>getLiveBossGeometry()});
     } else if (pattern === 'challenge') beginBossRoar();
   }
 
@@ -717,7 +727,7 @@ export function createGameEngine(deps = {}) {
       completeBossPattern();
       return;
     }
-    if (bossEncounter.volleysFired < bossEncounter.volleyBudget
+    if (bossEncounter.number >= 3 && bossEncounter.volleysFired < bossEncounter.volleyBudget
       && bossEncounter.volleyElapsedSeconds + 1e-9 >= BOSS_VOLLEY_INTERVAL_SECONDS) {
       // One shot during wall flight, independent of normal/special presence.
       launchSignatureAttack(true);
@@ -725,7 +735,7 @@ export function createGameEngine(deps = {}) {
       bossEncounter.volleyElapsedSeconds = 0;
       return;
     }
-    if (!warningSession.waveComplete) {
+    if (bossEncounter.number >= 4 && !warningSession.waveComplete) {
       bossEncounter.singleLaserElapsedSeconds += deltaSeconds;
       if (bossEncounter.singleLaserElapsedSeconds + 1e-9 < BOSS_SINGLE_LASER_INTERVAL_SECONDS) return;
       bossEncounter.singleLaserElapsedSeconds = 0;
@@ -805,6 +815,16 @@ export function createGameEngine(deps = {}) {
   function updateBossAttack(deltaSeconds, protectedSeconds = 0) {
     if (!bossEncounter?.attack) return;
     const attack = bossEncounter.attack;
+    if (attack.type === 'unique') {
+      updateUniqueAttack(attack,deltaSeconds,player,{
+        projectileImmune:invincibilityEnabled,immuneSeconds:protectedSeconds,
+        scrollSpeedAt:frameScrollSpeedAt,
+        originAt:offset=>getLiveBossGeometry(bossEncounter.motionSeconds-deltaSeconds+offset,offset-deltaSeconds),
+      });
+      if(attack.hitPlayer&&!invincibilityEnabled){stop('projectile');return;}
+      if(attack.resolved){bossEncounter.attack=null;completeBossPattern();}
+      return;
+    }
     if (attack.type === 'volley') {
       updateSignatureAttack(attack, deltaSeconds, player, {
         projectileImmune: invincibilityEnabled, immuneSeconds: protectedSeconds,
@@ -1165,7 +1185,7 @@ export function createGameEngine(deps = {}) {
         geometry: getLiveBossGeometry(),
         pose: getLiveBossPose(),
         weapon: { ...bossEncounter.weapon, firing: bossEncounter.weapon.firing ? { ...bossEncounter.weapon.firing } : null },
-        attack: bossEncounter.attack ? {
+        attack: bossEncounter.attack?.type === 'unique' ? structuredClone(bossEncounter.attack) : bossEncounter.attack ? {
           ...bossEncounter.attack,
           ys: bossEncounter.attack.ys ? [...bossEncounter.attack.ys] : undefined,
           projectiles: bossEncounter.attack.projectiles?.map((shot) => ({

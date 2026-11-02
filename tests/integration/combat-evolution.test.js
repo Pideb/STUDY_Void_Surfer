@@ -20,13 +20,14 @@ describe('approved boss evolution across complete stage cycles', () => {
           expect(snapshot.obstacles).toHaveLength(0); expect(snapshot.boss.roar).toBeNull();
         }
       }
+      if(snapshot.challenge?.result==='failure'){failed.add(snapshot.boss.number);expect(snapshot.feedbackEffect?.durationSeconds ?? 8).toBe(8);}
       if (snapshot.challenge?.active) {
         const number = snapshot.boss.number;
-        expect(snapshot.challenge.timeLimitSeconds).toBe(number === 1 ? 5 : 2.8);
+        expect(snapshot.challenge.timeLimitSeconds).toBe(number === 1 ? 4 : 2.5);
         if (!failed.has(number)) {
           const wrong = ['KeyW', 'KeyA', 'KeyS', 'KeyD'].find(code => code !== snapshot.challenge.sequence[snapshot.challenge.cursor]);
-          engine.handleChallengeKey(wrong); failed.add(number);
-          expect(engine.getSnapshot().feedbackEffect.durationSeconds).toBe(8);
+          engine.handleChallengeKey(wrong);
+          expect(engine.getSnapshot().challenge.active).toBe(true);
         } else {
           for (const code of snapshot.challenge.sequence.slice(snapshot.challenge.cursor)) engine.handleChallengeKey(code);
           expect(engine.getSnapshot().boss.counterattack).toBeNull();

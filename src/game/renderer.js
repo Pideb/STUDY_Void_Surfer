@@ -822,7 +822,7 @@ export function drawBoss(ctx, difficulty, theme, boss = null, elapsedSeconds = 0
 }
 
 function drawProjectile(ctx, attack, theme, visualAssets = null, stageId = null, pass = 'all') {
-  if (attack?.type === 'volley') {
+  if (attack?.type === 'volley' || attack?.type === 'unique') {
     for (const projectile of attack.projectiles ?? []) {
       if (projectile.state !== 'resolved') drawProjectile(ctx, projectile, theme, visualAssets, attack.stageId ?? stageId, pass);
     }

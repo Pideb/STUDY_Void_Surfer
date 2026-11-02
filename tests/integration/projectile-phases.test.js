@@ -13,7 +13,7 @@ describe('separate wall and wall-free projectile phases', () => {
     '%s stage-roll=%s attack-roll=%s completes a shuffled round with complete separate volleys', (stage, stageRoll, roll) => {
       let time = 0;
       const engine = createGameEngine({ now: () => time, gravity: 0, rng: () => roll, stageRng: seeded(stageRoll),
-        initialScore: 150, initialCompletedWarningCount: 1, guestMode: true, invincibilityEnabled: true });
+        initialScore: 150, initialClearedBossCount: 2, guestMode: true, invincibilityEnabled: true });
       engine.start();
       let s = engine.getSnapshot(), wallShots = new Set(), signatures = new Set(), previous = null, challenges = 0;
       for (let i = 0; i < 12000 && !(s.boss?.cycleNumber >= 2); i++) {

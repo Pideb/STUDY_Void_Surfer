@@ -163,7 +163,7 @@ function pointAtX(projectile, x) {
   return { x, y: from.y + (to.y - from.y) * (position - index) };
 }
 
-function moveProjectile(projectile, flightSeconds, bounds) {
+export function moveProjectile(projectile, flightSeconds, bounds) {
   const exitX = -HALF_WIDTH;
   const nextX = Math.min(projectile.x, Math.max(exitX, projectile.bossX - projectile.speed * flightSeconds));
   projectile.previousX = projectile.x;

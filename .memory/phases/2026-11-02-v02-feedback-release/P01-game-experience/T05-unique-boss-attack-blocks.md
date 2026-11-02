@@ -2,7 +2,7 @@
 
 > 이 작업은 [v0.2 통합 결정](../../../decisions/2026-11-02-v02-feedback-release.md)에 포함된다. 아래 기존 게임·시각 결정 링크는 원래 승인 세부를 보존한다. 버전·임시 해금·첫3보스·회전·메뉴·기록에 관한 충돌은 v0.2 통합 결정이 우선한다.
 
-## Status: pending
+## Status: done
 
 ## Goal
 두 번째 보스부터 지역별 고유 공격을 기존 패턴과 섞고 세트 예고·반복·탄 수명·종료를 분리하여 무한 진행을 방지한다.
@@ -61,9 +61,9 @@ type UniqueAttack={type:'unique';setsPlanned:number;setsStarted:number;elapsedSe
 - 미실행 항목은 limitation으로 기록한다. 승인되지 않은 새 디자인/밸런스가 필요하면 기존 승인을 확대 해석하지 말고 증거를 제시한다.
 
 ## Acceptance Criteria
-- [ ] 6지역고유공격이승인된탄수·간격·세트예고로나온다.
-- [ ] 보스차수별대기/중첩·inline해금과잔여탄정리가정확하다.
-- [ ] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
+- [x] 6지역고유공격이승인된탄수·간격·세트예고로나온다.
+- [x] 보스차수별대기/중첩·inline해금과잔여탄정리가정확하다.
+- [x] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
 
 ## Validation
 - `npm test -- --run tests/game/boss-unique-attacks.test.js tests/game/boss-patterns.test.js tests/game/boss-flow.test.js tests/integration/combat-evolution.test.js tests/integration/projectile-phases.test.js` — 종료코드0 및 대상 검증 통과.
@@ -81,6 +81,9 @@ Task: T05-unique-boss-attack-blocks
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest:5 files/109 tests passed, including72 stage/boss/set combinations and complete six-stage runs with all aircraft. Split-child lifetime and industrial aim lock covered. Final visual/path fairness review remains T18.

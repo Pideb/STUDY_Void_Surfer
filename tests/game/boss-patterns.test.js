@@ -5,15 +5,15 @@ import {createGameEngine} from '../../src/game/game-engine.js';
 describe('shuffled complete boss rounds',()=>{
   it('includes every eligible block and permits every first position',()=>{
     const first=new Set();
-    for(let seed=0;seed<100;seed++){
+    for(let seed=0;seed<10000;seed++){
       let n=seed;const rng=()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};
       const round=createBossPatternRound(2,rng);first.add(round[0]);
-      expect([...round].sort()).toEqual(['challenge','global','signature','walls']);
+      expect([...round].sort()).toEqual(['challenge','global','signature','unique','walls']);
       const next=createBossPatternRound(2,rng,round.at(-1));expect(next[0]).not.toBe(round.at(-1));
       expect(createBossPatternRound(1,rng)).not.toContain('global');
     }
-    expect(first.size).toBe(4);
-    for(const value of [NaN,Infinity,-1,1])expect(new Set(createBossPatternRound(2,()=>value)).size).toBe(4);
+    expect(first.size).toBe(5);
+    for(const value of [NaN,Infinity,-1,1])expect(new Set(createBossPatternRound(2,()=>value)).size).toBe(5);
   });
   it.each([1,2,7])('boss%s completes three whole rounds with no incompatible overlap',number=>{
     let time=0,n=number;const rng=()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};
@@ -26,7 +26,7 @@ describe('shuffled complete boss rounds',()=>{
         rounds.set(boss.cycleNumber,[...boss.patternQueue]);
         if(previous)expect(boss.patternQueue[0]).not.toBe(previous.at(-1));previous=[...boss.patternQueue];
         const copy=engine.getSnapshot();copy.boss.patternQueue.length=0;copy.boss.completedPatterns.push('corruption');
-        expect(engine.getSnapshot().boss.patternQueue.length).toBe(number===1?3:4);
+        expect(engine.getSnapshot().boss.patternQueue.length).toBe(number===1?3:5);
         expect(engine.getSnapshot().boss.completedPatterns).not.toContain('corruption');
       }
       const pattern=boss.patternQueue[boss.patternIndex];
@@ -39,7 +39,7 @@ describe('shuffled complete boss rounds',()=>{
       if(boss.cycleNumber>=4)break;
     }
     expect(s.boss.cycleNumber).toBe(4);
-    for(let i=1;i<=3;i++)expect([...entries.get(i)].sort()).toEqual(number===1?['challenge','signature','walls']:['challenge','global','signature','walls']);
+    for(let i=1;i<=3;i++)expect([...entries.get(i)].sort()).toEqual(number===1?['challenge','signature','walls']:['challenge','global','signature','unique','walls']);
     expect(s.boss.hp).toBe(3);expect(s.score).toBe(200);
   });
 });

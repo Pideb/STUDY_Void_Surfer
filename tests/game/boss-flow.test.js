@@ -5,7 +5,7 @@ import {isDashObstacle} from '../../src/game/obstacles.js';
 describe('distributed signature budgets with unrestricted special-wall overlap',()=>{
   it.each([[0,1],[.4,2],[.99,3]])('roll %s uses exactly %s wall volleys per shuffled round, including mid-wave attacks',(roll,budget)=>{
     let time=0;const engine=createGameEngine({now:()=>time,gravity:0,rng:()=>roll,stageRng:()=>.5,
-      initialScore:60,initialCompletedWarningCount:3,guestMode:true,invincibilityEnabled:true});
+      initialScore:60,initialClearedBossCount:2,guestMode:true,invincibilityEnabled:true});
     engine.start();const ids=new Set();let overlap=false,normalOverlap=false,spawnsDuringVolley=false;
     let snapshot=engine.getSnapshot();
     for(let i=0;i<4000&&!(snapshot.boss?.cycleNumber>=2);i++){
