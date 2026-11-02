@@ -8,6 +8,14 @@ function makeHud() {
 }
 
 describe('game HUD', () => {
+  it('does not mutate identical HUD state or replace live challenge keys',()=>{
+    const hud=makeHud(),snapshot={score:4,challenge:{active:true,sequence:['KeyW','KeyA'],cursor:0,remainingSeconds:3,timeLimitSeconds:4},boss:{hp:3,weapon:{chargeSeconds:2,rechargeSeconds:10,ready:false}}};
+    hud.update(snapshot);const key=hud.element.querySelector('.challenge-sequence li');
+    const observer=new MutationObserver(()=>{});observer.observe(hud.element,{subtree:true,attributes:true,childList:true,characterData:true});
+    hud.update(snapshot);expect(observer.takeRecords()).toHaveLength(0);
+    hud.update({...snapshot,challenge:{...snapshot.challenge,cursor:1}});expect(hud.element.querySelector('.challenge-sequence li')).toBe(key);expect(key.classList.contains('is-complete')).toBe(true);observer.disconnect();
+    expect(hud.element.querySelector('.weapon-hud').hidden).toBe(true);
+  });
   it('uses a real eighty-pixel reactor arc and keeps only one visible key sequence',()=>{
     const hud=makeHud(),weapon={chargeSeconds:7.2,rechargeSeconds:10,ready:false,firing:null};
     hud.update({boss:{hp:3,weapon},challenge:{active:true,sequence:['KeyW','KeyA','KeyS','KeyD'],remainingSeconds:4,timeLimitSeconds:5}});

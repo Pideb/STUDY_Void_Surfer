@@ -1,0 +1,10 @@
+{
+  "verified": [
+    "src/game/renderer.js",
+    "src/game/render-layers.js",
+    "src/game/render-resolution.js",
+    "src/game/laser-renderer.js",
+    "src/ui/game-hud.js"
+  ],
+  "unchanged": true
+}

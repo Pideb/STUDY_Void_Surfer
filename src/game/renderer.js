@@ -938,6 +938,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
   const layers = createRenderLayers({canvasFactory:layerCanvasFactory,densities:renderDensities});
   let resolution = null;
   let lastScene = null;
+  let frameId = 0;
   let destroyed = false;
 
   function syncResolution() {
@@ -966,6 +967,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
   function render(snapshot, { showPlayerHitbox = false } = {}) {
     if (destroyed) return;
     syncResolution();
+    layers.beginFrame(++frameId);
     lastScene = { kind: 'game', snapshot, options: { showPlayerHitbox } };
     ctx.save();
     ctx.setTransform?.(resolution.scaleX, 0, 0, resolution.scaleY, 0, 0);
@@ -1007,9 +1009,9 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
     }
     const enemyAttack=snapshot.boss?.attack??snapshot.ambientAttack;
     const drawEnemy=()=>{
-      if(enemyAttack?.type==='laser'){layers.paint(ctx,'lasers',layerCtx=>drawLaser(layerCtx,enemyAttack,{guidance:false,rasterScale:layerCtx===ctx?1:layers.getStats().lasers.density,stageId:enemyAttack.stageId??stage.id,visualAssets}));drawLaserGuidance(ctx,enemyAttack);}
+      if(enemyAttack?.type==='laser'){layers.paint(ctx,'lasers',layerCtx=>drawLaser(layerCtx,enemyAttack,{guidance:false,rasterScale:layerCtx===ctx?1:layers.getStats().lasers.density,stageId:enemyAttack.stageId??stage.id,visualAssets}),{reuseKey:enemyAttack});drawLaserGuidance(ctx,enemyAttack);}
       if(enemyAttack&&enemyAttack.type!=='laser'){
-        layers.paint(ctx,'projectiles',layerCtx=>drawProjectile(layerCtx,enemyAttack,theme,visualAssets,stage.id,'body'));
+        layers.paint(ctx,'projectiles',layerCtx=>drawProjectile(layerCtx,enemyAttack,theme,visualAssets,stage.id,'body'),{reuseKey:enemyAttack});
         drawProjectile(ctx,enemyAttack,theme,visualAssets,stage.id,'guidance');
       }
     };
@@ -1027,7 +1029,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
       const shot = snapshot.boss?.weapon?.firing;
       const facing = shot ? { ...snapshot.player, facingAngle: 0 } : snapshot.player;
       drawShip(ctx, facing, VISUAL_THEME, snapshot.aircraft?.id, visualAssets);
-      if(shot)layers.paint(ctx,'lasers',layerCtx=>drawManualLaser(layerCtx,shot,snapshot.player,theme));
+      if(shot)layers.paint(ctx,'playerLasers',layerCtx=>drawManualLaser(layerCtx,shot,snapshot.player,theme));
     }
     drawChallengeEffects(ctx, snapshot.challenge, snapshot.feedbackEffect, snapshot.player, prefersReducedMotion);
     if (!snapshot.deathEffect) drawDashCooldown(ctx, snapshot.player);
@@ -1045,6 +1047,7 @@ export function createRenderer(canvas, { visualAssets = null, reducedMotion = nu
   function renderMenuBackground() {
     if (destroyed) return;
     syncResolution();
+    layers.beginFrame(++frameId);
     lastScene = { kind: 'menu' };
     ctx.save();
     ctx.setTransform?.(resolution.scaleX, 0, 0, resolution.scaleY, 0, 0);

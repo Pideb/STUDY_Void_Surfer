@@ -2,7 +2,7 @@
 
 > 이 작업은 [v0.2 통합 결정](../../../decisions/2026-11-02-v02-feedback-release.md)에 포함된다. 아래 기존 게임·시각 결정 링크는 원래 승인 세부를 보존한다. 버전·임시 해금·첫3보스·회전·메뉴·기록에 관한 충돌은 v0.2 통합 결정이 우선한다.
 
-## Status: pending
+## Status: done
 
 ## Goal
 화질과효과를낮추지않고불필요한HUD DOM갱신과적레이어중복렌더를줄이며같은조건의전후비용을기록한다.
@@ -57,9 +57,9 @@ beginFrame(frameId:number):void; // new layer lifecycle contract, renderer-owned
 - 미실행 항목은 limitation으로 기록한다. 승인되지 않은 새 디자인/밸런스가 필요하면 기존 승인을 확대 해석하지 말고 증거를 제시한다.
 
 ## Acceptance Criteria
-- [ ] 화질·레이저blur를유지하면서중복DOM/raster작업이줄어든증거가있다.
-- [ ] 페널티가림·플레이어빔·resize에서캐시잔상이나레이어덮어쓰기없음.
-- [ ] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
+- [x] 화질·레이저blur를유지하면서중복DOM/raster작업이줄어든증거가있다.
+- [x] 페널티가림·플레이어빔·resize에서캐시잔상이나레이어덮어쓰기없음.
+- [x] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
 
 ## Validation
 - `npm test -- --run tests/ui/game-hud.test.js tests/game/render-layers.test.js tests/game/render-resolution.test.js tests/game/renderer.test.js tests/integration/mobile-input.test.js` — 종료코드0 및 대상 검증 통과.
@@ -78,6 +78,9 @@ Task: T08-quality-preserving-performance
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest:5 files/74 tests passed. Browser1000 identical HUD updates:24000 DOM mutations before,0 after. FHD before/after pixels equal; p50/p95/p99 and glitch+quarter worst-case costs/heap estimate recorded (software raster, not real FPS guarantee). Five original backup SHAs preserved. Corrected QTE touch-row/weapon overlap found during T07 browser review.

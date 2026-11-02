@@ -1,0 +1,51 @@
+{
+  "conditions": "Same headless Edge software GPU,1920x1080,native render budget; render timing excludes screenshot encoding; software raster timing is not user FPS.",
+  "result": {
+    "pixelsEqual": true,
+    "hud": {
+      "before": {
+        "p50": 0,
+        "p95": 0.10000002384185791,
+        "p99": 0.10000002384185791,
+        "domWrites": 24000
+      },
+      "after": {
+        "p50": 0,
+        "p95": 0.09999996423721313,
+        "p99": 0.10000002384185791,
+        "domWrites": 0
+      }
+    },
+    "render": {
+      "before": {
+        "p50": 87.39999997615814,
+        "p95": 241.29999995231628,
+        "p99": 245.60000002384186,
+        "canvasWidth": 1920,
+        "canvasHeight": 1080
+      },
+      "after": {
+        "p50": 86.19999998807907,
+        "p95": 225.69999998807907,
+        "p99": 230,
+        "canvasWidth": 1920,
+        "canvasHeight": 1080
+      }
+    },
+    "failure": {
+      "before": {
+        "p50": 85.39999997615814,
+        "p95": 242.60000002384186,
+        "p99": 242.60000002384186
+      },
+      "after": {
+        "p50": 85.80000001192093,
+        "p95": 212.80000001192093,
+        "p99": 212.80000001192093
+      }
+    },
+    "heapEstimate": 7788633,
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.0.0 Safari/537.36 Edg/156.0.0.0"
+  },
+  "errors": []
+}

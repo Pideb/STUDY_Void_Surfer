@@ -2,6 +2,14 @@ import {describe,it,expect,vi} from 'vitest';
 import {createRenderLayers} from '../../src/game/render-layers.js';
 const context=()=>Object.fromEntries(['save','restore','setTransform','clearRect','drawImage'].map(k=>[k,vi.fn()]));
 describe('reusable raster layers',()=>{
+  it('reuses only the same frame/key, invalidates on resize and separates player beams',()=>{
+    const primary=context(),draw=vi.fn(),layers=createRenderLayers({canvasFactory:()=>({getContext:()=>context()})});const key={};
+    layers.beginFrame(1);layers.paint(primary,'lasers',draw,{reuseKey:key});layers.paint(primary,'lasers',draw,{reuseKey:key});expect(draw).toHaveBeenCalledTimes(1);
+    layers.paint(primary,'playerLasers',draw);expect(draw).toHaveBeenCalledTimes(2);
+    layers.beginFrame(2);layers.paint(primary,'lasers',draw,{reuseKey:key});expect(draw).toHaveBeenCalledTimes(3);
+    layers.resize({width:1920,height:1080});layers.paint(primary,'lasers',draw,{reuseKey:key});expect(draw).toHaveBeenCalledTimes(4);
+    expect(layers.getStats().playerLasers.density).toBe(.35);
+  });
   it('uses exact density dimensions, reuses surfaces and releases owned buffers',()=>{
     const primary=context(),made=[];const factory=vi.fn(()=>{const c={width:0,height:0,ctx:context(),getContext(){return this.ctx;}};made.push(c);return c;});
     const layers=createRenderLayers({canvasFactory:factory});layers.resize({width:1920,height:1080});
