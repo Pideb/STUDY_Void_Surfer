@@ -1,0 +1,11 @@
+{
+  "unchanged": true,
+  "hashNormalization": "LF",
+  "sourceHashes": {
+    "src/game/boss-attacks.js": "1e3e2ba237a0c8c4c456589a899eb7c40383769d3424145099585779b27974cb",
+    "src/game/boss-signatures.js": "6cee29e23465531806792d5aae58b65d81b3f72190a5d283321aa43258badcc6",
+    "src/game/boss-unique-attacks.js": "e5a6dd67eed467a2642035dd02c4c592dda2f8a12f4c1a603d836fa5f69677cc",
+    "src/game/projectile-speed.js": "5c0e1995605b84965296531be2ea59458f718fbda31e91c34122914df57d8139",
+    "src/game/player-geometry.js": "3bf37bfb9c884608fcaf127e1b68ea31c61e3cb01a1274b0526fe90d52ec7b38"
+  }
+}

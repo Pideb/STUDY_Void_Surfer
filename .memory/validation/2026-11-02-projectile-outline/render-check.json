@@ -1,0 +1,106 @@
+{
+  "files": [
+    "crystal-gates-desktop-before.png",
+    "crystal-gates-desktop-after.png",
+    "industrial-void-desktop-before.png",
+    "industrial-void-desktop-after.png",
+    "signal-monoliths-desktop-before.png",
+    "signal-monoliths-desktop-after.png",
+    "gravity-well-desktop-before.png",
+    "gravity-well-desktop-after.png",
+    "abyssal-beast-desktop-before.png",
+    "abyssal-beast-desktop-after.png",
+    "solar-forge-desktop-before.png",
+    "solar-forge-desktop-after.png",
+    "crystal-gates-mobile-before.png",
+    "crystal-gates-mobile-after.png",
+    "industrial-void-mobile-before.png",
+    "industrial-void-mobile-after.png",
+    "signal-monoliths-mobile-before.png",
+    "signal-monoliths-mobile-after.png",
+    "gravity-well-mobile-before.png",
+    "gravity-well-mobile-after.png",
+    "abyssal-beast-mobile-before.png",
+    "abyssal-beast-mobile-after.png",
+    "solar-forge-mobile-before.png",
+    "solar-forge-mobile-after.png"
+  ],
+  "pixels": {
+    "cases": [
+      {
+        "stageId": "crystal-gates",
+        "role": "normal",
+        "color": "#a9d8ff",
+        "addedColoredPixels": 90
+      },
+      {
+        "stageId": "crystal-gates",
+        "role": "parent",
+        "color": "#a9d8ff",
+        "addedColoredPixels": 179
+      },
+      {
+        "stageId": "industrial-void",
+        "role": "normal",
+        "color": "#ffc06a",
+        "addedColoredPixels": 80
+      },
+      {
+        "stageId": "industrial-void",
+        "role": "parent",
+        "color": "#ffc06a",
+        "addedColoredPixels": 156
+      },
+      {
+        "stageId": "signal-monoliths",
+        "role": "normal",
+        "color": "#75aaff",
+        "addedColoredPixels": 64
+      },
+      {
+        "stageId": "signal-monoliths",
+        "role": "parent",
+        "color": "#75aaff",
+        "addedColoredPixels": 139
+      },
+      {
+        "stageId": "gravity-well",
+        "role": "normal",
+        "color": "#be9bff",
+        "addedColoredPixels": 79
+      },
+      {
+        "stageId": "gravity-well",
+        "role": "parent",
+        "color": "#be9bff",
+        "addedColoredPixels": 108
+      },
+      {
+        "stageId": "abyssal-beast",
+        "role": "normal",
+        "color": "#78f5ed",
+        "addedColoredPixels": 67
+      },
+      {
+        "stageId": "abyssal-beast",
+        "role": "parent",
+        "color": "#78f5ed",
+        "addedColoredPixels": 214
+      },
+      {
+        "stageId": "solar-forge",
+        "role": "normal",
+        "color": "#ffb342",
+        "addedColoredPixels": 92
+      },
+      {
+        "stageId": "solar-forge",
+        "role": "parent",
+        "color": "#ffb342",
+        "addedColoredPixels": 149
+      }
+    ],
+    "pixelReadsIn6000WarmDraws": 0
+  },
+  "exceptions": []
+}

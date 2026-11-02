@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "sourceHead": "fa6f9af053a64095240490edd7404eeffe668c4c",
+  "sourceHashes": {
+    "src/game/projectile-outline.js": "15b0e623d58741d169e56e290309f10dddf1f64a953c379568647c67ca13c53d",
+    "src/game/visual-materials.js": "7a0d67cecdd8600ef59903e1bba7e6cd002b37d497abe61c227557748f632407"
+  },
+  "tests": [
+    {
+      "scope": "rendering and projectile regression",
+      "files": 5,
+      "passed": 158,
+      "exitCode": 0
+    },
+    {
+      "scope": "document catalog and release protection",
+      "files": 3,
+      "passed": 20,
+      "exitCode": 0
+    }
+  ],
+  "build": "passed",
+  "configuration": "passed",
+  "realBrowserCaptures": 24,
+  "stageRolePixelCases": 12,
+  "warmPixelReadsIn6000Draws": 0,
+  "gameplayUnchanged": true,
+  "deploymentPerformed": false
+}
