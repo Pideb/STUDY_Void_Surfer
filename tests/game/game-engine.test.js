@@ -25,6 +25,16 @@ function createRuntimeEngine(overrides = {}) {
 const aimable=s=>s.boss && Math.abs(270+162*Math.sin((s.boss.motionSeconds+.5)*Math.PI/3)-s.player.y)<30;
 
 describe('game engine', () => {
+  it('uses visible-art contact for actual boss HP and never auto-damages a missed shot',()=>{
+    let hit=false,calls=0;
+    const {engine,step}=createRuntimeEngine({initialScore:60,initialCompletedWarningCount:1,invincibilityEnabled:true,bossBeamContact:()=>{calls++;return hit;}});
+    engine.start();
+    const ready=()=>{for(let i=0;i<2000;i++){const s=engine.getSnapshot();if(s.challenge?.active)for(const key of s.challenge.sequence)engine.handleChallengeKey(key);if(s.boss?.weapon.ready&&!s.challenge?.active&&engine.fire())return;step();}throw Error('Weapon not ready');};
+    ready();for(let i=0;i<8;i++)step();
+    expect(calls).toBeGreaterThan(0);expect(engine.getSnapshot().boss.hp).toBe(3);
+    hit=true;ready();for(let i=0;i<8;i++)step();
+    expect(engine.getSnapshot().boss.hp).toBe(2);
+  });
   it('exposes the same moving geometry and freezes the motion clock while paused',()=>{
     const {engine,step}=createRuntimeEngine({initialScore:60,initialCompletedWarningCount:1,invincibilityEnabled:true});engine.start();
     for(let i=0;i<100&&(!engine.getSnapshot().boss||engine.getSnapshot().bossEntry);i++)step();

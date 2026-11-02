@@ -105,6 +105,7 @@ export function constrainGapCenter(candidate, gapHeight, previousCenter) {
 }
 
 export function createGameEngine(deps = {}) {
+  const bossBeamContact = deps.bossBeamContact ?? intersectsBossBeam;
   const now = deps.now ?? (() => performance.now());
   const gravity = deps.gravity ?? GRAVITY;
   const initialScore = Math.max(0, Math.trunc(deps.initialScore ?? 0));
@@ -807,7 +808,7 @@ export function createGameEngine(deps = {}) {
     if (bossEncounter?.hp > 0 && bossEncounter.entranceRemainingSeconds <= 0) {
       const shotId = bossEncounter.weapon.firing?.id;
       const motionEnd = bossEncounter.motionSeconds;
-      if (advanceBossWeapon(bossEncounter.weapon, weaponDeltaSeconds, ({shot,fromOffset,toOffset}) => intersectsBossBeam({
+      if (advanceBossWeapon(bossEncounter.weapon, weaponDeltaSeconds, ({shot,fromOffset,toOffset}) => bossBeamContact({
         shot,stageId:bossEncounter.stageId,
         fromMotionSeconds:motionEnd-weaponDeltaSeconds+fromOffset,
         toMotionSeconds:motionEnd-weaponDeltaSeconds+toOffset,

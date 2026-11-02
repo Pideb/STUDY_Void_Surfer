@@ -1,0 +1,68 @@
+{
+  "results": [
+    {
+      "stageId": "crystal-gates",
+      "misses": 1763,
+      "hits": 594,
+      "oldFalseHits": 5,
+      "example": {
+        "time": 0,
+        "y": 338
+      },
+      "mismatches": []
+    },
+    {
+      "stageId": "industrial-void",
+      "misses": 1755,
+      "hits": 603,
+      "oldFalseHits": 0,
+      "example": null,
+      "mismatches": []
+    },
+    {
+      "stageId": "signal-monoliths",
+      "misses": 1821,
+      "hits": 534,
+      "oldFalseHits": 59,
+      "example": {
+        "time": 0,
+        "y": 202
+      },
+      "mismatches": []
+    },
+    {
+      "stageId": "gravity-well",
+      "misses": 1794,
+      "hits": 565,
+      "oldFalseHits": 32,
+      "example": {
+        "time": 0,
+        "y": 202
+      },
+      "mismatches": []
+    },
+    {
+      "stageId": "abyssal-beast",
+      "misses": 1784,
+      "hits": 578,
+      "oldFalseHits": 109,
+      "example": {
+        "time": 0,
+        "y": 194
+      },
+      "mismatches": []
+    },
+    {
+      "stageId": "solar-forge",
+      "misses": 1757,
+      "hits": 601,
+      "oldFalseHits": 10,
+      "example": {
+        "time": 0,
+        "y": 202
+      },
+      "mismatches": []
+    }
+  ],
+  "maskReads": 27
+}

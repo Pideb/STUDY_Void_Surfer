@@ -7,6 +7,7 @@ import { createSupabaseClientFromEnv } from './lib/supabase-client.js';
 import { completeOAuthPopup } from './auth/oauth-popup.js';
 import { createAudioManager } from './audio/audio-manager.js';
 import { createGameEngine } from './game/game-engine.js';
+import { createBossBeamContact } from './game/boss-hit-mask.js';
 import { createRenderer } from './game/renderer.js';
 import { createVisualAssetLoader } from './game/visual-assets.js';
 import { getSessionUser, signInWithMicrosoft, signOut, subscribeToAuth } from './services/auth-service.js';
@@ -83,7 +84,7 @@ if (window.location.pathname === '/auth/callback') {
     }),
     authService,
     leaderboardService,
-    gameEngine: createGameEngine(),
+    gameEngine: createGameEngine({ bossBeamContact: createBossBeamContact(visualAssets) }),
     renderer: createRenderer(canvas, { visualAssets }),
     audioManager: createAudioManager(),
     root: uiRoot,
