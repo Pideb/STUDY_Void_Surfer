@@ -405,7 +405,7 @@ export function createAppController(deps) {
       setScreen('menu');
     } catch (error) {
       state.user = null;
-      state.selectedAircraftId = 'default';
+      if(!canSelectAircraft(state.selectedAircraftId,{guestMode:true,bestScore:0}))state.selectedAircraftId = 'default';
       gameEngine.setGuestMode?.(true);
       accountRequestId += 1;
       state.accountBestScore = 0;
@@ -450,7 +450,7 @@ export function createAppController(deps) {
       state.accountBestScore = 0;
       state.accountBestScoreLoading = false;
       state.accountBestScoreError = true;
-      state.selectedAircraftId = 'default';
+      if(!canSelectAircraft(state.selectedAircraftId,{guestMode:!state.user,bestScore:0}))state.selectedAircraftId = 'default';
       if (state.screen === 'hangar') paint();
     }
   }
@@ -709,7 +709,7 @@ export function createAppController(deps) {
     gameEngine.setInvincibilityEnabled?.(isDesignatedAdmin(state.user) && state.invincibilityEnabled);
     gameEngine.setAccountBestScore?.(state.accountBestScore);
     gameEngine.setAircraft?.(state.selectedAircraftId);
-    gameEngine.start({aircraftId:state.user?state.selectedAircraftId:'default',guestMode:!state.user,accountBestScore:state.user?state.accountBestScore:0,
+    gameEngine.start({aircraftId:state.selectedAircraftId,guestMode:!state.user,accountBestScore:state.user?state.accountBestScore:0,
       ...(prepareMusic ? { deferStart: true } : {})});
     state.snapshot = gameEngine.getSnapshot();
     lastStageId = state.snapshot?.stage?.id ?? null;

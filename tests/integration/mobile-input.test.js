@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createAppController } from '../../src/ui/app-controller.js';
-import { createGameEngine } from '../../src/game/game-engine.js';
+import { createGameEngine } from "../helpers/engine-fixtures.js";
 
 function flush() {
   return Promise.resolve().then(() => Promise.resolve());

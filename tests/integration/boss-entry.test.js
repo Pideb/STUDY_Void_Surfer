@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {createGameEngine} from '../../src/game/game-engine.js';
+import {createGameEngine} from "../helpers/engine-fixtures.js";
 
 function setup(options={}){let now=0;const engine=createGameEngine({now:()=>now,gravity:0,guestMode:true,invincibilityEnabled:true,rng:()=>.5,...options});engine.start();return{engine,tick:(dt=.05)=>{now+=dt*1000;engine.update(now);return engine.getSnapshot();}};}
 function until(engine,tick,predicate){for(let i=0;i<3000;i++){const s=engine.getSnapshot();if(predicate(s))return s;tick();}throw Error('Fixture timeout');}

@@ -1,6 +1,6 @@
 # Task: T09 v0.2 버전·임시 해금·보스 순서와20/15벽 간격
 
-## Status: pending
+## Status: done
 
 ## Goal
 과거 표시v0.1/v0.1b·다음배포v0.2,모든사용자임시기체해금,첫3보스저속/고속/변속 및 첫20벽/다음스테이지도착후15벽 보스간격을 일관되게 적용한다.
@@ -107,10 +107,10 @@ recordNormalWallPass(c:BossCadence,id:number):boolean; // true iff this unique p
 - 네트워크/원격 자원 접근이 없으면 미실행 사실·정확한 후속 명령·예상 결과를 기록하며 운영 완료로 보고하지 않는다.
 
 ## Acceptance Criteria
-- [ ] 게스트 포함 전 기체가 임시 선택·실제 출격되며 기록은 조작되지 않는다.
-- [ ] 첫3보스 순서와 다음 배포0.2·과거 표시 alias가 정확하다.
-- [ ] 첫20벽/도착후15벽이점수변동에영향없고보스·전환대기벽제외·생성상한·화면끝drain을지킨다.
-- [ ] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
+- [x] 게스트 포함 전 기체가 임시 선택·실제 출격되며 기록은 조작되지 않는다.
+- [x] 첫3보스 순서와 다음 배포0.2·과거 표시 alias가 정확하다.
+- [x] 첫20벽/도착후15벽이점수변동에영향없고보스·전환대기벽제외·생성상한·화면끝drain을지킨다.
+- [x] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
 
 ## Validation
 - `npm test -- --run tests/game/aircraft.test.js tests/game/difficulty.test.js tests/game/game-engine.test.js tests/ui/app-controller.test.js tests/ui/screens.test.js tests/docs/release-docs.test.js tests/integration/guest-access.test.js` — 종료0.
@@ -131,6 +131,9 @@ Task: T09-feedback-unlocks-and-version-policy
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Targeted202-test cadence/access/flow group executed; final remaining engine assertion corrected and engine+dash integration82 tests passed. Build passed with consistent JSON import attributes. Full-suite855 passed/7 stale fixtures were traced to new boss gates; all7 corrected and rerun passed. CurrentVersion0.01-b and immutable snapshots unchanged; versionBase/next0.2 only. No push/deployment.

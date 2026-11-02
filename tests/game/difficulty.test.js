@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { BOSS_PATTERNS } from '../../src/game/constants.js';
 import {
   getBossWallRules,
+  chooseBossPattern,
   getBaseSpeed,
   getDifficulty,
   getBossSpeedMultiplier,
@@ -12,6 +13,12 @@ import {
 } from '../../src/game/difficulty.js';
 
 describe('difficulty', () => {
+  it('fixes the first three patterns without consuming random choices',()=>{
+    let calls=0;const rng=()=>{calls++;return .9;};
+    expect([1,2,3].map(n=>chooseBossPattern(rng,n))).toEqual(['slow','fast','shift']);expect(calls).toBe(0);
+    expect([0,.4,.9].map(v=>chooseBossPattern(()=>v,4))).toEqual(['slow','fast','shift']);
+    expect(getDifficulty(999,0,0,rng,null,20,999,false,'default',{bossActive:false}).isBoss).toBe(false);
+  });
   it('caps base progression at220 and preserves boss multipliers', () => {
     const ceiling = 460;
     expect(getBaseSpeed(99)).toBe(330);

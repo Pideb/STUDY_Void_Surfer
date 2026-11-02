@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createGameEngine } from '../../src/game/game-engine.js';
+import { createGameEngine } from "../helpers/engine-fixtures.js";
 import { getDashBarrierBounds } from '../../src/game/obstacles.js';
 import { getPlayerBounds, getSpecialSuccessBounds } from '../../src/game/player-geometry.js';
 

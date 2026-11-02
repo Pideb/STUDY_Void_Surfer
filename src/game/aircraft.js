@@ -10,6 +10,7 @@ import {
   SPEED_CAP_SCORE,
   VELOCITY_SPEED_CAP_SCORE,
 } from './constants.js';
+import { isTemporaryAircraftUnlock } from './feedback-policy.js';
 
 export const AIRCRAFT_IDS = Object.freeze({
   DEFAULT: 'default',
@@ -68,18 +69,18 @@ export function getAircraftDefinition(id) {
   return AIRCRAFT_CATALOG.find((definition) => definition.id === id) ?? AIRCRAFT_CATALOG[0];
 }
 
-export function getUnlockedAircraftIds(bestScore = 0) {
+export function getUnlockedAircraftIds(bestScore = 0, policy = {}) {
   const normalizedScore = normalizeScore(bestScore);
   return AIRCRAFT_CATALOG
-    .filter((definition) => definition.unlockBestScore <= normalizedScore)
+    .filter((definition) => isTemporaryAircraftUnlock(policy) || definition.unlockBestScore <= normalizedScore)
     .map((definition) => definition.id);
 }
 
-export function isAircraftUnlocked(id, bestScore = 0) {
-  return getUnlockedAircraftIds(bestScore).includes(getAircraftDefinition(id).id)
+export function isAircraftUnlocked(id, bestScore = 0, policy = {}) {
+  return getUnlockedAircraftIds(bestScore,policy).includes(getAircraftDefinition(id).id)
     && getAircraftDefinition(id).id === id;
 }
 
-export function canSelectAircraft(id,{guestMode=false,bestScore=0}={}){
-  return AIRCRAFT_CATALOG.some(craft=>craft.id===id) && (guestMode ? id==='default' : isAircraftUnlocked(id,bestScore));
+export function canSelectAircraft(id,{guestMode=false,bestScore=0,...policy}={}){
+  return AIRCRAFT_CATALOG.some(craft=>craft.id===id) && (isTemporaryAircraftUnlock(policy) || (guestMode ? id==='default' : isAircraftUnlocked(id,bestScore,policy)));
 }

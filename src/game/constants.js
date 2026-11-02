@@ -18,6 +18,8 @@ export const SPEED_TRANSITION_SECONDS = 2;
 export const PAUSE_SCORE_PENALTY = 10;
 
 export const BASE_SCROLL_SPEED = 240;
+export const FIRST_BOSS_WALL_COUNT = 20;
+export const REPEAT_BOSS_WALL_COUNT = 15;
 export const SPEED_STEP_SCORE_POINTS = 10;
 export const SPEED_STEP_INCREMENT = 10;
 export const SPEED_CAP_SCORE = 220;

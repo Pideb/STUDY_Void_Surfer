@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {createGameEngine} from '../../src/game/game-engine.js';
+import {createGameEngine} from "../helpers/engine-fixtures.js";
 
 describe('captured boss background travel',()=>{
   it.each([0,.4,.9])('keeps background constant for boss pattern roll%s',roll=>{

@@ -10,7 +10,7 @@ import {
 describe('aircraft catalog', () => {
   it('keeps guest availability independent of account thresholds',()=>{
     for(const bestScore of [0,50,100,10000]){
-      expect(AIRCRAFT_CATALOG.filter(craft=>canSelectAircraft(craft.id,{guestMode:true,bestScore})).map(craft=>craft.id)).toEqual(['default']);
+      expect(AIRCRAFT_CATALOG.filter(craft=>canSelectAircraft(craft.id,{guestMode:true,bestScore})).map(craft=>craft.id)).toEqual(['default','aegis','velocity']);
     }
     expect(canSelectAircraft('unknown',{guestMode:true})).toBe(false);
     expect(canSelectAircraft('aegis',{bestScore:50})).toBe(true);
@@ -36,8 +36,8 @@ describe('aircraft catalog', () => {
   });
 
   it('unlocks default, then aegis, then velocity by account best score', () => {
-    expect(getUnlockedAircraftIds(-10)).toEqual(['default']);
-    expect(getUnlockedAircraftIds(50)).toEqual(['default', 'aegis']);
+    expect(getUnlockedAircraftIds(-10,{temporaryUnlock:false})).toEqual(['default']);
+    expect(getUnlockedAircraftIds(50,{temporaryUnlock:false})).toEqual(['default', 'aegis']);
     expect(getUnlockedAircraftIds(100)).toEqual(['default', 'aegis', 'velocity']);
   });
 
@@ -51,3 +51,5 @@ describe('aircraft catalog', () => {
     expect(Object.isFrozen(getAircraftDefinition('default'))).toBe(true);
   });
 });
+
+it("restores original access at base0.3 without numeric parsing",async()=>{const {getAircraftAccess}=await import("../../src/game/feedback-policy.js");expect(getAircraftAccess({guestMode:true,versionBase:"0.2"}).allowedIds).toHaveLength(3);expect(getAircraftAccess({guestMode:true,versionBase:"0.3"}).allowedIds).toEqual(["default"]);expect(getAircraftAccess({bestScore:50,versionBase:"0.3"}).allowedIds).toEqual(["default","aegis"]);});

@@ -28,6 +28,7 @@ export function createObstacle({
   gapMotionCycleSeconds = null,
   showTimingGuide = false,
   stageId = null,
+  encounterCycleId = null,
   rng = Math.random,
 }) {
   if (!id) {
@@ -72,6 +73,7 @@ export function createObstacle({
     showTimingGuide: normalizedKind !== 'normal' && Boolean(showTimingGuide),
     timingGuideWidthPx: null,
     stageId: typeof stageId === 'string' && stageId.length > 0 ? stageId : null,
+    encounterCycleId: Number.isInteger(encounterCycleId) && encounterCycleId > 0 ? encounterCycleId : null,
     visualSeed: Number(rng()) || 0,
     passed: false,
   };

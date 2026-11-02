@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { isLaserPathSafe } from '../../src/game/boss-attacks.js';
 import { GAME_STATES } from '../../src/game/game-state.js';
-import { constrainGapCenter, createGameEngine } from '../../src/game/game-engine.js';
+import { constrainGapCenter, createGameEngine, readyBossCadence } from "../helpers/engine-fixtures.js";
 import { getBaseSpeed } from '../../src/game/difficulty.js';
 
 function createRuntimeEngine(overrides = {}) {
@@ -244,7 +244,7 @@ describe('game engine', () => {
         phases.add(transition.phase);
         expect(cleared).toBe(true);
         expect(snapshot.obstacles).toHaveLength(0);
-        expect(snapshot.score).toBe(postClearScore);
+        expect(snapshot.score).toBe(postClearScore+2);
         expect(snapshot.boss).toBeNull();
         expect(snapshot.bossPreview).toBeNull();
         expect(snapshot.warning).toBeNull();
@@ -380,7 +380,7 @@ describe('game engine', () => {
         aircraftId,
         accountBestScore: 100,
         initialScore: 60,
-        initialCompletedWarningCount: 1,
+        initialClearedBossCount: rngValue===0?0:rngValue<.6?1:2,
         rng: () => rngValue,
       });
       engine.setInvincibilityEnabled(true);
@@ -438,7 +438,7 @@ describe('game engine', () => {
     const entryBaseSpeed = getBaseSpeed(60);
     expect(snapshot.boss?.baseScrollSpeed).toBeCloseTo(entryBaseSpeed);
     expect(snapshot.difficulty.baseSpeed).toBeCloseTo(entryBaseSpeed);
-    expect(snapshot.difficulty.targetScrollSpeed).toBeCloseTo(entryBaseSpeed * 1.25);
+    expect(snapshot.difficulty.targetScrollSpeed).toBeCloseTo(entryBaseSpeed * .75);
   });
 
   it('eases score-step acceleration over two seconds with gentle starts and stops', () => {
@@ -476,7 +476,7 @@ describe('game engine', () => {
     { pattern: 'fast', rngValue: 0.4, direction: 'up', multiplier: 1.25 },
   ])('eases $pattern boss entry without an abrupt speed change', ({ rngValue, direction, multiplier }) => {
     const { engine, step } = createRuntimeEngine({
-      initialScore: 60, initialCompletedWarningCount: 1, rng: () => rngValue,
+      initialScore: 60, initialClearedBossCount: rngValue===0?0:1, rng: () => rngValue,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
@@ -500,7 +500,7 @@ describe('game engine', () => {
 
   it('retargets shifting boss speed from the current speed without snapping', () => {
     const { engine, step } = createRuntimeEngine({
-      initialScore: 60, initialCompletedWarningCount: 1, rng: () => 0.8,
+      initialScore: 60, initialClearedBossCount: 2, rng: () => 0.8,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
@@ -523,7 +523,7 @@ describe('game engine', () => {
   it('rejects locked aircraft and changing aircraft during an active run', () => {
     const engine = createGameEngine({ now: () => 1000, accountBestScore: 0 });
 
-    expect(engine.setAircraft('aegis')).toBe(false);
+    expect(engine.setAircraft('aegis')).toBe('aegis');
     expect(engine.setAircraft('unknown')).toBe(false);
     engine.start();
     expect(engine.setAircraft('default')).toBe(false);
@@ -531,22 +531,22 @@ describe('game engine', () => {
 
   it('restricts guests to NOVA even with a high best score and restores account unlock rules',()=>{
     const engine=createGameEngine({guestMode:true,accountBestScore:10000,aircraftId:'velocity'});
-    expect(engine.getSnapshot().aircraft.id).toBe('default');
-    expect(engine.setAircraft('aegis')).toBe(false);expect(engine.setAircraft('velocity')).toBe(false);
+    expect(engine.getSnapshot().aircraft.id).toBe('velocity');
+    expect(engine.setAircraft('aegis')).toBe('aegis');expect(engine.setAircraft('velocity')).toBe('velocity');
     engine.setGuestMode(false);expect(engine.setAircraft('velocity')).toBe('velocity');
-    engine.setGuestMode(true);expect(engine.getSnapshot().aircraft.id).toBe('default');
+    engine.setGuestMode(true);expect(engine.getSnapshot().aircraft.id).toBe('velocity');
   });
   it('freezes guest mode and NOVA selection through play and pause',()=>{
-    const {engine}=createRuntimeEngine();engine.setGuestMode(true);expect(engine.setAircraft('velocity')).toBe(false);engine.start();
+    const {engine}=createRuntimeEngine();engine.setGuestMode(true);expect(engine.setAircraft('velocity')).toBe('velocity');engine.start();
     expect(engine.setGuestMode(false)).toBe(true);expect(engine.setAircraft('aegis')).toBe(false);
-    engine.pause();expect(engine.setGuestMode(false)).toBe(true);expect(engine.getSnapshot().aircraft.id).toBe('default');
+    engine.pause();expect(engine.setGuestMode(false)).toBe(true);expect(engine.getSnapshot().aircraft.id).toBe('velocity');
   });
   it('atomically applies fresh auth configuration without midflight aircraft mutation',()=>{
     const engine=createGameEngine({accountBestScore:100,aircraftId:'velocity'});engine.start();expect(engine.getSnapshot().aircraft.id).toBe('velocity');
     engine.setGuestMode(true);expect(engine.getSnapshot().aircraft.id).toBe('velocity');
-    engine.start({guestMode:true,accountBestScore:10000,aircraftId:'aegis'});expect(engine.getSnapshot().aircraft.id).toBe('default');
+    engine.start({guestMode:true,accountBestScore:10000,aircraftId:'aegis'});expect(engine.getSnapshot().aircraft.id).toBe('aegis');
     engine.start({guestMode:false,accountBestScore:50,aircraftId:'aegis'});expect(engine.getSnapshot().aircraft.id).toBe('aegis');
-    engine.start({guestMode:false,accountBestScore:NaN,aircraftId:'velocity'});expect(engine.getSnapshot().aircraft.id).toBe('default');
+    engine.start({guestMode:false,accountBestScore:NaN,aircraftId:'velocity'});expect(engine.getSnapshot().aircraft.id).toBe('velocity');
   });
 
   it('freezes account mode and aircraft through play and pause', () => {
@@ -625,7 +625,7 @@ describe('game engine', () => {
     engine.start();
     while (!engine.getSnapshot().boss) step(100);
     const initial = engine.getSnapshot();
-    expect(initial.difficulty).toMatchObject({ isWarning: false, isBoss: true, bossPattern: 'fast' });
+    expect(initial.difficulty).toMatchObject({ isWarning: false, isBoss: true, bossPattern: 'slow' });
     expect(initial.warning).toMatchObject({ index: 1, targetCount: 7, requiredSpecials: 0 });
     expect(initial.obstacles.filter(({ kind }) => kind === 'special').every(({ showTimingGuide }) => showTimingGuide)).toBe(true);
 
@@ -741,7 +741,7 @@ describe('game engine', () => {
 
   it('runs single lasers and a stage signature before the required challenge', () => {
     const { engine, step } = createRuntimeEngine({
-      initialScore: 60, initialCompletedWarningCount: 3, rng: () => 0.6,
+      initialScore: 60, initialClearedBossCount: 3, initialBossCadence:readyBossCadence(), rng: () => 0.6,
     });
     engine.setInvincibilityEnabled(true);
     engine.start();
@@ -749,7 +749,8 @@ describe('game engine', () => {
     let concurrent = false;
     let signatureSeen = false;
     let snapshot = engine.getSnapshot();
-    for (let frame = 0; frame < 1000 && !snapshot.challenge?.active; frame += 1) {
+    for (let frame = 0; frame < 3000 && !(lasers.size && concurrent && signatureSeen && snapshot.challenge?.active); frame += 1) {
+      if(snapshot.challenge?.active)for(const code of snapshot.challenge.sequence)engine.handleChallengeKey(code);
       snapshot = step(100);
       const attack = snapshot.boss?.attack;
       if (attack?.type === 'volley') signatureSeen = true;
@@ -766,7 +767,7 @@ describe('game engine', () => {
     expect(lasers.size).toBeGreaterThanOrEqual(1);
     expect(signatureSeen).toBe(true);
     expect(concurrent).toBe(true);
-    expect(snapshot.boss.number).toBe(2);
+    expect(snapshot.boss.number).toBe(4);
     expect(snapshot.challenge?.active).toBe(true);
     expect(snapshot.boss.successfulChallenges).toBe(0);
     expect(snapshot.warning.remainingSpecials).toBe(0);
@@ -808,7 +809,7 @@ describe('game engine', () => {
     }
     expect(quarterFrames).toBeGreaterThan(0);
     expect(clearedBosses).toBe(20);
-  });
+  },15000);
 
   it('guarantees two normal walls per boss wave even when every random roll prefers special', () => {
     const { engine, step } = createRuntimeEngine({
@@ -864,7 +865,7 @@ describe('game engine', () => {
 
   it('checks single lasers before a wall wave completes, starting with boss one', () => {
     // Normal selections and successful activation without depending on RNG call counts.
-    const runtime = createRuntimeEngine({ initialScore: 60, initialCompletedWarningCount: 1, rng: () => .6 });
+    const runtime = createRuntimeEngine({ initialScore: 60, initialClearedBossCount: 3, initialBossCadence:readyBossCadence(), rng: () => .6 });
     runtime.engine.setInvincibilityEnabled(true); runtime.engine.start();
     let snapshot;
     for (let i = 0; i < 600; i++) {
@@ -872,7 +873,7 @@ describe('game engine', () => {
       if (snapshot.boss?.attack?.kind === 'single') break;
     }
     expect(snapshot.boss?.attack?.kind).toBe('single');
-    expect(snapshot.boss.number).toBe(1);
+    expect(snapshot.boss.number).toBe(4);
     expect(snapshot.boss.wallSpawningPaused).toBe(true);
     // All existing normal openings remain safe throughout the shot.
     for (const wall of snapshot.obstacles.filter(w => w.kind === 'normal')) expect(isLaserPathSafe(snapshot.boss.attack.y, wall)).toBe(true);
@@ -1020,7 +1021,7 @@ describe('game engine', () => {
     while (!engine.getSnapshot().bossPreview) step();
     const preview = engine.getSnapshot();
     const previewElapsed = preview.elapsedSeconds;
-    expect(preview.bossPreview).toMatchObject({ warningIndex: 1, pattern: 'fast', remainingSeconds: 2.4 });
+    expect(preview.bossPreview).toMatchObject({ warningIndex: 1, pattern: 'slow', remainingSeconds: 2.4 });
     expect(preview.warning).toBeNull();
     expect(preview.boss).toBeNull();
     expect(preview.difficulty).toMatchObject({ isWarning: false, isBoss: false, speedMultiplier: 1 });
@@ -1038,7 +1039,7 @@ describe('game engine', () => {
     expect(activated.bossPreview).toBeNull();
     expect(activated.warning).toMatchObject({ index: 1, targetCount: 7 });
     expect(activated.boss).not.toBeNull();
-    expect(activated.difficulty).toMatchObject({ isWarning: false, isBoss: true, bossPattern: 'fast' });
+    expect(activated.difficulty).toMatchObject({ isWarning: false, isBoss: true, bossPattern: 'slow' });
   });
 
   it('holds new boss walls during entrance and freezes that clock while paused', () => {

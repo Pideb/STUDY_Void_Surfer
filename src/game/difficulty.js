@@ -21,7 +21,8 @@ export function getBaseSpeed(progressionScore, aircraftId = 'default') {
   return BASE_SCROLL_SPEED + SPEED_STEP_INCREMENT * Math.floor(cappedScore / SPEED_STEP_SCORE_POINTS)
     / aircraft.scrollSpeedMultiplier;
 }
-export function chooseBossPattern(rng = Math.random) {
+export function chooseBossPattern(rng = Math.random, bossNumber = null) {
+  if(bossNumber>=1&&bossNumber<=3)return [BOSS_PATTERNS.SLOW,BOSS_PATTERNS.FAST,BOSS_PATTERNS.SHIFT][bossNumber-1];
   const patterns = Object.values(BOSS_PATTERNS);
   return patterns[Math.floor(roll(rng) * patterns.length)];
 }
@@ -44,15 +45,15 @@ export function getBossWallRules(bossNumber) {
     minSpecials: first ? 0 : BOSS_MIN_SPECIALS,
     timingWindowSeconds: NORMAL_TIMING_WINDOW_SECONDS };
 }
-export function getDifficulty(score, elapsedSeconds, completedBossCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score, firstBossCleared = false, aircraftId = 'default') {
+export function getDifficulty(score, elapsedSeconds, completedBossCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score, firstBossCleared = false, aircraftId = 'default', context = null) {
   const safeScore = normalizeScore(score);
   const activeBossNumber = normalizeBossCount(completedBossCount) + 1;
   const warningThreshold = normalizeScore(nextWarningScore);
   // Standalone WARNING is archived for a future redesign; every threshold now
   // starts a real boss. The legacy warningIndex field is the actual boss number.
   const isWarning = false;
-  const isBoss = safeScore >= warningThreshold;
-  const bossPattern = isBoss ? (bossPatternOverride ?? chooseBossPattern(rng)) : null;
+  const isBoss = context ? Boolean(context.bossActive) : safeScore >= warningThreshold;
+  const bossPattern = isBoss ? (bossPatternOverride ?? chooseBossPattern(rng,activeBossNumber)) : null;
   const speedMultiplier = isBoss ? getBossSpeedMultiplier(bossPattern, elapsedSeconds) : 1;
   const warningMode = isWarning || isBoss;
   const wallRules = getBossWallRules(activeBossNumber);

@@ -1,5 +1,6 @@
 import { AMBIENT_LASER_UNLOCK_BOSSES, AMBIENT_LASER_INTERVAL_SECONDS, AMBIENT_LASER_CHANCE } from './constants.js';
 import { createBossPatternRound } from './boss-patterns.js';
+import {createBossCadence,canSpawnNormalWall,recordNormalWallSpawn,recordNormalWallPass} from './boss-cadence.js';
 import { createUniqueAttack, updateUniqueAttack } from './boss-unique-attacks.js';
 import {
   BOSS_OBSTACLE_COUNT,
@@ -132,6 +133,7 @@ export function createGameEngine(deps = {}) {
   let nextObstacleId = 1;
   let spawnAccumulatorSeconds = 0;
   let clearedBossCount = 0;
+  let bossCadence = createBossCadence();
   let ambientLaserElapsedSeconds = 0;
   let ambientAttack = null;
   let warningSession = null;
@@ -167,7 +169,7 @@ export function createGameEngine(deps = {}) {
     if (!warningSession) {
       const warningThreshold = bossEntry || bossPreview || pendingStageAdvance || stageTransition
         ? Number.MAX_SAFE_INTEGER : nextWarningScore;
-      const base = getDifficulty(getScore(), elapsedSeconds, clearedBossCount, rng, null, warningThreshold, scoreSession.progressionScore, firstBossCleared, aircraft.id);
+      const base = getDifficulty(getScore(), elapsedSeconds, clearedBossCount, rng, null, warningThreshold, scoreSession.progressionScore, firstBossCleared, aircraft.id, {bossActive:false});
       return applyAircraftDifficulty(base);
     }
 
@@ -176,7 +178,7 @@ export function createGameEngine(deps = {}) {
       elapsedSeconds,
       clearedBossCount,
       rng,
-      warningSession.bossPattern, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id,
+      warningSession.bossPattern, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id, {bossActive:warningSession.isBoss},
     );
     const speedMultiplier = warningSession.isBoss
       ? getBossSpeedMultiplier(
@@ -293,16 +295,17 @@ export function createGameEngine(deps = {}) {
   function startWarningIfNeeded() {
     if (warningSession || bossEntry || bossPreview || stageTransition || pendingStageAdvance) return;
 
-    const candidate = getDifficulty(getScore(), elapsedSeconds, clearedBossCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id);
-    if (!candidate.isBoss) return;
+    if(bossCadence.phase!=='draining')return;
+    const candidate = getDifficulty(getScore(), elapsedSeconds, clearedBossCount, rng, null, nextWarningScore, scoreSession.progressionScore, firstBossCleared, aircraft.id,{bossActive:true});
     bossEntry = {
       phase: 'draining', elapsedSeconds: 0,
       warningIndex: candidate.warningIndex,
-      pattern: candidate.bossPattern ?? chooseBossPattern(rng),
+      pattern: candidate.bossPattern ?? chooseBossPattern(rng,clearedBossCount+1),
     };
   }
 
   function beginWarningSession(warningIndex, isBoss, bossPattern) {
+    bossCadence.phase='boss';
     warningSession = {
       index: warningIndex,
       isBoss,
@@ -444,6 +447,8 @@ export function createGameEngine(deps = {}) {
     });
 
     obstacle.bossNumber = session?.isBoss ? bossEncounter.number : null;
+    if(!session&&!pendingStageAdvance){obstacle.encounterCycleId=bossCadence.cycleId;recordNormalWallSpawn(bossCadence,obstacle.id);}
+    if(pendingStageAdvance)pendingStageAdvance.extraSpawned++;
     obstacles.push(obstacle);
     if (isDashObstacle(obstacle)) lastSpecialBarrierWorldX = totalScrollDistancePx + getDashBarrierBounds(obstacle).x;
     previousBaseGapCenter = obstacle.baseGapCenter;
@@ -462,6 +467,7 @@ export function createGameEngine(deps = {}) {
       * aircraft.spawnIntervalMultiplier;
 
     while (spawnAccumulatorSeconds >= interval
+      && (warningSession || (pendingStageAdvance ? pendingStageAdvance.extraSpawned<2 : canSpawnNormalWall(bossCadence)))
       && (!warningSession || warningSession.spawnedCount < warningSession.targetCount)) {
       spawnAccumulatorSeconds -= interval;
       if (!spawnObstacle(activeDifficulty)) {
@@ -529,6 +535,7 @@ export function createGameEngine(deps = {}) {
         obstacle.timingGuideWidthPx = displayedDifficulty.scrollSpeed * displayedDifficulty.timingWindowSeconds;
       }
       obstacle.passed = true;
+      if(obstacle.encounterCycleId===bossCadence.cycleId)recordNormalWallPass(bossCadence,obstacle.id);
       const wasBossWall = obstacle.bossNumber !== null && obstacle.bossNumber !== undefined;
       if (!warningSession?.isBoss && !wasBossWall) advanceScore(scoreSession, obstacle.id);
       // Boss walls still resolve the wave even though they no longer award points.
@@ -577,6 +584,9 @@ export function createGameEngine(deps = {}) {
     nextObstacleId = 1;
     spawnAccumulatorSeconds = NORMAL_SPAWN_INTERVAL_SECONDS * aircraft.spawnIntervalMultiplier;
     clearedBossCount = initialClearedBossCount;
+    bossCadence=createBossCadence(deps.initialBossCadence?.target??20,deps.initialBossCadence?.cycleId??1);
+    for(const id of deps.initialBossCadence?.spawnedIds??[])recordNormalWallSpawn(bossCadence,id);
+    for(const id of deps.initialBossCadence?.passedIds??[])recordNormalWallPass(bossCadence,id);
     ambientLaserElapsedSeconds = 0;
     ambientAttack = null;
     warningSession = null;
@@ -628,12 +638,13 @@ export function createGameEngine(deps = {}) {
 
   function advanceStage() {
     const previous = getStageState();
+    bossCadence.phase='transition';
     const wraps = stageIndex + 1 >= stageOrder.length;
     const order = wraps ? createStageShuffleBag(stageRng, previous.definition.id) : stageOrder;
     const index = wraps ? 0 : stageIndex + 1;
     const next = getStageDefinition(order[index]);
     pendingStageAdvance = {
-      order, index, fromStageId: previous.definition.id, destinationStageId: next.id,
+      order, index, extraSpawned:0, fromStageId: previous.definition.id, destinationStageId: next.id,
       fromKey: getActiveBackgroundKey(previous.definition, previous.mode),
       toKey: next.backgroundKey,
     };
@@ -642,7 +653,7 @@ export function createGameEngine(deps = {}) {
 
   function updateStage(deltaSeconds, scrollSpeed) {
     stageElapsedSeconds += deltaSeconds;
-    if (pendingStageAdvance && !stageTransition && obstacles.length === 0 && !ambientAttack) {
+    if (pendingStageAdvance && pendingStageAdvance.extraSpawned>=2 && !stageTransition && obstacles.length === 0 && !ambientAttack) {
       stageTransition = createPortalTransition({ ...pendingStageAdvance, crossingX: player.x });
     }
     if (stageTransition) {
@@ -657,7 +668,7 @@ export function createGameEngine(deps = {}) {
       if (stageTransition.phase === 'complete') {
         // Begin the new interval after arriving, excluding the clear reward and
         // accounting for any pause deduction during the portal, not at its swap.
-        nextWarningScore = getScore() + chooseBossReentryScoreStep(rng);
+        bossCadence=createBossCadence(15,bossCadence.cycleId+1);
         stageTransition = null;
       }
     }
@@ -766,7 +777,7 @@ export function createGameEngine(deps = {}) {
   }
 
   function scheduleAmbientLaser(deltaSeconds) {
-    if (clearedBossCount < AMBIENT_LASER_UNLOCK_BOSSES || ambientAttack || bossEncounter || bossEntry || bossPreview
+    if (bossCadence.phase!=='normal' || clearedBossCount < AMBIENT_LASER_UNLOCK_BOSSES || ambientAttack || bossEncounter || bossEntry || bossPreview
       || stageTransition || pendingStageAdvance || challenge?.active) return;
     ambientLaserElapsedSeconds += deltaSeconds;
     if (ambientLaserElapsedSeconds + 1e-9 < AMBIENT_LASER_INTERVAL_SECONDS) return;
@@ -984,7 +995,7 @@ export function createGameEngine(deps = {}) {
       spawnAccumulatorSeconds = Math.max(0, interval - deltaSeconds);
     }
     difficulty = getCurrentDifficulty();
-    if (stageTransition || pendingStageAdvance || bossEntry || ambientAttack) spawnAccumulatorSeconds = 0;
+    if (stageTransition || bossEntry || ambientAttack) spawnAccumulatorSeconds = 0;
     else if (bossEncounter?.entranceRemainingSeconds > 0) spawnAccumulatorSeconds = 0;
     else if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();
@@ -1203,6 +1214,7 @@ export function createGameEngine(deps = {}) {
       } : null,
       challenge: challenge ? { ...challenge, sequence: [...challenge.sequence] } : null,
       playerRecovery: { ...playerRecovery },
+      bossCadence: {target:bossCadence.target,cycleId:bossCadence.cycleId,phase:bossCadence.phase,spawnedCount:bossCadence.spawnedIds.size,passedCount:bossCadence.passedIds.size},
       feedbackEffect: feedbackEffect ? { ...feedbackEffect } : null,
       player: { ...player },
       flightTrail: flightTrail.map((point) => ({ ...point })),

@@ -1,12 +1,12 @@
 import {describe,it,expect} from 'vitest';
-import {createGameEngine} from '../../src/game/game-engine.js';
+import {createGameEngine} from "../helpers/engine-fixtures.js";
 import {getDashBarrierBounds,isDashObstacle} from '../../src/game/obstacles.js';
 
 const cases=['default','aegis','velocity'].flatMap(aircraft=>[60,150].flatMap(score=>[.1,.5,.9].map(roll=>[aircraft,score,roll])));
 describe('dash, mixed walls and distributed boss cycles',()=>{
   it.each(cases)('%s score=%s pattern-roll=%s completes retries, clears and portals without losing spacing',(aircraftId,initialScore,roll)=>{
     let time=0;const engine=createGameEngine({now:()=>time,gravity:0,rng:()=>roll,stageRng:()=>.5,
-      aircraftId,guestMode:false,accountBestScore:100,initialScore,initialCompletedWarningCount:1,invincibilityEnabled:true});
+      aircraftId,guestMode:false,accountBestScore:100,initialScore,initialClearedBossCount:2,invincibilityEnabled:true});
     engine.start();let snapshot=engine.getSnapshot(),clears=0,portals=0,failed=false,lastPass=null;
     const seenPasses=new Set(),volleyIds=new Map(),checkedCycles=new Set();
     let specialOverlap=false,roarTicks=0;

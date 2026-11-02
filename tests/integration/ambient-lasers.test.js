@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {createGameEngine} from '../../src/game/game-engine.js';
+import {createGameEngine} from "../helpers/engine-fixtures.js";
 import {isLaserPathSafe} from '../../src/game/boss-attacks.js';
 function setup(extra={}){
   let time=0,roll=.6;const engine=createGameEngine({now:()=>time,gravity:0,rng:()=>roll,initialScore:10,initialCompletedWarningCount:4,invincibilityEnabled:true,...extra});engine.start();

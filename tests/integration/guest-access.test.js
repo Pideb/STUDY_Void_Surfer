@@ -1,5 +1,5 @@
 import {describe,it,expect,vi} from 'vitest';
-import {createGameEngine} from '../../src/game/game-engine.js';
+import {createGameEngine} from "../helpers/engine-fixtures.js";
 import {createAppController} from '../../src/ui/app-controller.js';
 import {GUEST_RECORD_STORAGE_KEY} from '../../src/services/guest-record-service.js';
 const settle=async()=>{for(let i=0;i<15;i++)await Promise.resolve();};
@@ -18,9 +18,9 @@ describe('real guest aircraft access across auth and new runs',()=>{
       expect(engine.getSnapshot().aircraft.id).toBe('velocity');controller.dispatch('PAUSE');controller.dispatch('RETURN_TO_MENU');
       [...root.querySelectorAll('button')].find(button=>button.textContent==='로그아웃').click();await settle();
       expect(root.querySelector('.menu-aircraft-preview').getAttribute('aria-label')).toContain('NOVA');
-      controller.dispatch('OPEN_HANGAR');expect([...root.querySelectorAll('.aircraft-option')].map(b=>b.disabled)).toEqual([false,true,true]);expect(root.querySelector('.hangar-best-score')).toBeNull();
+      controller.dispatch('OPEN_HANGAR');expect([...root.querySelectorAll('.aircraft-option')].map(b=>b.disabled)).toEqual([false,false,false]);expect(root.querySelector('.hangar-best-score')).toBeNull();
       controller.dispatch({type:'SELECT_AIRCRAFT',aircraftId:'velocity'});controller.dispatch('RETURN_TO_MENU');controller.dispatch('START_GAME_FROM_MENU');controller.dispatch('START_PLAYING');
-      expect(engine.getSnapshot().aircraft.id).toBe('default');controller.dispatch('GAME_OVER');await settle();
+      expect(engine.getSnapshot().aircraft.id).toBe('velocity');controller.dispatch('GAME_OVER');await settle();
       expect(leaderboardService.submitBestScore).not.toHaveBeenCalled();expect(leaderboardService.fetchPlayerNeighborhood).not.toHaveBeenCalled();expect(localStorage.getItem(GUEST_RECORD_STORAGE_KEY)).toBeNull();
     }finally{controller.destroy();root.remove();canvas.remove();raf.mockRestore();cancel.mockRestore();localStorage.removeItem('unrelated-setting');}
   });

@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {createGameEngine} from '../../src/game/game-engine.js';
+import {createGameEngine} from "../helpers/engine-fixtures.js";
 
 describe('deferred run simulation',()=>{
   it('freezes every game clock/input without a pause deduction and begins the same run once',()=>{

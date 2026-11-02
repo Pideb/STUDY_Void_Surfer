@@ -2,7 +2,9 @@ import { createButton, createIconButton, createPanel } from './components.js';
 import { AIRCRAFT_CATALOG } from '../game/aircraft.js';
 import { renderLeaderboardPanel, renderPilotRankingTable } from './leaderboard-view.js';
 import { VISUAL_ASSET_MANIFEST } from '../game/visual-assets.js';
-import releases from '../../docs/management/releases.json';
+import releases from '../../docs/management/releases.json' with { type: 'json' };
+import {getAircraftAccess} from '../game/feedback-policy.js';
+import {getDisplayVersion} from '../lib/release-version.js';
 
 export function renderPreparingScreen(_model, handlers) {
   const panel = createPanel('출격 준비 중');
@@ -182,7 +184,7 @@ export function renderMenuScreen(model, handlers) {
   }
   menu.append(brand, aircraftPreview, actions, accountActions);
   const version = document.createElement('small');
-  version.className = 'menu-version';version.textContent = `v${releases.currentVersion}`;
+  version.className = 'menu-version';version.textContent = `v${getDisplayVersion(releases.currentVersion,releases)}`;
   menu.append(version);
   if (model.adminDialogOpen) {
     menu.append(renderAdminSettingsDialog(model, {
@@ -211,10 +213,12 @@ export function renderHangarScreen({ aircraft = [], selectedAircraftId = 'defaul
   screen.append(heading);
   if(!guestMode)screen.append(score);
   if (error) {
-    const status = createMessage('최고 기록을 불러오지 못해 기본 기체만 사용할 수 있습니다.', 'screen-message');
+    const status = createMessage(getAircraftAccess().temporary?'최고 기록을 불러오지 못했습니다. 임시 해금 기체는 계속 사용할 수 있습니다.':'최고 기록을 불러오지 못해 기본 기체만 사용할 수 있습니다.', 'screen-message');
     status.setAttribute('role', 'status');
     screen.append(status);
   }
+  const access=getAircraftAccess({guestMode,bestScore});
+  if(access.notice)screen.append(createMessage(access.notice,'temporary-unlock-notice'));
 
   const list = document.createElement('div');
   list.className = 'hangar-aircraft-list';

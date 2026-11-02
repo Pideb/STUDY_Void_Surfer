@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {createGameEngine} from '../../src/game/game-engine.js';
+import {createGameEngine} from "../helpers/engine-fixtures.js";
 import {isDashObstacle} from '../../src/game/obstacles.js';
 
 describe('distributed signature budgets with unrestricted special-wall overlap',()=>{

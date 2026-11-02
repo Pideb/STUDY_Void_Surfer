@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createGameEngine } from '../../src/game/game-engine.js';
+import { createGameEngine } from "../helpers/engine-fixtures.js";
 import { getBaseSpeed } from '../../src/game/difficulty.js';
 
 describe('approved boss evolution across complete stage cycles', () => {

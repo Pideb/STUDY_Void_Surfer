@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createGameEngine } from '../../src/game/game-engine.js';
+import { createGameEngine } from "../helpers/engine-fixtures.js";
 import { createStageShuffleBag, STAGE_CATALOG } from '../../src/game/stages.js';
 
 const stages = new Map();

@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 import {createBossPatternRound} from '../../src/game/boss-patterns.js';
-import {createGameEngine} from '../../src/game/game-engine.js';
+import {createGameEngine} from "../helpers/engine-fixtures.js";
 
 describe('shuffled complete boss rounds',()=>{
   it('includes every eligible block and permits every first position',()=>{

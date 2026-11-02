@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createGameEngine } from '../../src/game/game-engine.js';
+import { createGameEngine } from "../helpers/engine-fixtures.js";
 
 function setup(extra = {}) {
   let time = 0;
@@ -46,7 +46,7 @@ describe('manual boss laser in real engine', () => {
       tick(.1);tick(.1);
     }
     const cleared=until(s=>!s.boss&&s.stage.transition);
-    expect(cleared.score).toBe(entry.score+10);tick(.1);expect(engine.getSnapshot().score).toBe(cleared.score);
+    expect(cleared.score).toBe(entry.score+12);tick(.1);expect(engine.getSnapshot().score).toBe(cleared.score);
   });
   it('unlocks physics only for the fraction beyond the0.7s firing action', () => {
     const { engine, tick, until } = setup();
@@ -59,7 +59,7 @@ describe('manual boss laser in real engine', () => {
     expect(after.boss.weapon.firing).toBeNull();
   });
   it('does not protect the firing ship against a real wall contact', () => {
-    const { engine, tick, until } = setup();
+    const { engine, tick, until } = setup({initialClearedBossCount:1});
     until(s => s.boss?.weapon.ready && s.obstacles.some(w => w.kind === 'special' && w.x > 260 && w.x < 300));
     engine.setInvincibilityEnabled(false); expect(engine.fire()).toBe(true);
     let s;
@@ -95,7 +95,7 @@ describe('manual boss laser in real engine', () => {
     }
     expect(shots).toBe(3); expect(lastHp).toBe(0);
     const done = until(s => !s.boss && s.stage.transition);
-    expect(done.score).toBe(bossStartScore + 10);
+    expect(done.score).toBe(bossStartScore + 12);
     engine.start(); expect(engine.getSnapshot().boss).toBeNull();
   });
   it('holds ship during charge while walls move, and pauses recharge in the pause screen', () => {

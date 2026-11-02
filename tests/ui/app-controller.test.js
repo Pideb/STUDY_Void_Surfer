@@ -343,9 +343,9 @@ describe('app controller product flow', () => {
     expect(harness.root.querySelector('.hangar-best-score')).toBeNull();
     const aircraftButtons = [...harness.root.querySelectorAll('.aircraft-option')];
     expect(aircraftButtons).toHaveLength(3);
-    expect(aircraftButtons.map(button=>button.disabled)).toEqual([false,true,true]);
+    expect(aircraftButtons.map(button=>button.disabled)).toEqual([false,false,false]);
     aircraftButtons.find((button) => button.getAttribute('aria-label').startsWith('VELOCITY')).click();
-    expect(harness.root.querySelector('.aircraft-option.is-selected')?.getAttribute('aria-label')).toContain('NOVA');
+    expect(harness.root.querySelector('.aircraft-option.is-selected')?.getAttribute('aria-label')).toContain('VELOCITY');
   });
 
   it('does not persist a guest run or transfer it after sign-in', async () => {
@@ -533,9 +533,9 @@ describe('app controller product flow', () => {
     harness.controller.mount();
     await settle();
     [...harness.root.querySelectorAll('button')].find((button) => button.textContent === '기체 선택').click();
-    expect(harness.root.textContent).toContain('기본 기체만 사용할 수 있습니다');
+    expect(harness.root.textContent).toContain('임시 해금 기체는 계속 사용할 수 있습니다');
     expect([...harness.root.querySelectorAll('.aircraft-option')].filter((button) => !button.disabled))
-      .toHaveLength(1);
+      .toHaveLength(3);
   });
 
   it('ignores a late best-score rejection after the authenticated account changes', async () => {
