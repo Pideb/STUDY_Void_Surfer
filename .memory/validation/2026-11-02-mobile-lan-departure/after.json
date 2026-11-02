@@ -1,0 +1,23 @@
+{
+  "origin": "http://172.30.1.24:5174",
+  "viewport": [
+    844,
+    390
+  ],
+  "mode": "after",
+  "departureElapsedMs": 579,
+  "environment": {
+    "secure": false,
+    "randomUUID": "undefined",
+    "getRandomValues": "function",
+    "version": "v0.2 · 개발"
+  },
+  "result": {
+    "frames": 10,
+    "preparing": false,
+    "hud": true,
+    "gameOver": false,
+    "screen": "playing"
+  },
+  "exceptions": []
+}

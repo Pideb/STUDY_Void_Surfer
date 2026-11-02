@@ -74,7 +74,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
   const canvas = document.createElement('canvas');
   const controller = createAppController({
     authService, leaderboardService, gameEngine, renderer, audioManager, root,
-    canvas,
+    canvas, playSessionTracker: leaderboard.playSessionTracker,
   });
   return {
     root, controller, authService, leaderboardService, gameEngine, renderer, audioManager,
@@ -88,6 +88,11 @@ async function settle() {
 
 describe('app controller product flow', () => {
   let harness;
+  it('leaves preparation even if both optional record creation and music startup throw',async()=>{
+    const tracker={flush:vi.fn(),begin:vi.fn(()=>{throw Error('Unsupported identity API');}),finish:vi.fn(),suspend:vi.fn(),resume:vi.fn(),destroy:vi.fn()};
+    harness=makeHarness({user:null,leaderboard:{playSessionTracker:tracker}});harness.audioManager.prepareGameplay=vi.fn(async()=>true);harness.audioManager.startPreparedGameplay=vi.fn(()=>{throw Error('Audio unavailable');});harness.controller.mount();await settle();harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');await settle();
+    expect(tracker.begin).toHaveBeenCalledOnce();expect(harness.root.querySelector('.preparing-screen')).toBeNull();expect(harness.root.querySelector('.game-hud')).not.toBeNull();expect(harness.frames.length).toBeGreaterThan(0);
+  });
   it('attempts on load once and keeps first input independent of a pending automatic request',async()=>{
     vi.spyOn(document,'readyState','get').mockReturnValue('loading');
     harness=makeHarness({user:null});harness.audioManager.tryAutoplay=vi.fn(()=>new Promise(()=>{}));harness.controller.mount();await settle();

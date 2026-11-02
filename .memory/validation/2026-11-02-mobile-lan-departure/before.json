@@ -1,0 +1,21 @@
+{
+  "origin": "http://172.30.1.24:5174",
+  "viewport": [
+    844,
+    390
+  ],
+  "mode": "before",
+  "environment": {
+    "secure": false,
+    "randomUUID": "undefined",
+    "getRandomValues": "function",
+    "version": "v0.2 · 개발"
+  },
+  "result": {
+    "preparing": true,
+    "hud": false,
+    "gameOver": false,
+    "screen": "preparing"
+  },
+  "exceptions": []
+}

@@ -798,12 +798,18 @@ export function createAppController(deps) {
       audioManager.resetRun?.(); setScreen('menu'); return;
     }
     state.snapshot = gameEngine.getSnapshot();
-    audioManager.startPreparedGameplay?.(request.sceneId);
+    try { audioManager.startPreparedGameplay?.(request.sceneId); }
+    catch { /* Optional audio cannot prevent an already prepared game starting. */ }
     finishDeparture();
   }
 
   function finishDeparture() {
-    if(playTracker&&!activeRun?.statsRunId){const statsRunId=playTracker.begin({ownerUserId:activeRun?.userId??null,version:releases.currentVersion,aircraftId:state.snapshot?.aircraft?.id??state.selectedAircraftId,isAdminTest:activeRun?.adminRun??false});activeRun=Object.freeze({...activeRun,statsRunId});}
+    if(playTracker&&!activeRun?.statsStarted){
+      let statsRunId=null;
+      try{statsRunId=playTracker.begin({ownerUserId:activeRun?.userId??null,version:releases.currentVersion,aircraftId:state.snapshot?.aircraft?.id??state.selectedAircraftId,isAdminTest:activeRun?.adminRun??false});}
+      catch{/* Optional record creation must never strand the preparing screen. */}
+      activeRun=Object.freeze({...activeRun,statsRunId,statsStarted:true});
+    }
     spaceHeld = false; fireHeld.clear();
     lastAttackId = null;
     lastAttackPhase = null;

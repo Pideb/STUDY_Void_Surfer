@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "sourceHead": "b0fc4a415ca183c99995f8ddd6eb42662b5cd236",
+  "sourceHashes": {
+    "src/lib/random-uuid.js": "2278ec113fc23ef18f2072bc0544624e9e6573839ed79151af4cb8326f73d0a8",
+    "src/services/play-session-tracker.js": "9896cbef410301036e97f9cd550f7e1c00e0425089d12ca7e35ed7c2c76bd7ae",
+    "src/ui/app-controller.js": "f240fb93485a1ed7dbd12a45e8c3c57671784b067b61d1c935fbaaefe14959f7"
+  },
+  "gameFingerprint": "6f17e7b5bf40c29b85faecf4c5e30a05bd9cb66c3315272196dd2d7be39c9e61",
+  "tests": {
+    "passed": 1370,
+    "files": 82
+  },
+  "build": "passed",
+  "configuration": "passed",
+  "productionVersion": "0.01-b",
+  "protectedSnapshotsUnchanged": true,
+  "realPhoneHardwareVerified": false,
+  "deploymentPerformed": false
+}

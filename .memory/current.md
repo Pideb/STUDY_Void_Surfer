@@ -1,7 +1,7 @@
 # Current Context
 
 ## Active Plan
-[Startup autoplay](./plans/2026-11-02-startup-autoplay.md)
+[Mobile LAN departure](./plans/2026-11-02-mobile-lan-departure.md)
 
 ## Active Phase
 None
@@ -10,7 +10,7 @@ None
 None
 
 ## Status
-Previous v0.2 plan19/19 complete. Startup autoplay follow-up1/1 complete. Local development label0.2, production remains0.01-b. NO push/deployment. Full1361 tests/build/config passed; browser default/allowed/production cases recorded.
+Mobile LAN departure1/1 complete. Real HTTP-LAN before/after and audio timeout verified. Full1370 tests/build/config passed. Prior plans complete. NO push/deployment; production0.01-b unchanged.
 
 ## Next Step (IMPORTANT)
-Await user local play feedback and deployment decision. See validation/2026-11-02-startup-autoplay/report.md. Browser autoplay blocks can require a first user gesture; do not promise unconditional audible autoplay. Remote DB gates from prior HANDOFF still apply.
+Await user phone refresh/play feedback and deployment decision. See validation/2026-11-02-mobile-lan-departure/report.md. Do not use weak random nonces; logging failure must not gate gameplay. Prior remote DB deployment gates remain.
