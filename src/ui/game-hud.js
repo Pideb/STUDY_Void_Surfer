@@ -96,7 +96,7 @@ export function createGameHud(model, handlers) {
     className: 'mobile-space-button',
     ariaLabel: '특수 벽 대시',
   });
-  mobileSpace.addEventListener('pointerdown', (event) => event.preventDefault());
+  mobileSpace.addEventListener('pointerdown', (event) => {event.preventDefault();event.stopPropagation();});
   const weaponHud = document.createElement('section');
   weaponHud.className = 'weapon-hud';
   weaponHud.hidden = true;

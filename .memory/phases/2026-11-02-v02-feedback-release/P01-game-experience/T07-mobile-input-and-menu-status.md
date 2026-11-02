@@ -2,7 +2,7 @@
 
 > 이 작업은 [v0.2 통합 결정](../../../decisions/2026-11-02-v02-feedback-release.md)에 포함된다. 아래 기존 게임·시각 결정 링크는 원래 승인 세부를 보존한다. 버전·임시 해금·첫3보스·회전·메뉴·기록에 관한 충돌은 v0.2 통합 결정이 우선한다.
 
-## Status: pending
+## Status: done
 
 ## Goal
 가로 모바일에서겹치지않는터치조작을제공하고위방향키상승·간결한출격대기·실제현재버전을표시한다.
@@ -60,9 +60,9 @@ submitChallengeKey(key:'W'|'A'|'S'|'D'):void;
 - 미실행 항목은 limitation으로 기록한다. 승인되지 않은 새 디자인/밸런스가 필요하면 기존 승인을 확대 해석하지 말고 증거를 제시한다.
 
 ## Acceptance Criteria
-- [ ] 375px높이가로모바일에서확정크기·배치가겹치지않고버튼중복상승없음.
-- [ ] ArrowUp상승과준비문구/현재버전표시가정확하다.
-- [ ] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
+- [x] 375px높이가로모바일에서확정크기·배치가겹치지않고버튼중복상승없음.
+- [x] ArrowUp상승과준비문구/현재버전표시가정확하다.
+- [x] 지정 검증 통과와 증거/제약 기록, 무관한 소스·계정·배포 변경 없음.
 
 ## Validation
 - `npm test -- --run tests/integration/mobile-input.test.js tests/ui/app-controller.test.js tests/ui/screens.test.js tests/ui/preparing-start.test.js tests/integration/prepared-run.test.js tests/audio/gameplay-preparation.test.js tests/ui/accessibility.test.js` — 종료코드0 및 대상 검증 통과.
@@ -81,6 +81,9 @@ Task: T07-mobile-input-and-menu-status
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- Vitest:7 files/92 tests passed. Browser bounds verified812x375/844x390/960x540:64px actions,56px keys/12px gaps, no offscreen controls; zero browser errors. Physical-device safe-area/multitouch remains final QA.

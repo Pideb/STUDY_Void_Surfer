@@ -13,7 +13,7 @@ describe('product flow screens', () => {
     expect(screen.classList.contains('screen-panel')).toBe(false);
     expect(screen.classList.contains('menu-overlay')).toBe(true);
     expect([...screen.children].map((child) => child.className)).toEqual([
-      'menu-brand', 'menu-aircraft-preview menu-aircraft-preview-default', 'menu-actions', 'account-actions',
+      'menu-brand', 'menu-aircraft-preview menu-aircraft-preview-default', 'menu-actions', 'account-actions', 'menu-version',
     ]);
     expect(screen.querySelector('.menu-aircraft-image')?.getAttribute('src')).toContain('/assets/game/aircraft/default.png');
     expect(screen.querySelector('.menu-brand strong')?.textContent).toBe('Pilot');
@@ -160,7 +160,7 @@ describe('product flow screens', () => {
   it('documents always-available dash, special timing, pause, and tutorial exit controls', () => {
     const menu = vi.fn();
     const tutorial = renderTutorialScreen({}, { start: vi.fn(), menu });
-    expect(tutorial.textContent).toContain('클릭/터치: 위로 상승');
+    expect(tutorial.textContent).toContain('클릭/터치/↑: 위로 상승');
     expect(tutorial.textContent).toContain('SPACE: 대시 (회피)');
     expect(tutorial.textContent).not.toContain('SPACE: 언제든 대시 잔상이 남습니다');
     expect(tutorial.textContent).toContain('특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다');

@@ -168,8 +168,9 @@ export function createAppController(deps) {
   }
   const fireKeys = new Set(['ShiftLeft', 'ShiftRight', 'ControlLeft', 'ControlRight']);
   const fireHeld = new Set();
-  const handleKeyUp = (event) => { if (event.code === 'Space') spaceHeld = false; fireHeld.delete(event.code); };
-  const handleBlur = () => { spaceHeld = false; fireHeld.clear(); };
+  let arrowUpDown = false;
+  const handleKeyUp = (event) => { if (event.code === 'Space') spaceHeld = false; if(event.code==='ArrowUp')arrowUpDown=false; fireHeld.delete(event.code); };
+  const handleBlur = () => { spaceHeld = false; arrowUpDown=false; fireHeld.clear(); };
 
   function paint() {
     rankingObserver?.disconnect();
@@ -695,6 +696,7 @@ export function createAppController(deps) {
   }
 
   function beginPlaying() {
+    handleBlur();
     const prepareMusic = typeof audioManager.prepareGameplay === 'function';
     state.snapshot = null;
     lastDifficultyMode = 'normal';
@@ -1080,6 +1082,9 @@ export function createAppController(deps) {
     }
     // Handle the mobile dash button's keyboard press ourselves: native Space
     // clicks on keyup would otherwise queue a dash across the cooldown boundary.
+    if(event.code==='ArrowUp'&&state.screen==='playing'){
+      event.preventDefault();if(!arrowUpDown&&!event.repeat){arrowUpDown=true;triggerLift();}return;
+    }
     if (event.target?.closest?.('button, a') && !event.target?.closest?.('.mobile-space-button')) return;
     if (event.code === 'Space' && state.screen === 'playing') {
       event.preventDefault();

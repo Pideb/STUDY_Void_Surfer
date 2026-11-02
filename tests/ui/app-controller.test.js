@@ -454,7 +454,7 @@ describe('app controller product flow', () => {
     await settle();
 
     harness.root.querySelector('button')?.click();
-    expect(harness.root.textContent).toContain('클릭/터치: 위로 상승');
+    expect(harness.root.textContent).toContain('클릭/터치/↑: 위로 상승');
     harness.root.querySelector('button')?.click();
     expect(harness.root.textContent).toContain('점수 0');
     harness.controller.dispatch({ type: 'GAME_OVER' });
@@ -928,4 +928,6 @@ describe('app controller product flow', () => {
     harness.frames.shift()(80);
     expect(harness.audioManager.play).toHaveBeenCalledWith('challengeFailureGlitch', { id: '1:challenge-2' });
   });
+  it('uses one ArrowUp lift per physical press and resets on keyup or blur',async()=>{harness=makeHarness();harness.controller.mount();await settle();harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');const key=(type,repeat=false)=>window.dispatchEvent(new KeyboardEvent(type,{code:'ArrowUp',repeat,bubbles:true,cancelable:true}));key('keydown');key('keydown');key('keydown',true);expect(harness.gameEngine.lift).toHaveBeenCalledTimes(1);key('keyup');key('keydown');expect(harness.gameEngine.lift).toHaveBeenCalledTimes(2);window.dispatchEvent(new Event('blur'));key('keydown');expect(harness.gameEngine.lift).toHaveBeenCalledTimes(3);harness.snapshot.challenge={active:true};harness.frames.shift()(20);key('keyup');key('keydown');expect(harness.gameEngine.lift).toHaveBeenCalledTimes(3);});
+
 });

@@ -2,14 +2,13 @@ import { createButton, createIconButton, createPanel } from './components.js';
 import { AIRCRAFT_CATALOG } from '../game/aircraft.js';
 import { renderLeaderboardPanel, renderPilotRankingTable } from './leaderboard-view.js';
 import { VISUAL_ASSET_MANIFEST } from '../game/visual-assets.js';
+import releases from '../../docs/management/releases.json';
 
 export function renderPreparingScreen(_model, handlers) {
   const panel = createPanel('출격 준비 중');
   panel.classList.add('preparing-screen');
-  const status = document.createElement('p');
-  status.className = 'screen-message'; status.setAttribute('role', 'status');
-  status.textContent = '스테이지 음악을 준비하고 있습니다. 최대 10초 후 자동으로 출격합니다.';
-  panel.append(status, createButton('메인으로', handlers.menu, { className: 'secondary-button' }));
+  panel.setAttribute('role', 'status');
+  panel.setAttribute('aria-live', 'polite');
   return panel;
 }
 
@@ -182,6 +181,9 @@ export function renderMenuScreen(model, handlers) {
     menu.append(adminTrigger);
   }
   menu.append(brand, aircraftPreview, actions, accountActions);
+  const version = document.createElement('small');
+  version.className = 'menu-version';version.textContent = `v${releases.currentVersion}`;
+  menu.append(version);
   if (model.adminDialogOpen) {
     menu.append(renderAdminSettingsDialog(model, {
       close: handlers.closeAdminSettings,
@@ -259,7 +261,7 @@ export function renderTutorialScreen(_model, handlers) {
   const list = document.createElement('ul');
   list.className = 'tutorial-list';
   for (const instruction of [
-    '클릭/터치: 위로 상승',
+    '클릭/터치/↑: 위로 상승',
     'SPACE: 대시 (회피)',
     '특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다',
     '보스전에서는 10초마다 레이저가 충전됩니다. Ctrl/Shift 키로 발사하세요',

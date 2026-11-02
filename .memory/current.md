@@ -7,10 +7,10 @@
 [P01-game-experience](./phases/2026-11-02-v02-feedback-release/P01-game-experience/phase.md)
 
 ## Active Task
-[T07](./phases/2026-11-02-v02-feedback-release/P01-game-experience/T07-mobile-input-and-menu-status.md)
+[T08](./phases/2026-11-02-v02-feedback-release/P01-game-experience/T08-quality-preserving-performance.md)
 
 ## Status
-T06 done. Execution 6/19. User authorized implementation and commits through last Task; NO push/deployment. Production remains0.01-b; next release0.2 only upon user deployment request.
+T07 done. Execution 7/19. User authorized implementation and commits through last Task; NO push/deployment. Production remains0.01-b; next release0.2 only upon user deployment request.
 
 ## Next Step (IMPORTANT)
 Read the active Task blueprint, implement, validate and commit, then continue automatically. Preserve approved green timing guides, private stats and unrelated prototypes. Stage named paths only. Official docs fingerprint gate is not bypassed; release preparation awaits deployment request.
