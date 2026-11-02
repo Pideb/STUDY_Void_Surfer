@@ -153,6 +153,7 @@ export function createGameEngine(deps = {}) {
   let feedbackEffect = null;
   let nextAttackId = 1;
   let currentScrollSpeed = null;
+  let frameScrollSpeedAt = () => currentScrollSpeed ?? 240;
   let speedTransition = null;
   let totalScrollDistancePx = 0;
   let lastSpecialBarrierWorldX = null;
@@ -225,6 +226,13 @@ export function createGameEngine(deps = {}) {
   function advanceSpeedTransition(deltaSeconds) {
     const target = getTargetDifficulty().scrollSpeed;
     syncSpeedTransition(target);
+    const transitionAtStart = speedTransition ? { ...speedTransition } : null;
+    const startSpeed = currentScrollSpeed;
+    frameScrollSpeedAt = offset => {
+      if (!transitionAtStart) return startSpeed;
+      const t = Math.min(1, Math.max(0, (transitionAtStart.elapsedSeconds + offset) / transitionAtStart.durationSeconds));
+      return transitionAtStart.fromSpeed + (transitionAtStart.targetSpeed - transitionAtStart.fromSpeed) * t * t * (3 - 2 * t);
+    };
     if (!speedTransition) return;
 
     speedTransition.elapsedSeconds = Math.min(
@@ -800,6 +808,7 @@ export function createGameEngine(deps = {}) {
     if (attack.type === 'volley') {
       updateSignatureAttack(attack, deltaSeconds, player, {
         projectileImmune: invincibilityEnabled, immuneSeconds: protectedSeconds,
+        scrollSpeedAt: frameScrollSpeedAt,
         originAt: offset => getLiveBossGeometry(bossEncounter.motionSeconds - deltaSeconds + offset, offset - deltaSeconds).muzzle,
       });
       if (attack.hitPlayer && !invincibilityEnabled) { stop('projectile'); return; }

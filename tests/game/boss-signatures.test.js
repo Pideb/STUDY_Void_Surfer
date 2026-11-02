@@ -42,7 +42,7 @@ describe('signature creation and six identities', () => {
       let calls=0;
       const attack=makeAttack({stageId,projectileCount:undefined,rng:()=>calls++===0?roll:.5});
       expect(attack.projectiles).toHaveLength(count);
-      expect(attack.projectiles.every(p=>p.speed===290)).toBe(true);
+      expect(attack.projectiles.every(p=>p.speed===null && !p.speedSampled)).toBe(true);
       expect(new Set(attack.projectiles.map(p=>JSON.stringify([p.targetY,p.delaySeconds,p.curveAmplitude]))).size).toBe(count);
       expectFiniteTree(attack);
       updateSignatureAttack(attack,1e5);
@@ -169,6 +169,7 @@ describe('signature creation and six identities', () => {
       const low = makeAttack({ baseSpeed: 1, rng: () => roll });
       const high = makeAttack({ baseSpeed: 100000, rng: () => roll });
       expect(low).toEqual(high);
+      updateSignatureAttack(high,3);
       expect(high.projectiles.every((shot) => shot.speed === speed)).toBe(true);
     },
   );
@@ -176,6 +177,7 @@ describe('signature creation and six identities', () => {
   it('rolls each shot independently and owns its arrays', () => {
     const rolls = [0, 0.25, 0.5, 0.75, 1];
     const attack = makeAttack({ rng: () => rolls.shift() });
+    updateSignatureAttack(attack,1.1);
     expect(attack.projectiles.map((shot) => shot.speed)).toEqual([220, 255, 290, 325, 360]);
     attack.projectiles[0].telegraphPoints[0].x = 10;
     expect(attack.projectiles[1].telegraphPoints[0].x).toBe(750);
@@ -211,7 +213,8 @@ describe('signature clocks and movement', () => {
     'moves along the exact announced curve for %s', (stageId) => {
       const attack = makeAttack({ stageId });
       const shot = attack.projectiles[0];
-      updateSignatureAttack(attack, 1.1 + (750 - 240) * 0.25 / shot.speed);
+      updateSignatureAttack(attack,1.1);
+      updateSignatureAttack(attack, (750 - 240) * 0.25 / shot.speed);
       expect(shot.x).toBeCloseTo(shot.telegraphPoints[8].x);
       expect(shot.y).toBeCloseTo(shot.telegraphPoints[8].y);
       expect(shot.previousX).toBe(750);
@@ -233,7 +236,7 @@ describe('signature clocks and movement', () => {
 
   it('produces the same curved contact for large and small updates', () => {
     const large = makeAttack({ stageId: STAGE_IDS.GRAVITY_WELL });
-    const small = structuredClone(large);
+    const small = makeAttack({ stageId: STAGE_IDS.GRAVITY_WELL });
     updateSignatureAttack(large, 10, player);
     for (let index = 0; index < 1000; index += 1) updateSignatureAttack(small, 0.01, player);
     expect(large.state).toBe(small.state);
@@ -370,7 +373,7 @@ describe('finite input safety', () => {
 
   it('supports omitted options and a nonfunction RNG', () => {
     expectFiniteTree(createSignatureAttack());
-    expect(makeAttack({ rng: null }).projectiles.every((shot) => shot.speed === 290)).toBe(true);
+    const fallback=makeAttack({rng:null});updateSignatureAttack(fallback,1.1);expect(fallback.projectiles.every(shot=>shot.speed===290)).toBe(true);
   });
 
   it.each([NaN, Infinity, -Infinity, -1, undefined, null])('ignores invalid delta %s', (delta) => {

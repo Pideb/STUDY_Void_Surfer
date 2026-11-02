@@ -6,6 +6,8 @@ import {
 } from './constants.js';
 import { getStageDefinition, STAGE_IDS } from './stages.js';
 import { getPlayerBounds } from './player-geometry.js';
+import { sampleProjectileSpeed } from './projectile-speed.js';
+const launchRandomSources = new WeakMap();
 
 const CHARGE_SECONDS = 1.1;
 const HALF_WIDTH = 8;
@@ -45,8 +47,8 @@ function pattern(stageId, bossNumber, count) {
 }
 
 /**
- * baseSpeed is intentionally ignored: signatures use 220..360 world px/s even
- * at the scroll-speed ceiling. Wall-free volleys choose3..6 shots; explicit1
+ * Speeds are sampled at actual launch using the current interpolated scroll.
+ * Wall-free volleys choose3..6 shots; explicit1
  * selects one traditional stage path during wall flight. Delays start after1.1s.
  * Projectile elapsedSeconds is its clock after delay; both hit flags are sticky.
  * durationSeconds is an upper bound through the left world edge.
@@ -74,14 +76,13 @@ export function createSignatureAttack({
     trajectories = [{ ...trajectories[Math.floor(clamp(sample, 0, .999999) * trajectories.length)], delay: 0 }];
   }
   const projectiles = trajectories.map(({ offset, delay, curve }, index) => {
-    const sample = typeof rng === 'function' ? finite(rng(), 0.5) : 0.5;
     const projectile = {
       id: `${id}-${index + 1}`, type: 'projectile', stageId: stage.id,
       styleKey: stage.projectileStyle, kind: curve === 0 ? 'direct' : 'parabolic',
       x: originX, y: originY, previousX: originX, previousY: originY,
       bossX: originX, bossY: originY, startY: originY,
       targetX, targetY: centerY + offset,
-      speed: 220 + clamp(sample, 0, 1) * 140,
+      speed: null, speedSampled: false, flightElapsedSeconds: 0,
       curveAmplitude: curve, delaySeconds: delay, elapsedSeconds: 0,
       launched: false,
       chargeRemainingSeconds: CHARGE_SECONDS, state: 'charging', hitPlayer: false,
@@ -97,12 +98,14 @@ export function createSignatureAttack({
     });
     return projectile;
   });
-  return {
+  const attack = {
     id, type: 'volley', stageId: stage.id, state: 'charging', elapsedSeconds: 0,
     chargeSeconds: CHARGE_SECONDS, projectiles, hitPlayer: false,
     durationSeconds: Math.max(...projectiles.map((projectile) =>
-      CHARGE_SECONDS + projectile.delaySeconds + (originX + HALF_WIDTH) / projectile.speed)),
+      CHARGE_SECONDS + projectile.delaySeconds + (WORLD_WIDTH + HALF_WIDTH) / 80)),
   };
+  launchRandomSources.set(attack, typeof rng === 'function' ? rng : () => .5);
+  return attack;
 }
 
 function playerBounds(player) {
@@ -196,17 +199,13 @@ function moveProjectile(projectile, flightSeconds, bounds) {
 }
 
 /** Split a frame at protection expiry, so immunity never extends past its clock. */
-export function updateSignatureAttack(attack, deltaSeconds, player = null, { projectileImmune = false, immuneSeconds = 0, originAt = null } = {}) {
+export function updateSignatureAttack(attack, deltaSeconds, player = null, { projectileImmune = false, immuneSeconds = 0, originAt = null, scrollSpeedAt = null } = {}) {
   if (!attack || attack.state === 'resolved' || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) {
     return attack;
   }
   // Cap before adding to avoid overflow and ensure the final tick launches even
   // the last delayed shot before resolving, rather than skipping its collision.
   const previousElapsed = attack.elapsedSeconds;
-  if (typeof originAt === 'function') {
-    // A moving muzzle can extend flight beyond the original static-origin bound.
-    attack.durationSeconds = Math.max(attack.durationSeconds,...attack.projectiles.map(p=>CHARGE_SECONDS+p.delaySeconds+(WORLD_WIDTH+HALF_WIDTH)/p.speed));
-  }
   attack.elapsedSeconds += Math.min(deltaSeconds, Math.max(0, attack.durationSeconds - attack.elapsedSeconds));
   const bounds = projectileImmune ? null : playerBounds(player);
   const immuneUntil = previousElapsed + Math.min(deltaSeconds, Math.max(0, finite(immuneSeconds, 0)));
@@ -221,13 +220,19 @@ export function updateSignatureAttack(attack, deltaSeconds, player = null, { pro
     projectile.chargeRemainingSeconds = Math.max(0, CHARGE_SECONDS - projectile.elapsedSeconds);
     if (projectile.chargeRemainingSeconds > EPSILON) continue;
     projectile.chargeRemainingSeconds = 0;
+    if (!projectile.speedSampled) {
+      const launchOffset = Math.max(0, Math.min(deltaSeconds, launchAt - previousElapsed));
+      projectile.speed = sampleProjectileSpeed(scrollSpeedAt?.(launchOffset), launchRandomSources.get(attack) ?? (() => .5));
+      projectile.speedSampled = true;
+    }
+    projectile.flightElapsedSeconds = Math.max(0, projectile.elapsedSeconds - CHARGE_SECONDS);
     projectile.state = 'flying';
     projectile.launched = true;
     if (immuneUntil > previousElapsed && immuneUntil >= launchAt) {
       moveProjectile(projectile, Math.max(0, Math.min(attack.elapsedSeconds, immuneUntil) - launchAt), null);
     }
     if (projectile.state !== 'resolved' && (immuneUntil < attack.elapsedSeconds || immuneUntil <= previousElapsed)) {
-      moveProjectile(projectile, Math.max(0, projectile.elapsedSeconds - CHARGE_SECONDS), bounds);
+      moveProjectile(projectile, projectile.flightElapsedSeconds, bounds);
     }
     attack.hitPlayer ||= projectile.hitPlayer;
   }
