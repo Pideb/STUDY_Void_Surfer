@@ -7,6 +7,13 @@ var state={tab:'elements',stage:game.stages[0].id,sceneTime:0,scenePlay:!reduced
 var hit={},physics={},flight=[];
 function byId(id){return document.getElementById(id);}
 function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function localArchiveAllowed(loc){return (loc.protocol==='file:'||(['http:','https:'].includes(loc.protocol)&&['localhost','127.0.0.1','[::1]'].includes(loc.hostname)))&&/\/docs\/management\/[^/]+\.html$/.test(loc.pathname);}
+function renderPreviewArchive(){
+  var allowed=localArchiveAllowed(location),host=byId('previewArchive');byId('archiveControls').hidden=!allowed;
+  if(!allowed){host.replaceChildren();byId('archiveNotice').textContent='로컬 전용입니다. 원본 프로젝트의 docs/management 문서에서 확인하세요.';return;}
+  var query=byId('archiveSearch').value.trim().toLowerCase(),status=byId('archiveStatus').value,catalog=JSON.parse(byId('preview-catalog').textContent),labels={approved:'승인',superseded:'대체됨',comparison:'비교'};
+  host.innerHTML=catalog.entries.filter(function(e){return(status==='all'||e.status===status)&&(e.title+' '+e.purpose+' '+e.date+' '+e.status).toLowerCase().includes(query);}).map(function(e){return '<article class="card"><p class="small muted">'+escapeHtml(e.date)+' · '+labels[e.status]+'</p><h3>'+escapeHtml(e.title)+'</h3><p>'+escapeHtml(e.purpose)+'</p><p class="note">'+(e.requiresServer?'로컬 개발 서버 필요':'파일을 직접 열 수 있음')+'</p><a target="_blank" rel="noopener" href="../../'+escapeHtml(e.path)+'">시안 열기 ↗</a><code>'+escapeHtml(e.path)+'</code></article>';}).join('')||'<p>해당하는 예시가 없습니다.</p>';
+}
 function craft(id){return game.crafts.find(function(c){return c.id===id;})||game.crafts[0];}
 function fmt(n,d){return Number(n).toLocaleString('en-US',{maximumFractionDigits:d===undefined?2:d});}
 function setText(id,s){byId(id).textContent=s;}
@@ -92,7 +99,9 @@ function frame(now){raf=0;if(!activeAnimation()){lastFrame=0;return;}var dt=last
 function kick(){if(!raf&&activeAnimation())raf=requestAnimationFrame(frame);if(!activeAnimation()&&raf){cancelAnimationFrame(raf);raf=0;lastFrame=0;}}
 function showTab(id,focus){state.tab=id;document.querySelectorAll('[data-tab]').forEach(function(b){var selected=b.dataset.tab===id;b.setAttribute('aria-selected',String(selected));b.tabIndex=selected?0:-1;if(selected&&focus)b.focus();});document.querySelectorAll('.tab-panel').forEach(function(p){p.hidden=p.id!=='panel-'+id;});drawAll();if(id==='elements'){if(chartsBuilt)ChartManager.charts.get('speedChart').resize();}kick();}
 function bindEvents(){
-  document.querySelectorAll('[data-tab]').forEach(function(b,i){b.addEventListener('click',function(){showTab(b.dataset.tab);});b.addEventListener('keydown',function(e){var list=['elements','lab','history'],index=e.key==='Home'?0:e.key==='End'?2:e.key==='ArrowRight'?(i+1)%3:e.key==='ArrowLeft'?(i+2)%3:null;if(index!==null){e.preventDefault();showTab(list[index],true);}});});
+  var archiveTab=document.createElement('button');archiveTab.id='tab-archive';archiveTab.dataset.tab='archive';archiveTab.setAttribute('role','tab');archiveTab.setAttribute('aria-controls','panel-archive');archiveTab.setAttribute('aria-selected','false');archiveTab.tabIndex=-1;archiveTab.textContent='개발 예시';document.querySelector('.tabs').append(archiveTab);
+  document.querySelectorAll('[data-tab]').forEach(function(b,i){b.addEventListener('click',function(){showTab(b.dataset.tab);});b.addEventListener('keydown',function(e){var list=[...document.querySelectorAll('[data-tab]')].map(function(t){return t.dataset.tab;}),count=list.length,index=e.key==='Home'?0:e.key==='End'?count-1:e.key==='ArrowRight'?(i+1)%count:e.key==='ArrowLeft'?(i+count-1)%count:null;if(index!==null){e.preventDefault();showTab(list[index],true);}});});
+  byId('archiveSearch').addEventListener('input',renderPreviewArchive);byId('archiveStatus').addEventListener('change',renderPreviewArchive);renderPreviewArchive();
   document.querySelector('[data-open-lab]').addEventListener('click',function(e){e.preventDefault();showTab('lab');byId('tab-lab').scrollIntoView({block:'start'});});
   byId('progressScore').addEventListener('input',speedReadout);byId('speedCraft').addEventListener('change',speedReadout);byId('speedMode').addEventListener('change',function(){speedReadout();buildCharts();drawSpeedFallback();});
   ['versionFilter','historySearch'].forEach(function(id){byId(id).addEventListener(id==='historySearch'?'input':'change',renderHistory);});

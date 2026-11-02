@@ -1,6 +1,6 @@
 # Task: T17 관리 HTML 개발 예시 링크 탭
 
-## Status: pending
+## Status: done
 
 ## Goal
 기존시안·조절도구를관리HTML의로컬전용탭에서찾고승인/폐기/실행조건을알수있게한다.
@@ -52,9 +52,9 @@ validatePreviewCatalog(root:string,catalog:PreviewCatalog):void;
 - 네트워크/원격 자원 접근이 없으면 미실행 사실·정확한 후속 명령·예상 결과를 기록하며 운영 완료로 보고하지 않는다.
 
 ## Acceptance Criteria
-- [ ] 관리용로컬HTML에서선별한개발예시들을찾아열수있다.
-- [ ] 개발예시자산·링크목록이게임공개배포에섞이지않는다.
-- [ ] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
+- [x] 관리용로컬HTML에서선별한개발예시들을찾아열수있다.
+- [x] 개발예시자산·링크목록이게임공개배포에섞이지않는다.
+- [x] 지정 검증 및 관련 한계 기록. 무관한 버전 승격/push/배포 없음.
 
 ## Validation
 - `npm test -- --run tests/docs/preview-catalog.test.js tests/docs/management-model.test.js tests/docs/release-docs.test.js` — 종료0.
@@ -74,6 +74,11 @@ Task: T17-local-development-preview-archive
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: see Git log (Task header)
+
+## Execution evidence
+- 3 targeted files / 18 tests passed. Real browser: 12 local links, status filter, keyboard ARIA tab navigation and zero runtime errors.
+- Curated original self-contained HTMLs are preserved and committed once, not embedded in management output. Remote/Downloads guard tested; no archive in public guide or dist.
+- Generated browser-check document removed after inspection; official release documents are not regenerated before deployment request.

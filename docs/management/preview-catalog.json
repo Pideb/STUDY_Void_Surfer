@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "entries": [
+    {"id":"glitch","date":"2026-10-30","title":"글리치 암전 시간 비교","purpose":"0.18초 암전으로 확정한 비교 도구","path":".memory/validation/2026-10-30-v01-glitch-preview/preview.html","status":"approved","requiresServer":false,"dependencies":[]},
+    {"id":"penalty-editor","date":"2026-10-30","title":"균열·안개 페널티 조절","purpose":"강도·색상·형태 슬라이더 및 JSON 내보내기","path":".memory/validation/2026-10-30-v01-glitch-preview/penalty-editor.html","status":"approved","requiresServer":false,"dependencies":[]},
+    {"id":"boss-patterns","date":"2026-10-30","title":"지역별 고유 보스 패턴","purpose":"6개 지역 공격의 초기 시뮬레이션. 현재 수치는 게임 코드와 다를 수 있음","path":".memory/validation/2026-10-30-v01-boss-patterns/preview.html","status":"comparison","requiresServer":false,"dependencies":[]},
+    {"id":"projectile-speed","date":"2026-10-30","title":"투사체 속도 시뮬레이션","purpose":"실제 스크롤 속도에 따른 투사체 가속 설정","path":".memory/validation/2026-10-30-v01-projectile-speed/preview.html","status":"approved","requiresServer":false,"dependencies":[]},
+    {"id":"moving-old","date":"2026-10-30","title":"움직이는 벽 초기 디자인","purpose":"컨셉 비교용 옛 시안. 최종 선택은 플레이테스트 문서 참조","path":".memory/validation/2026-10-30-v01-moving-wall/preview.html","status":"superseded","requiresServer":false,"dependencies":[]},
+    {"id":"moving-playtest","date":"2026-10-30","title":"움직이는 벽 A/B 플레이테스트","purpose":"beast B / 다른 지역 A로 확정한 게임 장면","path":".memory/validation/2026-10-30-v01-moving-wall-playtest/playtest.html","status":"approved","requiresServer":false,"dependencies":[]},
+    {"id":"performance","date":"2026-10-30","title":"전체화면 최적화 비교","purpose":"시각 효과와 해상도 비교. 원래 값 보존","path":".memory/validation/2026-10-30-v01-performance/review.html","status":"approved","requiresServer":false,"dependencies":[]},
+    {"id":"mobile-controls","date":"2026-11-02","title":"모바일 조작 버튼","purpose":"대시·발사·챌린지 키 배치 확정 시안","path":".memory/validation/2026-11-02-v01-mobile-controls/preview.html","status":"approved","requiresServer":false,"dependencies":[]},
+    {"id":"asset-v3","date":"2026-11-02","title":"장애물·투사체·레이저 최종 재질","purpose":"초록 판정 유지, 파괴한 특수벽 주변선 제거 확정","path":".memory/validation/2026-11-02-v01-asset-render-review-v3/preview.html","status":"approved","requiresServer":false,"dependencies":[]},
+    {"id":"guide-menu","date":"2026-11-02","title":"가이드·음량 메뉴 위치","purpose":"가이드 왼쪽 / 음량 오른쪽으로 위치 교환한 승인본","path":".memory/validation/2026-11-02-v02-menu-guide-v2/preview.html","status":"approved","requiresServer":false,"dependencies":[]},
+    {"id":"orientation","date":"2026-11-02","title":"PC 비율·모바일 회전 안내","purpose":"PC 기준 비율과 세로 회전 안내. 모바일 메뉴 크기는 후속 확대본 우선","path":".memory/validation/2026-11-02-v02-responsive-orientation/preview.html","status":"comparison","requiresServer":false,"dependencies":[]},
+    {"id":"mobile-large","date":"2026-11-02","title":"모바일 확대 메뉴","purpose":"작은 가로 화면에서 터치하기 쉬운 승인 메뉴","path":".memory/validation/2026-11-02-v02-mobile-menu-large/preview.html","status":"approved","requiresServer":false,"dependencies":[]}
+  ]
+}
