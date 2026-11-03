@@ -30,3 +30,9 @@ Apply `supabase/migrations/202611030001_aircraft_rankings_history.sql` once usin
 
 ## Adjacent finding
 An existing menu test hard-coded v0.2 even though the released registry is v0.2b. It now asserts against the release registry so feature tests do not depend on a stale version literal. No gameplay/audio/balance changes or unrelated preview files were included.
+
+## Learning notes
+- `primary key (user_id, aircraft_id)` makes each user's three aircraft records independent. The unchanged overall table still has one row per account. The submit RPC updates both within one transaction, so filtering the overall list is not used as a substitute for independent records.
+- `if (!isCurrent()) return` checks generation, selected aircraft and screen after async responses. This prevents an older NOVA response from replacing a newer AEGIS tab. Separate generations protect the list and personal card independently.
+- `finish(outcome, finalScore=null)` freezes score and duration together. `finalScore: 0` is a real zero-score run; NULL means unknown. The existing nonce/outbox preserves that distinction during retries and never promotes guest/admin telemetry into a ranked score.
+- Mobile uses `scale=1` with a compact grid. Tests/emulation establish sizes and behavior; final physical-device touch review and live DB application remain distinct from local test success.
