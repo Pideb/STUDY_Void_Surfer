@@ -1,0 +1,13 @@
+{
+  "checkedAtUtc": "2026-11-03T01:00:40.148Z",
+  "script": "/assets/index-DZg46VwV.js",
+  "headSha": "d59b5734637b3afa7b26bd90a389e748e847dd39",
+  "runId": 41556504860,
+  "localSha256": "3c96ee6db5e29966863413b13c49f8e5bcbe2abd7a3e23ef739098fcbf9fa754",
+  "productionSha256": "3c96ee6db5e29966863413b13c49f8e5bcbe2abd7a3e23ef739098fcbf9fa754",
+  "guideExactMatch": true,
+  "priorGuideEntriesPreserved": true,
+  "oldSnapshotsPreserved": true,
+  "runtimeVersion": "0.2b",
+  "rankingReloadPresent": true
+}

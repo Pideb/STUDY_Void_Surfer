@@ -1,6 +1,12 @@
 # T02 deploy and proof
 
-## Status: in_progress
+## Status: done
+
+## Results
+- Preparation3b80a57cc0f7ecc547a9f0fe015d227765773cf8: Actions41556010277 success00:55:01Z; live JS SHA2563c96ee6db5e29966863413b13c49f8e5bcbe2abd7a3e23ef739098fcbf9fa754 matches local.
+- Canonical record-deployment succeeded; docs converged/checked and0.2b snapshot protected. Metadata commitd59b5734637b3afa7b26bd90a389e748e847dd39 pushed.
+- Exact metadata follow-up Actions41556504860 success00:59:25Z; re-downloaded live JS has same hash, guide exact match, old guide entries and protected snapshots unchanged. No gameplay/audio changes after preparation.
+- Closure commit is memory/evidence-only [skip ci]; no runtime/official document modifications or extra deploy required. All requested work complete.
 
 ## Goal / Decision Summary
 Deploy prepared0.2b and prove exact runtime/guide bytes. Existing user authorization includes push and metadata follow-up; no additional confirmation.
@@ -13,8 +19,8 @@ Deploy prepared0.2b and prove exact runtime/guide bytes. Existing user authoriza
 - After the metadata follow-up actually succeeds, close memory status in a separate memory/evidence-only commit using `[skip ci]`; do not recursively deploy another record of the verification. This final commit must touch no game, guide, build config or official docs. Normal workflow validation remains mandatory on deployment commits.
 
 ## Acceptance Criteria
-- [ ] Exact pushed HEAD Actions success and real public JS/guide match.
-- [ ] Deployment record/docs committed and metadata follow-up pushed/verified.
+- [x] Exact pushed HEAD Actions success and real public JS/guide match.
+- [x] Deployment record/docs committed and metadata follow-up pushed/verified.
 
 ## Validation
 Read-only public ranking endpoint success; immutable snapshots; proof CLI + docs:check; metadata Actions success and unchanged live JS.
