@@ -1,16 +1,16 @@
 ﻿# Current Context
 
 ## Active Plan
-[Startup update dialog](./plans/2026-11-03-startup-update-dialog.md)
+None — completed [Startup update dialog](./plans/2026-11-03-startup-update-dialog.md).
 
 ## Active Phase
-[P01 Startup](./phases/2026-11-03-startup-update-dialog/P01-startup/phase.md)
+None — P01 done (1/1).
 
 ## Active Task
-[T01 Startup dialog](./phases/2026-11-03-startup-update-dialog/P01-startup/T01-startup-dialog.md)
+None — implementation committed as e79a85f.
 
 ## Status
-Approved preview. Plan ready; execute through local commit. User reports aircraft SQL applied; verify public RPCs read-only. No push/deployment/version bump requested.
+Startup popup implemented using latest guide source, once per fresh mount, with modal input/orientation guards and readable mobile layout.1,421 tests and build/config/guide checks passed. Supabase live reads verified: overall13,default10,aegis2,velocity1; all13 observed overall bests match aircraft records. Private anonymous reads denied42501. Authenticated score/history writes remain unverified; no remote writes, push, deployment or version bump. See [report](./validation/2026-11-03-startup-update-dialog/report.md).
 
 ## Next Step (IMPORTANT)
-Read T01 and implement guide-source startup dialog with lifecycle/mobile tests, then run read-only remote validation and record exact limits. Preserve unrelated untracked previews and release snapshots; production remains v0.2b.
+User can test local implementation with npm run dev. Public migration verification succeeded; use a legitimate signed-in play session/operator connection for future live write verification. Release docs fingerprint gate requires normal release preparation only when deployment requested. Production remains v0.2b; local aircraft rankings and popup are not yet pushed/deployed. Unrelated untracked previews and release snapshots unchanged.

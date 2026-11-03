@@ -14,7 +14,7 @@ The popup is a sibling of the scaled desktop menu, so landscape mobile uses nati
 - Full regression:86 test files /1,421 tests passed.
 - Production build, verify:config, guide:check and git diff --check passed.
 - docs:check reaches the expected release-fingerprint gate because local game source differs from published v0.2b. No release was requested; deployed registry and protected HTML snapshots were not rewritten.
-- Actual renderer/controller/CSS screenshots inspected: desktop1600×900, mobile844×390 and568×320. Fixture uses mocked services and disables entrance/ship animations only for deterministic capture. No live database calls occur from that fixture. Physical-device touch behavior and previously stored login session writes are not exercised by screenshots.
+- Actual renderer/controller/CSS screenshots inspected: desktop1600×900, mobile844×390 and568×320;375×812 portrait correctly prioritizes the existing rotate-to-landscape gate with no horizontally clipped content. Fixture uses mocked services and disables entrance/ship animations only for deterministic capture. No live database calls occur from that fixture. Physical-device touch behavior and previously stored login session writes are not exercised by screenshots.
 
 ## Remote SQL results
 See remote-sql.json for timestamped aggregate evidence, generated using Vite-loaded public environment configuration without printing credentials. All operations used GET reads.
