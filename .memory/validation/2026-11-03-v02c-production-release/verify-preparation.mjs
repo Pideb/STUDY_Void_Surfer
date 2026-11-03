@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+import path from 'node:path';
+const dir='.memory/validation/2026-11-03-v02c-production-release';
+const read=p=>JSON.parse(fs.readFileSync(p,'utf8'));
+const base=read(dir+'/baseline.json'),registry=read('docs/management/releases.json'),guide=read('docs/player/updates.json');
+assert.deepEqual(guide.entries[0],{version:'v0.2c',date:'2026-11-03',title:'v0.2c',body:['기체별 랭킹 세부화']});
+assert.deepEqual(guide.entries.slice(1),base.previousGuide.entries);
+const sha=data=>crypto.createHash('sha256').update(data).digest('hex');
+for(const [file,hash]of Object.entries(base.snapshots))assert.equal(sha(fs.readFileSync('docs/releases/'+file)),hash,file+' changed');
+assert.equal(registry.currentVersion,'0.2c');assert.equal(registry.developmentVersion,'0.2c');assert.equal(registry.versionBase,'0.2');assert.equal(registry.nextVersion,'0.21');
+const release=registry.releases.find(r=>r.version==='0.2c');assert.equal(release.status,'validated-pending-deployment');assert.ok(release.validation.tests>=1421);
+const index=fs.readFileSync('dist/index.html','utf8');
+const files=[...index.matchAll(/(?:src|href)="([^"<>]+\.(?:js|css))"/g)].map(m=>m[1]);
+const build=files.map(url=>({url,sha256:sha(fs.readFileSync(path.join('dist',url)))}));
+const summary={version:registry.currentVersion,base:registry.versionBase,next:registry.nextVersion,guideEntry:guide.entries[0],previousGuidePreserved:true,oldSnapshotsPreserved:true,validation:release.validation,build};
+fs.writeFileSync(dir+'/preparation.json',JSON.stringify(summary,null,2));console.log(JSON.stringify(summary));

@@ -1,0 +1,32 @@
+{
+  "version": "0.2c",
+  "base": "0.2",
+  "next": "0.21",
+  "guideEntry": {
+    "version": "v0.2c",
+    "date": "2026-11-03",
+    "title": "v0.2c",
+    "body": [
+      "기체별 랭킹 세부화"
+    ]
+  },
+  "previousGuidePreserved": true,
+  "oldSnapshotsPreserved": true,
+  "validation": {
+    "testFiles": 86,
+    "tests": 1421,
+    "build": "passed",
+    "configuration": "passed",
+    "report": ".memory/validation/release-preparation-tests.json"
+  },
+  "build": [
+    {
+      "url": "/assets/index-B1lvxART.js",
+      "sha256": "2a3953d4dda5edb8693c14c097d57e3567a9112e37e06fab47ae76da3966ed78"
+    },
+    {
+      "url": "/assets/index-DKapGXDU.css",
+      "sha256": "703b2d70edb6489fa2d9c8fa02ae7b804b42e6e03b5497edeed0b4b743a14ed4"
+    }
+  ]
+}

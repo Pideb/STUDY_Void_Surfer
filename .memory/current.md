@@ -1,16 +1,16 @@
 ﻿# Current Context
 
 ## Active Plan
-None — completed [Startup update dialog](./plans/2026-11-03-startup-update-dialog.md).
+[v0.2c production release](./plans/2026-11-03-v02c-production-release.md)
 
 ## Active Phase
-None — P01 done (1/1).
+[P01 Release](./phases/2026-11-03-v02c-production-release/P01-release/phase.md)
 
 ## Active Task
-None — implementation committed as e79a85f.
+[T01 Prepare](./phases/2026-11-03-v02c-production-release/P01-release/T01-prepare.md)
 
 ## Status
-Startup popup implemented using latest guide source, once per fresh mount, with modal input/orientation guards and readable mobile layout.1,421 tests and build/config/guide checks passed. Supabase live reads verified: overall13,default10,aegis2,velocity1; all13 observed overall bests match aircraft records. Private anonymous reads denied42501. Authenticated score/history writes remain unverified; no remote writes, push, deployment or version bump. See [report](./validation/2026-11-03-startup-update-dialog/report.md).
+User explicitly authorized v0.2c deployment with sole player-guide note: aircraft ranking detail. Prepare then push/verify/record without further confirmation. Preserve old notes and protected snapshots.
 
 ## Next Step (IMPORTANT)
-User can test local implementation with npm run dev. Public migration verification succeeded; use a legitimate signed-in play session/operator connection for future live write verification. Release docs fingerprint gate requires normal release preparation only when deployment requested. Production remains v0.2b; local aircraft rankings and popup are not yet pushed/deployed. Unrelated untracked previews and release snapshots unchanged.
+Read T01; prepend exact guide note, run release:prepare with --new-release --version0.2c, validate and commit. T02 pushes and verifies exact Actions HEAD/production hashes before recording success. Unrelated untracked previews stay untouched.
