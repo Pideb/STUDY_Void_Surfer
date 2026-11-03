@@ -15,6 +15,7 @@ import {
   fetchLeaderboardPage, fetchPlayerAircraftRecord, fetchPlayerBestScore, fetchPlayerNeighborhood, fetchTopScores, submitBestScore,
 } from './services/leaderboard-service.js';
 import { createAppController } from './ui/app-controller.js';
+import playerUpdates from '../docs/player/updates.json' with {type:'json'};
 
 if (window.location.pathname === '/auth/callback') {
   const status = document.querySelector('#auth-callback-status');
@@ -79,6 +80,7 @@ if (window.location.pathname === '/auth/callback') {
   }
 
   const controller = createAppController({
+    startupUpdateEntry: playerUpdates.entries[0] ?? null,
     playSessionTracker:createPlaySessionTracker({
       service:createPlayRecordService(client,{anonymousClient:client?createClient(import.meta.env.VITE_SUPABASE_URL,import.meta.env.VITE_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false,storageKey:'void-surfer.analytics.anonymous'}}):null}),
       storage:(()=>{try{return globalThis.localStorage;}catch{return null;}})(),

@@ -3,6 +3,7 @@ import { clearLegacyGuestRecord } from '../services/guest-record-service.js';
 import { AIRCRAFT_CATALOG, getUnlockedAircraftIds, canSelectAircraft } from '../game/aircraft.js';
 import {createMenuNavigation} from './menu-navigation.js';
 import {createMenuLayout} from './menu-layout.js';
+import {renderStartupUpdateDialog} from './startup-update.js';
 import {createOrientationController} from './orientation-controller.js';
 import {renderOrientationScreen,renderRotationResumeScreen} from './screens.js';
 import releases from '../../docs/management/releases.json' with {type:'json'};
@@ -112,6 +113,10 @@ export function createAppController(deps) {
   let handlePointerDown = null;
   let animationFrame = null;
   let mounted = false;
+  let startupUpdateOpen = false;
+  const startupHost = document.createElement('div');
+  startupHost.className = 'startup-update-host';
+  startupHost.hidden = true;
   let orientationState={mobile:false,portrait:false,resumePending:false,priorScreen:null};
   let orientationWasBlocking=false;
   const orientationHost=document.createElement('div');orientationHost.className='orientation-host';orientationHost.hidden=true;
@@ -119,7 +124,9 @@ export function createAppController(deps) {
   function syncOrientation(next){
     orientationState=next;const blocked=next.portrait||next.resumePending,wasBlocking=orientationWasBlocking;
     orientationWasBlocking=blocked;
-    gameEngine.setSuspended?.('orientation',blocked);root.inert=blocked;
+    gameEngine.setSuspended?.('orientation',blocked);root.inert=blocked||startupUpdateOpen;
+    startupHost.hidden = !startupUpdateOpen || blocked;
+    startupHost.inert = blocked;
     if(blocked)playTracker?.suspend('orientation');else playTracker?.resume('orientation');
     orientationHost.hidden=!blocked;
     if(blocked){
@@ -127,6 +134,7 @@ export function createAppController(deps) {
       orientationHost.replaceChildren(next.portrait?renderOrientationScreen():renderRotationResumeScreen({resume:()=>orientationController.confirmResume()}));
       if(!wasBlocking){handleBlur();stopLoop();audioManager.pauseMusic?.();}
     }else if(wasBlocking){
+      if(startupUpdateOpen)startupHost.querySelector('.update-confirm')?.focus({preventScroll:true});
       if(state.screen!=='paused')audioManager.resumeMusic?.();
       if(state.screen==='playing'&&mounted)animationFrame=globalThis.requestAnimationFrame(renderFrame);
       if(state.screen==='preparing'&&pendingStart?.ready)activatePreparedStart(pendingStart);
@@ -1045,6 +1053,7 @@ export function createAppController(deps) {
   }
 
   function dispatch(event) {
+    if(startupUpdateOpen)return;
     const type = typeof event === 'string' ? event : event?.type;
     if(orientationWasBlocking&&type!=='RETURN_TO_MENU')return;
     switch (type) {
@@ -1146,6 +1155,7 @@ export function createAppController(deps) {
 
   function handleKeyDown(event) {
     if(orientationWasBlocking){event.preventDefault();if(orientationState.resumePending&&!event.repeat&&['Space','Enter'].includes(event.code))orientationController.confirmResume();return;}
+    if(startupUpdateOpen){event.preventDefault();if(!event.repeat&&['Escape','Space','Enter'].includes(event.code))closeStartupUpdate();return;}
     const wasHeld=physicalKeys.has(event.code);physicalKeys.add(event.code);
     if(state.screen==='game-over'){event.preventDefault();if(event.repeat||wasHeld||blockedRestartKeys.has(event.code))return;dispatch(event.code==='Escape'?'RETURN_TO_MENU':'RESTART_IMMEDIATE');return;}
     if (state.screen === 'preparing') {
@@ -1223,12 +1233,22 @@ export function createAppController(deps) {
     for (const type of audioGestureEvents) globalThis.window?.addEventListener(type, handleAudioGesture, true);
     clearLegacyGuestRecord(deps.guestRecordStorage);
     paint();
+    const updateDialog = renderStartupUpdateDialog(deps.startupUpdateEntry, { close: closeStartupUpdate });
+    if (updateDialog) {
+      startupUpdateOpen = true;
+      startupHost.append(updateDialog);
+      (root.parentElement ?? document.body).append(startupHost);
+      root.inert = true;
+      startupHost.hidden = orientationWasBlocking;
+      startupHost.inert = orientationWasBlocking;
+      if (!orientationWasBlocking) startupHost.querySelector('.update-confirm').focus({ preventScroll: true });
+    }
     if (globalThis.document?.readyState === 'complete') tryStartupAudio();
     else globalThis.window?.addEventListener('load', tryStartupAudio, { once: true });
     pointerTarget = deps.canvas ?? root.querySelector('canvas');
     handlePointerDown = (event) => {
       if(!orientationWasBlocking&&state.screen==='game-over'){event.preventDefault?.();dispatch('RESTART_IMMEDIATE');return;}
-      if (orientationWasBlocking || state.screen !== 'playing') return;
+      if (startupUpdateOpen || orientationWasBlocking || state.screen !== 'playing') return;
       event.preventDefault?.();
       triggerLift();
     };
@@ -1286,6 +1306,17 @@ export function createAppController(deps) {
     return playTracker?.finish(outcome, score) ?? null;
   }
 
+  function closeStartupUpdate() {
+    if (!startupUpdateOpen || orientationWasBlocking) return;
+    startupUpdateOpen = false;
+    startupHost.hidden = true;
+    startupHost.replaceChildren();
+    root.inert = orientationWasBlocking;
+    menuNavigation.reset();
+    menuNavigation.refresh();
+    root.querySelector('.menu-actions .primary-button')?.focus({ preventScroll: true });
+  }
+
   function destroy() {
     mounted = false;
     finishPlayRecord('abandoned');
@@ -1293,6 +1324,7 @@ export function createAppController(deps) {
     globalThis.window?.removeEventListener('pagehide',handlePageHide);
     globalThis.window?.removeEventListener('pageshow',handlePageShow);
     menuNavigation.destroy();
+    startupHost.remove();
     menuLayout.destroy();orientationController.destroy();orientationHost.remove();root.inert=false;gameEngine.setSuspended?.('orientation',false);
     cancelPendingStart();
     removeAudioGestureListeners();

@@ -1,16 +1,16 @@
 ﻿# Current Context
 
 ## Active Plan
-None — implementation complete: [Aircraft rankings and private play scores](./plans/2026-11-03-aircraft-rankings-play-history.md).
+[Startup update dialog](./plans/2026-11-03-startup-update-dialog.md)
 
 ## Active Phase
-None — P01 done (3/3).
+[P01 Startup](./phases/2026-11-03-startup-update-dialog/P01-startup/phase.md)
 
 ## Active Task
-None — all implementation tasks committed.
+[T01 Startup dialog](./phases/2026-11-03-startup-update-dialog/P01-startup/T01-startup-dialog.md)
 
 ## Status
-Local implementation committed: T01 c962d3b, T02 ecae645, T03 44d443b. 1,415 tests and SQL/build/config validation passed. Browser checks covered PC and two landscape-mobile sizes; final spacing screenshot recheck was prevented by tool policies. No remote SQL, push, deployment or version bump. See [report](./validation/2026-11-03-aircraft-rankings/report.md).
+Approved preview. Plan ready; execute through local commit. User reports aircraft SQL applied; verify public RPCs read-only. No push/deployment/version bump requested.
 
 ## Next Step (IMPORTANT)
-Apply the new SQL following supabase/AIRCRAFT_RANKINGS.md before any client deployment. User testing/final mobile spacing review can continue through npm run dev; review fixture uses fictional data and Vite5174. Release documentation fingerprint gate requires normal release preparation only when deployment is requested. Current production v0.2b and all release snapshots unchanged. Unrelated untracked previews untouched.
+Read T01 and implement guide-source startup dialog with lifecycle/mobile tests, then run read-only remote validation and record exact limits. Preserve unrelated untracked previews and release snapshots; production remains v0.2b.

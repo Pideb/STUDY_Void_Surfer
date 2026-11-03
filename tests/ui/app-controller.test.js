@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createAppController } from '../../src/ui/app-controller.js';
 import { GUEST_RECORD_STORAGE_KEY } from '../../src/services/guest-record-service.js';
+import playerUpdates from '../../docs/player/updates.json';
 
 const pilot = { id: 'pilot-1', email: 'pilot@example.com', user_metadata: { name: 'Pilot' } };
 
@@ -18,7 +19,7 @@ function deferred() {
   return { promise, resolve };
 }
 
-function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
+function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0, startupUpdateEntry = null, orientationIsMobile } = {}) {
   const root = document.createElement('div');
   document.body.append(root);
   const snapshot = { state: 'menu', score: 0, player: { x: 200, y: 200, velocityY: 0 } };
@@ -75,7 +76,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
   const canvas = document.createElement('canvas');
   const controller = createAppController({
     authService, leaderboardService, gameEngine, renderer, audioManager, root,
-    canvas, playSessionTracker: leaderboard.playSessionTracker,
+    canvas, playSessionTracker: leaderboard.playSessionTracker, startupUpdateEntry, orientationIsMobile,
   });
   return {
     root, controller, authService, leaderboardService, gameEngine, renderer, audioManager,
@@ -89,6 +90,39 @@ async function settle() {
 
 describe('app controller product flow', () => {
   let harness;
+  it('holds the approved startup popup through auth repaint, blocks background dispatch and dismisses only once',async()=>{
+    harness=makeHarness({startupUpdateEntry:playerUpdates.entries[0]});harness.controller.mount();await settle();
+    const host=document.querySelector('.startup-update-host'),dialog=host.querySelector('[role=dialog]');
+    expect(dialog.textContent).toContain(playerUpdates.entries[0].version);expect(harness.root.inert).toBe(true);
+    harness.controller.dispatch('START_GAME_FROM_MENU');expect(harness.root.querySelector('.tutorial-list')).toBeNull();
+    harness.authService.subscribeToAuth.mock.calls[0][0]({...pilot,user_metadata:{name:'Updated'}});await settle();expect(host.querySelector('[role=dialog]')).toBe(dialog);
+    host.querySelector('.update-confirm').dispatchEvent(new KeyboardEvent('keydown',{key:' ',code:'Space',bubbles:true,cancelable:true}));
+    window.dispatchEvent(new KeyboardEvent('keyup',{key:' ',code:'Space',bubbles:true}));
+    expect(host.hidden).toBe(true);expect(harness.root.inert).toBe(false);expect(harness.gameEngine.start).not.toHaveBeenCalled();expect(harness.root.querySelector('.menu-screen')).not.toBeNull();
+    harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');harness.controller.dispatch('GAME_OVER');harness.controller.dispatch('RESTART_IMMEDIATE');harness.controller.dispatch('RETURN_TO_MENU');
+    expect(host.hidden).toBe(true);expect(host.querySelector('[role=dialog]')).toBeNull();expect(harness.root.querySelector('.menu-screen')).not.toBeNull();
+  });
+  it('shows startup on each fresh mount, unlocks audio with confirm input and removes modal on destroy',async()=>{
+    for(let i=0;i<2;i++){
+      harness=makeHarness({startupUpdateEntry:playerUpdates.entries[0]});harness.controller.mount();await settle();
+      const button=document.querySelector('.startup-update-host .update-confirm');expect(button).not.toBeNull();
+      button.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',repeat:true,bubbles:true,cancelable:true}));expect(document.querySelector('.startup-update-host').hidden).toBe(false);
+      button.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',code:'Enter',bubbles:true,cancelable:true}));await settle();expect(harness.audioManager.unlock).toHaveBeenCalledOnce();
+      harness.controller.destroy();harness.root.remove();expect(document.querySelector('.startup-update-host')).toBeNull();
+    }
+  });
+  it('gives portrait orientation priority and restores the pending popup when rotated back',async()=>{
+    vi.stubGlobal('innerWidth',390);vi.stubGlobal('innerHeight',844);
+    try{
+      harness=makeHarness({startupUpdateEntry:playerUpdates.entries[0],orientationIsMobile:()=>true});harness.controller.mount();await settle();
+      const host=document.querySelector('.startup-update-host');expect(host.hidden).toBe(true);expect(harness.root.inert).toBe(true);
+      window.dispatchEvent(new KeyboardEvent('keydown',{code:'Escape',key:'Escape',bubbles:true,cancelable:true}));expect(host.querySelector('[role=dialog]')).not.toBeNull();
+      vi.stubGlobal('innerWidth',844);vi.stubGlobal('innerHeight',390);window.dispatchEvent(new Event('resize'));
+      expect(host.hidden).toBe(false);expect(harness.root.inert).toBe(true);expect(document.activeElement.className).toBe('update-confirm');
+      host.querySelector('.update-confirm').click();expect(harness.root.inert).toBe(false);
+      vi.stubGlobal('innerWidth',390);vi.stubGlobal('innerHeight',844);window.dispatchEvent(new Event('resize'));expect(harness.root.inert).toBe(true);expect(host.hidden).toBe(true);
+    }finally{vi.unstubAllGlobals();}
+  });
   it('discards stale aircraft list AND own record responses while preserving game-over overall scope',async()=>{
     const list=deferred(),own=deferred();
     harness=makeHarness({leaderboard:{

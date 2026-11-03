@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-11-03T05:30:28.077Z",
+  "readOnly": true,
+  "authPrincipal": "anonymous public client",
+  "checks": [
+    {
+      "name": "overall",
+      "status": 200,
+      "rowCount": 13
+    },
+    {
+      "name": "default",
+      "status": 200,
+      "rowCount": 10
+    },
+    {
+      "name": "aegis",
+      "status": 200,
+      "rowCount": 2
+    },
+    {
+      "name": "velocity",
+      "status": 200,
+      "rowCount": 1
+    },
+    {
+      "name": "own-record-denied",
+      "status": 401,
+      "errorCode": "42501"
+    },
+    {
+      "name": "private-craft-denied",
+      "status": 401,
+      "errorCode": "42501"
+    },
+    {
+      "name": "private-history-denied",
+      "status": 401,
+      "errorCode": "42501"
+    }
+  ],
+  "publicRpcVerified": true,
+  "authenticatedWritesVerified": false,
+  "privateScoreColumnVerified": false,
+  "remoteMutation": false,
+  "limitations": [
+    "No user token/admin connection: authenticated best-score updates, private final_score storage and exact legacy preservation were not inspected.",
+    "Public record matching is observational, without private user IDs."
+  ],
+  "observedOverallRows": 13,
+  "observedBestMatches": 13
+}
