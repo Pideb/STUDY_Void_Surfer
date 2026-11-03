@@ -1,0 +1,20 @@
+{
+  "applied": [
+    "202609210001_void_surfer_leaderboard.sql",
+    "202609230001_aircraft_scores.sql",
+    "202609300001_public_leaderboard_read.sql",
+    "202611020001_private_play_sessions.sql",
+    "202611020002_private_ranking_duration.sql",
+    "202611030001_aircraft_rankings_history.sql"
+  ],
+  "tests": [
+    "private_play_sessions.sql",
+    "private_ranking_duration.sql",
+    "aircraft_rankings_history.sql"
+  ],
+  "legacyPreserved": true,
+  "rolesAndRollbackPassed": true,
+  "remoteApplied": false,
+  "concurrencyVerified": false,
+  "limitation": "Single-connection PGlite; auth.uid fixture does not verify JWT/PostgREST or independent concurrent connections."
+}
