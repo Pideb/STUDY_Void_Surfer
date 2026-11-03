@@ -354,7 +354,7 @@ export function createAppController(deps) {
   }
 
   function setScreen(screen, message = '') {
-    if(screen==='menu'&&['playing','paused'].includes(state.screen))playTracker?.finish('abandoned');
+    if(screen==='menu'&&['playing','paused'].includes(state.screen))finishPlayRecord('abandoned');
     if (state.screen === 'preparing' && screen !== 'preparing') cancelPendingStart();
     state.screen = screen;
     paint();
@@ -709,7 +709,7 @@ export function createAppController(deps) {
     stopLoop();
     audioManager.setMusicMode?.('none');
     state.snapshot = gameEngine.getSnapshot();
-    finishedTiming??=playTracker?.finish('dead')??null;
+    finishedTiming??=finishPlayRecord('dead');
     state.leaderboard = null;
     state.submitError = false;
     state.submitErrorMessage = null;
@@ -728,7 +728,7 @@ export function createAppController(deps) {
     if (state.screen !== 'playing') return;
     gameEngine.update(timestamp);
     state.snapshot = gameEngine.getSnapshot();
-    if(state.snapshot.deathEffect||state.snapshot.state==='game-over')finishedTiming??=playTracker?.finish('dead')??null;
+    if(state.snapshot.deathEffect||state.snapshot.state==='game-over')finishedTiming??=finishPlayRecord('dead');
     renderer.render(state.snapshot, { showPlayerHitbox: Boolean(isDesignatedAdmin(state.user)
       && state.adminModeEnabled && state.showPlayerHitbox) });
     gameHud?.update(state.snapshot);
@@ -1237,8 +1237,15 @@ export function createAppController(deps) {
     void refreshSession();
   }
 
+  function finishPlayRecord(outcome) {
+    const snapshot = gameEngine.getSnapshot?.() ?? state.snapshot;
+    const score = snapshot?.finalScore ?? snapshot?.score ?? null;
+    return playTracker?.finish(outcome, score) ?? null;
+  }
+
   function destroy() {
     mounted = false;
+    finishPlayRecord('abandoned');
     playTracker?.destroy();
     globalThis.window?.removeEventListener('pagehide',handlePageHide);
     globalThis.window?.removeEventListener('pageshow',handlePageShow);
@@ -1262,7 +1269,7 @@ export function createAppController(deps) {
     if (ownsLiveRegion) liveRegion.remove();
   }
 
-  function handlePageHide(event){if(event.persisted){playTracker?.suspend('bfcache');gameEngine.setSuspended?.('bfcache',true);stopLoop();audioManager.pauseMusic?.();}else playTracker?.finish('abandoned');void playTracker?.flush();}
+  function handlePageHide(event){if(event.persisted){playTracker?.suspend('bfcache');gameEngine.setSuspended?.('bfcache',true);stopLoop();audioManager.pauseMusic?.();}else finishPlayRecord('abandoned');void playTracker?.flush();}
   function handlePageShow(event){if(!event.persisted)return;playTracker?.resume('bfcache');gameEngine.setSuspended?.('bfcache',false);if(state.screen==='playing'&&!orientationWasBlocking){audioManager.resumeMusic?.();stopLoop();animationFrame=globalThis.requestAnimationFrame(renderFrame);}void playTracker?.flush();}
   orientationController=createOrientationController({isMobile:deps.orientationIsMobile,getScreen:()=>state.screen,onChange:syncOrientation});
   return { mount, destroy, dispatch };

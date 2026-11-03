@@ -2,6 +2,14 @@ import {describe,it,expect,vi,afterEach} from 'vitest';
 import {createPlaySessionTracker} from '../../src/services/play-session-tracker.js';
 let tracker;afterEach(()=>{tracker?.destroy();vi.unstubAllGlobals();});
 describe('monotonic private survival clock',()=>{
+ it('freezes a known final score including zero per run and keeps legacy unknown distinct',async()=>{
+  let t=0;const service={start:vi.fn(async()=>({ok:true})),finish:vi.fn(async()=>({ok:true}))};tracker=createPlaySessionTracker({now:()=>t,service});
+  const id=tracker.begin({aircraftId:'velocity',version:'0.2b'});t=500;
+  const first=tracker.finish('dead',44);expect(tracker.finish('abandoned',99)).toBe(first);expect(tracker.getFinishedRun(id).finalScore).toBe(44);
+  tracker.begin({aircraftId:'default',version:'0.2b'});t=600;expect(tracker.finish('dead',0).finalScore).toBe(0);
+  tracker.begin({aircraftId:'default',version:'0.2b'});expect(tracker.finish('dead',-1)).toBeNull();expect(tracker.finish('abandoned').finalScore).toBeNull();
+  await tracker.flush();expect(service.finish.mock.calls.map(([r])=>r.finalScore)).toEqual([44,0,null]);
+ });
  it('records a run and nonce over HTTP where only getRandomValues is available',async()=>{
   const original=globalThis.crypto;vi.stubGlobal('crypto',{getRandomValues:bytes=>original.getRandomValues(bytes)});const service={start:vi.fn(async()=>({ok:true})),finish:vi.fn(async()=>({ok:true}))};tracker=createPlaySessionTracker({service});const id=tracker.begin({aircraftId:'default',version:'0.2'});expect(id).toMatch(/^[a-f\d]{8}-[a-f\d]{4}-4[a-f\d]{3}-[89ab][a-f\d]{3}-[a-f\d]{12}$/);tracker.finish('dead');await tracker.flush();expect(service.start).toHaveBeenCalledOnce();expect(service.finish).toHaveBeenCalledOnce();expect(service.start.mock.calls[0][0].writeNonce).not.toBe(id);
  });

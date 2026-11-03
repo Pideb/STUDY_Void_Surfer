@@ -25,6 +25,10 @@ export function createPlayRecordService(client,{anonymousClient=null,timeoutMs=1
       }catch(error){return resultFor(error);}
       return call(target,'start_play_session',{p_run_id:record.runId,p_write_nonce:record.writeNonce,p_guest_id:record.guestId,p_client_version:record.version,p_aircraft_id:record.aircraftId,p_is_admin_test:record.isAdminTest});
     },
-    finish(record){return call(anonymousClient??client,'finish_play_session',{p_run_id:record.runId,p_write_nonce:record.writeNonce,p_duration_ms:record.durationMs,p_outcome:record.outcome});},
+    finish(record){
+      const score=record.finalScore??null;
+      if(score!==null&&(!Number.isInteger(score)||score<0||score>2147483647))return Promise.resolve({ok:false,retryable:false,errorCode:'22023'});
+      return call(anonymousClient??client,'finish_play_session',{p_run_id:record.runId,p_write_nonce:record.writeNonce,p_duration_ms:record.durationMs,p_outcome:record.outcome,...(score===null?{}:{p_final_score:score})});
+    },
   };
 }

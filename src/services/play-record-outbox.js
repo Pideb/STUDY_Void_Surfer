@@ -6,7 +6,11 @@ function startData(r){
   if(r.actorKind==='account'?!uuid(r.ownerUserId):!uuid(r.guestId))return null;
   return {runId:r.runId,writeNonce:r.writeNonce,ownerUserId:r.actorKind==='account'?r.ownerUserId:null,actorKind:r.actorKind,guestId:r.actorKind==='guest'?r.guestId:null,version:r.version,aircraftId:r.aircraftId,isAdminTest:Boolean(r.isAdminTest)};
 }
-function endData(r){return r&&uuid(r.runId)&&uuid(r.writeNonce)&&Number.isInteger(r.durationMs)&&r.durationMs>=0&&r.durationMs<=604800000&&['dead','abandoned'].includes(r.outcome)?{runId:r.runId,writeNonce:r.writeNonce,durationMs:r.durationMs,outcome:r.outcome}:null;}
+function endData(r){
+  const finalScore=r?.finalScore??null;
+  if(finalScore!==null&&(!Number.isInteger(finalScore)||finalScore<0||finalScore>2147483647))return null;
+  return r&&uuid(r.runId)&&uuid(r.writeNonce)&&Number.isInteger(r.durationMs)&&r.durationMs>=0&&r.durationMs<=604800000&&['dead','abandoned'].includes(r.outcome)?{runId:r.runId,writeNonce:r.writeNonce,durationMs:r.durationMs,outcome:r.outcome,finalScore}:null;
+}
 export function createPlayRecordOutbox({service,storage=null,now=Date.now,diagnostic=()=>{}}={}) {
   const entries=new Map();let destroyed=false,flushing=null,timer=null;
   function persist(){try{storage?.setItem(PLAY_OUTBOX_KEY,JSON.stringify({schemaVersion:1,entries:[...entries.values()]}));}catch{diagnostic('STORAGE_UNAVAILABLE');}}

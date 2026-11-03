@@ -1,6 +1,6 @@
 # Task: T02 Services and private run scores
 
-## Status: pending
+## Status: done
 
 ## Goal
 Connect scoped ranking reads and retain every observed terminal score through existing telemetry/outbox.
@@ -27,9 +27,9 @@ Connect scoped ranking reads and retain every observed terminal score through ex
 - Test null/0/invalid, reload/retry score retention, lower-score history, frozen score/time on restart, multiplier finalScore, abandonment, identity changes. No private fields in ranking DTO/UI.
 
 ## Acceptance Criteria
-- [ ] Scoped endpoints validate/rout correctly; overall unchanged.
-- [ ] Terminal scores persist through outbox and freeze per run.
-- [ ] Guest/admin histories never enter official rankings.
+- [x] Scoped endpoints validate/rout correctly; overall unchanged.
+- [x] Terminal scores persist through outbox and freeze per run.
+- [x] Guest/admin histories never enter official rankings.
 
 ## Validation
 - `npm run test -- --run tests/services/leaderboard-service.test.js tests/services/play-session-tracker.test.js tests/services/play-record-outbox.test.js tests/services/play-record-service.test.js tests/integration/ranking-duration.test.js tests/ui/app-controller.test.js`
@@ -44,6 +44,6 @@ Task: T02-services-history
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: recorded in git history (T02-services-history); 122 targeted tests passed

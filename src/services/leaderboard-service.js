@@ -124,19 +124,40 @@ export async function fetchTopScores(client, limit = DEFAULT_TOP_LIMIT) {
   }
 }
 
-export async function fetchLeaderboardPage(client, { limit = MAX_TOP_LIMIT, offset = 0 } = {}) {
+export async function fetchLeaderboardPage(client, { limit = MAX_TOP_LIMIT, offset = 0, aircraftId = null } = {}) {
+  if (aircraftId !== null && !AIRCRAFT_CATALOG.some(({ id }) => id === aircraftId)) {
+    return { rows: [], error: createValidationError('기체 정보를 확인할 수 없습니다.') };
+  }
   const safeLimit = clampInteger(limit, MAX_TOP_LIMIT, 1, MAX_TOP_LIMIT);
   const safeOffset = clampInteger(offset, 0, 0, MAX_OFFSET);
 
   try {
-    const { data, error } = await client.rpc('get_public_leaderboard', {
+    const { data, error } = await client.rpc(aircraftId === null ? 'get_public_leaderboard' : 'get_aircraft_leaderboard', {
       p_limit: safeLimit,
       p_offset: safeOffset,
+      ...(aircraftId === null ? {} : { p_aircraft_id: aircraftId }),
     });
     if (error) return { rows: [], error: mapLeaderboardError(error) };
     return { rows: normalizeLeaderboardRows(data), error: null };
   } catch (error) {
     return { rows: [], error: mapLeaderboardError(error) };
+  }
+}
+
+export async function fetchPlayerAircraftRecord(client, aircraftId) {
+  if (!AIRCRAFT_CATALOG.some(({ id }) => id === aircraftId)) {
+    return { record: null, error: createValidationError('기체 정보를 확인할 수 없습니다.') };
+  }
+  try {
+    const { data, error } = await client.rpc('get_player_aircraft_record', { p_aircraft_id: aircraftId });
+    if (error) return { record: null, error: mapLeaderboardError(error) };
+    const rows = normalizeLeaderboardRows(data, await getCurrentUserId(client));
+    if (!Array.isArray(data) || (data.length && (rows.length !== 1 || rows[0].aircraftId !== aircraftId))) {
+      return { record: null, error: mapLeaderboardError(new Error('Malformed aircraft record')) };
+    }
+    return { record: rows[0] ?? null, error: null };
+  } catch (error) {
+    return { record: null, error: mapLeaderboardError(error) };
   }
 }
 

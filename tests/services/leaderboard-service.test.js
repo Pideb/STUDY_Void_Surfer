@@ -3,6 +3,7 @@ import {
   fetchPlayerNeighborhood,
   fetchPlayerBestScore,
   fetchLeaderboardPage,
+  fetchPlayerAircraftRecord,
   fetchTopScores,
   normalizeLeaderboardRows,
   submitBestScore,
@@ -29,6 +30,23 @@ function dbRow(overrides = {}) {
     ...overrides,
   };
 }
+
+describe('aircraft ranking scope', () => {
+  it('routes scoped pagination without filtering away independent bests', async () => {
+    const client=makeClient({rpcImpl:vi.fn(async()=>({data:[dbRow({aircraft_id:'aegis'})],error:null}))});
+    const result=await fetchLeaderboardPage(client,{aircraftId:'aegis',limit:10,offset:50});
+    expect(client.rpc).toHaveBeenCalledWith('get_aircraft_leaderboard',{p_aircraft_id:'aegis',p_limit:10,p_offset:50});
+    expect(result.rows[0].aircraftId).toBe('aegis');
+    client.rpc.mockClear();expect((await fetchLeaderboardPage(client,{aircraftId:'invalid'})).error).toBeTruthy();expect(client.rpc).not.toHaveBeenCalled();
+  });
+  it('returns private-field-free personal records, valid empty state and explicit migration errors', async () => {
+    const client=makeClient({rpcImpl:vi.fn().mockResolvedValueOnce({data:[dbRow({duration_ms:123})]}).mockResolvedValueOnce({data:[]}).mockResolvedValueOnce({error:{code:'PGRST202'}})});
+    const own=await fetchPlayerAircraftRecord(client,'velocity');expect(own.record).toMatchObject({isCurrentUser:true,aircraftId:'velocity'});expect(own.record).not.toHaveProperty('duration_ms');
+    expect(await fetchPlayerAircraftRecord(client,'aegis')).toEqual({record:null,error:null});
+    expect((await fetchPlayerAircraftRecord(client,'default')).error).toBeTruthy();expect(client.rpc).toHaveBeenCalledTimes(3);
+    expect((await fetchPlayerAircraftRecord(client,'invalid')).error).toBeTruthy();expect(client.rpc).toHaveBeenCalledTimes(3);
+  });
+});
 
 describe('submitBestScore', () => {
   it('submits only through the score RPC and normalizes the returned record', async () => {

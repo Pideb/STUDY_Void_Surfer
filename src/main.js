@@ -12,7 +12,7 @@ import { createRenderer } from './game/renderer.js';
 import { createVisualAssetLoader } from './game/visual-assets.js';
 import { getSessionUser, signInWithMicrosoft, signOut, subscribeToAuth } from './services/auth-service.js';
 import {
-  fetchLeaderboardPage, fetchPlayerBestScore, fetchPlayerNeighborhood, fetchTopScores, submitBestScore,
+  fetchLeaderboardPage, fetchPlayerAircraftRecord, fetchPlayerBestScore, fetchPlayerNeighborhood, fetchTopScores, submitBestScore,
 } from './services/leaderboard-service.js';
 import { createAppController } from './ui/app-controller.js';
 
@@ -61,12 +61,14 @@ if (window.location.pathname === '/auth/callback') {
     fetchPlayerBestScore: () => fetchPlayerBestScore(client),
     fetchTopScores: () => fetchTopScores(client),
     fetchLeaderboardPage: (options) => fetchLeaderboardPage(client, options),
+    fetchPlayerAircraftRecord: (aircraftId) => fetchPlayerAircraftRecord(client, aircraftId),
     fetchPlayerNeighborhood: () => fetchPlayerNeighborhood(client),
   } : {
     async submitBestScore() { return { updated: false, record: null, error: configError }; },
     async fetchPlayerBestScore() { return { bestScore: 0, error: configError }; },
     async fetchTopScores() { return { rows: [], error: configError }; },
     async fetchLeaderboardPage() { return { rows: [], error: configError }; },
+    async fetchPlayerAircraftRecord() { return { record: null, error: configError }; },
     async fetchPlayerNeighborhood() { return { rows: [], error: configError }; },
   };
 
