@@ -230,16 +230,19 @@
 }
 .menu-design-space:not(.is-mobile-landscape) .pilot-ranking-screen{
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
-  width: min(94%, 760px);
-  max-height: min(92%, 900px);
-  gap: 0.75rem;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
+  width: 820px;
+  height: 794px;
+  max-height: 94%;
+  padding: 26px;
+  gap: 13px;
+  overflow: hidden;
 }
 .menu-design-space:not(.is-mobile-landscape) .pilot-ranking-screen > h1{ margin-bottom: 0; }
 .menu-design-space:not(.is-mobile-landscape) .pilot-ranking-screen > .screen-message{ margin: 0; }
 .menu-design-space:not(.is-mobile-landscape) .pilot-ranking-table-scroll{
-  min-height: 8rem;
-  max-height: min(486px, 34rem);
+  min-height: 0;
+  max-height: none;
   overflow-y: auto;
   overscroll-behavior: contain;
   border: 1px solid rgba(139, 166, 191, 0.25);
@@ -383,3 +386,46 @@
 .menu-design-space.is-mobile-landscape .screen-panel,.menu-design-space.is-mobile-landscape .hangar-screen{max-height:calc(100% - 24px);overflow:auto;}
 .menu-design-space.is-mobile-landscape .account-actions{margin-bottom:12px;}
 .menu-design-space.is-mobile-landscape .menu-version{font-size:10px;bottom:4px;}
+
+/* Ranking uses native mobile pixels: preserve text and touch size instead of scaling the PC panel. */
+.menu-design-space.is-mobile-landscape .pilot-ranking-screen{
+  width:calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right));
+  height:calc(100% - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  max-height:none;padding:12px;gap:8px;overflow:hidden;
+  grid-template-rows:auto auto minmax(0,1fr) auto auto;
+}
+.menu-design-space.is-mobile-landscape .pilot-ranking-screen>h1{font-size:23px;margin:0;}
+.menu-design-space.is-mobile-landscape .pilot-ranking-screen>.screen-message{display:none;}
+.menu-design-space.is-mobile-landscape .rank-tab{min-height:48px;font-size:14px;gap:6px;padding:4px;}
+.menu-design-space.is-mobile-landscape .rank-tab img{width:30px;height:23px;}
+.menu-design-space.is-mobile-landscape .pilot-ranking-table-scroll{min-height:0;max-height:none;overflow-y:auto;}
+.menu-design-space.is-mobile-landscape .pilot-ranking-table th,
+.menu-design-space.is-mobile-landscape .pilot-ranking-table td{font-size:13px;padding:8px 10px;}
+.menu-design-space.is-mobile-landscape .pilot-ranking-screen .ranking-personal-record{padding:8px 11px;}
+.menu-design-space.is-mobile-landscape .pilot-ranking-screen .ranking-personal-record h2{font-size:12px;margin-bottom:4px;}
+.menu-design-space.is-mobile-landscape .personal-identity{gap:6px;}
+.menu-design-space.is-mobile-landscape .personal-identity img{width:30px;height:24px;}
+.menu-design-space.is-mobile-landscape .personal-identity strong{font-size:14px;}
+.menu-design-space.is-mobile-landscape .personal-identity span{font-size:12px;}
+.menu-design-space.is-mobile-landscape .personal-score{gap:9px;}
+.menu-design-space.is-mobile-landscape .personal-score b{font-size:23px;}
+.menu-design-space.is-mobile-landscape .personal-score span{font-size:13px;}
+.menu-design-space.is-mobile-landscape .pilot-ranking-screen>button{min-height:44px;padding:4px 20px;font-size:14px;}
+.menu-design-space.is-mobile-landscape .ranking-personal-record>p{font-size:13px;margin:0;}
+@media(max-width:640px){
+ .menu-design-space.is-mobile-landscape .rank-tab{gap:3px;font-size:13px;}
+ .menu-design-space.is-mobile-landscape .rank-tab img{width:25px;height:20px;}
+}
+@media(max-height:420px){
+ .menu-design-space.is-mobile-landscape .pilot-ranking-screen{padding:8px;gap:6px;}
+ .menu-design-space.is-mobile-landscape .pilot-ranking-screen>h1{font-size:20px;line-height:1.2;}
+ .menu-design-space.is-mobile-landscape .rank-tab{min-height:44px;}
+ .menu-design-space.is-mobile-landscape .pilot-ranking-screen .ranking-personal-record{display:flex;align-items:center;gap:10px;padding:7px 10px;min-height:44px;}
+ .menu-design-space.is-mobile-landscape .pilot-ranking-screen .ranking-personal-record h2{margin:0;max-width:110px;font-size:12px;line-height:1.3;word-break:keep-all;}
+ .menu-design-space.is-mobile-landscape .pilot-ranking-table th,
+ .menu-design-space.is-mobile-landscape .pilot-ranking-table td{line-height:1.35;padding:6px 9px;}
+ .menu-design-space.is-mobile-landscape .personal-grid{flex:1;gap:8px;}
+ .menu-design-space.is-mobile-landscape .personal-identity span{display:none;}
+ .menu-design-space.is-mobile-landscape .personal-score b{font-size:22px;}
+ .menu-design-space.is-mobile-landscape .personal-identity strong{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+}

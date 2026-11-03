@@ -58,16 +58,16 @@ function createLeaderboardTable(title, rows, emptyMessage) {
   return section;
 }
 
-export function renderPilotRankingTable(rows = []) {
+export function renderPilotRankingTable(rows = [], { aircraftId = null } = {}) {
   const table = document.createElement('table');
   table.className = 'pilot-ranking-table';
   const caption = document.createElement('caption');
   caption.className = 'sr-only';
-  caption.textContent = '전체 파일럿 순위';
+  caption.textContent = aircraftId === null ? '전체 파일럿 순위' : `${AIRCRAFT_PRESENTATION[aircraftId]?.name ?? ''} 파일럿 순위`;
   table.append(caption);
   const head = document.createElement('thead');
   const headerRow = document.createElement('tr');
-  for (const label of ['순위', '파일럿', '기체', '최고 점수']) {
+  for (const label of ['순위', '파일럿', ...(aircraftId === null ? ['기체'] : []), '최고 점수']) {
     const cell = document.createElement('th');
     cell.scope = 'col';
     cell.textContent = label;
@@ -80,7 +80,8 @@ export function renderPilotRankingTable(rows = []) {
   for (const row of rows) {
     const tableRow = document.createElement('tr');
     const aircraft = AIRCRAFT_PRESENTATION[row.aircraftId] ?? AIRCRAFT_PRESENTATION.default;
-    for (const value of [row.rank, row.displayName, `${aircraft.icon} ${aircraft.name}`, row.bestScore]) {
+    if (row.isCurrentUser) tableRow.className = 'current-player-row';
+    for (const value of [row.rank, row.displayName, ...(aircraftId === null ? [`${aircraft.icon} ${aircraft.name}`] : []), row.bestScore]) {
       const cell = document.createElement('td');
       cell.textContent = String(value);
       tableRow.append(cell);

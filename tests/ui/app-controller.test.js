@@ -48,6 +48,7 @@ function makeHarness({ user = pilot, leaderboard = {}, bestScore = 0 } = {}) {
     submitBestScore: vi.fn(leaderboard.submitBestScore ?? (async (_user, { score, aircraftId }) => savedScoreResult(score, aircraftId))),
     fetchTopScores: vi.fn(leaderboard.fetchTopScores ?? (async () => ({ rows: [], error: null }))),
     fetchLeaderboardPage: vi.fn(leaderboard.fetchLeaderboardPage ?? (async () => ({ rows: [], error: null }))),
+    fetchPlayerAircraftRecord: vi.fn(leaderboard.fetchPlayerAircraftRecord ?? (async () => ({ record: null, error: null }))),
     fetchPlayerNeighborhood: vi.fn(leaderboard.fetchPlayerNeighborhood ?? (async () => ({ rows: [], error: null }))),
     fetchPlayerBestScore: vi.fn(leaderboard.fetchPlayerBestScore ?? (async () => ({ bestScore, error: null }))),
   };
@@ -88,6 +89,41 @@ async function settle() {
 
 describe('app controller product flow', () => {
   let harness;
+  it('discards stale aircraft list AND own record responses while preserving game-over overall scope',async()=>{
+    const list=deferred(),own=deferred();
+    harness=makeHarness({leaderboard:{
+      fetchLeaderboardPage:({aircraftId})=>aircraftId==='default'?list.promise:Promise.resolve({rows:[{rank:1,displayName:aircraftId??'Overall',aircraftId:aircraftId??'velocity',bestScore:100}],error:null}),
+      fetchPlayerAircraftRecord:id=>id==='default'?own.promise:Promise.resolve({record:{rank:2,displayName:'My Aegis',aircraftId:id,bestScore:40},error:null}),
+    }});
+    harness.controller.mount();await settle();harness.controller.dispatch('OPEN_PILOT_RANKING');await settle();
+    harness.root.querySelector('#rank-tab-default').click();harness.root.querySelector('#rank-tab-aegis').click();await settle();
+    expect(harness.root.querySelector('[aria-selected=true]').id).toBe('rank-tab-aegis');
+    expect(harness.root.querySelectorAll('th')).toHaveLength(3);expect(harness.root.querySelector('.personal-score').textContent).toBe('2위40점');
+    list.resolve({rows:[{rank:1,displayName:'STALE NOVA',bestScore:999}],error:null});own.resolve({record:{rank:1,displayName:'STALE OWN',aircraftId:'default',bestScore:999}});await settle();
+    expect(harness.root.textContent).not.toContain('STALE');
+    harness.controller.dispatch('CLOSE_PILOT_RANKING');harness.controller.dispatch('OPEN_PILOT_RANKING');await settle();
+    expect(harness.root.querySelector('[aria-selected=true]').id).toBe('rank-tab-overall');
+    expect(harness.root.querySelectorAll('th')).toHaveLength(4);
+  });
+  it('shows no aircraft record rather than substituting the overall score and keeps guests read-only',async()=>{
+    harness=makeHarness({bestScore:500});harness.controller.mount();await settle();harness.controller.dispatch('OPEN_PILOT_RANKING');await settle();
+    harness.root.querySelector('#rank-tab-velocity').click();await settle();expect(harness.root.querySelector('.ranking-personal-record').textContent).toContain('아직 VELOCITY 기록이 없습니다');expect(harness.root.querySelector('.ranking-personal-record').textContent).not.toContain('500');
+    harness.authService.subscribeToAuth.mock.calls[0][0](null);await settle();harness.controller.dispatch('OPEN_PILOT_RANKING');await settle();harness.root.querySelector('#rank-tab-aegis').click();await settle();
+    expect(harness.root.querySelector('.ranking-personal-record').textContent).toContain('로그인하면');expect(harness.leaderboardService.fetchPlayerAircraftRecord).toHaveBeenCalledTimes(1);expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+  });
+  it('uses scoped pagination and retry without resetting the aircraft or duplicating rows',async()=>{
+    let calls=0;harness=makeHarness({leaderboard:{fetchLeaderboardPage:async({aircraftId,offset})=>{
+      if(!aircraftId)return{rows:[]};calls++;if(calls===2)return{error:Error('offline')};return{rows:Array.from({length:offset?1:50},(_,i)=>({rank:offset+i+1,displayName:'Aegis '+(offset+i+1),bestScore:100-i,aircraftId}))};
+    }}});harness.controller.mount();await settle();harness.controller.dispatch('OPEN_PILOT_RANKING');await settle();harness.root.querySelector('#rank-tab-aegis').click();await settle();
+    harness.controller.dispatch('LOAD_MORE_RANKING');await settle();harness.root.querySelector('.ranking-reload').click();await settle();
+    expect(harness.root.querySelectorAll('tbody tr')).toHaveLength(51);
+    expect(harness.leaderboardService.fetchLeaderboardPage.mock.calls.slice(1).map(([o])=>[o.aircraftId,o.offset])).toEqual([['aegis',0],['aegis',50],['aegis',50]]);
+  });
+  it('captures the current observable score on abandonment without ranking submission',async()=>{
+    const tracker={begin:vi.fn(),finish:vi.fn(),flush:vi.fn(),destroy:vi.fn(),suspend:vi.fn(),resume:vi.fn()};harness=makeHarness({leaderboard:{playSessionTracker:tracker}});
+    harness.controller.mount();await settle();harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');harness.snapshot.score=15;harness.snapshot.finalScore=23;harness.controller.dispatch('RETURN_TO_MENU');
+    expect(tracker.finish).toHaveBeenCalledWith('abandoned',23);expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+  });
   it('leaves preparation even if both optional record creation and music startup throw',async()=>{
     const tracker={flush:vi.fn(),begin:vi.fn(()=>{throw Error('Unsupported identity API');}),finish:vi.fn(),suspend:vi.fn(),resume:vi.fn(),destroy:vi.fn()};
     harness=makeHarness({user:null,leaderboard:{playSessionTracker:tracker}});harness.audioManager.prepareGameplay=vi.fn(async()=>true);harness.audioManager.startPreparedGameplay=vi.fn(()=>{throw Error('Audio unavailable');});harness.controller.mount();await settle();harness.controller.dispatch('START_GAME_FROM_MENU');harness.controller.dispatch('START_PLAYING');await settle();
@@ -484,8 +520,8 @@ describe('app controller product flow', () => {
     await settle();
 
     expect(harness.root.querySelector('.ranking-personal-record').textContent)
-      .toContain('9위 · Pilot · VELOCITY · 73점');
-    harness.root.querySelector('.pilot-ranking-screen button:last-child').click();
+      .toContain('PilotVELOCITY9위73점');
+    harness.root.querySelector('.pilot-ranking-screen > button:last-child').click();
     expect(harness.root.querySelector('.game-over-screen')).not.toBeNull();
   });
 

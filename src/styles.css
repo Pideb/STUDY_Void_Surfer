@@ -501,7 +501,7 @@ button:focus-visible {
 
 .pilot-ranking-screen {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr) auto auto;
+  grid-template-rows: auto auto auto minmax(0, 1fr) auto auto;
   width: min(94%, 760px);
   max-height: min(92%, 900px);
   gap: 0.75rem;
@@ -561,6 +561,28 @@ button:focus-visible {
 }
 
 .ranking-personal-record p { margin: 0.25rem 0; }
+
+.rank-tabs { display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;min-width:0; }
+.rank-tab { display:flex;align-items:center;justify-content:center;gap:9px;min-width:0;min-height:62px;padding:6px;border:1px solid #2c4659;border-radius:9px;background:#0a1830;color:#a9c0d0;font-size:14px;font-weight:700; }
+.rank-tab img { width:36px;height:27px;object-fit:contain; }
+.rank-tab[aria-selected="true"] { border-color:#78e7db;color:#cafff8;background:#112c38;box-shadow:inset 0 -3px #78e7db; }
+.rank-tab[data-aircraft-id="aegis"][aria-selected="true"] { border-color:#ebc28b;color:#ffe1b1;background:#2e292b;box-shadow:inset 0 -3px #ebc28b; }
+.rank-tab[data-aircraft-id="velocity"][aria-selected="true"] { border-color:#e9a0de;color:#ffe0f8;background:#2b213b;box-shadow:inset 0 -3px #e9a0de; }
+.rank-tab:focus-visible { outline:3px solid #c6fff4;outline-offset:2px; }
+.overall-icon { font-size:25px;opacity:.8; }
+.pilot-ranking-table-scroll { scrollbar-gutter:stable;scrollbar-color:#36516c #091329; }
+.pilot-ranking-table th:last-child,.pilot-ranking-table td:last-child { text-align:right;font-variant-numeric:tabular-nums; }
+.pilot-ranking-screen .ranking-personal-record { text-align:left;padding:15px 18px;min-width:0; }
+.pilot-ranking-screen .ranking-personal-record h2 { font-size:13px;margin:0 0 9px;color:#a9d2d2; }
+.personal-grid { display:flex;align-items:center;justify-content:space-between;gap:16px;min-width:0; }
+.personal-identity { display:flex;align-items:center;gap:12px;min-width:0; }
+.personal-identity img { width:46px;height:33px;object-fit:contain; }
+.personal-identity strong { display:block;font-size:17px;overflow-wrap:anywhere; }
+.personal-identity span { font-size:13px;color:#a9c0d0; }
+.personal-score { display:flex;align-items:baseline;gap:17px;flex-shrink:0;color:#e4fffa; }
+.personal-score b { font-size:31px;font-weight:800;font-variant-numeric:tabular-nums; }
+.personal-score span { font-size:15px;color:#a7e6d9; }
+.pilot-ranking-screen > button { justify-self:center;min-width:140px;padding:10px 22px; }
 
 .game-hud {
   position: absolute;

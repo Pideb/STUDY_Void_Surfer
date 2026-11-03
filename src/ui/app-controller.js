@@ -100,7 +100,7 @@ export function createAppController(deps) {
     muted: Boolean(audioManager.isMuted?.()), snapshot: null, leaderboard: null,
     submitError: false, submitErrorMessage: null, gameOverRequest: 0, selectedAircraftId: 'default',
     accountBestScore: 0, accountBestScoreLoading: false, accountBestScoreError: false,
-    rankingRows: [], rankingOffset: 0, rankingHasMore: false, rankingLoading: false,
+    rankingAircraftId: null, rankingRows: [], rankingOffset: 0, rankingHasMore: false, rankingLoading: false,
     rankingError: null, rankingPersonalRecord: null, rankingPersonalLoading: false,
     rankingPersonalError: null, rankingReturnScreen: 'menu',
     submitState: 'idle',
@@ -320,7 +320,11 @@ export function createAppController(deps) {
       return;
     }
     if (state.screen === 'pilot-ranking') {
+      const previousScroll = root.querySelector('.pilot-ranking-table-scroll');
+      const scrollTop = previousScroll?.dataset.rankingScope === (state.rankingAircraftId ?? 'overall') ? previousScroll.scrollTop : 0;
+      const focusedTab = root.contains(document.activeElement) ? document.activeElement?.closest('.rank-tab')?.id : null;
       const rankingScreen = renderPilotRankingScreen({
+        aircraftId: state.rankingAircraftId,
         guestMode: !state.user,
         rows: state.rankingRows,
         loading: state.rankingLoading,
@@ -330,11 +334,14 @@ export function createAppController(deps) {
         personalLoading: state.rankingPersonalLoading,
         personalError: state.rankingPersonalError,
       }, {
+        selectAircraft: (aircraftId) => dispatch({ type: 'SELECT_RANKING_AIRCRAFT', aircraftId }),
         loadMore: () => dispatch({ type: 'LOAD_MORE_RANKING' }),
         retry: () => dispatch({ type: 'RETRY_RANKING' }),
         back: () => dispatch({ type: 'CLOSE_PILOT_RANKING' }),
       });
       root.replaceChildren(rankingScreen);
+      rankingScreen.querySelector('.pilot-ranking-table-scroll').scrollTop = scrollTop;
+      if (focusedTab) rankingScreen.querySelector(`#${focusedTab}`)?.focus({ preventScroll: true });
       attachRankingObserver();
       return;
     }
@@ -354,6 +361,10 @@ export function createAppController(deps) {
   }
 
   function setScreen(screen, message = '') {
+    if (state.screen === 'pilot-ranking' && screen !== 'pilot-ranking') {
+      rankingRequestId += 1;
+      rankingPersonalRequestId += 1;
+    }
     if(screen==='menu'&&['playing','paused'].includes(state.screen))finishPlayRecord('abandoned');
     if (state.screen === 'preparing' && screen !== 'preparing') cancelPendingStart();
     state.screen = screen;
@@ -922,12 +933,15 @@ export function createAppController(deps) {
       return;
     }
     const requestId = rankingRequestId;
+    const aircraftId = state.rankingAircraftId;
+    const isCurrent = () => mounted && requestId === rankingRequestId && state.screen === 'pilot-ranking' && state.rankingAircraftId === aircraftId;
     state.rankingLoading = true;
     state.rankingError = null;
     paint();
     try {
-      const result = await leaderboardService.fetchLeaderboardPage({ limit: 50, offset: state.rankingOffset });
-      if (requestId !== rankingRequestId || state.screen !== 'pilot-ranking') return;
+      const result = await leaderboardService.fetchLeaderboardPage({ limit: 50, offset: state.rankingOffset,
+        ...(aircraftId === null ? {} : { aircraftId }) });
+      if (!isCurrent()) return;
       if (result?.error) {
         state.rankingError = result.error;
         state.rankingLoading = false;
@@ -943,7 +957,7 @@ export function createAppController(deps) {
       paint();
       announce(liveRegion, `${state.rankingRows.length}명의 파일럿 순위를 불러왔습니다.`);
     } catch (error) {
-      if (requestId !== rankingRequestId || state.screen !== 'pilot-ranking') return;
+      if (!isCurrent()) return;
       state.rankingError = error;
       state.rankingLoading = false;
       paint();
@@ -954,6 +968,10 @@ export function createAppController(deps) {
   async function loadRankingPersonalRecord() {
     rankingPersonalRequestId += 1;
     const requestId = rankingPersonalRequestId;
+    const aircraftId = state.rankingAircraftId;
+    const userId = state.user?.id;
+    const isCurrent = () => mounted && requestId === rankingPersonalRequestId && state.screen === 'pilot-ranking'
+      && state.rankingAircraftId === aircraftId && state.user?.id === userId;
     if (!state.user) {
       state.rankingPersonalRecord = null;
       state.rankingPersonalLoading = false;
@@ -967,8 +985,17 @@ export function createAppController(deps) {
     state.rankingPersonalError = null;
     paint();
     try {
+      if (aircraftId !== null) {
+        const result = await leaderboardService.fetchPlayerAircraftRecord(aircraftId);
+        if (!isCurrent()) return;
+        if (result?.error) throw result.error;
+        state.rankingPersonalRecord = result?.record ?? null;
+        state.rankingPersonalLoading = false;
+        paint();
+        return;
+      }
       const neighborhood = await leaderboardService.fetchPlayerNeighborhood();
-      if (requestId !== rankingPersonalRequestId || state.screen !== 'pilot-ranking') return;
+      if (!isCurrent()) return;
       if (neighborhood?.error) throw neighborhood.error;
       const ownRecord = neighborhood?.rows?.find((row) => row.isCurrentUser);
       if (ownRecord) {
@@ -981,7 +1008,7 @@ export function createAppController(deps) {
         };
       } else {
         const best = await leaderboardService.fetchPlayerBestScore(state.user);
-        if (requestId !== rankingPersonalRequestId || state.screen !== 'pilot-ranking') return;
+        if (!isCurrent()) return;
         if (best?.error) throw best.error;
         state.rankingPersonalRecord = {
           rank: null,
@@ -994,7 +1021,7 @@ export function createAppController(deps) {
       state.rankingPersonalLoading = false;
       paint();
     } catch (error) {
-      if (requestId !== rankingPersonalRequestId || state.screen !== 'pilot-ranking') return;
+      if (!isCurrent()) return;
       state.rankingPersonalLoading = false;
       state.rankingPersonalError = error;
       paint();
@@ -1002,6 +1029,7 @@ export function createAppController(deps) {
   }
 
   function openPilotRanking(returnScreen) {
+    state.rankingAircraftId = null;
     state.rankingReturnScreen = returnScreen === 'game-over' ? 'game-over' : 'menu';
     state.rankingRows = [];
     state.rankingOffset = 0;
@@ -1043,6 +1071,20 @@ export function createAppController(deps) {
           setScreen(state.rankingReturnScreen);
         }
         break;
+      case 'SELECT_RANKING_AIRCRAFT': {
+        const aircraftId = event.aircraftId;
+        if (state.screen !== 'pilot-ranking' || aircraftId === state.rankingAircraftId
+          || (aircraftId !== null && !AIRCRAFT_CATALOG.some(({ id }) => id === aircraftId))) break;
+        rankingRequestId += 1;
+        rankingPersonalRequestId += 1;
+        state.rankingAircraftId = aircraftId;
+        state.rankingPersonalRecord = null;
+        state.rankingPersonalLoading = Boolean(state.user);
+        state.rankingPersonalError = null;
+        void loadRankingPage({ reset: true });
+        void loadRankingPersonalRecord();
+        break;
+      }
       case 'LOAD_MORE_RANKING':
         if (state.screen === 'pilot-ranking') void loadRankingPage();
         break;
@@ -1225,6 +1267,7 @@ export function createAppController(deps) {
           if (changedUser) {
             state.selectedAircraftId = 'default';
             void loadAccountBestScore(user);
+            if (state.screen === 'pilot-ranking') openPilotRanking(state.rankingReturnScreen);
           }
           if (state.screen === 'login' || state.screen === 'loading' || state.screen === 'menu') setScreen('menu');
         }

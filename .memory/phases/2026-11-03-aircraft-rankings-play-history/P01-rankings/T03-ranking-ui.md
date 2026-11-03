@@ -1,6 +1,6 @@
 # Task: T03 Ranking tabs and mobile UI
 
-## Status: pending
+## Status: done
 
 ## Goal
 Approved four-tab menu with independent table/pinned record and readable mobile landscape controls.
@@ -27,10 +27,10 @@ Approved four-tab menu with independent table/pinned record and readable mobile 
 - Full tests/build/config/docs/guide checks. Rebuild generated docs only if stale; never version bump or overwrite confirmed release snapshots. Record local SQL/live Supabase distinction and operator migration required.
 
 ## Acceptance Criteria
-- [ ] Four tabs match preview, no stale cross-tab data.
-- [ ] Mobile text and targets readable/touchable; personal footer visible.
-- [ ] Existing game-over/reload/guest behavior preserved.
-- [ ] Full regression passes and migration guide/evidence recorded.
+- [x] Four tabs match preview, no stale cross-tab data.
+- [x] Mobile native-pixel sizing and pinned footer implemented; emulated browser checks passed before final spacing refinement. Final screenshot recheck limited by tools (see report).
+- [x] Existing game-over/reload/guest behavior preserved.
+- [x] 1,415 tests/build/config passed; migration guide/evidence recorded. Release-only docs fingerprint gate remains pending a future release.
 
 ## Validation
 - `npm run test -- --run`
@@ -50,6 +50,6 @@ Task: T03-ranking-ui
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] Code/SQL/build validations passed; final visual recheck limitation documented.
+- commit: recorded in git history (T03-ranking-ui)

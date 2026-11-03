@@ -1,0 +1,62 @@
+{
+  "actualController": true,
+  "mockedServices": true,
+  "sizes": [
+    {
+      "width": 1600,
+      "height": 900,
+      "panel": {
+        "x": 390,
+        "y": 53,
+        "right": 1210,
+        "bottom": 847
+      },
+      "backBottom": 820,
+      "minTarget": 46,
+      "tableFont": 16,
+      "tabsFont": 14,
+      "scroll": 150,
+      "pinnedBefore": 652,
+      "pinnedAfter": 652,
+      "overflow": false
+    },
+    {
+      "width": 844,
+      "height": 390,
+      "panel": {
+        "x": 12,
+        "y": 10,
+        "right": 832,
+        "bottom": 380
+      },
+      "backBottom": 371,
+      "minTarget": 44,
+      "tableFont": 13,
+      "tabsFont": 14,
+      "scroll": 150,
+      "pinnedBefore": 273,
+      "pinnedAfter": 273,
+      "overflow": false
+    },
+    {
+      "width": 568,
+      "height": 320,
+      "panel": {
+        "x": 12,
+        "y": 10,
+        "right": 556,
+        "bottom": 310
+      },
+      "backBottom": 301,
+      "minTarget": 44,
+      "tableFont": 13,
+      "tabsFont": 13,
+      "scroll": 150,
+      "pinnedBefore": 203,
+      "pinnedAfter": 203,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "remoteWrites": false
+}

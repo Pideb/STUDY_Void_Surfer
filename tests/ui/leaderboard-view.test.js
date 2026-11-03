@@ -3,6 +3,16 @@ import { renderLeaderboardPanel, renderPilotRankingTable } from '../../src/ui/le
 import { renderPilotRankingScreen } from '../../src/ui/screens.js';
 
 describe('leaderboard aircraft identity', () => {
+  it('uses aircraft images in tabs, scoped columns and a separate pinned personal record',()=>{
+    const selectAircraft=vi.fn();const screen=renderPilotRankingScreen({aircraftId:'aegis',rows:[{rank:3,displayName:'<img src=x>',aircraftId:'aegis',bestScore:10}],personalRecord:{rank:3,displayName:'<b>Pilot</b>',aircraftId:'aegis',bestScore:10}},{selectAircraft});
+    expect([...screen.querySelectorAll('[role=tab]')].map(e=>e.getAttribute('aria-label'))).toEqual(['종합','NOVA','AEGIS','VELOCITY']);
+    expect(screen.querySelector('#rank-tab-aegis').getAttribute('aria-selected')).toBe('true');
+    expect(screen.querySelectorAll('th')).toHaveLength(3);expect(screen.querySelectorAll('.rank-tab img')).toHaveLength(3);
+    expect(screen.querySelector('.pilot-ranking-table-scroll .ranking-personal-record')).toBeNull();
+    expect(screen.querySelector('.personal-identity strong').textContent).toBe('<b>Pilot</b>');
+    screen.querySelector('#rank-tab-velocity').click();expect(selectAircraft).toHaveBeenCalledWith('velocity');
+    screen.querySelector('#rank-tab-aegis').dispatchEvent(new KeyboardEvent('keydown',{key:'Home',bubbles:true}));expect(selectAircraft).toHaveBeenLastCalledWith(null);
+  });
   it('shows list errors without any game-over retry action',()=>{
     const panel=renderLeaderboardPanel({top:{error:new Error('offline')},neighborhood:{error:new Error('denied')},submitError:true});
     expect(panel.querySelector('button')).toBeNull();expect(panel.textContent).not.toContain('다시 시도');
@@ -41,7 +51,7 @@ describe('leaderboard aircraft identity', () => {
     expect([...table.querySelectorAll('thead th')].map((cell) => cell.textContent))
       .toEqual(['순위', '파일럿', '기체', '최고 점수']);
     expect(row.children[1].textContent).toBe('<img src=x>');
-    expect(screen.querySelector('img')).toBeNull();
+    expect(table.querySelector('img')).toBeNull();
     expect(screen.querySelector('.ranking-load-more').textContent).toBe('더 불러오기');
     expect(screen.querySelector('.ranking-personal-record').textContent).not.toContain('23점');
     expect(screen.querySelector('.ranking-personal-record').textContent).toContain('로그인하면 내 최고 기록을 확인할 수 있습니다.');

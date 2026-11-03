@@ -3,6 +3,7 @@ import {
   renderGameOverScreen, renderHangarScreen, renderLoginScreen, renderMenuScreen, renderPausedScreen, renderTutorialScreen,
 } from '../../src/ui/screens.js';
 import { createGameHud } from '../../src/ui/game-hud.js';
+import releases from '../../docs/management/releases.json';
 
 describe('product flow screens', () => {
   it('uses a transparent menu overlay with a bold pilot greeting and separated logout', () => {
@@ -32,7 +33,7 @@ describe('product flow screens', () => {
     expect(labels).toContain('기체 선택');
     expect(labels).toContain('파일럿 랭킹');
     expect(labels).toContain('로그아웃');
-    expect(screen.querySelector('.menu-version').textContent).toBe('v0.2 · 개발');
+    expect(screen.querySelector('.menu-version').textContent).toBe(`v${releases.currentVersion} · 개발`);
     const guide = screen.querySelector('.menu-utility-row a');
     expect(guide.getAttribute('href')).toBe('/guide/index.html');
     expect(guide.target).toBe('_blank');
