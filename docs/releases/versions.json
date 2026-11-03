@@ -243,7 +243,7 @@
       "date": "2026-11-03",
       "title": "v0.2b 보스 피격 판정과 GUEST 랭킹 수정",
       "summary": "플레이어가 보스 공격시 피격 판정 개선 · GUEST 랭킹 불러오기 이슈 수정",
-      "status": "validated-pending-deployment",
+      "status": "deployed-verified",
       "sourceCommit": "9f9161ba2e300b27901f9f4fac3a92accf639d65",
       "sourceContext": {
         "head": "9f9161ba2e300b27901f9f4fac3a92accf639d65",
@@ -266,6 +266,14 @@
           "GUEST 랭킹 불러오기 이슈 수정"
         ],
         "fixed": []
+      },
+      "deployment": {
+        "headSha": "3b80a57cc0f7ecc547a9f0fe015d227765773cf8",
+        "runId": 41556010277,
+        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41556010277",
+        "completedAtUtc": "2026-11-03T00:55:01Z",
+        "bundleSha256": "3c96ee6db5e29966863413b13c49f8e5bcbe2abd7a3e23ef739098fcbf9fa754",
+        "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
       }
     }
   ],

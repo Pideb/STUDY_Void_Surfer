@@ -2,7 +2,7 @@
 
 기본 파일: [게임 관리 레퍼런스](./void-surfer-management.html). 파일을 더블클릭하면 열립니다. 핵심 본문·실제 이미지·판정/물리 슬라이더는 파일 하나에 들어 있고 오프라인에서도 동작합니다. 글꼴·Chart.js와 PNG 내보내기만 CDN에 의존하며, 그래프에는 오프라인 SVG 대안이 있습니다.
 
-현재 운영 버전은 **v0.2**입니다. [Actions 배포 성공](https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41420130260)과 운영 JavaScript SHA256·플레이 가이드 일치를 2026-11-03 확인하여 기록했습니다. 최신 자료는 [관리 자료](./void-surfer-management.html)와 [발표 자료](../releases/void-surfer-latest.html)에 반영합니다. 기존 보호 스냅샷은 그대로 보존합니다.
+현재 운영 버전은 **v0.2b**입니다. [Actions 배포 성공](https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41556010277)과 운영 JavaScript SHA256·플레이 가이드 일치를 2026-11-03 확인하여 기록했습니다. 가이드에는 v0.2b 두 항목을 맨 위에 추가하고 이전 v0.2 일곱 항목을 그대로 보존했습니다. 최신 자료는 [관리 자료](./void-surfer-management.html)와 [발표 자료](../releases/void-surfer-latest.html)에 반영합니다. 기존 보호 스냅샷은 그대로 보존합니다.
 
 로컬 게임의 버전 표시는 `releases.json`의 `developmentVersion`을 사용합니다. production 표시와 운영 배포 기록은 별도입니다. 시작 오디오는 페이지 load 시 기존 Web Audio 경로에서 한 번 자동 재생을 시도하고, 정책으로 차단되면 첫 클릭/키 입력으로 재개합니다. 이번0.2b에서 오디오 동작을 바꾸지 않습니다. 별도 `<audio>` 예제 실험과 실제 브라우저 결과는 [시작 오디오 검증](../../.memory/validation/2026-11-02-startup-autoplay/report.md)에 기록했습니다.
 

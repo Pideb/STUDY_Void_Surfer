@@ -10,7 +10,7 @@
 [T02](./phases/2026-11-03-v02b-production-release/P01-release/T02-deploy-and-proof.md)
 
 ## Status
-T01 done:1,405 tests, build/config/docs/guide checks, actual menu/guide browser and old history/snapshot preservation passed.0.2b prepared with audio unchanged; T02 in_progress. User authorized push/deployment/evidence metadata follow-up.
+T01 done; T02 production verified. Actions41556010277 for3b80a57 succeeded; live JS SHA2563c96ee6d… and guide match local. Canonical deployment proof recorded, old snapshots unchanged. Metadata commit/push and its exact HEAD follow-up verification remain. User authorized all steps.
 
 ## Next Step (IMPORTANT)
-Push exact preparation HEAD, verify Actions success/live JS+guide, record proof and converge docs, commit/push metadata and verify follow-up. Do not mark queued/old runs as deployed. Preserve old snapshots and unrelated previews.
+Commit/push verified metadata, monitor its exact HEAD Actions and recheck identical live JS/guide, then close memory/evidence in a memory-only [skip ci] commit to avoid another deployment. No game changes needed. Preserve old snapshots and unrelated previews.

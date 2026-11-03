@@ -1,6 +1,6 @@
 # T02 deploy and proof
 
-## Status: pending
+## Status: in_progress
 
 ## Goal / Decision Summary
 Deploy prepared0.2b and prove exact runtime/guide bytes. Existing user authorization includes push and metadata follow-up; no additional confirmation.
@@ -10,6 +10,7 @@ Deploy prepared0.2b and prove exact runtime/guide bytes. Existing user authoriza
 - Diagnostic `.memory/validation/2026-11-03-v02b-production-release/verify-deployment.mjs`: download current public origin index/JS/guide after Actions success; compare JS SHA256 with local dist, guide normalized bytes with generated guide, v0.2b header and ordered old v0.2 entry/exact bullets. Assert emitted runtime version0.2b and renamed ranking reload marker. Save real headSha/runId/runUrl/conclusion/completedAtUtc/gameFingerprint/version/bundleSha256/origin proof. Record old snapshots SHA before and after.
 - `npm run release:record-deployment -- --proof <proof>`; then docs:build once more to converge management output after snapshot protection, docs:check. README and memory status record verified deployment. Commit/push only evidence/docs metadata; follow-up exact HEAD Actions and live JS unchanged verification, no proof recursion. Runtime registry projection ensures metadata-only commit leaves JS unchanged.
 - Snapshot0.2b protected after success; do not alter0.2 or older. Final public game/guide links.
+- After the metadata follow-up actually succeeds, close memory status in a separate memory/evidence-only commit using `[skip ci]`; do not recursively deploy another record of the verification. This final commit must touch no game, guide, build config or official docs. Normal workflow validation remains mandatory on deployment commits.
 
 ## Acceptance Criteria
 - [ ] Exact pushed HEAD Actions success and real public JS/guide match.

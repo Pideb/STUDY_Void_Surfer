@@ -1,0 +1,25 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+const dir='.memory/validation/2026-11-03-v02b-production-release';
+const head=process.argv[2]||execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim(),suffix=process.argv[3]||'deployment';
+const registry=JSON.parse(fs.readFileSync('docs/management/releases.json','utf8')),baseline=JSON.parse(fs.readFileSync(dir+'/baseline.json','utf8'));
+const origin='https://proud-grass-03a132e00.6.azurestaticapps.net',sha=data=>crypto.createHash('sha256').update(data).digest('hex');
+const response=await fetch('https://api.github.com/repos/Pideb/STUDY_Void_Surfer/actions/runs?branch=main&event=push&per_page=10&check='+Date.now(),{headers:{'User-Agent':'void-surfer-release','Cache-Control':'no-cache'}});assert.equal(response.status,200);
+const runs=await response.json(),run=runs.workflow_runs.find(r=>r.head_sha===head);assert.ok(run,'Exact deployed HEAD run required');assert.equal(run.status,'completed');assert.equal(run.conclusion,'success');
+const read=async url=>{const r=await fetch(url,{headers:{'Cache-Control':'no-cache'}});assert.equal(r.status,200,url);return Buffer.from(await r.arrayBuffer());};
+const index=await read(origin+'/?release-check='+head),script=index.toString().match(/<script[^>]+src="([^"]+\.js)"/)[1];
+assert.ok(fs.readFileSync('dist/index.html','utf8').includes(script),'Production JS URL differs from local build');
+const bundle=await read(new URL(script,origin)),local=fs.readFileSync(path.join('dist',script));assert.equal(sha(bundle),sha(local));
+// Vite may hoist JSON named exports; the exact bundle also passed the menu browser check.
+assert.ok(bundle.toString().includes('"0.2b"'),'Missing prepared runtime version literal');assert.ok(bundle.toString().includes('랭킹 다시 불러오기'));
+const guide=(await read(origin+'/guide/index.html?release-check='+head)).toString(),localGuide=fs.readFileSync('public/guide/index.html','utf8');assert.equal(guide.replace(/\r\n/g,'\n'),localGuide.replace(/\r\n/g,'\n'));
+assert.ok(guide.indexOf('<h3 class="update-version">v0.2b</h3>')<guide.indexOf('<h3 class="update-version">v0.2</h3>'));
+assert.ok(guide.includes('플레이어가 보스 공격시 피격 판정 개선'));assert.ok(guide.includes('GUEST 랭킹 불러오기 이슈 수정'));
+const updates=JSON.parse(fs.readFileSync('docs/player/updates.json','utf8'));assert.deepEqual(updates.entries.slice(1),baseline.previousGuideEntries);
+for(const [file,hash]of Object.entries(baseline.snapshots))assert.equal(sha(fs.readFileSync('docs/releases/'+file)),hash);
+const proof={version:registry.currentVersion,gameFingerprint:registry.gameFingerprint,headSha:head,runId:run.id,runUrl:run.html_url,conclusion:run.conclusion,completedAtUtc:run.updated_at,bundleSha256:sha(bundle),origin};
+fs.writeFileSync(dir+'/'+suffix+'-proof.json',JSON.stringify(proof,null,2)+'\n');
+fs.writeFileSync(dir+'/'+suffix+'-verification.json',JSON.stringify({checkedAtUtc:new Date().toISOString(),script,headSha:head,runId:run.id,localSha256:sha(local),productionSha256:sha(bundle),guideExactMatch:true,priorGuideEntriesPreserved:true,oldSnapshotsPreserved:true,runtimeVersion:'0.2b',rankingReloadPresent:true},null,2)+'\n');console.log(JSON.stringify(proof));
