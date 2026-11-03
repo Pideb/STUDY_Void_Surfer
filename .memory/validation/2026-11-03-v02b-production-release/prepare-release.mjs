@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+const dir='.memory/validation/2026-11-03-v02b-production-release';
+const previous=JSON.parse(execFileSync('git',['show','9f9161b:docs/player/updates.json'],{encoding:'utf8'}));
+const updates=JSON.parse(fs.readFileSync('docs/player/updates.json','utf8'));
+assert.deepEqual(updates.entries.slice(1),previous.entries);
+assert.deepEqual(updates.entries[0].body,['플레이어가 보스 공격시 피격 판정 개선','GUEST 랭킹 불러오기 이슈 수정']);
+const registry=JSON.parse(fs.readFileSync('docs/management/releases.json','utf8'));
+const snapshots=Object.fromEntries(Object.keys(registry.snapshots).map(name=>[name,crypto.createHash('sha256').update(fs.readFileSync('docs/releases/'+name)).digest('hex')]));
+fs.writeFileSync(dir+'/baseline.json',JSON.stringify({previousVersion:registry.currentVersion,previousGuideEntries:previous.entries,snapshots,audioSourceUnchanged:execFileSync('git',['diff','9f9161b','--','src/audio','src/ui/app-controller.js'],{encoding:'utf8'}).trim()===''},null,2)+'\n');
+const npmCli=path.join(path.dirname(process.execPath),'node_modules/npm/bin/npm-cli.js');
+execFileSync(process.execPath,[npmCli,'run','release:prepare','--','--new-release','--version','0.2b','--title','v0.2b 보스 피격 판정과 GUEST 랭킹 수정','--change','플레이어가 보스 공격시 피격 판정 개선','--change','GUEST 랭킹 불러오기 이슈 수정'],{stdio:'inherit'});

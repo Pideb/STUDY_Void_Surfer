@@ -1,0 +1,25 @@
+{
+  "previousVersion": "0.2",
+  "previousGuideEntries": [
+    {
+      "version": "v0.2",
+      "date": "2026-11-02",
+      "title": "v0.2",
+      "body": [
+        "보스 난이도 완화",
+        "'저속 -> 고속 -> 변속 -> 랜덤' 순으로 보스 등장되게 변경",
+        "일부 디자인 수정",
+        "키보드 플레이 대응",
+        "재시작 방식 변경",
+        "모든 기체 임시 해금",
+        "모바일 플레이 대응 (베타)"
+      ]
+    }
+  ],
+  "snapshots": {
+    "void-surfer-0.01v.html": "42704308b359b173044a658af44201ed05467070fc24c1cc0ca2cf9e9ce15d34",
+    "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58",
+    "void-surfer-0.2.html": "b8f94a22979d4546720d5ef99adccaa360a652388b8adc216ecd814a3e1afce5"
+  },
+  "audioSourceUnchanged": true
+}

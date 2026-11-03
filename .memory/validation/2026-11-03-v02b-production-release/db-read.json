@@ -1,0 +1,7 @@
+{
+  "checkedAtUtc": "2026-11-03T00:51:26.357Z",
+  "rpc": "get_public_leaderboard",
+  "status": 200,
+  "rows": 10,
+  "writes": false
+}

@@ -1,16 +1,16 @@
 # Current Context
 
 ## Active Plan
-[Boss beam and game-over ranking](./plans/2026-11-03-boss-beam-gameover-ranking.md)
+[v0.2b production release](./plans/2026-11-03-v02b-production-release.md)
 
 ## Active Phase
-[P01](./phases/2026-11-03-boss-beam-gameover-ranking/P01-fixes/phase.md)
+[P01](./phases/2026-11-03-v02b-production-release/P01-release/phase.md)
 
 ## Active Task
-None — all tasks complete.
+[T02](./phases/2026-11-03-v02b-production-release/P01-release/T02-deploy-and-proof.md)
 
 ## Status
-T01–T03 done. Pilot-ranking error retry loop reproduced and fixed, manual control renamed.67 targeted tests/build/config pass; actual browser pointer retry recovers live public ranking12 rows with zero writes. All game fixes remain local.
+T01 done:1,405 tests, build/config/docs/guide checks, actual menu/guide browser and old history/snapshot preservation passed.0.2b prepared with audio unchanged; T02 in_progress. User authorized push/deployment/evidence metadata follow-up.
 
 ## Next Step (IMPORTANT)
-Local playtest with npm run dev; no new gameplay push/release preparation authorized. Future deployment must prepare next version and documents. Prior unrelated untracked previews remain untouched.
+Push exact preparation HEAD, verify Actions success/live JS+guide, record proof and converge docs, commit/push metadata and verify follow-up. Do not mark queued/old runs as deployed. Preserve old snapshots and unrelated previews.

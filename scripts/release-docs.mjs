@@ -49,13 +49,23 @@ export function prepare(root=ROOT,options={},services={}){
 function prepareWithGuide(root,options,services,guideStale){
   var old=registry(root),fingerprint=gameFingerprint(root),changed=guideStale||fingerprint!==old.gameFingerprint;
   var current=old.releases.find(r=>r.version===old.currentVersion),needsRelease=changed||(options.newRelease===true&&current?.status==='deployed-verified');
-  if(options.dryRun){var upcoming=nextVersion(old.currentVersion,old.versionBase||'0.1');return {changed,guideStale,currentVersion:old.currentVersion,preparedVersion:needsRelease?upcoming:old.currentVersion,nextVersion:upcoming,fingerprint};}
+  var base=old.versionBase||'0.1',upcoming=nextVersion(old.currentVersion,base),version=options.version??upcoming;
+  if(options.version!==undefined){
+    const samePending=!needsRelease&&version===old.currentVersion&&current?.status==='validated-pending-deployment';
+    if(!samePending){
+      if(typeof version!=='string'||!(version===upcoming||(version.startsWith(base)&&/^[a-z]$/.test(version.slice(base.length)))))throw Error('Invalid explicit release version');
+      if(old.releases.some(r=>r.version===version)||old.snapshots['void-surfer-'+version+'.html'])throw Error('Release version already exists or is protected');
+      if(old.releases.some(r=>r.version===nextVersion(version,base)))throw Error('Explicit version would rewind the release sequence');
+      if(!needsRelease)throw Error('Requested version differs from the pending release');
+    }
+  }
+  if(options.dryRun)return {changed,guideStale,currentVersion:old.currentVersion,preparedVersion:needsRelease?version:old.currentVersion,nextVersion:needsRelease?version:upcoming,fingerprint};
   if(!needsRelease)return {...build(root,services),changed:false};
   if(!options.title?.trim()||!options.changes?.length||options.changes.some(x=>!x.trim()))throw Error('--title 과 한 개 이상의 --change 가 필요합니다.');
   protectSnapshots(root,old);var validation=(services.validate||validateGame)(root);
   if(validation.build!=='passed'||validation.configuration!=='passed'||!validation.tests)throw Error('테스트/빌드/설정 검증이 완료되지 않았습니다.');
   if(gameFingerprint(root)!==fingerprint)throw Error('검증 중 소스가 변경되었습니다. 다시 준비하세요.');
-  var context=(services.git||gitContext)(root),date=options.date||new Date().toISOString().slice(0,10),base=old.versionBase||'0.1',version=nextVersion(old.currentVersion,base);
+  var context=(services.git||gitContext)(root),date=options.date||new Date().toISOString().slice(0,10);
   var r=structuredClone(old);r.versionBase=base;r.currentVersion=version;r.developmentVersion=version;r.nextVersion=nextVersion(version,base);r.gameFingerprint=fingerprint;r.documentationDate=date;
   r.releases.push({version,date,title:options.title.trim(),summary:options.changes.join(' · '),status:'validated-pending-deployment',sourceCommit:context.head,sourceContext:context,appFingerprint:fingerprint,document:'../releases/void-surfer-'+version+'.html',validation,changes:{added:[],changed:options.changes,fixed:[]}});
   var outputs=(services.outputs||documentOutputs)(root,r);outputs[RELEASE_FILE]=json(r);writeTransaction(root,outputs,services.write);return {version,changed,releaseCreated:true,status:'validated-pending-deployment',files:Object.keys(outputs)};
@@ -71,7 +81,7 @@ export function recordDeployment(root=ROOT,proof,services={}){
   var outputs=(services.outputs||documentOutputs)(root,r),name='void-surfer-'+r.currentVersion+'.html';if(outputs['docs/releases/'+name]){r.snapshots[name]=sha(Buffer.from(outputs['docs/releases/'+name]));r.snapshotContentSha256??={};r.snapshotContentSha256[name]=sha(Buffer.from(outputs['docs/releases/'+name].replace(/\r\n/g,'\n')));}outputs[RELEASE_FILE]=json(r);writeTransaction(root,outputs,services.write);return {version:r.currentVersion,status:current.status};
 }
 if(process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url)){
-  try{var args=process.argv.slice(2),command=args.shift()||'build',options={changes:[]};for(var i=0;i<args.length;i++){if(args[i]==='--dry-run')options.dryRun=true;else if(args[i]==='--new-release')options.newRelease=true;else if(args[i]==='--title')options.title=args[++i];else if(args[i]==='--change')options.changes.push(args[++i]);else if(args[i]==='--proof')options.proof=args[++i];else throw Error('알 수 없는 옵션: '+args[i]);}
+  try{var args=process.argv.slice(2),command=args.shift()||'build',options={changes:[]};for(var i=0;i<args.length;i++){if(args[i]==='--dry-run')options.dryRun=true;else if(args[i]==='--new-release')options.newRelease=true;else if(args[i]==='--version'){options.version=args[++i];if(!options.version)throw Error('--version requires a value');}else if(args[i]==='--title')options.title=args[++i];else if(args[i]==='--change')options.changes.push(args[++i]);else if(args[i]==='--proof')options.proof=args[++i];else throw Error('알 수 없는 옵션: '+args[i]);}
     var result=command==='build'?build():command==='check'?check():command==='prepare'?prepare(ROOT,options):command==='record-deployment'?recordDeployment(ROOT,JSON.parse(fs.readFileSync(options.proof,'utf8'))):(()=>{throw Error('지원하지 않는 명령');})();console.log(JSON.stringify(result,null,2));
   }catch(error){console.error(error.message);process.exitCode=1;}
 }

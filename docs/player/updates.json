@@ -2,6 +2,15 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "version": "v0.2b",
+      "date": "2026-11-03",
+      "title": "v0.2b",
+      "body": [
+        "플레이어가 보스 공격시 피격 판정 개선",
+        "GUEST 랭킹 불러오기 이슈 수정"
+      ]
+    },
+    {
       "version": "v0.2",
       "date": "2026-11-02",
       "title": "v0.2",

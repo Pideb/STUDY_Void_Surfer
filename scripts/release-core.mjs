@@ -10,6 +10,7 @@ export function nextVersion(version,baseVersion='0.1'){
   if(version===baseVersion)return baseVersion+'1';
   if(typeof version==='string'&&version.startsWith(baseVersion)){
     var sequence=version.slice(baseVersion.length);
+    if(/^[a-z]$/.test(sequence))return baseVersion+'1';
     if(/^[1-9]\d*$/.test(sequence))return baseVersion+String(BigInt(sequence)+1n);
   }
   if(/^0\.01(?:v|-[a-z])?$/.test(version))return baseVersion;
