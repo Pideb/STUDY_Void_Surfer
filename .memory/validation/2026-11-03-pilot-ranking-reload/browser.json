@@ -1,0 +1,30 @@
+{
+  "before": {
+    "calls": 1,
+    "label": "랭킹 다시 불러오기",
+    "disabled": false,
+    "x": 639.9937438964844,
+    "y": 363.7375030517578,
+    "targetAtPoint": true,
+    "autoSentinel": false,
+    "observerAvailable": true
+  },
+  "after": {
+    "calls": [
+      {
+        "simulatedError": true,
+        "offset": 0
+      },
+      {
+        "name": "get_public_leaderboard",
+        "status": 200,
+        "offset": 0
+      }
+    ],
+    "writes": 0,
+    "rows": 12,
+    "hasReload": false
+  },
+  "realPointerClick": true,
+  "productionWrite": false
+}

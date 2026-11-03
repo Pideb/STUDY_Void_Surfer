@@ -10,7 +10,7 @@
 None — all tasks complete.
 
 ## Status
-T01 and T02 done. Full suite1393 tests/85 files, build/config passed; actual six-boss sprite verification and read-only live guest ranking UI verified. Game fixes committed locally only. Previous v0.2 release metadata follow-up succeeded and live JS hash matches.
+T01–T03 done. Pilot-ranking error retry loop reproduced and fixed, manual control renamed.67 targeted tests/build/config pass; actual browser pointer retry recovers live public ranking12 rows with zero writes. All game fixes remain local.
 
 ## Next Step (IMPORTANT)
-User can playtest local `npm run dev`. No new gameplay push or release preparation requested. On a future deployment request, prepare next version/docs first; current published snapshots remain immutable. Prior unrelated untracked preview files remain untouched.
+Local playtest with npm run dev; no new gameplay push/release preparation authorized. Future deployment must prepare next version and documents. Prior unrelated untracked previews remain untouched.

@@ -331,6 +331,7 @@ export function createAppController(deps) {
         personalError: state.rankingPersonalError,
       }, {
         loadMore: () => dispatch({ type: 'LOAD_MORE_RANKING' }),
+        retry: () => dispatch({ type: 'RETRY_RANKING' }),
         back: () => dispatch({ type: 'CLOSE_PILOT_RANKING' }),
       });
       root.replaceChildren(rankingScreen);
@@ -902,21 +903,22 @@ export function createAppController(deps) {
     const Observer = globalThis.IntersectionObserver;
     const scrollRegion = root.querySelector('.pilot-ranking-table-scroll');
     const sentinel = root.querySelector('.ranking-load-more');
-    if (!Observer || !scrollRegion || !sentinel || !state.rankingHasMore) return;
+    if (!Observer || !scrollRegion || !sentinel || !state.rankingHasMore
+      || state.rankingLoading || state.rankingError || state.screen !== 'pilot-ranking') return;
     rankingObserver = new Observer((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) dispatch({ type: 'LOAD_MORE_RANKING' });
     }, { root: scrollRegion, rootMargin: '0px 0px 120px 0px' });
     rankingObserver.observe(sentinel);
   }
 
-  async function loadRankingPage({ reset = false } = {}) {
+  async function loadRankingPage({ reset = false, retry = false } = {}) {
     if (reset) {
       rankingRequestId += 1;
       state.rankingRows = [];
       state.rankingOffset = 0;
       state.rankingHasMore = true;
       state.rankingError = null;
-    } else if (state.rankingLoading || !state.rankingHasMore) {
+    } else if (state.rankingLoading || (!retry && (!state.rankingHasMore || state.rankingError))) {
       return;
     }
     const requestId = rankingRequestId;
@@ -930,7 +932,7 @@ export function createAppController(deps) {
         state.rankingError = result.error;
         state.rankingLoading = false;
         paint();
-        announce(liveRegion, '파일럿 순위를 불러오지 못했습니다. 다시 시도할 수 있습니다.');
+        announce(liveRegion, '파일럿 순위를 불러오지 못했습니다. 랭킹 다시 불러오기 버튼으로 재조회할 수 있습니다.');
         return;
       }
       const rows = Array.isArray(result?.rows) ? result.rows : [];
@@ -945,7 +947,7 @@ export function createAppController(deps) {
       state.rankingError = error;
       state.rankingLoading = false;
       paint();
-      announce(liveRegion, '파일럿 순위를 불러오지 못했습니다. 다시 시도할 수 있습니다.');
+      announce(liveRegion, '파일럿 순위를 불러오지 못했습니다. 랭킹 다시 불러오기 버튼으로 재조회할 수 있습니다.');
     }
   }
 
@@ -1043,6 +1045,9 @@ export function createAppController(deps) {
         break;
       case 'LOAD_MORE_RANKING':
         if (state.screen === 'pilot-ranking') void loadRankingPage();
+        break;
+      case 'RETRY_RANKING':
+        if (state.screen === 'pilot-ranking' && state.rankingError) void loadRankingPage({ retry: true });
         break;
       case 'SELECT_AIRCRAFT':
         if (state.screen === 'hangar'

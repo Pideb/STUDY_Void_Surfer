@@ -368,17 +368,17 @@ export function renderPilotRankingScreen(model = {}, handlers = {}) {
   }
 
   if (model.error && model.rows?.length) {
-    const error = createMessage('추가 순위를 불러오지 못했습니다. 다시 시도해 주세요.', 'screen-message error-message');
+    const error = createMessage('추가 순위를 불러오지 못했습니다. 랭킹 다시 불러오기를 눌러 주세요.', 'screen-message error-message');
     error.setAttribute('role', 'status');
     scrollRegion.append(error);
   }
-  if (model.hasMore) {
+  if (model.hasMore || model.error) {
     const loadMore = createButton(
-      model.loading ? '불러오는 중…' : model.error ? '다시 시도' : '더 불러오기',
-      handlers.loadMore,
+      model.loading ? '불러오는 중…' : model.error ? '랭킹 다시 불러오기' : '더 불러오기',
+      model.error ? handlers.retry : handlers.loadMore,
       { className: 'secondary-button' },
     );
-    loadMore.className = 'ranking-load-more secondary-button';
+    loadMore.className = `${model.error ? 'ranking-reload' : 'ranking-load-more'} secondary-button`;
     loadMore.disabled = Boolean(model.loading);
     scrollRegion.append(loadMore);
   } else if (model.rows?.length) {

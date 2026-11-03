@@ -107,6 +107,7 @@ describe('app controller product flow', () => {
     harness?.controller.destroy();
     harness?.root.remove();
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
     harness = null;
     localStorage.removeItem(GUEST_RECORD_STORAGE_KEY);
     localStorage.removeItem('void-surfer:admin-settings:v1');
@@ -420,6 +421,50 @@ describe('app controller product flow', () => {
     expect(harness.leaderboardService.fetchLeaderboardPage).toHaveBeenLastCalledWith({ limit: 50, offset: 50 });
     expect(harness.root.querySelectorAll('.pilot-ranking-table tbody tr')).toHaveLength(51);
     expect(harness.root.textContent).toContain('모든 순위를 불러왔습니다.');
+  });
+
+  it.each(['resolved-error','rejection'])('does not automatically retry guest ranking %s and recovers on one manual click',async mode=>{
+    let callbacks=0,recover=false;const retry=deferred();
+    vi.stubGlobal('IntersectionObserver',class{
+      constructor(callback){this.callback=callback;}
+      observe(){if(callbacks++<6)queueMicrotask(()=>this.callback([{isIntersecting:true}]));}
+      disconnect(){}
+    });
+    const fetchLeaderboardPage=vi.fn(()=>{
+      if(recover)return retry.promise;
+      return mode==='rejection'?Promise.reject(Error('offline')):Promise.resolve({rows:[],error:{code:'NETWORK_ERROR'}});
+    });
+    harness=makeHarness({user:null,leaderboard:{fetchLeaderboardPage}});harness.controller.mount();await settle();
+    harness.controller.dispatch('OPEN_PILOT_RANKING');await settle();await settle();await settle();
+    expect(fetchLeaderboardPage).toHaveBeenCalledTimes(1);
+    const reload=harness.root.querySelector('.ranking-reload');
+    expect(reload.textContent).toBe('랭킹 다시 불러오기');expect(reload.disabled).toBe(false);
+    recover=true;reload.click();harness.controller.dispatch('RETRY_RANKING');await settle();
+    expect(fetchLeaderboardPage).toHaveBeenCalledTimes(2);
+    expect(harness.root.querySelector('.ranking-load-more').disabled).toBe(true);
+    retry.resolve({rows:[{rank:1,displayName:'Recovered guest ranking',bestScore:80}],error:null});await settle();
+    expect(harness.root.textContent).toContain('Recovered guest ranking');expect(harness.root.querySelector('.ranking-reload')).toBeNull();
+    expect(harness.leaderboardService.submitBestScore).not.toHaveBeenCalled();
+  });
+
+  it('retries the failed second page without deleting rows or duplicating the page',async()=>{
+    const rows=Array.from({length:50},(_,i)=>({rank:i+1,displayName:'Pilot '+i,bestScore:100-i}));
+    const fetchLeaderboardPage=vi.fn().mockResolvedValueOnce({rows,error:null}).mockResolvedValueOnce({error:Error('offline')}).mockResolvedValueOnce({rows:[{rank:51,displayName:'Recovered last page',bestScore:1}],error:null});
+    harness=makeHarness({user:null,leaderboard:{fetchLeaderboardPage}});harness.controller.mount();await settle();harness.controller.dispatch('OPEN_PILOT_RANKING');await settle();
+    harness.root.querySelector('.ranking-load-more').click();await settle();
+    expect(harness.root.querySelectorAll('.pilot-ranking-table tbody tr')).toHaveLength(50);
+    harness.root.querySelector('.ranking-reload').click();await settle();
+    expect(fetchLeaderboardPage.mock.calls.map(([args])=>args.offset)).toEqual([0,50,50]);
+    expect(harness.root.querySelectorAll('.pilot-ranking-table tbody tr')).toHaveLength(51);
+  });
+
+  it('discards a manual ranking retry response after returning to the menu',async()=>{
+    const retry=deferred(),fetchLeaderboardPage=vi.fn().mockResolvedValueOnce({error:Error('offline')}).mockImplementationOnce(()=>retry.promise);
+    harness=makeHarness({user:null,leaderboard:{fetchLeaderboardPage}});harness.controller.mount();await settle();harness.controller.dispatch('OPEN_PILOT_RANKING');await settle();
+    harness.root.querySelector('.ranking-reload').click();harness.controller.dispatch('CLOSE_PILOT_RANKING');
+    retry.resolve({rows:[{rank:1,displayName:'Late retry row',bestScore:1}],error:null});await settle();
+    expect(harness.root.querySelector('.menu-screen')).not.toBeNull();expect(harness.root.textContent).not.toContain('Late retry row');
+    expect(fetchLeaderboardPage).toHaveBeenCalledTimes(2);
   });
 
   it('pins the signed-in player record and returns to the game-over view', async () => {

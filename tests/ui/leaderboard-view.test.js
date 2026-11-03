@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { renderLeaderboardPanel, renderPilotRankingTable } from '../../src/ui/leaderboard-view.js';
 import { renderPilotRankingScreen } from '../../src/ui/screens.js';
 
@@ -52,11 +52,21 @@ describe('leaderboard aircraft identity', () => {
     expect(loading.querySelector('.pilot-ranking-table-scroll').getAttribute('aria-busy')).toBe('true');
     expect(loading.textContent).toContain('순위를 불러오는 중');
 
-    const failed = renderPilotRankingScreen({ error: new Error('offline'), hasMore: true }, { loadMore: () => {} });
+    const retry=vi.fn(),loadMore=vi.fn();
+    const failed = renderPilotRankingScreen({ error: new Error('offline'), hasMore: true }, { retry,loadMore });
     expect(failed.textContent).toContain('순위를 불러오지 못했습니다.');
-    expect(failed.querySelector('.ranking-load-more').textContent).toBe('다시 시도');
+    expect(failed.querySelector('.ranking-reload').textContent).toBe('랭킹 다시 불러오기');
+    expect(failed.querySelector('.ranking-load-more')).toBeNull();
+    failed.querySelector('.ranking-reload').click();expect(retry).toHaveBeenCalledOnce();expect(loadMore).not.toHaveBeenCalled();
 
     const complete = renderPilotRankingScreen({ rows: [{ rank: 1, displayName: 'P', aircraftId: 'default', bestScore: 1 }] });
     expect(complete.textContent).toContain('모든 순위를 불러왔습니다.');
+  });
+
+  it('keeps a manual reload on error even when pagination is exhausted',()=>{
+    const screen=renderPilotRankingScreen({rows:[{rank:1,displayName:'P',bestScore:4}],error:Error('offline'),hasMore:false},{retry:()=>{}});
+    expect(screen.querySelector('.ranking-reload').textContent).toBe('랭킹 다시 불러오기');
+    expect(screen.textContent).not.toContain('모든 순위를 불러왔습니다.');
+    expect(screen.textContent).not.toContain('다시 시도');
   });
 });
