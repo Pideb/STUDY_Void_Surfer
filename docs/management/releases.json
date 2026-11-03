@@ -10,7 +10,8 @@
     "void-surfer-0.01v.html": "42704308b359b173044a658af44201ed05467070fc24c1cc0ca2cf9e9ce15d34",
     "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58",
     "void-surfer-0.2.html": "b8f94a22979d4546720d5ef99adccaa360a652388b8adc216ecd814a3e1afce5",
-    "void-surfer-0.2b.html": "bf0ac50608495a20ab394d8c575d0af3abe99b2d0558dc8a2eb382f67b443d35"
+    "void-surfer-0.2b.html": "bf0ac50608495a20ab394d8c575d0af3abe99b2d0558dc8a2eb382f67b443d35",
+    "void-surfer-0.2c.html": "b251b3d860434e3fea54507706711be72e04df14f4f4f2f45ed06b0d5f2ec5f9"
   },
   "releases": [
     {
@@ -198,7 +199,7 @@
       "date": "2026-11-03",
       "title": "기체별 랭킹 세부화 및 시작 업데이트 안내",
       "summary": "종합 및 기체별 랭킹 분리와 비공개 플레이 점수 저장 · 최신 플레이가이드 업데이트 내역 시작 팝업",
-      "status": "validated-pending-deployment",
+      "status": "deployed-verified",
       "sourceCommit": "168950f03ac661cac17ae006372d5b9dcf8d44e2",
       "sourceContext": {
         "head": "168950f03ac661cac17ae006372d5b9dcf8d44e2",
@@ -221,6 +222,14 @@
           "최신 플레이가이드 업데이트 내역 시작 팝업"
         ],
         "fixed": []
+      },
+      "deployment": {
+        "headSha": "7435c067ba72629bb73fb59a94943eb204a4ca7e",
+        "runId": 41590988690,
+        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41590988690",
+        "completedAtUtc": "2026-11-03T06:38:37Z",
+        "bundleSha256": "2a3953d4dda5edb8693c14c097d57e3567a9112e37e06fab47ae76da3966ed78",
+        "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
       }
     }
   ],
@@ -228,7 +237,8 @@
     "void-surfer-0.01v.html": "de0c21a43d39ed30246accc398777f66be4179622f7c840d829dfbf791a96ce9",
     "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58",
     "void-surfer-0.2.html": "b8f94a22979d4546720d5ef99adccaa360a652388b8adc216ecd814a3e1afce5",
-    "void-surfer-0.2b.html": "bf0ac50608495a20ab394d8c575d0af3abe99b2d0558dc8a2eb382f67b443d35"
+    "void-surfer-0.2b.html": "bf0ac50608495a20ab394d8c575d0af3abe99b2d0558dc8a2eb382f67b443d35",
+    "void-surfer-0.2c.html": "b251b3d860434e3fea54507706711be72e04df14f4f4f2f45ed06b0d5f2ec5f9"
   },
   "documentationDate": "2026-11-03"
 }

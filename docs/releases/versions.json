@@ -281,7 +281,7 @@
       "date": "2026-11-03",
       "title": "기체별 랭킹 세부화 및 시작 업데이트 안내",
       "summary": "종합 및 기체별 랭킹 분리와 비공개 플레이 점수 저장 · 최신 플레이가이드 업데이트 내역 시작 팝업",
-      "status": "validated-pending-deployment",
+      "status": "deployed-verified",
       "sourceCommit": "168950f03ac661cac17ae006372d5b9dcf8d44e2",
       "sourceContext": {
         "head": "168950f03ac661cac17ae006372d5b9dcf8d44e2",
@@ -304,6 +304,14 @@
           "최신 플레이가이드 업데이트 내역 시작 팝업"
         ],
         "fixed": []
+      },
+      "deployment": {
+        "headSha": "7435c067ba72629bb73fb59a94943eb204a4ca7e",
+        "runId": 41590988690,
+        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41590988690",
+        "completedAtUtc": "2026-11-03T06:38:37Z",
+        "bundleSha256": "2a3953d4dda5edb8693c14c097d57e3567a9112e37e06fab47ae76da3966ed78",
+        "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
       }
     }
   ],

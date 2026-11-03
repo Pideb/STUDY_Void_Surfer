@@ -2,9 +2,9 @@
 
 기본 파일: [게임 관리 레퍼런스](./void-surfer-management.html). 파일을 더블클릭하면 열립니다. 핵심 본문·실제 이미지·판정/물리 슬라이더는 파일 하나에 들어 있고 오프라인에서도 동작합니다. 글꼴·Chart.js와 PNG 내보내기만 CDN에 의존하며, 그래프에는 오프라인 SVG 대안이 있습니다.
 
-현재 운영 버전은 **v0.2b**입니다. [Actions 배포 성공](https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41556010277)과 운영 JavaScript SHA256·플레이 가이드 일치를 2026-11-03 확인하여 기록했습니다. 가이드에는 v0.2b 두 항목을 맨 위에 추가하고 이전 v0.2 일곱 항목을 그대로 보존했습니다. 최신 자료는 [관리 자료](./void-surfer-management.html)와 [발표 자료](../releases/void-surfer-latest.html)에 반영합니다. 기존 보호 스냅샷은 그대로 보존합니다.
+현재 운영 버전은 **v0.2c**입니다. [Actions 배포 성공](https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41590988690)과 운영 JavaScript·CSS SHA256 및 플레이 가이드 일치를 2026-11-03 확인하여 기록했습니다. 가이드 맨 위에는 v0.2c의 **기체별 랭킹 세부화** 한 항목을 추가하고, 이전 v0.2b 두 항목과 v0.2 일곱 항목은 그대로 보존했습니다. 종합·기체별 랭킹과 최신 업데이트 시작 팝업이 포함됩니다. 최신 자료는 [관리 자료](./void-surfer-management.html)와 [발표 자료](../releases/void-surfer-latest.html)에 반영합니다. 기존 보호 스냅샷은 그대로 보존합니다.
 
-로컬 게임의 버전 표시는 `releases.json`의 `developmentVersion`을 사용합니다. production 표시와 운영 배포 기록은 별도입니다. 시작 오디오는 페이지 load 시 기존 Web Audio 경로에서 한 번 자동 재생을 시도하고, 정책으로 차단되면 첫 클릭/키 입력으로 재개합니다. 이번0.2b에서 오디오 동작을 바꾸지 않습니다. 별도 `<audio>` 예제 실험과 실제 브라우저 결과는 [시작 오디오 검증](../../.memory/validation/2026-11-02-startup-autoplay/report.md)에 기록했습니다.
+로컬 게임의 버전 표시는 `releases.json`의 `developmentVersion`을 사용합니다. production 표시와 운영 배포 기록은 별도입니다. 시작 오디오는 페이지 load 시 기존 Web Audio 경로에서 한 번 자동 재생을 시도하고, 정책으로 차단되면 첫 클릭/키 입력으로 재개합니다. 이번0.2c에서 오디오 동작을 바꾸지 않습니다. 별도 `<audio>` 예제 실험과 실제 브라우저 결과는 [시작 오디오 검증](../../.memory/validation/2026-11-02-startup-autoplay/report.md)에 기록했습니다.
 
 슬라이더는 **문서 안의 가상 실험**입니다. 게임 코드·계정·서버·배포 값을 수정하지 않습니다. 제안 JSON을 내려받을 수 있습니다. 판정/물리 모델은 실제 게임 함수와 비교하는 테스트를 유지합니다. 모션 예시는 실제 자산으로 만든 설명용 애니메이션이며 실게임 전체 렌더러의 녹화가 아닙니다.
 
@@ -31,7 +31,7 @@ npm run release:prepare -- --new-release --title "변경 요약" --change "첫 �
 npm run docs:check
 ```
 
-사용자가 이번 배포 이름을 **0.2b**로 명시했습니다. `npm run release:prepare -- --new-release --version 0.2b --title "변경 요약" --change "실제 변경"`로 준비하며 `versionBase: "0.2"`는 유지합니다. 이후 기본 순서는 **0.21 → 0.22 → 0.23**입니다. `--version`은 명시 요청된 이름에만 사용하고 기존 배포/보호 ID를 재사용하지 않습니다. 다른 기준으로의 변경도 사용자 요청 때만 적용합니다. 전체 테스트·빌드·설정 검사 후 준비하며 같은 소스의 대기 버전 재시도·문서 재생성은 버전을 올리지 않습니다. 검증 실패 시 이전 버전과 문서를 유지합니다. 실제 변경 내용은 `--change`로 제공하며 추측해서 업데이트 내역을 만들지 않습니다.
+사용자가 이번 배포 이름을 **0.2c**로 명시했습니다. `npm run release:prepare -- --new-release --version 0.2c --title "변경 요약" --change "실제 변경"`로 준비했으며 `versionBase: "0.2"`는 유지합니다. 이 이름은 이제 배포 이력이므로 다시 준비할 때 재사용하지 않습니다. 이후 기본 순서는 **0.21 → 0.22 → 0.23**입니다. `--version`은 새로 명시 요청된 이름에만 사용하고 기존 배포/보호 ID를 재사용하지 않습니다. 다른 기준으로의 변경도 사용자 요청 때만 적용합니다. 전체 테스트·빌드·설정 검사 후 준비하며 같은 소스의 대기 버전 재시도·문서 재생성은 버전을 올리지 않습니다. 검증 실패 시 이전 버전과 문서를 유지합니다. 실제 변경 내용은 `--change`로 제공하며 추측해서 업데이트 내역을 만들지 않습니다.
 
 새 버전은 처음에는 `validated-pending-deployment`이며 커밋/push 후 기존 Azure Actions가 배포합니다. CI의 `docs:check`는 게임 소스와 두 문서가 맞지 않으면 배포를 막습니다. CI가 임의 커밋을 만들지는 않습니다. 배포 요청을 수행하는 에이전트는 AGENTS.md에 따라 이 절차를 자동으로 실행합니다.
 
@@ -62,7 +62,7 @@ npm run docs:check
 
 ## 플레이어 가이드와 개발 시안
 
-`docs/player/guide-content.json`은 조작 원고, `docs/player/updates.json`은 개발자가 직접 쓰는 업데이트 내역입니다. 새 버전은 배열 맨 앞에 추가하고 이전 항목은 삭제·변경하지 않습니다. v0.2b의2개 항목과 기존 v0.2의7개 항목을 보존하며 자동 분석 문구는 섞지 않습니다. 버전명은 큰 굵은 제목으로 표시합니다. `npm run guide:build`로 공개 가이드 `public/guide/index.html`을 만들고 `npm run guide:check`로 확인합니다. 배포 준비 시 가이드를 먼저 동기화한 뒤 게임 지문을 확정하고, 검증 실패 시 가이드도 되돌립니다. dry-run은 가이드를 쓰지 않고 `guideStale`을 알려줍니다.
+`docs/player/guide-content.json`은 조작 원고, `docs/player/updates.json`은 개발자가 직접 쓰는 업데이트 내역입니다. 새 버전은 배열 맨 앞에 추가하고 이전 항목은 삭제·변경하지 않습니다. v0.2c의1개, v0.2b의2개 항목과 기존 v0.2의7개 항목을 보존하며 자동 분석 문구는 섞지 않습니다. 버전명은 큰 굵은 제목으로 표시합니다. `npm run guide:build`로 공개 가이드 `public/guide/index.html`을 만들고 `npm run guide:check`로 확인합니다. 배포 준비 시 가이드를 먼저 동기화한 뒤 게임 지문을 확정하고, 검증 실패 시 가이드도 되돌립니다. dry-run은 가이드를 쓰지 않고 `guideStale`을 알려줍니다.
 
 관리 문서의 **개발 예시** 탭은 `preview-catalog.json`에 선별한 원본13개를 연결합니다. 로컬 프로젝트 안의 문서에서만 작동합니다. Downloads 사본이나 원격 도메인에서는 링크를 활성화하지 않습니다. `.memory` 시안은 공개 빌드에 복사하지 않습니다. 예전0.01v·0.01-b 내용은 보존하며,0.1·0.1b 별칭은 원본 코드·자산·배포 증거를 유지하고 표시만 바꾸는 사본입니다.
 

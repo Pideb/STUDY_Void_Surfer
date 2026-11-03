@@ -1,6 +1,6 @@
 # Task: T02 Publish and verify v0.2c
 
-## Status: pending
+## Status: done
 
 ## Goal
 Exact prepared commit deployed to Azure and evidence-backed release state recorded.
@@ -21,9 +21,9 @@ Exact prepared commit deployed to Azure and evidence-backed release state record
 - Commit evidence/docs using below message, push. That metadata push may trigger another workflow; verify same bundle/guide if needed, never relabel the first deployed HEAD as the later one. Final memory-only closure can use [skip ci] with no game/doc source changes. Report actual deployed version/url and honest private-write verification limits.
 
 ## Acceptance Criteria
-- [ ] Exact pushed HEAD workflow successful; production JS/CSS/guide match validated source.
-- [ ]0.2c deployed-verified recorded with new proof and protected snapshot; docs committed/pushed.
-- [ ] No unrelated changes, remote SQL writes or lost historical release/update entries.
+- [x] Exact pushed HEAD7435c06 workflow41590988690 succeeded; production JS/CSS/guide match validated source.
+- [x]0.2c deployed-verified recorded with new proof and protected snapshot; documentation/evidence commit and push follow this task completion.
+- [x] No unrelated changes, remote SQL writes or lost historical release/update entries.
 
 ## Validation
 - Public Actions exact-HEAD success and SHA256 verification script.
@@ -42,6 +42,6 @@ Task: T02-deploy-verify
 ```
 
 ## Progress
-- [ ] 구현 완료
-- [ ] 검증 통과
-- commit: pending
+- [x] 구현 완료
+- [x] 검증 통과
+- commit: recorded in git history (T02-deploy-verify)
