@@ -7,4 +7,4 @@ const res=await fetch('https://api.github.com/repos/Pideb/STUDY_Void_Surfer/acti
 assert.equal(res.status,200,'GitHub push workflow discovery failed');
 const data=await res.json(),run=data.workflow_runs.find(r=>r.head_sha===head&&r.path.includes('azure-static-web-apps'));
 const status=run?{id:run.id,name:run.name,status:run.status,conclusion:run.conclusion,headSha:run.head_sha,url:run.html_url,createdAt:run.created_at,updatedAt:run.updated_at,path:run.path}:{status:'not-listed',headSha:head};
-fs.writeFileSync(dir+'/action-status.json',JSON.stringify(status,null,2));console.log(JSON.stringify(status));
+fs.writeFileSync(dir+'/'+(process.argv[3]??'action-status')+'.json',JSON.stringify(status,null,2));console.log(JSON.stringify(status));

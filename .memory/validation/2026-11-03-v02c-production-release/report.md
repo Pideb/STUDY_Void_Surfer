@@ -18,4 +18,4 @@ No remote SQL migration, score/history writes, login/token extraction or forced 
 ## Learnings
 The guide entry is prepended to the manual `entries` array; `entries[0]` automatically supplies the startup popup. `release:prepare` distinguishes a validated pending release from deployed success. Exact workflow HEAD and asset SHA256 comparisons establish which source actually reached production. No unrelated adjacent issue required changes.
 
-Metadata/evidence push follows this proof and can trigger the same workflow again. Its result is recorded separately; the original verified deployment HEAD is never relabeled.
+Metadata/evidence commit7a0a5070f99aeab9ea81aa82a8ce929b968c3061 was pushed and Azure run41591512300 succeeded at2026-11-03T06:44:11Z (15:44:11 KST). A fresh exact-HEAD production download matched the same JS/CSS hashes and guide. Separate metadata-proof.json/metadata-verification.json retain this observation without relabeling or reusing the initial proof. Final memory/evidence-only closure uses [skip ci]; no runtime or release documents change in that closure.
