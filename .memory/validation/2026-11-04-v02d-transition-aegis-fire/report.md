@@ -39,4 +39,4 @@ Behavioral tests cover pre-emission damage exclusion, exact1s/1.2s boundaries, n
 
 - Planning:a26aecf.
 - Gameplay:a4c6bd9.
-- Reference/validation: containing task commit, recorded by final memory closure.
+- Reference/validation:cff7531.

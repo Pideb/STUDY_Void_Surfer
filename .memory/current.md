@@ -1,16 +1,16 @@
 # Current Context
 
 ## Active Plan
-[v0.2d transition and AEGIS follow-up](./plans/2026-11-04-v02d-transition-aegis-fire.md)
+None — completed [v0.2d transition / AEGIS follow-up](./plans/2026-11-04-v02d-transition-aegis-fire.md), following [previous balance work](./plans/2026-11-04-v02d-gameplay-balance.md).
 
 ## Active Phase
-[P01 follow-up](./phases/2026-11-04-v02d-transition-aegis-fire/P01-follow-up/phase.md)
+None — P01 done (2/2).
 
 ## Active Task
-[T02 reference validation](./phases/2026-11-04-v02d-transition-aegis-fire/P01-follow-up/T02-docs-validation.md)
+None — implemented, validated and committed.
 
 ## Status
-Decisions confirmed: no two extra post-boss walls; AEGIS1s wind-up+.2s beam,1.2s total. Two task blueprints ready. Prior v0.2d balance work completed; this is an addition to same local version.
+Local development0.2d; verified operating0.2c unchanged. Removed the two post-boss new walls; existing walls drain into portal with no extra2 points. AEGIS preparation1s+beam.2s=1.2s control lock,30s recharge and one-hit damage retained. Other craft.7s action and post-lock.3s recovery preserved. Full1450 tests across89 files, build/config/guide/canonical7 outputs and5 protected snapshots verified. Gameplay a4c6bd9, references cff7531. See [report](./validation/2026-11-04-v02d-transition-aegis-fire/report.md).
 
 ## Next Step (IMPORTANT)
-T01 complete:113 tests passed. Read T02 and synchronize references, run full checks and commit. No push/deployment/DB changes. Preserve operating0.2c, development0.2d, release proof and protected snapshots. docs:check production source gate remains until actual deployment preparation. Unrelated previews untouched.
+Await playtest feedback or explicit deployment request. No push/deployment/SQL writes performed. Operating release registry and player-authored update history unchanged. docs:check retains its changed-source release gate until actual release:prepare; do not overwrite old evidence to bypass it. Unrelated existing previews/logs untouched.

@@ -47,3 +47,4 @@ Task: T01-transition-firing
 - [x] Implementation complete
 - [x] Validation passed
 - Validation: 113 tests across10 files passed. Commit: containing task commit.
+- commit: a4c6bd9

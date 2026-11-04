@@ -43,3 +43,4 @@ Task: T02-docs-validation
 - [x] Implementation complete
 - [x] Validation passed:1450 tests in89 files, build/config/guide/canonical outputs/snapshots. docs:check expected pre-release source gate retained.
 - commit: containing task commit
+- commit: cff7531
