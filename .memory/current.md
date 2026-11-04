@@ -1,16 +1,16 @@
 ﻿# Current Context
 
 ## Active Plan
-None — completed [v0.2c production release](./plans/2026-11-03-v02c-production-release.md).
+[v0.2d Gameplay Balance](./plans/2026-11-04-v02d-gameplay-balance.md)
 
 ## Active Phase
-None — P01 done (2/2).
+[P01 Gameplay Balance](./phases/2026-11-04-v02d-gameplay-balance/P01-gameplay-balance/phase.md)
 
 ## Active Task
-None — all release tasks done.
+[T01 Flight recovery and AEGIS recharge](./phases/2026-11-04-v02d-gameplay-balance/P01-gameplay-balance/T01-flight-recovery-aegis.md)
 
 ## Status
-v0.2c deployed-verified in registry with protected snapshot.1,421 tests/build/config/docs/guide checks passed. Prepared7435c06/run41590988690 and metadata7a0a507/run41591512300 both succeeded; operating JS/CSS/guide match local bytes. Guide latest note is exactly 기체별 랭킹 세부화, older v0.2b/v0.2 notes preserved. Aircraft rankings and startup popup are now deployed. No remote SQL writes or authenticated score/history write tests. See [report](./validation/2026-11-03-v02c-production-release/report.md).
+Planning complete: four sequential task blueprints. User authorized automatic implementation, validation and commits. Operating0.2c evidence preserved.
 
 ## Next Step (IMPORTANT)
-No active task. User can play production URL https://proud-grass-03a132e00.6.azurestaticapps.net. Next default release0.21 under base0.2; explicit new names/bases require user request. Future authenticated score/history delivery validation needs legitimate session/operator access. Unrelated untracked previews stay untouched; no further release until requested.
+Read T01 and execute. Continue through T04 without further approval unless a material new issue occurs. No push/deployment. docs:check must retain its source-change release gate until actual release preparation; validate generated outputs separately. Unrelated untracked previews untouched.
