@@ -1,7 +1,7 @@
 {
   "product": "VOID SURFER",
   "currentVersion": "0.2c",
-  "versionPolicy": "사용자 명시 요청으로 이번 배포0.2c, 이후 기본 순서0.21→0.22→0.23. 기준0.2는 유지하고 다른 명시 이름·기준 변경은 사용자 요청 때만 합니다. 문서 재생성·대기 버전의 동일 소스 재시도는 버전을 유지하며 과거 배포와 스냅샷을 보존합니다.",
+  "versionPolicy": "자동 버전은0.2→0.2b→0.2c→0.2d→0.2e 순서로 영문 접미사를 증가시킵니다. 숫자 기준0.3·1.0으로의 변경은 사용자 명시 요청 때만 합니다. 문서 재생성과 대기 버전의 동일 소스 재시도는 버전을 유지하며 기존 배포·보호 스냅샷은 보존합니다.",
   "releases": [
     {
       "product": "VOID SURFER",
@@ -318,5 +318,5 @@
   "managementDocument": "../management/void-surfer-management.html",
   "latestDocument": "void-surfer-latest.html",
   "versionBase": "0.2",
-  "nextVersion": "0.21"
+  "nextVersion": "0.2d"
 }

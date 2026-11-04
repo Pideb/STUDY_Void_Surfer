@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "currentVersion": "0.2c",
-  "developmentVersion": "0.2c",
-  "policy": "사용자 명시 요청으로 이번 배포0.2c, 이후 기본 순서0.21→0.22→0.23. 기준0.2는 유지하고 다른 명시 이름·기준 변경은 사용자 요청 때만 합니다. 문서 재생성·대기 버전의 동일 소스 재시도는 버전을 유지하며 과거 배포와 스냅샷을 보존합니다.",
+  "developmentVersion": "0.2d",
+  "policy": "자동 버전은0.2→0.2b→0.2c→0.2d→0.2e 순서로 영문 접미사를 증가시킵니다. 숫자 기준0.3·1.0으로의 변경은 사용자 명시 요청 때만 합니다. 문서 재생성과 대기 버전의 동일 소스 재시도는 버전을 유지하며 기존 배포·보호 스냅샷은 보존합니다.",
   "versionBase": "0.2",
   "gameFingerprint": "a88178007552c076db8d1ab7e697369cfe827d58f1384b7124ec4ce97ca879ec",
-  "nextVersion": "0.21",
+  "nextVersion": "0.2d",
   "snapshots": {
     "void-surfer-0.01v.html": "42704308b359b173044a658af44201ed05467070fc24c1cc0ca2cf9e9ce15d34",
     "void-surfer-0.01-b.html": "5baf9173dc856d119f8beda6f45814c497fcf2bfa1afbfdae132d5b26a35cc58",
@@ -240,5 +240,5 @@
     "void-surfer-0.2b.html": "bf0ac50608495a20ab394d8c575d0af3abe99b2d0558dc8a2eb382f67b443d35",
     "void-surfer-0.2c.html": "b251b3d860434e3fea54507706711be72e04df14f4f4f2f45ed06b0d5f2ec5f9"
   },
-  "documentationDate": "2026-11-03"
+  "documentationDate": "2026-11-04"
 }

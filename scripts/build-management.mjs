@@ -6,12 +6,16 @@ import {collectGameCatalog} from './game-catalog.mjs';
 import {portableAssets} from './management-assets.mjs';
 import {readPreviewCatalog} from './preview-catalog.mjs';
 import {getDisplayVersion} from '../src/lib/release-version.js';
+import {gameFingerprint} from './release-core.mjs';
 export const ROOT=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 function read(root,file){return fs.readFileSync(path.join(root,file),'utf8').replace(/^\uFEFF/,'').replace(/\r\n/g,'\n');}
 function json(value){return JSON.stringify(value).replace(/</g,'\\u003c');}
 export function managementOutput(root=ROOT,releaseData){
   var release=releaseData||JSON.parse(read(root,'docs/management/releases.json'));
   var data={...collectGameCatalog(),generatedAt:release.documentationDate||'2026-10-30',gameFingerprint:release.gameFingerprint};
+  data.localGameFingerprint=gameFingerprint(root);
+  data.localChanges=data.localGameFingerprint!==release.gameFingerprint;
+  data.developmentVersion=release.developmentVersion??release.currentVersion;
   var skeleton=read(root,'.agents/skills/visualize/references/skeleton.md').split('```html\n')[1].split('\n```')[0];
   skeleton=skeleton.replace('<html lang="en"','<html lang="ko"').replace('YOUR TITLE HERE','VOID SURFER · 게임 관리 레퍼런스 '+getDisplayVersion(release.currentVersion,release));
   skeleton=skeleton.replace('  <main id="main-content">\n','').replace('  </main>\n  <script>','  <script>');

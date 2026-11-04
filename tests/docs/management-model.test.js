@@ -16,6 +16,10 @@ describe('management preview parity',()=>{
     for(const rule of data.bossWallRules)expect(rule).toMatchObject(getBossWallRules(rule.boss));
     for(const c of data.challenges){expect(c.seconds).toBe(createChallenge({bossNumber:c.boss}).timeLimitSeconds);expect(c.min).toBeGreaterThanOrEqual(4);}
     expect(data.unlocks.find(u=>u.id==='boss1').trigger).toBe('일반벽 20개');expect(data.uniqueAttacks).toHaveLength(6);expect(data.challengeFeedback.glitchBlackoutSeconds).toBe(.18);
+    expect(data.weapon.rechargeByAircraft).toEqual({default:10,aegis:30,velocity:10});
+    expect(data.lineLaser).toMatchObject({activeSeconds:.2,telegraphSeconds:.7,clearGapFraction:.25,pauseSpawns:false});
+    expect(data.bossRound).toMatchObject({extraUniqueChance:.5,consecutiveUnique:false});
+    expect(data.challengeFeedback.recoverySeconds).toBe(.3);
   });
   it('matches actual sampled projectile speeds across clamps and scroll tiers',()=>{const data=collectGameCatalog();for(const speed of[-10000,240,460,575,700,770,10000])for(const roll of[0,.3,.8,1])expect(projectileTargetSpeed(data.projectileSpeed,speed,roll)).toBeCloseTo(sampleProjectileSpeed(speed,()=>roll));});
   it.each(AIRCRAFT_CATALOG)('$name uses the production score-speed curve',craft=>{

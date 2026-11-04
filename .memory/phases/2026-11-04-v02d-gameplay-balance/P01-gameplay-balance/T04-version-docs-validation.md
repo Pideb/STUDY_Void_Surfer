@@ -1,6 +1,6 @@
 # Task: T04 Alphabetic versions, synchronized references and final validation
 
-## Status: pending
+## Status: done
 
 ## Goal
 Alphabetic versions, synchronized references and final validation, according to confirmed decisions for 2026-11-04-v02d-gameplay-balance. Finish independently verifiable behavior before advancing.
@@ -17,6 +17,7 @@ Alphabetic versions, synchronized references and final validation, according to 
 - scripts/release-docs.mjs :: explicit version validation.
 - docs/management/releases.json :: policy,nextVersion,developmentVersion only; keep currentVersion0.2c and original gameFingerprint/proofs.
 - scripts/game-catalog.mjs :: craft recharge, wall tiers, line timing, recovery, unique frequency descriptions.
+- scripts/build-management.mjs :: localGameFingerprint:string, localChanges:boolean, developmentVersion:string, clearly separate local reference rules from operating proof; modify.
 - scripts/build-presentation.mjs; docs/management/browser.js/content.html; docs/management/README.md; docs/player/guide-content.json.
 - tests/docs/release-docs.test.js tests/docs/management-model.test.js tests/docs/player-guide.test.js tests/lib/release-version.test.js and affected assertions.
 - Generated docs from npm run docs:build (including public guide). .memory/validation/2026-11-04-v02d-gameplay-balance/report.md (new).
@@ -33,9 +34,9 @@ Run whole test suite,build,verify:config,guide:check,document output equality,gi
 Add/update meaningful behavior tests for the specified edge cases. No test-only changes to production cadence. Fix regressions caused by these exact behavior changes; report other findings separately.
 
 ## Acceptance Criteria
-- [ ] All specified user-visible behaviors implemented.
-- [ ] Targeted commands pass; no protected deployment history altered.
-- [ ] Task status/progress and current pointer synchronized after commit.
+- [x] All specified user-visible behaviors implemented.
+- [x] Targeted commands pass; no protected deployment history altered.
+- [x] Task status/progress and current pointer synchronized after commit.
 
 ## Validation
 - `npm test -- --run; npm run build; npm run verify:config; npm run guide:check; npm run docs:build; npm run docs:check (expected source fingerprint gate, document separately); git diff --check`
@@ -52,7 +53,6 @@ Task: T04-version-docs-validation
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
-
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: 1443 tests/88 files; build/config/guide passed; canonical7 outputs and5 protected snapshots verified. docs:check retains expected production source-change gate. Commit: containing task commit.

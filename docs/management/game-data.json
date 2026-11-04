@@ -51,7 +51,7 @@
     "BOSS_SLOW_MULTIPLIER": 0.75,
     "BOSS_VOLLEY_INTERVAL_SECONDS": 3,
     "CHALLENGE_FAILURE_EFFECT_SECONDS": 8,
-    "CHALLENGE_RECOVERY_SECONDS": 0.15,
+    "CHALLENGE_RECOVERY_SECONDS": 0.3,
     "CHALLENGE_WRONG_KEY_FLASH_SECONDS": 0.18,
     "DASH_COOLDOWN_SECONDS": 0.7,
     "DASH_DURATION_SECONDS": 0.6,
@@ -60,6 +60,11 @@
     "GAP_CONTINUITY_SCORE": 60,
     "GRAVITY": 900,
     "LIFT_VELOCITY": 360,
+    "LINE_LASER_ACTIVE_SECONDS": 0.2,
+    "LINE_LASER_CLEAR_GAP_FRACTION": 0.25,
+    "LINE_LASER_FADE_SECONDS": 0.1,
+    "LINE_LASER_SWEEP_SECONDS": 0.1,
+    "LINE_LASER_WALL_MARGIN_SECONDS": 0.04,
     "MAX_FRAME_DELTA_SECONDS": 0.1,
     "MAX_GAP_CENTER_SHIFT_FACTOR": 0.7,
     "MOVING_GAP_AMPLITUDE": 90,
@@ -121,6 +126,7 @@
       "visualKey": "default",
       "speedCapScore": 220,
       "bossLaserDamage": 1,
+      "bossLaserRechargeSeconds": 10,
       "gravity": 900,
       "lift": 360,
       "startingSpeed": 240,
@@ -280,6 +286,7 @@
       "visualKey": "aegis",
       "speedCapScore": 220,
       "bossLaserDamage": 3,
+      "bossLaserRechargeSeconds": 30,
       "gravity": 1170,
       "lift": 251.99999999999997,
       "startingSpeed": 240,
@@ -439,6 +446,7 @@
       "visualKey": "velocity",
       "speedCapScore": 220,
       "bossLaserDamage": 1,
+      "bossLaserRechargeSeconds": 10,
       "gravity": 900,
       "lift": 360,
       "startingSpeed": 480,
@@ -780,10 +788,32 @@
     "rechargeSeconds": 10,
     "ready": false,
     "firing": null,
+    "rechargeByAircraft": {
+      "default": 10,
+      "aegis": 30,
+      "velocity": 10
+    },
     "chargeBeforeFire": 0.5,
     "lockedSeconds": 0.7,
     "activeSeconds": 0.2,
     "hp": 3
+  },
+  "lineLaser": {
+    "telegraphSeconds": 0.7,
+    "activeSeconds": 0.2,
+    "sweepSeconds": 0.1,
+    "fadeSeconds": 0.1,
+    "clearGapFraction": 0.25,
+    "warningDuringWalls": true,
+    "fireOnlyBetweenWalls": true,
+    "pauseSpawns": false
+  },
+  "bossRound": {
+    "uniqueUnlockBoss": 2,
+    "minimumUniqueBlocks": 1,
+    "extraUniqueChance": 0.5,
+    "maximumUniqueBlocks": 2,
+    "consecutiveUnique": false
   },
   "challenges": [
     {
@@ -876,20 +906,20 @@
     },
     {
       "boss": 2,
-      "gapHeight": 135,
-      "spawnIntervalSeconds": 1.4,
-      "specialChance": 0.5,
-      "minSpecials": 3,
+      "gapHeight": 165,
+      "spawnIntervalSeconds": 1.8,
+      "specialChance": 0.3,
+      "minSpecials": 1,
       "timingWindowSeconds": 0.3,
       "inlineProjectile": false,
       "inlineLaser": false
     },
     {
       "boss": 3,
-      "gapHeight": 135,
-      "spawnIntervalSeconds": 1.4,
-      "specialChance": 0.5,
-      "minSpecials": 3,
+      "gapHeight": 150,
+      "spawnIntervalSeconds": 1.6,
+      "specialChance": 0.4,
+      "minSpecials": 2,
       "timingWindowSeconds": 0.3,
       "inlineProjectile": true,
       "inlineLaser": false
@@ -970,7 +1000,7 @@
     ],
     "seconds": 8,
     "glitchBlackoutSeconds": 0.18,
-    "recoverySeconds": 0.15,
+    "recoverySeconds": 0.3,
     "wrongKeySeconds": 0.18
   },
   "movingWalls": {
@@ -998,7 +1028,7 @@
       "trigger": "10점",
       "group": "점수",
       "title": "특수벽 후보",
-      "body": "일반·첫 보스20% / 두 번째 보스부터50%. 성공 기준은 끝까지0.30초로 유지하며 생성 간격·최소 할당·대시 간격으로 보정합니다."
+      "body": "일반·첫 보스20% / 보스2·3·4+는30·40·50%. 보스7벽당 최소0·1·2·3개. 성공 기준은 끝까지0.30초로 유지합니다."
     },
     {
       "id": "boss1",
@@ -1012,7 +1042,7 @@
       "trigger": "임시 해금 / 원래 최고 50점",
       "group": "계정",
       "title": "AEGIS",
-      "body": "중력1.3배·상승력70%. 보스 레이저1발로 HP3칸 제거. 원래 해금 기준은 임시 기간 뒤 복구합니다."
+      "body": "중력1.3배·상승력70%. 보스 레이저1발로 HP3칸 제거. 첫 충전·재충전30초, 최대1발 저장. 원래 해금 기준은 임시 기간 뒤 복구합니다."
     },
     {
       "id": "velocity",
@@ -1040,7 +1070,7 @@
       "trigger": "두 번째 보스부터",
       "group": "보스",
       "title": "지역별 고유 탄막",
-      "body": "6지역 고유 공격을1~3세트. 보스2·3은 앞 세트가 화면을 벗어난 뒤,4부터는 발사 완료 후 다음 예고가 겹칠 수 있습니다."
+      "body": "라운드당1회 보장+50%로1회 추가, 연속 등장 금지. 블록마다1~3세트. 보스2·3은 앞 세트가 화면 밖으로 나간 뒤,4부터는 다음 예고가 겹칠 수 있습니다."
     },
     {
       "id": "inline-projectile",
@@ -1054,14 +1084,14 @@
       "trigger": "네 번째 보스부터",
       "group": "보스",
       "title": "벽 사이 줄 레이저",
-      "body": "비유도 무작위 높이. 구멍과 위·아래15%를 보호하며 안전 배치가 없으면 생략합니다."
+      "body": "상·하15% 제외 무작위 높이. 예고0.7초는 벽과 겹쳐도 되지만 발사0.2초는 벽 사이에서만. 벽 생성 간격 유지,2줄은 빛 사이25% 이상 확보."
     },
     {
       "id": "ambient",
       "trigger": "보스 2회 클리어",
       "group": "보스",
       "title": "일반 구간 줄 레이저",
-      "body": "비행3초마다70% 시도.1줄70%/2줄30%, 안전 배치가 없으면 줄이거나 생략합니다."
+      "body": "비행3초마다70% 시도.1줄70%/2줄30%. 예고0.7초 후 벽 사이0.2초 발사, 간격이 부족하면 다음 틈까지 예고 유지."
     },
     {
       "id": "continuity",
@@ -1099,6 +1129,9 @@
     "archive": "독립 WARNING, 투사체 반사로 보스 클리어, 후반 HP5 증가는 현재 규칙이 아닙니다.",
     "preview": "슬라이더는 문서 안의 가상 실험입니다. 게임 파일·배포 값·계정 기록을 변경하지 않습니다."
   },
-  "generatedAt": "2026-11-03",
-  "gameFingerprint": "a88178007552c076db8d1ab7e697369cfe827d58f1384b7124ec4ce97ca879ec"
+  "generatedAt": "2026-11-04",
+  "gameFingerprint": "a88178007552c076db8d1ab7e697369cfe827d58f1384b7124ec4ce97ca879ec",
+  "localGameFingerprint": "f430138356225d73b0f6a07377c019631dc5013effb0def439898027082bc660",
+  "localChanges": true,
+  "developmentVersion": "0.2d"
 }

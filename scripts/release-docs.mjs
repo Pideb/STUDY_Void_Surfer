@@ -53,8 +53,12 @@ function prepareWithGuide(root,options,services,guideStale){
   if(options.version!==undefined){
     const samePending=!needsRelease&&version===old.currentVersion&&current?.status==='validated-pending-deployment';
     if(!samePending){
-      if(typeof version!=='string'||!(version===upcoming||(version.startsWith(base)&&/^[a-z]$/.test(version.slice(base.length)))))throw Error('Invalid explicit release version');
+      if(typeof version!=='string')throw Error('Invalid explicit release version');
       if(old.releases.some(r=>r.version===version)||old.snapshots['void-surfer-'+version+'.html'])throw Error('Release version already exists or is protected');
+      const suffix=version.slice(base.length),nextSuffix=upcoming.slice(base.length);
+      const forward=version.startsWith(base)&&/^[a-z]+$/.test(suffix)
+        &&(suffix.length>nextSuffix.length||(suffix.length===nextSuffix.length&&suffix>=nextSuffix));
+      if(!(version===upcoming||forward))throw Error('Invalid explicit release version');
       if(old.releases.some(r=>r.version===nextVersion(version,base)))throw Error('Explicit version would rewind the release sequence');
       if(!needsRelease)throw Error('Requested version differs from the pending release');
     }

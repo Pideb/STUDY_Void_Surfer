@@ -7,11 +7,15 @@ export function gameFingerprint(root){
 }
 export function nextVersion(version,baseVersion='0.1'){
   if(!/^(?:0|[1-9]\d*)\.\d$/.test(baseVersion))throw Error('지원하지 않는 기준 버전: '+baseVersion);
-  if(version===baseVersion)return baseVersion+'1';
+  if(version===baseVersion)return baseVersion+'b';
   if(typeof version==='string'&&version.startsWith(baseVersion)){
     var sequence=version.slice(baseVersion.length);
-    if(/^[a-z]$/.test(sequence))return baseVersion+'1';
-    if(/^[1-9]\d*$/.test(sequence))return baseVersion+String(BigInt(sequence)+1n);
+    if(/^[a-z]+$/.test(sequence)){
+      const letters=sequence.split('');let index=letters.length-1;
+      while(index>=0&&letters[index]==='z'){letters[index]='a';index--;}
+      if(index<0)letters.unshift('a');else letters[index]=String.fromCharCode(letters[index].charCodeAt(0)+1);
+      return baseVersion+letters.join('');
+    }
   }
   if(/^0\.01(?:v|-[a-z])?$/.test(version))return baseVersion;
   throw Error('지원하지 않는 버전: '+version+' · 기준 버전 변경은 사용자 요청이 필요합니다.');
