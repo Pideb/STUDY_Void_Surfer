@@ -1,16 +1,16 @@
 ﻿# Current Context
 
 ## Active Plan
-None — completed [v0.2d Gameplay Balance](./plans/2026-11-04-v02d-gameplay-balance.md).
+[v0.2d transition and AEGIS follow-up](./plans/2026-11-04-v02d-transition-aegis-fire.md)
 
 ## Active Phase
-None — P01 done (4/4).
+[P01 follow-up](./phases/2026-11-04-v02d-transition-aegis-fire/P01-follow-up/phase.md)
 
 ## Active Task
-None — all four tasks implemented, validated and committed.
+[T01 transition and firing](./phases/2026-11-04-v02d-transition-aegis-fire/P01-follow-up/T01-transition-firing.md)
 
 ## Status
-Local development0.2d; verified operating release remains0.2c. Recovery0.3s, AEGIS one-hit/30s recharge, gradual four-tier boss walls, extra non-consecutive unique blocks, and short line lasers between walls with unchanged wall cadence implemented. Alphabetic version automation and references synchronized. Full suite1443/1443 tests across88 files, build/config/guide passed,7 canonical outputs matched and5 protected snapshots verified. No push/deployment/DB writes. Commits:a5f60d1,a46c1d5,0538251,9b32cce. See [validation report](./validation/2026-11-04-v02d-gameplay-balance/report.md).
+Decisions confirmed: no two extra post-boss walls; AEGIS1s wind-up+.2s beam,1.2s total. Two task blueprints ready. Prior v0.2d balance work completed; this is an addition to same local version.
 
 ## Next Step (IMPORTANT)
-Await local playtest feedback or an explicit deployment request. Local menu shows v0.2d development. docs:check intentionally blocks the changed source against the old operating fingerprint; do not weaken it. On actual deployment request run release:prepare, validate and record fresh Actions/production proof. Preserve player-authored update history and protected snapshots. Unrelated existing untracked previews/logs were untouched.
+Read T01 and implement/test/commit, then T02 without another approval. No push/deployment/DB changes. Preserve operating0.2c, development0.2d, release proof and protected snapshots. docs:check production source gate remains until actual deployment preparation. Unrelated previews untouched.
