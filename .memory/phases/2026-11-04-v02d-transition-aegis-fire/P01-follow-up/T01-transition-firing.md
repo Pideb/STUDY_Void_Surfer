@@ -1,6 +1,6 @@
 # Task: T01 portal and firing behavior
 
-## Status: pending
+## Status: done
 
 ## Goal
 After a boss clear, generate no additional walls before the portal; AEGIS holds its firing pose for1.2s and cannot damage the boss before1s.
@@ -27,9 +27,9 @@ After a boss clear, generate no additional walls before the portal; AEGIS holds 
 - Verify0.999s no hit,1s beam begins,1.2s ends; one contact maximum and no damage after expiry. Real engine holds player until1.2s, accepts lift after unlock and starts0.3s recovery. Pauses/restarts preserve/reset appropriate fields. Verify existing walls are not abruptly removed, no fresh wall IDs between clear and portal, score stays fixed through portal and next boss count remains15.
 
 ## Acceptance Criteria
-- [ ] No post-clear new walls and no portal deadlock.
-- [ ] AEGIS1+.2s; NOVA/VELOCITY.5+.2s; single-hit damage and recharge retained.
-- [ ] Targeted behavior tests pass.
+- [x] No post-clear new walls and no portal deadlock.
+- [x] AEGIS1+.2s; NOVA/VELOCITY.5+.2s; single-hit damage and recharge retained.
+- [x] Targeted behavior tests pass.
 
 ## Validation
 - `npm test -- --run tests/game/boss-weapon.test.js tests/game/flight-recovery.test.js tests/game/boss-cadence.test.js tests/game/portal-transition.test.js tests/integration/manual-boss-fire.test.js tests/integration/boss-only-loop.test.js tests/integration/post-boss-transition.test.js tests/integration/combat-evolution.test.js tests/integration/dash-boss-flow.test.js`
@@ -44,6 +44,6 @@ Task: T01-transition-firing
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: 113 tests across10 files passed. Commit: containing task commit.

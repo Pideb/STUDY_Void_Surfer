@@ -12,9 +12,28 @@ function setup(extra = {}) {
   return { engine, tick, until, finishChallenge };
 }
 
-const aimable=s=>s.boss && Math.abs(270+162*Math.sin((s.boss.motionSeconds+.5)*Math.PI/3)-s.player.y)<30;
+const aimable=s=>s.boss && Math.abs(270+162*Math.sin((s.boss.motionSeconds+s.boss.weapon.windupSeconds)*Math.PI/3)-s.player.y)<30;
 
 describe('manual boss laser in real engine', () => {
+  it('locks AEGIS through1.2s, freezes on pause, then restores lift and recovery',()=>{
+    const {engine,tick,until,finishChallenge}=setup({aircraftId:'aegis',bossBeamContact:()=>false});
+    for(let i=0;i<6000;i++){
+      const s=engine.getSnapshot();if(s.challenge?.active)finishChallenge();
+      if(s.boss?.weapon.ready&&!s.challenge?.active&&s.boss.cyclePhase==='walls'&&s.obstacles.some(w=>w.x>700))break;tick();
+    }
+    engine.lift();const before=engine.getSnapshot();expect(engine.fire()).toBe(true);
+    expect(engine.getSnapshot().boss.weapon.firing).toMatchObject({chargeSeconds:1,durationSeconds:1.2});
+    for(let i=0;i<11;i++)tick(.1);
+    expect(engine.getSnapshot().player.y).toBe(before.player.y);
+    expect(engine.lift()).toBe(false);
+    engine.pause();const paused=engine.getSnapshot().boss.weapon.firing.elapsedSeconds;
+    tick(.1);expect(engine.getSnapshot().boss.weapon.firing.elapsedSeconds).toBe(paused);engine.resume();
+    tick(.1);const after=engine.getSnapshot();
+    expect(after.boss.weapon.firing).toBeNull();expect(after.boss.hp).toBe(3);
+    expect(after.playerRecovery.remainingSeconds).toBeCloseTo(.3);
+    expect(engine.lift()).toBe(true);tick(.05);expect(engine.getSnapshot().player.y).toBeLessThan(before.player.y);
+    engine.start();until(s=>s.boss);expect(engine.getSnapshot().boss.weapon).toMatchObject({chargeSeconds:0,rechargeSeconds:30,windupSeconds:1,activeSeconds:.2});
+  });
   it('spends a genuinely missed horizontal shot without damaging or refunding',()=>{
     const {engine,tick,until}=setup();
     const before=until(s=>s.boss?.weapon.ready&&!s.challenge?.active&&Math.abs(Math.sin((s.boss.motionSeconds+.6)*Math.PI/3))>.96);
@@ -37,8 +56,7 @@ describe('manual boss laser in real engine', () => {
         if(s.boss?.weapon.ready&&!s.challenge?.active&&aimable(s))break;tick();
       }
       const before=engine.getSnapshot();expect(engine.fire()).toBe(true);
-      tick(.1);expect(engine.getSnapshot().boss.hp).toBe(before.boss.hp);
-      for(let frame=0;frame<3;frame++)tick(.1);
+      for(let frame=0;frame<Math.round(before.boss.weapon.windupSeconds*10)-1;frame++)tick(.1);
       expect(engine.getSnapshot().boss.hp).toBe(before.boss.hp);
       tick(.1);const impacted=engine.getSnapshot();
       expect(impacted.boss.hp).toBe(aircraftId==='aegis'?0:3-i-1);
@@ -46,7 +64,7 @@ describe('manual boss laser in real engine', () => {
       tick(.1);tick(.1);
     }
     const cleared=until(s=>!s.boss&&s.stage.transition);
-    expect(cleared.score).toBe(entry.score+12);tick(.1);expect(engine.getSnapshot().score).toBe(cleared.score);
+    expect(cleared.score).toBe(entry.score+10);tick(.1);expect(engine.getSnapshot().score).toBe(cleared.score);
   });
   it('unlocks physics only for the fraction beyond the0.7s firing action', () => {
     const { engine, tick, until } = setup();
@@ -95,7 +113,7 @@ describe('manual boss laser in real engine', () => {
     }
     expect(shots).toBe(3); expect(lastHp).toBe(0);
     const done = until(s => !s.boss && s.stage.transition);
-    expect(done.score).toBe(bossStartScore + 12);
+    expect(done.score).toBe(bossStartScore + 10);
     engine.start(); expect(engine.getSnapshot().boss).toBeNull();
   });
   it('holds ship during charge while walls move, and pauses recharge in the pause screen', () => {

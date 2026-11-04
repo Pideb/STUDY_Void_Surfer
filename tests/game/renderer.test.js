@@ -145,12 +145,12 @@ describe('renderer', () => {
     expect(context.strokeRect).not.toHaveBeenCalled();
   });
 
-  it('keeps charging the manual laser until.5s then renders its beam during recovery', () => {
+  it.each([.5,1])('keeps charging the manual laser until%ss then renders its beam', chargeSeconds => {
     const c=createContext(),player={x:240,y:270},theme={accent:'#67dfff'};
-    const shot={chargeSeconds:.5,durationSeconds:.7,toX:750,toY:270};
-    drawManualLaser(c,{...shot,elapsedSeconds:.499},player,theme);
+    const shot={chargeSeconds,durationSeconds:chargeSeconds+.2,toX:750,toY:270};
+    drawManualLaser(c,{...shot,elapsedSeconds:chargeSeconds-.001},player,theme);
     expect(c.createRadialGradient).toHaveBeenCalled();expect(c.lineTo).not.toHaveBeenCalled();
-    drawManualLaser(c,{...shot,elapsedSeconds:.5},player,theme);
+    drawManualLaser(c,{...shot,elapsedSeconds:chargeSeconds},player,theme);
     expect(c.lineTo).toHaveBeenCalledWith(960,270);
   });
   it('renders each live projectile of the stage volley and the player counterattack', () => {

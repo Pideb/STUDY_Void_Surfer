@@ -34,7 +34,7 @@ describe('approved boss evolution across complete stage cycles', () => {
         }
       }
       const aiming=engine.getSnapshot();
-      if(aiming.boss?.successfulChallenges>=1 && aiming.boss.cycleNumber>=3 && aiming.boss.weapon.ready && Math.abs(270+162*Math.sin((aiming.boss.motionSeconds+.5)*Math.PI/3)-aiming.player.y)<30 && engine.fire())counterattacks++;
+      if(aiming.boss?.successfulChallenges>=1 && aiming.boss.cycleNumber>=3 && aiming.boss.weapon.ready && Math.abs(270+162*Math.sin((aiming.boss.motionSeconds+aiming.boss.weapon.windupSeconds)*Math.PI/3)-aiming.player.y)<30 && engine.fire())counterattacks++;
       const before = engine.getSnapshot(); time += 100; engine.update(time); snapshot = engine.getSnapshot();
       expect(snapshot.aircraft.id).toBe(aircraftId);
       expect(snapshot.deathEffect).toBeNull();

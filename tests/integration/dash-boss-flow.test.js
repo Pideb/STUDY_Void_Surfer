@@ -33,7 +33,7 @@ describe('dash, mixed walls and distributed boss cycles',()=>{
       }
       if(!snapshot.challenge?.active&&snapshot.player.dashCooldownRemainingSeconds===0)engine.dash();
       const aim=engine.getSnapshot();
-      if(aim.boss?.cycleNumber>=3 && aim.boss.weapon.ready && Math.abs(270+162*Math.sin((aim.boss.motionSeconds+.5)*Math.PI/3)-aim.player.y)<30)engine.fire();
+      if(aim.boss?.cycleNumber>=3 && aim.boss.weapon.ready && Math.abs(270+162*Math.sin((aim.boss.motionSeconds+aim.boss.weapon.windupSeconds)*Math.PI/3)-aim.player.y)<30)engine.fire();
       const before=engine.getSnapshot();time+=50;engine.update(time);snapshot=engine.getSnapshot();
       expect(snapshot.deathEffect).toBeNull();expect(snapshot.aircraft.id).toBe(aircraftId);
       if(before.boss?.roar){roarTicks++;expect(snapshot.elapsedSeconds).toBeCloseTo(before.elapsedSeconds+.05);}

@@ -11,7 +11,7 @@ describe('fixed normal-wall boss loop',()=>{
  if(arrival!==null&&!paused){engine.pause();engine.resume();paused=true;}
  const before=s;now+=100;engine.update(now);s=engine.getSnapshot();
  if(!before.bossEntry&&s.bossEntry){entries.push(s.bossEntry.warningIndex);expect(s.bossCadence.passedCount).toBe(entries.length===1?20:15);expect(s.bossCadence.spawnedCount).toBe(s.bossCadence.target);if(entries.length===2){expect(s.score).toBe(arrival+15-10);expect(s.bossEntry.pattern).toBe('fast');}}
- if(before.stage.transition&&!s.stage.transition){arrival=s.score;expect(s.bossCadence).toMatchObject({target:15,passedCount:0,spawnedCount:1});expect(postClearWalls.size).toBe(2);}
+ if(before.stage.transition&&!s.stage.transition){arrival=s.score;expect(s.bossCadence).toMatchObject({target:15,passedCount:0,spawnedCount:1});expect(postClearWalls.size).toBe(0);}
  expect(s.difficulty.isWarning).toBe(false);expect(s.deathEffect).toBeNull();
  }
  expect(entries).toEqual([1,2]);expect(paused).toBe(true);engine.start();expect(engine.getSnapshot().bossCadence).toMatchObject({target:20,passedCount:0,spawnedCount:0});

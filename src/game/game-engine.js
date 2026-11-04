@@ -449,7 +449,6 @@ export function createGameEngine(deps = {}) {
 
     obstacle.bossNumber = session?.isBoss ? bossEncounter.number : null;
     if(!session&&!pendingStageAdvance){obstacle.encounterCycleId=bossCadence.cycleId;recordNormalWallSpawn(bossCadence,obstacle.id);}
-    if(pendingStageAdvance)pendingStageAdvance.extraSpawned++;
     obstacles.push(obstacle);
     if (isDashObstacle(obstacle)) lastSpecialBarrierWorldX = totalScrollDistancePx + getDashBarrierBounds(obstacle).x;
     previousBaseGapCenter = obstacle.baseGapCenter;
@@ -468,7 +467,7 @@ export function createGameEngine(deps = {}) {
       * aircraft.spawnIntervalMultiplier;
 
     while (spawnAccumulatorSeconds >= interval
-      && (warningSession || (pendingStageAdvance ? pendingStageAdvance.extraSpawned<2 : canSpawnNormalWall(bossCadence)))
+      && (warningSession || canSpawnNormalWall(bossCadence))
       && (!warningSession || warningSession.spawnedCount < warningSession.targetCount)) {
       spawnAccumulatorSeconds -= interval;
       if (!spawnObstacle(activeDifficulty)) {
@@ -648,7 +647,7 @@ export function createGameEngine(deps = {}) {
     const index = wraps ? 0 : stageIndex + 1;
     const next = getStageDefinition(order[index]);
     pendingStageAdvance = {
-      order, index, extraSpawned:0, fromStageId: previous.definition.id, destinationStageId: next.id,
+      order, index, fromStageId: previous.definition.id, destinationStageId: next.id,
       fromKey: getActiveBackgroundKey(previous.definition, previous.mode),
       toKey: next.backgroundKey,
     };
@@ -657,7 +656,7 @@ export function createGameEngine(deps = {}) {
 
   function updateStage(deltaSeconds, scrollSpeed) {
     stageElapsedSeconds += deltaSeconds;
-    if (pendingStageAdvance && pendingStageAdvance.extraSpawned>=2 && !stageTransition && obstacles.length === 0 && !ambientAttack) {
+    if (pendingStageAdvance && !stageTransition && obstacles.length === 0 && !ambientAttack) {
       stageTransition = createPortalTransition({ ...pendingStageAdvance, crossingX: player.x });
     }
     if (stageTransition) {
@@ -1008,7 +1007,7 @@ export function createGameEngine(deps = {}) {
       spawnAccumulatorSeconds = Math.max(0, interval - deltaSeconds);
     }
     difficulty = getCurrentDifficulty();
-    if (stageTransition || bossEntry) spawnAccumulatorSeconds = 0;
+    if (stageTransition || pendingStageAdvance || bossEntry) spawnAccumulatorSeconds = 0;
     else if (bossEncounter?.entranceRemainingSeconds > 0) spawnAccumulatorSeconds = 0;
     else if (!bossEncounter?.wallSpawningPaused) updateSpawning(deltaSeconds, difficulty);
     difficulty = getCurrentDifficulty();

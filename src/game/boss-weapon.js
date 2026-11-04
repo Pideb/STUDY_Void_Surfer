@@ -1,7 +1,10 @@
 import { getAircraftDefinition } from './aircraft.js';
 
 export function createBossWeapon(aircraftId = 'default') {
-  return { chargeSeconds: 0, rechargeSeconds: getAircraftDefinition(aircraftId).bossLaserRechargeSeconds, ready: false, firing: null };
+  const aircraft = getAircraftDefinition(aircraftId);
+  return { chargeSeconds: 0, rechargeSeconds: aircraft.bossLaserRechargeSeconds,
+    windupSeconds: aircraft.bossLaserWindupSeconds, activeSeconds: aircraft.bossLaserActiveSeconds,
+    ready: false, firing: null };
 }
 
 export function startBossWeapon(weapon, shot) {
@@ -9,7 +12,8 @@ export function startBossWeapon(weapon, shot) {
     || !['fromX', 'fromY', 'toX', 'toY'].every(key => Number.isFinite(shot[key]))) return false;
   weapon.ready = false;
   weapon.chargeSeconds = 0;
-  weapon.firing = { ...shot, elapsedSeconds: 0, chargeSeconds: .5, durationSeconds: .7, impacted: false };
+  weapon.firing = { ...shot, elapsedSeconds: 0, chargeSeconds: weapon.windupSeconds,
+    durationSeconds: weapon.windupSeconds + weapon.activeSeconds, impacted: false };
   return true;
 }
 

@@ -1,7 +1,18 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { createBossWeapon, advanceBossWeapon, startBossWeapon } from '../../src/game/boss-weapon.js';
 
 describe('independent boss weapon', () => {
+  it.each([['default',.5,.7],['velocity',.5,.7],['aegis',1,1.2]])('%s waits%s seconds and unlocks at%s', (id,windup,duration)=>{
+    const w=createBossWeapon(id);advanceBossWeapon(w,w.rechargeSeconds);
+    startBossWeapon(w,{fromX:240,fromY:270,toX:960,toY:270,chargeSeconds:0,durationSeconds:0});
+    expect(w.firing).toMatchObject({chargeSeconds:windup,durationSeconds:duration});
+    const hit=vi.fn(()=>true);
+    expect(advanceBossWeapon(w,windup-.001,hit)).toBe(false);expect(hit).not.toHaveBeenCalled();
+    expect(advanceBossWeapon(w,.001,hit)).toBe(true);expect(hit).toHaveBeenCalledTimes(1);
+    advanceBossWeapon(w,.199,hit);expect(w.firing).not.toBeNull();
+    advanceBossWeapon(w,.001,hit);expect(w.firing).toBeNull();expect(hit).toHaveBeenCalledTimes(1);
+    expect(advanceBossWeapon(w,1,hit)).toBe(false);
+  });
   it.each([['aegis',30],['default',10],['velocity',10]])('%s uses its own first and subsequent %ss recharge', (id, seconds) => {
     const w = createBossWeapon(id);
     advanceBossWeapon(w, seconds - .01); expect(w.ready).toBe(false);
