@@ -2,6 +2,7 @@ import {
   BOSS_LASER_THICKNESS,
   DASH_DURATION_SECONDS,
   WORLD_HEIGHT,
+  WORLD_WIDTH,
 } from './constants.js';
 import { getLaserFrontX } from './boss-attacks.js';
 import { getDashBarrierBounds, isDashObstacle } from './obstacles.js';
@@ -98,14 +99,27 @@ export function isProjectileReflectionSuccess({ player, projectile }) {
     && Math.abs(projectile.y - player.y) <= verticalWindow;
 }
 
-export function intersectsPlayerLaser(player, laser, worldHeight = WORLD_HEIGHT) {
-  if (!player || !laser || laser.telegraphRemainingSeconds > 0 || laser.activeRemainingSeconds <= 0) {
+export function intersectsPlayerLaser(player, laser, worldHeight = WORLD_HEIGHT, previousPlayer = player) {
+  if (!player || !laser || laser.telegraphRemainingSeconds > 0 || laser.waitingForGap
+    || (laser.activeRemainingSeconds <= 0 && !laser.damageWindow)) {
     return false;
   }
 
-  const bounds = getPlayerBounds(player);
+  let bounds = getPlayerBounds(player);
   if (!bounds) return false;
   if (bounds.right < getLaserFrontX(laser)) return false;
+
+  // Retain the damaging part of a frame that also enters the harmless fade.
+  // Only interpolate the player's path after the leading light reaches it.
+  const window=laser.damageWindow;
+  if(window&&previousPlayer&&window.deltaSeconds>0){
+    const arrival=(laser.sweepDurationSeconds??.4)*(1-bounds.right/WORLD_WIDTH);
+    const from=Math.max(window.fromOffset,window.fromOffset+arrival-window.fromElapsed);
+    if(from>window.toOffset+1e-9)return false;
+    const at=offset=>getPlayerBounds({...player,y:previousPlayer.y+(player.y-previousPlayer.y)*offset/window.deltaSeconds});
+    const start=at(from),end=at(window.toOffset);
+    bounds={...bounds,top:Math.min(start.top,end.top),bottom:Math.max(start.bottom,end.bottom)};
+  }
 
   if (laser.kind === 'quarter') {
     const zoneHeight = laser.zoneHeight || worldHeight / 4;

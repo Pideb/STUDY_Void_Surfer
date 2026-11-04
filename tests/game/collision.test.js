@@ -120,11 +120,13 @@ describe('collision', () => {
     laser.y = player.y;
     laser.ys = [player.y];
     expect(intersectsPlayerLaser(player, laser)).toBe(false);
-    updateLaser(laser, 0.7 + 0.29);
+    updateLaser(laser, 0.7 + 0.07);
     expect(intersectsPlayerLaser(player, laser)).toBe(false);
     updateLaser(laser, 0.01);
     expect(intersectsPlayerLaser(player, laser)).toBe(true);
-    updateLaser(laser, 0.7);
+    updateLaser(laser, 0.12);
+    expect(intersectsPlayerLaser(player, laser)).toBe(true); // Active portion of this frame still counts.
+    updateLaser(laser, 0.01);
     expect(laser.fadeRemainingSeconds).toBeGreaterThan(0);
     expect(intersectsPlayerLaser(player, laser)).toBe(false);
   });

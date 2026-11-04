@@ -150,9 +150,9 @@ export function drawLaser(ctx, attack, {guidance = true, rasterScale = 1, stageI
   }
   const tint = attack.kind === 'quarter' ? getStageVisualTheme(attack.stageId??stageId)?.laser : null;
   const colorize = css => stageColor(css,tint);
-  const warning = attack.telegraphRemainingSeconds > 0;
+  const warning = attack.telegraphRemainingSeconds > 0 || attack.waitingForGap;
   const fading = attack.activeRemainingSeconds <= 0;
-  const opacity = fading ? Math.max(0, (attack.fadeRemainingSeconds ?? 0) / BOSS_LASER_FADE_SECONDS) : 1;
+  const opacity = fading ? Math.max(0, (attack.fadeRemainingSeconds ?? 0) / (attack.fadeDurationSeconds ?? BOSS_LASER_FADE_SECONDS)) : 1;
   if (!warning && opacity <= 0) return;
   const time = attack.elapsedSeconds ?? 0;
   const front = getLaserFrontX(attack);
@@ -214,7 +214,7 @@ export function drawLaser(ctx, attack, {guidance = true, rasterScale = 1, stageI
 
 export function drawLaserGuidance(ctx,attack){
   if(!attack||attack.type!=='laser')return;
-  const warning=attack.telegraphRemainingSeconds>0;
+  const warning=attack.telegraphRemainingSeconds>0||attack.waitingForGap;
   if(!warning&&attack.activeRemainingSeconds<=0&&!(attack.fadeRemainingSeconds>0))return;
   ctx.save();
   if(attack.kind==='single'&&warning){ctx.strokeStyle='#8defff';ctx.globalAlpha=.65;ctx.setLineDash([12,12]);ctx.lineWidth=2;

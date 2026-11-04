@@ -6,21 +6,23 @@ import {
   getLaserFrontX,
   isLaserPathSafe,
   updateLaser,
+  canFireLineLaser,
 } from '../../src/game/boss-attacks.js';
+import {intersectsPlayerLaser} from '../../src/game/collision.js';
 
 describe('boss laser safety', () => {
-  it('keeps both damaging cores away from the top/bottom15% while preserving every opening', () => {
+  it('uses random heights away from top/bottom15% with25% clear space, independent of openings', () => {
     for (let i = 0; i < 101; i++) {
       const attack = createSingleLaser({ gapCenter: 270, gapHeight: 180, rng: () => i / 100, lineCount: 2 });
       expect(attack).not.toBeNull();
       for (const y of attack.ys) {
         expect(y - attack.thickness / 2).toBeGreaterThanOrEqual(81);
         expect(y + attack.thickness / 2).toBeLessThanOrEqual(459);
-        expect(isLaserPathSafe(y, { gapCenter: 270, gapHeight: 180, playerHeight: 16 })).toBe(true);
       }
+      if(attack.ys.length===2)expect(Math.abs(attack.ys[0]-attack.ys[1])-attack.thickness).toBeGreaterThanOrEqual(135-1e-9);
     }
-    // Only edge slivers remain: skip rather than placing a meaningless edge beam.
-    expect(createSingleLaser({ gapCenter: 270, gapHeight: 430 })).toBeNull();
+    expect(createSingleLaser({ gapCenter: 270, gapHeight: 540,rng:()=>.5 }).y).toBe(270);
+    expect(createSingleLaser({ worldHeight:30,lineCount:2,rng:()=>.5 }).ys).toHaveLength(1);
   });
   it('finds a laser Y that leaves a route through the active gap', () => {
     const y = findSafeLaserY({ gapCenter: 270, gapHeight: 180, rng: () => 0.5 });
@@ -38,7 +40,7 @@ describe('boss laser safety', () => {
     expect(isLaserPathSafe(100, { gapCenter: 270, gapHeight: 180 })).toBe(true);
     expect(isLaserPathSafe(420, { gapCenter: 270, gapHeight: 180 })).toBe(true);
     expect(findSafeLaserY({ gapCenter: 270, gapHeight: 540 })).toBeNull();
-    expect(createSingleLaser({ gapCenter: 270, gapHeight: 540 })).toBeNull();
+    expect(createSingleLaser({ gapCenter: 270, gapHeight: 540 })).not.toBeNull();
     expect(findSafeLaserY({ gapCenter: NaN, gapHeight: 100 })).toBeNull();
   });
 
@@ -66,15 +68,35 @@ describe('boss laser safety', () => {
     expect(getLaserFrontX(laser)).toBe(960);
     updateLaser(laser, 0.8);
     expect(laser.activeElapsedSeconds).toBeCloseTo(0.1);
-    expect(laser.activeRemainingSeconds).toBeCloseTo(0.9);
-    expect(getLaserFrontX(laser)).toBeCloseTo(720);
-    updateLaser(laser, 0.3);
+    expect(laser.activeRemainingSeconds).toBeCloseTo(0.1);
     expect(getLaserFrontX(laser)).toBeCloseTo(0);
-    updateLaser(laser, 0.7);
+    updateLaser(laser, 0.15);
     expect(laser.activeRemainingSeconds).toBe(0);
     expect(laser.fadeRemainingSeconds).toBeCloseTo(0.05);
     updateLaser(laser, 10);
     expect(laser.fadeRemainingSeconds).toBe(0);
+  });
+
+  it.each([240,460,700,770,875])('requires full horizontal clearance for the entire emission at speed%s',speed=>{
+    const player={x:240,y:270};
+    for(const kind of ['normal','special','hybrid']){
+      expect(canFireLineLaser({player,scrollSpeed:speed,obstacles:[{kind,x:220,width:72}]})).toBe(false);
+      expect(canFireLineLaser({player,scrollSpeed:speed,obstacles:[{kind,x:248+speed*.19,width:72}]})).toBe(false);
+      expect(canFireLineLaser({player,scrollSpeed:speed,obstacles:[{kind,x:248+speed*.25,width:72}]})).toBe(true);
+      expect(canFireLineLaser({player,scrollSpeed:speed,obstacles:[{kind,x:232-speed*.05-72,width:72}]})).toBe(true);
+    }
+    expect((1032-248)/speed).toBeGreaterThan(.24);
+  });
+  it('holds a fixed warning harmlessly until a valid wall gap, including fade-crossing damage',()=>{
+    const laser=createSingleLaser({rng:()=>.5});const player={x:240,y:270};
+    updateLaser(laser,.8,{canActivate:()=>false});
+    expect(laser.waitingForGap).toBe(true);expect(laser.y).toBe(270);
+    expect(laser.activeRemainingSeconds).toBe(.2);
+    expect(getLaserFrontX(laser)).toBe(960);expect(intersectsPlayerLaser(player,laser)).toBe(false);
+    updateLaser(laser,.1,{canActivate:()=>true});expect(intersectsPlayerLaser(player,laser)).toBe(true);
+    updateLaser(laser,.15);expect(laser.activeRemainingSeconds).toBe(0);
+    expect(intersectsPlayerLaser(player,laser)).toBe(true);
+    updateLaser(laser,.01);expect(intersectsPlayerLaser(player,laser)).toBe(false);
   });
 
   it('telegraphs a random safe quarter zone before activating it', () => {

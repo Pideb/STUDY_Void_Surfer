@@ -9,7 +9,6 @@ import {
   updateBossProjectile,
   createQuarterLaser,
   createSingleLaser,
-  isLaserPathSafe,
   updateLaser,
 } from '../../src/game/boss-attacks.js';
 import { applyLift, createPlayer, updatePlayer } from '../../src/game/player.js';
@@ -19,22 +18,20 @@ describe('consecutive global laser warnings', () => {
   it('announces and collides with two distinct safe lines on one shared clock', () => {
     const laser = createSingleLaser({ lineCount: 2, rng: () => .2, gapCenter: 270, gapHeight: 180 });
     expect(laser.ys).toHaveLength(2);
-    expect(Math.abs(laser.ys[0] - laser.ys[1])).toBeGreaterThan(60);
-    for (const y of laser.ys) expect(isLaserPathSafe(y, {gapCenter:270,gapHeight:180})).toBe(true);
+    expect(Math.abs(laser.ys[0] - laser.ys[1])-laser.thickness).toBeGreaterThanOrEqual(135);
     const player={...createPlayer(),y:laser.ys[1]};
     expect(intersectsPlayerLaser(player,laser)).toBe(false);
-    updateLaser(laser,1.1);
-    expect(laser.activeElapsedSeconds).toBeCloseTo(.4);
+    updateLaser(laser,.8);
+    expect(laser.activeElapsedSeconds).toBeCloseTo(.1);
     expect(intersectsPlayerLaser(player,laser)).toBe(true);
     expect(intersectsPlayerLaser({...player,y:270},laser)).toBe(false);
   });
-  it('falls back to one line when only one small safe interval exists', () => {
-    const laser=createSingleLaser({lineCount:2,gapCenter:300,gapHeight:350,rng:()=>.5});
+  it('falls back to one line when the world cannot fit the required clear separation', () => {
+    const laser=createSingleLaser({lineCount:2,worldHeight:30,rng:()=>.5});
     expect(laser.ys).toHaveLength(1);
-    expect(laser.ys[0]-laser.thickness/2).toBeGreaterThanOrEqual(81);
-    expect(laser.ys[0]+laser.thickness/2).toBeLessThanOrEqual(459);
-    expect(createSingleLaser({lineCount:2,gapCenter:300,gapHeight:400})).toBeNull();
-    expect(createSingleLaser({lineCount:2,gapCenter:270,gapHeight:540})).toBeNull();
+    expect(laser.ys[0]-laser.thickness/2).toBeGreaterThanOrEqual(4.5);
+    expect(laser.ys[0]+laser.thickness/2).toBeLessThanOrEqual(25.5);
+    expect(createSingleLaser({lineCount:2,worldHeight:10})).toBeNull();
   });
   it('excludes the previous quarter for every RNG endpoint and restarts a full warning', () => {
     for (const previous of [0, 1, 2, 3]) for (const value of [0, .5, 1]) {

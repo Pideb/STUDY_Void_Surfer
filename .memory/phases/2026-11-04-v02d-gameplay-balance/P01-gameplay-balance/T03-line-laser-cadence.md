@@ -1,6 +1,6 @@
-# Task: T03 Short line shots between walls without spawn gaps
+﻿# Task: T03 Short line shots between walls without spawn gaps
 
-## Status: pending
+## Status: done
 
 ## Goal
 Short line shots between walls without spawn gaps, according to confirmed decisions for 2026-11-04-v02d-gameplay-balance. Finish independently verifiable behavior before advancing.
@@ -32,9 +32,9 @@ Meaningful integration: compare identical normal wall spawn times with/without a
 Add/update meaningful behavior tests for the specified edge cases. No test-only changes to production cadence. Fix regressions caused by these exact behavior changes; report other findings separately.
 
 ## Acceptance Criteria
-- [ ] All specified user-visible behaviors implemented.
-- [ ] Targeted commands pass; no protected deployment history altered.
-- [ ] Task status/progress and current pointer synchronized after commit.
+- [x] All specified user-visible behaviors implemented.
+- [x] Targeted commands pass; no protected deployment history altered.
+- [x] Task status/progress and current pointer synchronized after commit.
 
 ## Validation
 - `npm test -- --run tests/game/laser-safety.test.js tests/game/collision.test.js tests/game/renderer.test.js tests/integration/ambient-lasers.test.js tests/integration/line-laser-cadence.test.js tests/game/boss-patterns.test.js`
@@ -51,7 +51,8 @@ Task: T03-line-laser-cadence
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: main targeted86 tests and adjacent regressions passed; old opening-safe assertions updated to confirmed timing-based behavior. Commit: containing task commit.
+
 

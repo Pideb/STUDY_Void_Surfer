@@ -759,14 +759,14 @@ describe('renderer', () => {
     expect(context.lineTo).toHaveBeenCalledWith(WORLD_WIDTH, attack.y);
     expect(context.save.mock.calls.length).toBe(context.restore.mock.calls.length);
     context.lineTo.mockClear();
-    updateLaser(attack, 0.8);
+    updateLaser(attack, 0.75);
     drawLaser(context, attack);
     const front = getLaserFrontX(attack);
     // The 2px white core is round-capped: its visible leading edge is exactly front.
     expect(context.lineTo).toHaveBeenCalledWith(front + 1, attack.y);
     expect(context.translate).toHaveBeenCalledWith(front + 18 * 0.18, attack.y);
     expect(context.createRadialGradient).toHaveBeenCalled();
-    updateLaser(attack, 0.95);
+    updateLaser(attack, 0.2);
     expect(attack.activeRemainingSeconds).toBe(0);
     drawLaser(context, attack);
     const fadingStrokes = context.stroke.mock.calls.length;

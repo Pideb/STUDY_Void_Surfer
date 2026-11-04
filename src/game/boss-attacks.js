@@ -6,6 +6,11 @@ import {
   BOSS_LASER_TELEGRAPH_SECONDS,
   BOSS_LASER_THICKNESS,
   BOSS_LINE_LASER_EDGE_FRACTION,
+  LINE_LASER_ACTIVE_SECONDS,
+  LINE_LASER_SWEEP_SECONDS,
+  LINE_LASER_FADE_SECONDS,
+  LINE_LASER_CLEAR_GAP_FRACTION,
+  LINE_LASER_WALL_MARGIN_SECONDS,
   BOSS_PROJECTILE_CHARGE_SECONDS,
   BOSS_PROJECTILE_DIRECT_CHANCE,
   BOSS_PROJECTILE_MAX_SPEED_MULTIPLIER,
@@ -237,25 +242,49 @@ function laserClock(telegraphDurationSeconds) {
     activeElapsedSeconds: 0,
     elapsedSeconds: 0,
     fadeRemainingSeconds: BOSS_LASER_FADE_SECONDS,
+    activeDurationSeconds: BOSS_LASER_ACTIVE_SECONDS,
+    fadeDurationSeconds: BOSS_LASER_FADE_SECONDS,
+    sweepDurationSeconds: BOSS_LASER_SWEEP_SECONDS,
   };
 }
 
-export function createSingleLaser({ rng = Math.random, styleKey = 'default', lineCount = 1, ...geometry } = {}) {
-  const y = findSafeLaserY({ ...geometry, rng });
-  if (y === null) return null;
+export function createSingleLaser({ rng = Math.random, styleKey = 'default', lineCount = 1, worldHeight = WORLD_HEIGHT } = {}) {
+  const low = worldHeight * BOSS_LINE_LASER_EDGE_FRACTION + BOSS_LASER_THICKNESS / 2;
+  const high = worldHeight * (1 - BOSS_LINE_LASER_EDGE_FRACTION) - BOSS_LASER_THICKNESS / 2;
+  if (!Number.isFinite(worldHeight) || low >= high) return null;
+  const y = low + roll(rng) * (high - low);
   const ys = [y];
   if (lineCount >= 2) {
-    const gaps = geometry.gaps ?? [{ gapCenter: geometry.gapCenter, gapHeight: geometry.gapHeight }];
-    const second = findSafeLaserY({ ...geometry, rng, gaps: [...gaps, {
-      gapCenter: y, gapHeight: (geometry.thickness ?? BOSS_LASER_THICKNESS) + (geometry.playerHeight ?? PLAYER_HITBOX_SIZE) + 16,
-    }] });
-    if (second !== null) ys.push(second);
+    const separation = worldHeight * LINE_LASER_CLEAR_GAP_FRACTION + BOSS_LASER_THICKNESS;
+    const intervals = [[low,Math.min(high,y-separation)],[Math.max(low,y+separation),high]].filter(([a,b])=>b>a);
+    const total = intervals.reduce((sum,[a,b])=>sum+b-a,0);
+    let sample = roll(rng)*total;
+    for(const [a,b] of intervals){
+      if(sample<=b-a){ys.push(a+sample);break;}
+      sample-=b-a;
+    }
   }
   return {
     kind: 'single', y, ys, safeZone: null,
     ...laserClock(BOSS_LASER_TELEGRAPH_SECONDS),
+    activeDurationSeconds: LINE_LASER_ACTIVE_SECONDS,
+    activeRemainingSeconds: LINE_LASER_ACTIVE_SECONDS,
+    fadeDurationSeconds: LINE_LASER_FADE_SECONDS,
+    fadeRemainingSeconds: LINE_LASER_FADE_SECONDS,
+    sweepDurationSeconds: LINE_LASER_SWEEP_SECONDS,
+    waitingForGap: false, activated: false,
     thickness: BOSS_LASER_THICKNESS, styleKey,
   };
+}
+
+// A column is either completely behind the ship or cannot reach it during the
+// whole emission. Deliberately independent of opening height and barrier state.
+export function canFireLineLaser({obstacles,player,scrollSpeed,activeSeconds=LINE_LASER_ACTIVE_SECONDS,marginSeconds=LINE_LASER_WALL_MARGIN_SECONDS}) {
+  const bounds=getPlayerBounds(player);
+  if(!bounds||!Array.isArray(obstacles)||!Number.isFinite(scrollSpeed)||scrollSpeed<=0)return false;
+  const margin=scrollSpeed*marginSeconds;
+  return obstacles.every(w=>Number.isFinite(w.x)&&Number.isFinite(w.width)
+    &&(w.x+w.width<bounds.left-margin || w.x>bounds.right+scrollSpeed*(activeSeconds+marginSeconds)));
 }
 
 export function createQuarterLaser({
@@ -283,18 +312,28 @@ export function createQuarterLaser({
 }
 
 export function getLaserFrontX(laser, worldWidth = WORLD_WIDTH) {
-  if (laser.telegraphRemainingSeconds > 0) return worldWidth;
+  if (laser.telegraphRemainingSeconds > 0 || laser.waitingForGap) return worldWidth;
   // Old snapshots without a sweep clock represent an already fully fired beam.
   if (!Number.isFinite(laser.activeElapsedSeconds)) return 0;
-  return worldWidth * (1 - clamp(laser.activeElapsedSeconds / BOSS_LASER_SWEEP_SECONDS, 0, 1));
+  return worldWidth * (1 - clamp(laser.activeElapsedSeconds / (laser.sweepDurationSeconds ?? BOSS_LASER_SWEEP_SECONDS), 0, 1));
 }
 
-export function updateLaser(laser, deltaSeconds) {
+export function updateLaser(laser, deltaSeconds, {canActivate = () => true} = {}) {
   if (!laser || !Number.isFinite(deltaSeconds) || deltaSeconds < 0) return laser;
   laser.elapsedSeconds = (laser.elapsedSeconds ?? 0) + deltaSeconds;
   let remaining = deltaSeconds;
+  laser.damageWindow = null;
   for (const field of ['telegraphRemainingSeconds', 'activeRemainingSeconds', 'fadeRemainingSeconds']) {
+    if(field==='activeRemainingSeconds'&&laser.kind==='single'&&!laser.activated){
+      if(laser.telegraphRemainingSeconds>0)break;
+      if(!canActivate(deltaSeconds-remaining)) {laser.waitingForGap=true;break;}
+      laser.waitingForGap=false;laser.activated=true;
+    }
     const consumed = Math.min(remaining, laser[field] ?? 0);
+    if(field==='activeRemainingSeconds'&&consumed>0){
+      laser.damageWindow={fromOffset:deltaSeconds-remaining,toOffset:deltaSeconds-remaining+consumed,
+        fromElapsed:laser.activeElapsedSeconds??0,toElapsed:(laser.activeElapsedSeconds??0)+consumed,deltaSeconds};
+    }
     laser[field] = Math.max(0, (laser[field] ?? 0) - consumed);
     if (laser[field] < 1e-9) laser[field] = 0;
     if (field === 'activeRemainingSeconds') laser.activeElapsedSeconds = (laser.activeElapsedSeconds ?? 0) + consumed;
