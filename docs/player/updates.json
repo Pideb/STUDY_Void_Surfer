@@ -2,6 +2,15 @@
   "schemaVersion": 1,
   "entries": [
     {
+      "version": "v0.2d",
+      "date": "2026-11-04",
+      "title": "v0.2d",
+      "body": [
+        "보스 난이도 추가 완화",
+        "AEGIS 기체 밸런스 조정"
+      ]
+    },
+    {
       "version": "v0.2c",
       "date": "2026-11-03",
       "title": "v0.2c",

@@ -1155,8 +1155,8 @@
     "preview": "슬라이더는 문서 안의 가상 실험입니다. 게임 파일·배포 값·계정 기록을 변경하지 않습니다."
   },
   "generatedAt": "2026-11-04",
-  "gameFingerprint": "a88178007552c076db8d1ab7e697369cfe827d58f1384b7124ec4ce97ca879ec",
-  "localGameFingerprint": "73ff3dc2f847a0cd65289598f9052776e7bdc2089a1875b8785d3bba0721c439",
-  "localChanges": true,
+  "gameFingerprint": "144aba685c9db6c5048c082fb3255c9d3b05e6a1992608ef6232165344414519",
+  "localGameFingerprint": "144aba685c9db6c5048c082fb3255c9d3b05e6a1992608ef6232165344414519",
+  "localChanges": false,
   "developmentVersion": "0.2d"
 }

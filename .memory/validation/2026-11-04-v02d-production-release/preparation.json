@@ -1,0 +1,33 @@
+{
+  "version": "0.2d",
+  "base": "0.2",
+  "next": "0.2e",
+  "guideEntry": {
+    "version": "v0.2d",
+    "date": "2026-11-04",
+    "title": "v0.2d",
+    "body": [
+      "보스 난이도 추가 완화",
+      "AEGIS 기체 밸런스 조정"
+    ]
+  },
+  "previousGuidePreserved": true,
+  "oldSnapshotsPreserved": true,
+  "validation": {
+    "testFiles": 89,
+    "tests": 1450,
+    "build": "passed",
+    "configuration": "passed",
+    "report": ".memory/validation/release-preparation-tests.json"
+  },
+  "build": [
+    {
+      "url": "/assets/index-CR5Bub-o.js",
+      "sha256": "72521104f79b7de9dc8149a6a65f70718cdeaabfe132055ef7fdeb29336e062e"
+    },
+    {
+      "url": "/assets/index-DKapGXDU.css",
+      "sha256": "703b2d70edb6489fa2d9c8fa02ae7b804b42e6e03b5497edeed0b4b743a14ed4"
+    }
+  ]
+}

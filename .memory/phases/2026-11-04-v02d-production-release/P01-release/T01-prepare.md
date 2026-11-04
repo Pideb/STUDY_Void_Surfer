@@ -1,6 +1,6 @@
 # Task: T01 prepare v0.2d
 
-## Status: pending
+## Status: done
 
 ## Goal
 Prepare one validated pending release0.2d with the exact latest startup/guide notes while preserving all older notes.
@@ -19,9 +19,9 @@ Prepare one validated pending release0.2d with the exact latest startup/guide no
 - Commit only release-related changed files and this plan/memory; do not stage pre-existing previews/logs.
 
 ## Acceptance Criteria
-- [ ] Latest entry exact, previous entries/snapshots preserved.
-- [ ] Full automatic validation and post-preparation build/config/guide/docs pass.
-- [ ] Registry0.2d pending, next0.2e; scoped commit ready to push.
+- [x] Latest entry exact, previous entries/snapshots preserved.
+- [x] Full automatic validation and post-preparation build/config/guide/docs pass.
+- [x] Registry0.2d pending, next0.2e; scoped commit ready to push.
 
 ## Validation
 - release:prepare performs full tests/build/config.
@@ -37,6 +37,6 @@ Task: T01-prepare
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation:1450 tests/89 files; build/config/guide/docs passed, old notes and5 protected snapshots preserved. Commit: containing task commit.
