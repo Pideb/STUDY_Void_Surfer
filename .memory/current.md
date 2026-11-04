@@ -1,16 +1,16 @@
-# Current Context
+﻿# Current Context
 
 ## Active Plan
-[v0.2d production release](./plans/2026-11-04-v02d-production-release.md)
+None — completed [v0.2d production release](./plans/2026-11-04-v02d-production-release.md).
 
 ## Active Phase
-[P01 release](./phases/2026-11-04-v02d-production-release/P01-release/phase.md)
+None — P01 done (2/2).
 
 ## Active Task
-[T02 deploy and verify](./phases/2026-11-04-v02d-production-release/P01-release/T02-deploy-verify.md)
+None — deployment and metadata synchronization verified.
 
 ## Status
-User explicitly authorized deployment. Latest notes must be exactly 보스 난이도 추가 완화 / AEGIS 기체 밸런스 조정; retain earlier entries. Prior full gameplay1450 tests passed. Current operating0.2c; next0.2d, then0.2e.
+v0.2d is deployed-verified in registry. Prepared c47a0ed/run41787120805 and metadata d55e08b/run41787608734 both succeeded with exact live JS/CSS/guide equality. Full1450 tests/89 files, build/config/docs/guide passed. All6 protected snapshots preserved. Latest notes exactly 보스 난이도 추가 완화 / AEGIS 기체 밸런스 조정; earlier v0.2c/v0.2b/v0.2 history retained. See [report](./validation/2026-11-04-v02d-production-release/report.md). No remote SQL or authenticated score writes.
 
 ## Next Step (IMPORTANT)
-T01 prepared0.2d with1450 passing tests; read T02 and push, verify exact Actions/live bytes, record proof and verify metadata deployment. No unrelated previews or SQL changes.
+Await user playtest feedback or next changes. Default next release0.2e; base0.2 remains until explicit user request. Preserve prior release IDs/snapshots, authored updates and fresh proof requirements. No unfinished implementation/deployment task. Unrelated pre-existing untracked previews/logs untouched.

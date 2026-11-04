@@ -1,6 +1,6 @@
 # Task: T02 deploy and verify v0.2d
 
-## Status: in_progress
+## Status: done
 
 ## Goal
 Publish0.2d and record fresh exact-HEAD workflow success plus matching operating JS/CSS/guide evidence.
@@ -23,8 +23,8 @@ Publish0.2d and record fresh exact-HEAD workflow success plus matching operating
 
 ## Acceptance Criteria
 - [x] Exact prepared HEAD workflow succeeded and operating JS/CSS/guide match local bytes.
-- [ ] Primary proof recorded, new snapshot protected, metadata HEAD also verified.
-- [ ] All source changes committed/pushed and memory closed; unrelated untracked artifacts untouched.
+- [x] Primary proof recorded, new snapshot protected, metadata HEAD also verified.
+- [x] All source changes committed/pushed and memory closed; unrelated untracked artifacts untouched.
 
 ## Validation
 - `node <task-dir>/check-run.mjs <HEAD>`; `node <task-dir>/verify-deployment.mjs <HEAD> deployment|metadata`.
@@ -41,5 +41,5 @@ Task: T02-deploy-verify
 
 ## Progress
 - [x] Deployment verified:prepared c47a0ed /run41787120805; operating JS/CSS/guide exact-match. Fresh proof recorded, docs regenerated/check passed.
-- [ ] Metadata deployment verified
-- commit: pending
+- [x] Metadata deployment verified:d55e08b /run41787608734; exact JS/CSS/guide match, final docs/guide passed.
+- commit: d55e08b (metadata); final memory evidence in closure commit.

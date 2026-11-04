@@ -1,7 +1,7 @@
 # v0.2d production release
 
 - Date:2026-11-04
-- Primary deployment verified; metadata synchronization deployment is being checked separately.
+- Status: v0.2d deployed and verified, including the metadata synchronization HEAD.
 - Origin:https://proud-grass-03a132e00.6.azurestaticapps.net
 - Prepared HEAD:c47a0edef8889df1dbb6a35b823f1f7bfdfd3c38.
 - [Primary successful Azure Actions run41787120805](https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41787120805).
@@ -35,7 +35,13 @@ Previous v0.2c, v0.2b and v0.2 entries are unchanged. Guide and startup popup sh
 
 ## Metadata completion
 
-Pending exact metadata HEAD Actions/live-byte verification. The primary registry proof remains the historical deployment proof; secondary metadata proof will be stored separately to avoid a proof/metadata commit recursion.
+- Metadata HEAD:d55e08b467fdc3e3fe71df075bf5400e941b686d.
+- [Metadata successful Azure Actions run41787608734](https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41787608734), completed2026-11-04T06:46:49Z.
+- Metadata operating JS/CSS/guide also match the local build exactly; game bundle SHA256 is unchanged from the primary deployment.
+- [Secondary fresh proof](./metadata-proof.json) / [verification](./metadata-verification.json).
+- Primary registry proof remains historical first-deployment evidence; secondary proof is separate to avoid a proof/metadata commit recursion.
+- Final docs:check/guide:check passed. All6 protected snapshots verify. Next default version0.2e, base0.2 unchanged.
+- Final memory-only closure is pushed with [skip ci] and changes no source/bundle/guide/release evidence.
 
 ## Limits
 
