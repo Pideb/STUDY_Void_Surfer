@@ -1,4 +1,4 @@
-﻿# Task: T03 Short line shots between walls without spawn gaps
+# Task: T03 Short line shots between walls without spawn gaps
 
 ## Status: done
 
@@ -54,5 +54,4 @@ Task: T03-line-laser-cadence
 - [x] Implementation complete
 - [x] Validation passed
 - Validation: main targeted86 tests and adjacent regressions passed; old opening-safe assertions updated to confirmed timing-based behavior. Commit: containing task commit.
-
-
+- commit: 0538251

@@ -56,3 +56,4 @@ Task: T04-version-docs-validation
 - [x] Implementation complete
 - [x] Validation passed
 - Validation: 1443 tests/88 files; build/config/guide passed; canonical7 outputs and5 protected snapshots verified. docs:check retains expected production source-change gate. Commit: containing task commit.
+- commit: 9b32cce

@@ -1,4 +1,4 @@
-﻿# Task: T02 Gradual boss walls and unique pattern frequency
+# Task: T02 Gradual boss walls and unique pattern frequency
 
 ## Status: done
 
@@ -50,5 +50,4 @@ Task: T02-boss-progression
 - [x] Implementation complete
 - [x] Validation passed
 - Validation: 32 targeted tests passed, including10000 seeded rounds. Commit: containing task commit.
-
-
+- commit: a46c1d5

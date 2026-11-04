@@ -1,4 +1,4 @@
-﻿# Task: T01 Flight recovery and AEGIS recharge
+# Task: T01 Flight recovery and AEGIS recharge
 
 ## Status: done
 
@@ -56,5 +56,4 @@ Task: T01-flight-recovery-aegis
 - [x] Implementation complete
 - [x] Validation passed
 - Validation: 111 tests across7 files passed. Commit: task commit containing this blueprint.
-
-
+- commit: a5f60d1

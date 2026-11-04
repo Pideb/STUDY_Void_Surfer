@@ -47,4 +47,4 @@
 - T01:a5f60d1.
 - T02:a46c1d5.
 - T03:0538251.
-- T04: the commit containing this report; final memory closure records its hash.
+- T04:9b32cce.
