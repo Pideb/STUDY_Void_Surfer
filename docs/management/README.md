@@ -2,7 +2,7 @@
 
 기본 파일: [게임 관리 레퍼런스](./void-surfer-management.html). 파일을 더블클릭하면 열립니다. 핵심 본문·실제 이미지·판정/물리 슬라이더는 파일 하나에 들어 있고 오프라인에서도 동작합니다. 글꼴·Chart.js와 PNG 내보내기만 CDN에 의존하며, 그래프에는 오프라인 SVG 대안이 있습니다.
 
-현재 운영 버전은 **v0.2c**입니다. [Actions 배포 성공](https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41590988690)과 운영 JavaScript·CSS SHA256 및 플레이 가이드 일치를 2026-11-03 확인하여 기록했습니다. 가이드 맨 위에는 v0.2c의 **기체별 랭킹 세부화** 한 항목을 추가하고, 이전 v0.2b 두 항목과 v0.2 일곱 항목은 그대로 보존했습니다. 종합·기체별 랭킹과 최신 업데이트 시작 팝업이 포함됩니다. 최신 자료는 [관리 자료](./void-surfer-management.html)와 [발표 자료](../releases/void-surfer-latest.html)에 반영합니다. 기존 보호 스냅샷은 그대로 보존합니다.
+현재 운영 버전은 **v0.2d**입니다. [Actions 배포 성공](https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41787120805)과 운영 JavaScript·CSS SHA256 및 플레이 가이드 일치를 2026-11-04 확인했습니다. 가이드 맨 위에 **보스 난이도 추가 완화**, **AEGIS 기체 밸런스 조정** 두 항목을 추가하고 이전 v0.2c·v0.2b·v0.2 내역을 모두 보존했습니다. 최신 자료는 [관리 자료](./void-surfer-management.html)와 [발표 자료](../releases/void-surfer-latest.html)에 반영합니다. 기존 스냅샷과 새 v0.2d 스냅샷을 보호합니다. 배포 증거는 [검증 폴더](../../.memory/validation/2026-11-04-v02d-production-release/)에 있습니다.
 
 로컬 게임의 버전 표시는 `releases.json`의 `developmentVersion`을 사용합니다. production 표시와 운영 배포 기록은 별도입니다. 시작 오디오는 페이지 load 시 기존 Web Audio 경로에서 한 번 자동 재생을 시도하고, 정책으로 차단되면 첫 클릭/키 입력으로 재개합니다. 이번0.2c에서 오디오 동작을 바꾸지 않습니다. 별도 `<audio>` 예제 실험과 실제 브라우저 결과는 [시작 오디오 검증](../../.memory/validation/2026-11-02-startup-autoplay/report.md)에 기록했습니다.
 
@@ -68,8 +68,8 @@ npm run docs:check
 
 배포 전에는 [비공개 기록·랭킹 DB 운영 절차](../operations/play-records.md)의 새 migration2개를 적용하고 실제 역할·로그인·동시 제출을 확인해야 합니다. [최종 로컬 검증 보고서](../../.memory/validation/2026-11-02-v02-feedback-release/report.md)에 실기기·GPU·원격 검증 범위를 구분했습니다. 소스가 바뀐 현재 `docs:check`의 배포 지문 오류는 정상적인 차단이며 우회하지 않습니다.
 
-## v0.2d 로컬 작업
+## v0.2d 반영사항
 
-로컬 개발 버전은0.2d이며 운영은0.2c를 유지합니다. 이번 로컬 규칙은 AEGIS 충전30초,0.3초 회복,4단계 보스 벽 난이도,고유 패턴 추가와 벽 사이 짧은 줄 레이저입니다. docs:build는 문서를 갱신하지만 배포를 준비하지 않습니다. docs:check의 게임 지문 불일치는 배포 요청 전까지 의도한 차단이며 우회하지 않습니다. 다음 배포 때 release:prepare로 테스트와 문서·새 스냅샷을 검증합니다. 플레이어 업데이트 내역은 이전 원고를 유지합니다.
+개발·운영 버전은0.2d이며 다음 기본 배포는0.2e입니다. 이번 규칙은 AEGIS 충전30초,0.3초 회복,4단계 보스 벽 난이도,고유 패턴 추가와 벽 사이 짧은 줄 레이저입니다. docs:build는 문서를 갱신하지만 버전을 올리지 않습니다. 실제 배포는 release:prepare로 테스트와 문서·새 스냅샷을 검증합니다. 플레이어 업데이트 내역은 사용자가 작성한 문구만 앞에 쌓으며 이전 원고는 유지합니다.
 
 후속 조정: 보스 처치 후 추가2벽을 제거해 기존 벽이 빠지면 포탈로 전환합니다. AEGIS는 준비1초+발사0.2초 동안 조작이 제한되며 충전30초·한 발 처치는 유지합니다. NOVA·VELOCITY 발사 동작은 기존0.7초입니다.

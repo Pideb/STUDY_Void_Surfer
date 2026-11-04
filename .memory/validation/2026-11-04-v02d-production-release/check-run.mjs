@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 const dir='.memory/validation/2026-11-04-v02d-production-release';
 const head=process.argv[2]??execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim();
-const res=await fetch('https://api.github.com/repos/Pideb/STUDY_Void_Surfer/actions/runs?branch=main&event=push&head_sha='+head+'&per_page=10',{headers:{'User-Agent':'void-surfer-release-v02d'},signal:AbortSignal.timeout(15000)});
+const res=await fetch('https://api.github.com/repos/Pideb/STUDY_Void_Surfer/actions/runs?branch=main&event=push&head_sha='+head+'&per_page=10&check='+Date.now(),{headers:{'User-Agent':'void-surfer-release-v02d','Cache-Control':'no-cache'},signal:AbortSignal.timeout(15000)});
 assert.equal(res.status,200,'GitHub push workflow discovery failed');
 const data=await res.json(),run=data.workflow_runs.find(r=>r.head_sha===head&&r.path.includes('azure-static-web-apps'));
 const status=run?{id:run.id,name:run.name,status:run.status,conclusion:run.conclusion,headSha:run.head_sha,url:run.html_url,createdAt:run.created_at,updatedAt:run.updated_at,path:run.path}:{status:'not-listed',headSha:head};

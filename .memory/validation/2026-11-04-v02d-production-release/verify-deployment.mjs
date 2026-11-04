@@ -10,7 +10,7 @@ const suffix=process.argv[3]??'deployment';
 const registry=JSON.parse(fs.readFileSync('docs/management/releases.json','utf8'));
 assert.equal(registry.currentVersion,'0.2d');
 const origin='https://proud-grass-03a132e00.6.azurestaticapps.net';
-const res=await fetch('https://api.github.com/repos/Pideb/STUDY_Void_Surfer/actions/runs?branch=main&event=push&head_sha='+head+'&per_page=10',{headers:{'User-Agent':'void-surfer-release-v02d'},signal:AbortSignal.timeout(15000)});
+const res=await fetch('https://api.github.com/repos/Pideb/STUDY_Void_Surfer/actions/runs?branch=main&event=push&head_sha='+head+'&per_page=10&check='+Date.now(),{headers:{'User-Agent':'void-surfer-release-v02d','Cache-Control':'no-cache'},signal:AbortSignal.timeout(15000)});
 assert.equal(res.status,200);
 const data=await res.json(),run=data.workflow_runs.find(r=>r.head_sha===head&&r.path.includes('azure-static-web-apps'));
 assert.ok(run,'Exact HEAD run is required');assert.equal(run.status,'completed');assert.equal(run.conclusion,'success');

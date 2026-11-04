@@ -319,7 +319,7 @@
       "date": "2026-11-04",
       "title": "보스 난이도 완화 및 AEGIS 밸런스 조정",
       "summary": "보스 난이도 추가 완화 · AEGIS 기체 밸런스 조정",
-      "status": "validated-pending-deployment",
+      "status": "deployed-verified",
       "sourceCommit": "94549cc5c06cf25fbf0dbbbeea4c01e10381e3bf",
       "sourceContext": {
         "head": "94549cc5c06cf25fbf0dbbbeea4c01e10381e3bf",
@@ -342,6 +342,14 @@
           "AEGIS 기체 밸런스 조정"
         ],
         "fixed": []
+      },
+      "deployment": {
+        "headSha": "c47a0edef8889df1dbb6a35b823f1f7bfdfd3c38",
+        "runId": 41787120805,
+        "runUrl": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41787120805",
+        "completedAtUtc": "2026-11-04T06:42:38Z",
+        "bundleSha256": "72521104f79b7de9dc8149a6a65f70718cdeaabfe132055ef7fdeb29336e062e",
+        "origin": "https://proud-grass-03a132e00.6.azurestaticapps.net"
       }
     }
   ],

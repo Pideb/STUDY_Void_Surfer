@@ -1,0 +1,59 @@
+{
+  "checkedAtUtc": "2026-11-04T06:43:27.580Z",
+  "headSha": "c47a0edef8889df1dbb6a35b823f1f7bfdfd3c38",
+  "assets": [
+    {
+      "url": "/assets/index-CR5Bub-o.js",
+      "sha256": "72521104f79b7de9dc8149a6a65f70718cdeaabfe132055ef7fdeb29336e062e",
+      "bytes": 455383
+    },
+    {
+      "url": "/assets/index-DKapGXDU.css",
+      "sha256": "703b2d70edb6489fa2d9c8fa02ae7b804b42e6e03b5497edeed0b4b743a14ed4",
+      "bytes": 47219
+    }
+  ],
+  "guideExactMatch": true,
+  "guideEntries": [
+    {
+      "version": "v0.2d",
+      "body": [
+        "보스 난이도 추가 완화",
+        "AEGIS 기체 밸런스 조정"
+      ]
+    },
+    {
+      "version": "v0.2c",
+      "body": [
+        "기체별 랭킹 세부화"
+      ]
+    },
+    {
+      "version": "v0.2b",
+      "body": [
+        "플레이어가 보스 공격시 피격 판정 개선",
+        "GUEST 랭킹 불러오기 이슈 수정"
+      ]
+    },
+    {
+      "version": "v0.2",
+      "body": [
+        "보스 난이도 완화",
+        "'저속 -> 고속 -> 변속 -> 랜덤' 순으로 보스 등장되게 변경",
+        "일부 디자인 수정",
+        "키보드 플레이 대응",
+        "재시작 방식 변경",
+        "모든 기체 임시 해금",
+        "모바일 플레이 대응 (베타)"
+      ]
+    }
+  ],
+  "run": {
+    "id": 41787120805,
+    "status": "completed",
+    "conclusion": "success",
+    "headSha": "c47a0edef8889df1dbb6a35b823f1f7bfdfd3c38",
+    "url": "https://github.com/Pideb/STUDY_Void_Surfer/actions/runs/41787120805"
+  },
+  "remoteWrites": false
+}
