@@ -1,5 +1,7 @@
-export function createBossWeapon() {
-  return { chargeSeconds: 0, rechargeSeconds: 10, ready: false, firing: null };
+import { getAircraftDefinition } from './aircraft.js';
+
+export function createBossWeapon(aircraftId = 'default') {
+  return { chargeSeconds: 0, rechargeSeconds: getAircraftDefinition(aircraftId).bossLaserRechargeSeconds, ready: false, firing: null };
 }
 
 export function startBossWeapon(weapon, shot) {

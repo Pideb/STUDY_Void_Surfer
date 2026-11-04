@@ -5,7 +5,7 @@ export function getBossHealth() {
   return BOSS_REQUIRED_CHALLENGES;
 }
 
-export function createBossEncounter(number, stageId = 'crystal-gates') {
+export function createBossEncounter(number, stageId = 'crystal-gates', aircraftId = 'default') {
   const safeNumber = Math.max(1, Math.trunc(Number(number) || 1));
   const maxHp = getBossHealth();
 
@@ -38,7 +38,7 @@ export function createBossEncounter(number, stageId = 'crystal-gates') {
     successfulChallenges: 0,
     laserHits: 0,
     damageTaken: 0,
-    weapon: createBossWeapon(),
+    weapon: createBossWeapon(aircraftId),
     requiredChallenges: maxHp,
     attack: null,
     normalWallsSinceAttack: 0,

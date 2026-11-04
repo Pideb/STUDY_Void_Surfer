@@ -1,6 +1,6 @@
-# Task: T01 Flight recovery and AEGIS recharge
+﻿# Task: T01 Flight recovery and AEGIS recharge
 
-## Status: pending
+## Status: done
 
 ## Goal
 Flight recovery and AEGIS recharge, according to confirmed decisions for 2026-11-04-v02d-gameplay-balance. Finish independently verifiable behavior before advancing.
@@ -19,6 +19,7 @@ Flight recovery and AEGIS recharge, according to confirmed decisions for 2026-11
 - src/game/boss-weapon.js :: createBossWeapon(aircraftId='default').
 - src/game/boss.js :: createBossEncounter(number,stageId='crystal-gates',aircraftId='default').
 - src/ui/screens.js :: aircraft/preflight copy.
+- src/ui/app-controller.js :: actual aircraft selection description, include30s recharge.
 - tests/game/boss-weapon.test.js, tests/integration/manual-boss-fire.test.js, tests/game/wasd-challenge.test.js; add tests/game/flight-recovery.test.js.
 - scripts/game-catalog.mjs and documentation templates are handled in T04.
 
@@ -33,9 +34,9 @@ Test both challenge outcomes, weapon expiry with fractional dt, zero downward ca
 Add/update meaningful behavior tests for the specified edge cases. No test-only changes to production cadence. Fix regressions caused by these exact behavior changes; report other findings separately.
 
 ## Acceptance Criteria
-- [ ] All specified user-visible behaviors implemented.
-- [ ] Targeted commands pass; no protected deployment history altered.
-- [ ] Task status/progress and current pointer synchronized after commit.
+- [x] All specified user-visible behaviors implemented.
+- [x] Targeted commands pass; no protected deployment history altered.
+- [x] Task status/progress and current pointer synchronized after commit.
 
 ## Validation
 - `npm test -- --run tests/game/boss-weapon.test.js tests/game/flight-recovery.test.js tests/game/wasd-challenge.test.js tests/integration/manual-boss-fire.test.js tests/game/aircraft.test.js tests/ui/screens.test.js`
@@ -52,7 +53,8 @@ Task: T01-flight-recovery-aegis
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: 111 tests across7 files passed. Commit: task commit containing this blueprint.
+
 

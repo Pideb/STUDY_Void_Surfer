@@ -322,7 +322,7 @@ export function createGameEngine(deps = {}) {
       laserPlan: undefined,
     };
     bossEncounter = isBoss
-      ? createBossEncounter(warningIndex, getStageState().definition.id)
+      ? createBossEncounter(warningIndex, getStageState().definition.id, aircraft.id)
       : null;
     if (bossEncounter) {
       const entrySpeed = Number.isFinite(currentScrollSpeed) && currentScrollSpeed > 0
@@ -680,11 +680,15 @@ export function createGameEngine(deps = {}) {
     }
   }
 
+  function beginPlayerRecovery() {
+    player.velocityY = Math.min(0, player.velocityY);
+    playerRecovery.remainingSeconds = playerRecovery.durationSeconds;
+  }
+
   function resolveChallenge() {
     if (!challenge || challenge.result === 'pending' || challenge.resolved) return;
     challenge.resolved = true;
-    player.velocityY = Math.min(0, player.velocityY);
-    playerRecovery.remainingSeconds = playerRecovery.durationSeconds;
+    beginPlayerRecovery();
     if (challenge.result === 'failure') feedbackEffect = createChallengeFailureEffect(rng);
     if (bossEncounter) {
       advanceBossEncounter(bossEncounter, challenge.result === 'success' ? 'challenge-success' : 'challenge-failure');
@@ -970,6 +974,10 @@ export function createGameEngine(deps = {}) {
     const previousPlayer = { ...player };
     const firing = bossEncounter?.weapon.firing;
     const lockedSeconds = firing ? Math.min(deltaSeconds, Math.max(0, firing.durationSeconds - firing.elapsedSeconds)) : 0;
+    // Reset old downward momentum at the lock boundary, including a partial
+    // frame's unlocked flight. Upward momentum and ordinary lift stay intact.
+    if (firing && firing.elapsedSeconds < firing.durationSeconds
+      && firing.elapsedSeconds + deltaSeconds + 1e-9 >= firing.durationSeconds) beginPlayerRecovery();
     if (deltaSeconds > lockedSeconds) {
       const flightSeconds = deltaSeconds - lockedSeconds;
       const recoverySeconds = Math.min(flightSeconds, playerRecovery.remainingSeconds);

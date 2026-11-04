@@ -280,7 +280,7 @@ export function renderTutorialScreen(_model, handlers) {
     '클릭/터치/↑: 위로 상승',
     'SPACE: 대시 (회피)',
     '특수 벽은 정확한 타이밍의 SPACE 대시로만 통과합니다',
-    '보스전에서는 10초마다 레이저가 충전됩니다. Ctrl/Shift 키로 발사하세요',
+    '보스전 레이저 충전: NOVA·VELOCITY 10초 / AEGIS 30초. Ctrl/Shift 키로 발사하세요',
     'P/Esc 또는 일시정지 버튼: 일시정지 (-10점)',
   ]) {
     const item = document.createElement('li');

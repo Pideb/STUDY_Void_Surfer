@@ -2,6 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { createBossWeapon, advanceBossWeapon, startBossWeapon } from '../../src/game/boss-weapon.js';
 
 describe('independent boss weapon', () => {
+  it.each([['aegis',30],['default',10],['velocity',10]])('%s uses its own first and subsequent %ss recharge', (id, seconds) => {
+    const w = createBossWeapon(id);
+    advanceBossWeapon(w, seconds - .01); expect(w.ready).toBe(false);
+    advanceBossWeapon(w, .01); expect(w.ready).toBe(true);
+    advanceBossWeapon(w, 100); expect(w.chargeSeconds).toBe(seconds);
+    startBossWeapon(w, {fromX:240,fromY:270,toX:960,toY:270});
+    advanceBossWeapon(w, seconds - .01); expect(w.ready).toBe(false);
+    advanceBossWeapon(w, .01); expect(w.ready).toBe(true);
+    expect(createBossWeapon(id)).toMatchObject({chargeSeconds:0,ready:false,rechargeSeconds:seconds});
+  });
   it('stores one shot after ten seconds, never banks a second shot', () => {
     const w = createBossWeapon();
     advanceBossWeapon(w, 9.99); expect(w.ready).toBe(false);

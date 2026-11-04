@@ -76,7 +76,7 @@ function getHangarAircraft(bestScore, guest = false) {
       : craft.id === 'aegis' ? '무겁지만 정밀한 조작이 가능한 기체' : '균형 잡힌 기본 기체',
     stats: (craft.id === 'velocity'
       ? '시작 속도 ×2 · 최종 점수 ×1.5'
-      : craft.id === 'aegis' ? '중력 ×1.3 · 상승력 70% · 보스 레이저 1발 처치' : '속도 · 중력 · 상승력 표준'),
+      : craft.id === 'aegis' ? '중력 ×1.3 · 상승력 70% · 보스 레이저 1발 처치 · 충전 30초' : '속도 · 중력 · 상승력 표준'),
   }));
 }
 

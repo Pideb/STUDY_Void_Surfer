@@ -56,6 +56,7 @@ const definitions = [
   ...definition,
   speedCapScore: definition.id === AIRCRAFT_IDS.VELOCITY ? VELOCITY_SPEED_CAP_SCORE : SPEED_CAP_SCORE,
   bossLaserDamage: definition.id === AIRCRAFT_IDS.AEGIS ? 3 : 1,
+  bossLaserRechargeSeconds: definition.id === AIRCRAFT_IDS.AEGIS ? 30 : 10,
 }));
 
 export const AIRCRAFT_CATALOG = Object.freeze(definitions);
