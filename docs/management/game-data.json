@@ -127,6 +127,8 @@
       "speedCapScore": 220,
       "bossLaserDamage": 1,
       "bossLaserRechargeSeconds": 10,
+      "bossLaserWindupSeconds": 0.5,
+      "bossLaserActiveSeconds": 0.2,
       "gravity": 900,
       "lift": 360,
       "startingSpeed": 240,
@@ -287,6 +289,8 @@
       "speedCapScore": 220,
       "bossLaserDamage": 3,
       "bossLaserRechargeSeconds": 30,
+      "bossLaserWindupSeconds": 1,
+      "bossLaserActiveSeconds": 0.2,
       "gravity": 1170,
       "lift": 251.99999999999997,
       "startingSpeed": 240,
@@ -447,6 +451,8 @@
       "speedCapScore": 220,
       "bossLaserDamage": 1,
       "bossLaserRechargeSeconds": 10,
+      "bossLaserWindupSeconds": 0.5,
+      "bossLaserActiveSeconds": 0.2,
       "gravity": 900,
       "lift": 360,
       "startingSpeed": 480,
@@ -786,6 +792,8 @@
   "weapon": {
     "chargeSeconds": 0,
     "rechargeSeconds": 10,
+    "windupSeconds": 0.5,
+    "activeSeconds": 0.2,
     "ready": false,
     "firing": null,
     "rechargeByAircraft": {
@@ -793,9 +801,25 @@
       "aegis": 30,
       "velocity": 10
     },
+    "timingByAircraft": {
+      "default": {
+        "windupSeconds": 0.5,
+        "activeSeconds": 0.2,
+        "lockedSeconds": 0.7
+      },
+      "aegis": {
+        "windupSeconds": 1,
+        "activeSeconds": 0.2,
+        "lockedSeconds": 1.2
+      },
+      "velocity": {
+        "windupSeconds": 0.5,
+        "activeSeconds": 0.2,
+        "lockedSeconds": 0.7
+      }
+    },
     "chargeBeforeFire": 0.5,
     "lockedSeconds": 0.7,
-    "activeSeconds": 0.2,
     "hp": 3
   },
   "lineLaser": {
@@ -882,7 +906,8 @@
     "repeatWalls": 15,
     "resetAt": "stage-arrival",
     "excludeBossWalls": true,
-    "excludeTransitionWalls": true
+    "excludeTransitionWalls": true,
+    "postClearExtraWalls": 0
   },
   "ranking": {
     "order": [
@@ -1035,14 +1060,14 @@
       "trigger": "일반벽 20개",
       "group": "보스",
       "title": "첫 BOSS · 저속",
-      "body": "20개를 통과하고 남은 벽이 화면 밖까지 나간 뒤 진입합니다. 이후 새 지역 도착부터 일반벽15개마다 다음 보스. 보스 벽·전환 추가벽은 제외합니다."
+      "body": "20개를 통과하고 남은 벽이 화면 밖까지 나간 뒤 진입합니다. 클리어 후 추가 벽 없이 기존 벽만 빠지면 포탈 전환, 새 지역 도착부터 일반벽15개마다 다음 보스입니다."
     },
     {
       "id": "aegis",
       "trigger": "임시 해금 / 원래 최고 50점",
       "group": "계정",
       "title": "AEGIS",
-      "body": "중력1.3배·상승력70%. 보스 레이저1발로 HP3칸 제거. 첫 충전·재충전30초, 최대1발 저장. 원래 해금 기준은 임시 기간 뒤 복구합니다."
+      "body": "중력1.3배·상승력70%. 보스 레이저1발로 HP3칸 제거. 충전30초, 최대1발. 발사 준비1초+빔0.2초=조작 제한1.2초. 원래 해금 기준은 임시 기간 뒤 복구합니다."
     },
     {
       "id": "velocity",
@@ -1131,7 +1156,7 @@
   },
   "generatedAt": "2026-11-04",
   "gameFingerprint": "a88178007552c076db8d1ab7e697369cfe827d58f1384b7124ec4ce97ca879ec",
-  "localGameFingerprint": "f430138356225d73b0f6a07377c019631dc5013effb0def439898027082bc660",
+  "localGameFingerprint": "73ff3dc2f847a0cd65289598f9052776e7bdc2089a1875b8785d3bba0721c439",
   "localChanges": true,
   "developmentVersion": "0.2d"
 }

@@ -254,7 +254,7 @@ describe('game engine', () => {
         phases.add(transition.phase);
         expect(cleared).toBe(true);
         expect(snapshot.obstacles).toHaveLength(0);
-        expect(snapshot.score).toBe(postClearScore+2);
+        expect(snapshot.score).toBe(postClearScore);
         expect(snapshot.boss).toBeNull();
         expect(snapshot.bossPreview).toBeNull();
         expect(snapshot.warning).toBeNull();

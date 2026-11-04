@@ -10,6 +10,7 @@ import {collectGameCatalog} from '../../scripts/game-catalog.mjs';
 import {getBossWallRules} from '../../src/game/difficulty.js';
 import {sampleProjectileSpeed} from '../../src/game/projectile-speed.js';
 import {createChallenge} from '../../src/game/wasd-challenge.js';
+import {createBossWeapon} from '../../src/game/boss-weapon.js';
 describe('management preview parity',()=>{
   it('reads current boss tiers, cadence and challenge times instead of archived tuning',()=>{
     const data=collectGameCatalog();expect(data.bossCadence).toMatchObject({firstWalls:20,repeatWalls:15,resetAt:'stage-arrival'});expect(data.feedbackAccess.expiresAtBase).toBe('0.3');expect(data.ranking.durationVisible).toBe(false);
@@ -17,6 +18,10 @@ describe('management preview parity',()=>{
     for(const c of data.challenges){expect(c.seconds).toBe(createChallenge({bossNumber:c.boss}).timeLimitSeconds);expect(c.min).toBeGreaterThanOrEqual(4);}
     expect(data.unlocks.find(u=>u.id==='boss1').trigger).toBe('일반벽 20개');expect(data.uniqueAttacks).toHaveLength(6);expect(data.challengeFeedback.glitchBlackoutSeconds).toBe(.18);
     expect(data.weapon.rechargeByAircraft).toEqual({default:10,aegis:30,velocity:10});
+    expect(data.bossCadence.postClearExtraWalls).toBe(0);
+    for(const c of AIRCRAFT_CATALOG){const w=createBossWeapon(c.id);
+      expect(data.weapon.timingByAircraft[c.id]).toEqual({windupSeconds:w.windupSeconds,activeSeconds:w.activeSeconds,lockedSeconds:w.windupSeconds+w.activeSeconds});}
+    expect(data.weapon.timingByAircraft.aegis).toEqual({windupSeconds:1,activeSeconds:.2,lockedSeconds:1.2});
     expect(data.lineLaser).toMatchObject({activeSeconds:.2,telegraphSeconds:.7,clearGapFraction:.25,pauseSpawns:false});
     expect(data.bossRound).toMatchObject({extraUniqueChance:.5,consecutiveUnique:false});
     expect(data.challengeFeedback.recoverySeconds).toBe(.3);

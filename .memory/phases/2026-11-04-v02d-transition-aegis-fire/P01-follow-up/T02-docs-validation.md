@@ -1,6 +1,6 @@
 # Task: T02 references and final validation
 
-## Status: pending
+## Status: done
 
 ## Goal
 Local game descriptions and HTML references accurately describe no extra transition walls and craft-specific firing time, while preserving operating0.2c history and local0.2d.
@@ -23,9 +23,9 @@ Local game descriptions and HTML references accurately describe no extra transit
 - Synchronize task/phase/current and commit. Existing prior untracked previews remain untouched. No external service writes or measured-device performance claims.
 
 ## Acceptance Criteria
-- [ ] All current documentation reflects both changes and authored update history is preserved.
-- [ ] Full tests/build/config/guide pass; generated reference equality and snapshot protection pass.
-- [ ] Operating history/fingerprint/versions preserved and no deployment.
+- [x] All current documentation reflects both changes and authored update history is preserved.
+- [x] Full tests/build/config/guide pass; generated reference equality and snapshot protection pass.
+- [x] Operating history/fingerprint/versions preserved and no deployment.
 
 ## Validation
 - `npm run guide:build`; `npm run docs:build`; `npm test -- --run`; `npm run build`; `npm run verify:config`; `npm run guide:check`; `npm run docs:check` (expected source gate); `git diff --check`.
@@ -40,6 +40,6 @@ Task: T02-docs-validation
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed:1450 tests in89 files, build/config/guide/canonical outputs/snapshots. docs:check expected pre-release source gate retained.
+- commit: containing task commit
