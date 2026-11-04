@@ -38,11 +38,11 @@ export function getBossSpeedMultiplier(pattern, elapsedSeconds = 0) {
   return Math.floor(normalizeElapsed(elapsedSeconds) / 2) % 2 === 0 ? BOSS_SLOW_MULTIPLIER : BOSS_FAST_MULTIPLIER;
 }
 export function getBossWallRules(bossNumber) {
-  const first = normalizeBossCount(bossNumber) <= 1;
-  return { gapHeight: first ? BASE_GAP_HEIGHT : BASE_GAP_HEIGHT * WARNING_GAP_MULTIPLIER,
-    spawnIntervalSeconds: first ? NORMAL_SPAWN_INTERVAL_SECONDS : WARNING_SPAWN_INTERVAL_SECONDS,
-    specialChance: first ? NORMAL_SPECIAL_CHANCE : WARNING_SPECIAL_CHANCE,
-    minSpecials: first ? 0 : BOSS_MIN_SPECIALS,
+  const tier = Math.min(4, Math.max(1, normalizeBossCount(bossNumber))) - 1;
+  return { gapHeight: [BASE_GAP_HEIGHT,165,150,BASE_GAP_HEIGHT * WARNING_GAP_MULTIPLIER][tier],
+    spawnIntervalSeconds: [NORMAL_SPAWN_INTERVAL_SECONDS,1.8,1.6,WARNING_SPAWN_INTERVAL_SECONDS][tier],
+    specialChance: [NORMAL_SPECIAL_CHANCE,.3,.4,WARNING_SPECIAL_CHANCE][tier],
+    minSpecials: [0,1,2,BOSS_MIN_SPECIALS][tier],
     timingWindowSeconds: NORMAL_TIMING_WINDOW_SECONDS };
 }
 export function getDifficulty(score, elapsedSeconds, completedBossCount, rng = Math.random, bossPatternOverride = null, nextWarningScore = WARNING_START_SCORE, progressionScore = score, firstBossCleared = false, aircraftId = 'default', context = null) {

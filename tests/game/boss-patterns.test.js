@@ -3,13 +3,32 @@ import {createBossPatternRound} from '../../src/game/boss-patterns.js';
 import {createGameEngine} from "../helpers/engine-fixtures.js";
 
 describe('shuffled complete boss rounds',()=>{
+  it('adds a second unique in roughly half the rounds and never duplicates other blocks',()=>{
+    let state=9817,extra=0,previous=null;
+    const rng=()=>{state=(Math.imul(state,1664525)+1013904223)>>>0;return state/4294967296;};
+    for(let i=0;i<10000;i++){
+      const round=createBossPatternRound(2,rng,previous);
+      if(round.length===6)extra++;
+      for(const kind of ['walls','signature','global','challenge'])expect(round.filter(x=>x===kind)).toHaveLength(1);
+      expect(round[0]).not.toBe(previous);
+      expect([previous,...round].some((x,j,a)=>x==='unique'&&a[j+1]==='unique')).toBe(false);
+      previous=round.at(-1);
+    }
+    expect(extra).toBeGreaterThan(4700);expect(extra).toBeLessThan(5300);
+    expect(createBossPatternRound(2,()=>.499)).toHaveLength(6);
+    expect(createBossPatternRound(2,()=>.5)).toHaveLength(5);
+  });
   it('includes every eligible block and permits every first position',()=>{
     const first=new Set();
     for(let seed=0;seed<10000;seed++){
       let n=seed;const rng=()=>{n=(Math.imul(n,1664525)+1013904223)>>>0;return n/4294967296;};
       const round=createBossPatternRound(2,rng);first.add(round[0]);
-      expect([...round].sort()).toEqual(['challenge','global','signature','unique','walls']);
+      expect([...new Set(round)].sort()).toEqual(['challenge','global','signature','unique','walls']);
+      expect(round.filter(x=>x==='unique').length).toBeGreaterThanOrEqual(1);
+      expect(round.filter(x=>x==='unique').length).toBeLessThanOrEqual(2);
       const next=createBossPatternRound(2,rng,round.at(-1));expect(next[0]).not.toBe(round.at(-1));
+      const joined=[...round,...next];
+      expect(joined.some((x,i)=>x==='unique'&&joined[i+1]==='unique')).toBe(false);
       expect(createBossPatternRound(1,rng)).not.toContain('global');
     }
     expect(first.size).toBe(5);
@@ -26,7 +45,7 @@ describe('shuffled complete boss rounds',()=>{
         rounds.set(boss.cycleNumber,[...boss.patternQueue]);
         if(previous)expect(boss.patternQueue[0]).not.toBe(previous.at(-1));previous=[...boss.patternQueue];
         const copy=engine.getSnapshot();copy.boss.patternQueue.length=0;copy.boss.completedPatterns.push('corruption');
-        expect(engine.getSnapshot().boss.patternQueue.length).toBe(number===1?3:5);
+        expect(engine.getSnapshot().boss.patternQueue.length).toBe(boss.patternQueue.length);
         expect(engine.getSnapshot().boss.completedPatterns).not.toContain('corruption');
       }
       const pattern=boss.patternQueue[boss.patternIndex];

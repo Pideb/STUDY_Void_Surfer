@@ -118,4 +118,7 @@ describe('difficulty', () => {
   });
 });
 
-it("uses staged boss wall rules without narrowing timing",()=>{ expect(getBossWallRules(1)).toEqual({gapHeight:180,spawnIntervalSeconds:2,specialChance:.2,minSpecials:0,timingWindowSeconds:.3}); for(const n of [2,3,9]) expect(getBossWallRules(n)).toEqual({gapHeight:135,spawnIntervalSeconds:1.4,specialChance:.5,minSpecials:3,timingWindowSeconds:.3}); });
+it.each([[1,180,2,.2,0],[2,165,1.8,.3,1],[3,150,1.6,.4,2],[4,135,1.4,.5,3],[9,135,1.4,.5,3]])(
+  'boss%s ramps wall geometry and quotas without narrowing timing',(n,gapHeight,spawnIntervalSeconds,specialChance,minSpecials)=>{
+    expect(getBossWallRules(n)).toEqual({gapHeight,spawnIntervalSeconds,specialChance,minSpecials,timingWindowSeconds:.3});
+  });

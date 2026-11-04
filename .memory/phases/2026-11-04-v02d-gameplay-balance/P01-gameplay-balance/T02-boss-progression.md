@@ -1,6 +1,6 @@
-# Task: T02 Gradual boss walls and unique pattern frequency
+﻿# Task: T02 Gradual boss walls and unique pattern frequency
 
-## Status: pending
+## Status: done
 
 ## Goal
 Gradual boss walls and unique pattern frequency, according to confirmed decisions for 2026-11-04-v02d-gameplay-balance. Finish independently verifiable behavior before advancing.
@@ -28,9 +28,9 @@ Tests seeded distribution approximate50%, exactly1or2 unique, each other block o
 Add/update meaningful behavior tests for the specified edge cases. No test-only changes to production cadence. Fix regressions caused by these exact behavior changes; report other findings separately.
 
 ## Acceptance Criteria
-- [ ] All specified user-visible behaviors implemented.
-- [ ] Targeted commands pass; no protected deployment history altered.
-- [ ] Task status/progress and current pointer synchronized after commit.
+- [x] All specified user-visible behaviors implemented.
+- [x] Targeted commands pass; no protected deployment history altered.
+- [x] Task status/progress and current pointer synchronized after commit.
 
 ## Validation
 - `npm test -- --run tests/game/difficulty.test.js tests/game/boss-patterns.test.js tests/game/boss-flow.test.js tests/game/boss-cadence.test.js`
@@ -47,7 +47,8 @@ Task: T02-boss-progression
 ```
 
 ## Progress
-- [ ] Implementation complete
-- [ ] Validation passed
-- commit: pending
+- [x] Implementation complete
+- [x] Validation passed
+- Validation: 32 targeted tests passed, including10000 seeded rounds. Commit: containing task commit.
+
 
